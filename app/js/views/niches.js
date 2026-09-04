@@ -283,6 +283,11 @@ export function openNicheForm(existing) {
         <label>Notes</label>
         <textarea id="nf-notes">${esc(n.notes || "")}</textarea>
       </div>
+      <div class="field">
+        <label>Discovery search phrase (optional)</label>
+        <input id="nf-search-query" type="text" value="${esc(n.search_query || "")}" placeholder="Leave blank to search for &quot;${esc(n.name || "this niche's name")}&quot;" />
+        <div class="hint">What the Discovery tab types into Google Maps for this niche — e.g. "gym" instead of "Fitness &amp; Gyms".</div>
+      </div>
       <button class="btn btn-primary" id="nf-save">${existing ? "Save Changes" : "Add Niche"}</button>
       ${existing ? `<button class="btn btn-danger" id="nf-delete" style="margin-top:10px;">Delete Niche</button>` : ""}
     </div>
@@ -291,7 +296,7 @@ export function openNicheForm(existing) {
   box.querySelector("#nf-save").addEventListener("click", async () => {
     const name = box.querySelector("#nf-name").value.trim();
     if (!name) return toast("Niche name is required", "error");
-    const payload = { name, notes: box.querySelector("#nf-notes").value.trim() };
+    const payload = { name, notes: box.querySelector("#nf-notes").value.trim(), search_query: box.querySelector("#nf-search-query").value.trim() };
     DIMENSIONS.forEach(([key]) => { payload[key] = Number(box.querySelector(`#nf-${key}`).value) || 3; });
 
     if (existing) {

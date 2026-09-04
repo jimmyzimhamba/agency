@@ -7,6 +7,7 @@ import { initGlobalSearch } from "./globalSearch.js";
 import { initTheme, toggleTheme } from "./theme.js";
 
 import { renderPipeline, initPipelineView, openAddProspectSheet } from "./views/pipeline.js";
+import { renderDiscovery, initDiscoveryView } from "./views/discovery.js";
 import { openProspectDetail } from "./views/prospectDetail.js";
 import { renderDashboard, initDashboardView } from "./views/dashboard.js";
 import { renderNiches, initNichesView } from "./views/niches.js";
@@ -27,6 +28,7 @@ import { renderCommunity, initCommunityView } from "./views/community.js";
 
 const VIEWS = {
   pipeline: renderPipeline,
+  discovery: renderDiscovery,
   dashboard: renderDashboard,
   tasks: renderTasks,
   messages: renderMessages,
@@ -72,6 +74,9 @@ export function switchView(name) {
 function openMoreMenu() {
   const box = el(`
     <div>
+      <div class="task-row" data-go="discovery" style="cursor:pointer;">
+        <div class="task-label">Discovery</div>
+      </div>
       <div class="task-row" data-go="niches" style="cursor:pointer;">
         <div class="task-label">Niche Strategy Matrix</div>
       </div>
@@ -441,6 +446,7 @@ async function enterApp(session) {
     wireChrome();
 
     initPipelineView();
+    initDiscoveryView();
     initDashboardView();
     initNichesView();
     initMessagesView();

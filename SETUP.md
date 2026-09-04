@@ -1775,3 +1775,64 @@ New posts also get a single line in the Team Activity Feed ("Jane posted in the 
 12. As a non-owner, confirm you CAN delete your own comment (but not someone else's), and confirm the owner can delete anyone's comment.
 13. Check the **Team Activity Feed** → confirm each new post you made shows up there as a single line, but comments and likes do not.
 14. On another device (or have a teammate check), confirm a new post, comment, or like shows up there too within a second or two — this is Realtime doing its job, same as every other tab.
+
+---
+
+## Step 143 — Lead Discovery (search Google Maps for real businesses)
+
+A new **Discovery** tab, right next to **Prospects**. Instead of only adding prospects one-by-one or via Bulk Import, you can now search Google Maps for real businesses by niche + area (e.g. "Solar Installers in Borrowdale") and add the ones worth pursuing straight into the pipeline with one tap. **This one has a real, ongoing cost** — Google charges per search — so read the cost section before turning it on.
+
+**What it does:** you pick a niche and (optionally) type an area, tap **Search Google Maps**, and get back a list of real businesses with their address, phone number, rating, and whether they already have a website — pulled live from Google. Anything already in your pipeline (matched by the exact Google listing) shows greyed out as **"In pipeline"** so you never add the same business twice. Check the ones worth pursuing, tap **Add Selected**, and they're added and automatically sent to AI Research (Step 8) if that's set up — same as adding a prospect by hand.
+
+Each niche also gets an optional **"Discovery search phrase"** field (Niche Strategy → Edit Niche) — leave it blank and Discovery searches for the niche's name as-is (e.g. "Fitness & Gyms"); fill it in if you want Google to search something shorter/more natural instead (e.g. "gym").
+
+### 143.1 — Add the new database fields
+
+1. In Supabase, click **SQL Editor** → **New query**.
+2. Open **`supabase/migration_lead_discovery.sql`** from this project folder, select all, copy it, paste into the SQL Editor, click **Run**. You should see "Success. No rows returned." Safe to run even twice.
+
+If you're setting this up on a brand-new/empty Supabase project instead, you don't need this file separately — `supabase/schema.sql` (Step 2) already includes these fields and tables.
+
+### 143.2 — Get a Google Maps API key (this one costs money — read this first)
+
+Unlike the free Supabase and free-tier Anthropic setup, **Google Places API is not free** beyond a small monthly credit. You'll need a Google Cloud account with billing (a real card) attached.
+
+1. Go to **console.cloud.google.com** and sign in with any Google account. Create a new project if you don't already have one (top-left project picker → **New Project** → give it any name, e.g. "Studio X Command").
+2. In the search bar at the top, search for **"Places API (New)"** and click **Enable** on it.
+3. You'll be prompted to attach a **Billing account** if you don't have one — this requires a real card. Google gives new accounts **$300 in free credit for 90 days**, and separately, Places API (New) has its own small monthly free allowance — realistically this feature is very cheap at Studio X's scale (see cost section below), but billing must still be turned on for it to work at all.
+4. Go to **APIs & Services → Credentials** → **Create Credentials → API key**. Copy the key that appears.
+5. **Strongly recommended:** click **Edit** on the key you just made → under **API restrictions**, choose **Restrict key** and select only **Places API (New)** → **Save**. This means even if the key ever leaked, it couldn't be used for anything except business searches.
+
+**This key never goes into the app or any file in this project** — it only ever lives inside Supabase's secure backend, in the next step.
+
+### 143.3 — Deploy the discover-places function
+
+1. In Supabase, click **Edge Functions** → **Create a new function** (or **Deploy a new function**).
+2. Name it exactly: `discover-places`
+3. Open **`supabase/functions/discover-places/index.ts`** from this project folder, select all, copy it, and paste it into the code editor, replacing the placeholder.
+4. Click **Deploy**.
+
+### 143.4 — Add your API key as a secret
+
+1. Still in **Edge Functions**, find **Secrets** (sometimes **Manage secrets**).
+2. Add a new secret:
+   - **Name**: `GOOGLE_MAPS_API_KEY`
+   - **Value**: the key you copied in Step 143.2.
+3. Save.
+
+### 143.5 — Redeploy and try it
+
+1. Redeploy the `app/` folder via Netlify Drop, same as any other update — the service worker's cache version was bumped so every phone picks up the new tab automatically.
+2. Reload the app. Open **Discovery** in the sidebar (desktop) or **More → Discovery** (phone).
+3. Pick a niche, optionally type an area (e.g. "Avondale"), tap **Search Google Maps**. Within a few seconds you should see a list of real businesses.
+4. Check a few, tap **Add Selected** → confirm they show up in **Prospects** and (if AI Research is set up) start researching automatically.
+5. Search the same niche/area again → confirm the ones you just added now show greyed out as **"In pipeline"**.
+
+### What this costs, plainly
+
+- Google's Places Text Search (New) costs roughly **$32 per 1,000 searches** (a "search" = one tap of the Search button, regardless of how many results come back, up to 20).
+- **Safety cap**: no single teammate can trigger more than **12 searches per hour** — built into the backend function, not adjustable from the app.
+- Adding a prospect from Discovery results costs nothing extra beyond the search itself — the search is the only billed step.
+- You can watch actual spend anytime in Google Cloud Console under **Billing → Reports**.
+
+If you'd rather skip this feature entirely, that's fine — everything else in the app works exactly as before, and prospects can still be added one at a time or via Bulk Import.

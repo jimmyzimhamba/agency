@@ -2,7 +2,7 @@
 // Makes the app open instantly and work (in read-only "last synced" mode)
 // even with a weak or dropped connection. Bump CACHE_VERSION any time you
 // want to force everyone's phone to fetch fresh files.
-const CACHE_VERSION = "sxc-v150";
+const CACHE_VERSION = "sxc-v151";
 
 // Plain fetch() has no timeout of its own — on a flaky/carrier-throttled
 // mobile-data connection a request can sit "pending" indefinitely instead
@@ -33,6 +33,7 @@ const APP_SHELL = [
   "js/printDoc.js",
   "js/main.js",
   "js/views/pipeline.js",
+  "js/views/discovery.js",
   "js/views/prospectDetail.js",
   "js/views/prospectForm.js",
   "js/views/bulkImport.js",
