@@ -1,7 +1,8 @@
-.env
-.env.local
+*.env
+!*.env.example
 .DS_Store
 venv/
 __pycache__/
 *.pyc
 node_modules/
+data/studio_x.db

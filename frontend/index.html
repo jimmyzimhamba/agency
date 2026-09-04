@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Studio X | Lead Command Center</title>
+  <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+
+<div id="app">
+
+  <!-- Sidebar -->
+  <nav id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">PS<span>|</span>Studio X</div>
+      <div class="logo-sub">Lead Command Center</div>
+    </div>
+    <div class="sidebar-nav" id="sidebar-nav">
+      <!-- Populated by app.js -->
+    </div>
+    <div class="sidebar-footer">
+      studioxmarketing.com
+    </div>
+  </nav>
+
+  <!-- Main content -->
+  <div id="main">
+    <div id="topbar">
+      <button class="btn-hamburger" onclick="toggleSidebar()">☰</button>
+      <h2 id="topbar-title">Dashboard</h2>
+    </div>
+
+    <div id="content">
+      <!-- Dashboard -->
+      <div class="view active" id="view-dashboard"></div>
+
+      <!-- Discover / Find Leads -->
+      <div class="view" id="view-discover"></div>
+
+      <!-- Map -->
+      <div class="view" id="view-map"></div>
+
+      <!-- Pipeline (kanban) -->
+      <div class="view" id="view-pipeline"></div>
+
+      <!-- Table / list -->
+      <div class="view" id="view-table"></div>
+
+      <!-- Content library -->
+      <div class="view" id="view-library"></div>
+
+      <!-- Settings -->
+      <div class="view" id="view-settings"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Prospect detail modal -->
+<div id="modal-overlay">
+  <!-- rendered by prospect-modal.js -->
+</div>
+
+<!-- Toast container -->
+<div id="toast-container"></div>
+
+<!-- Scripts (load order matters) -->
+<script src="/static/js/api.js"></script>
+<script src="/static/js/utils.js"></script>
+<script src="/static/js/prospect-modal.js"></script>
+<script src="/static/js/dashboard.js"></script>
+<script src="/static/js/discover.js"></script>
+<script src="/static/js/table.js"></script>
+<script src="/static/js/pipeline.js"></script>
+<script src="/static/js/map-view.js"></script>
+<script src="/static/js/library.js"></script>
+<script src="/static/js/settings-view.js"></script>
+<script src="/static/js/app.js"></script>
+
+</body>
+</html>

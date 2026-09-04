@@ -1,0 +1,94 @@
+{
+  "studio_x": {
+    "name": "Studio X Marketing",
+    "website": "https://studioxmarketing.com",
+    "phone": "",
+    "whatsapp": "",
+    "email": "",
+    "sender_first_name": "Tino"
+  },
+  "default_city": "Harare",
+  "default_country": "Zimbabwe",
+  "niches": [
+    {
+      "id": "aesthetics",
+      "label": "Private Healthcare & Aesthetics",
+      "icon": "💉",
+      "description": "Medical spas, aesthetics clinics, dental, dermatology, optometry, physiotherapy, fertility",
+      "queries": [
+        "aesthetics clinic",
+        "medical spa",
+        "dental clinic",
+        "dermatology clinic",
+        "optometry clinic",
+        "physiotherapy clinic",
+        "fertility clinic",
+        "skin care clinic",
+        "laser hair removal",
+        "cosmetic surgery clinic",
+        "plastic surgeon",
+        "orthodontist",
+        "private hospital",
+        "eye care centre"
+      ],
+      "service_angles": {
+        "no_website": "Every patient Googles before they book. No website means invisible to 80% of your market.",
+        "low_reviews": "Clinics with under 20 reviews lose patients to competitors — people trust social proof.",
+        "no_instagram": "Before/after content on Instagram is the single highest-ROI channel for aesthetics practices.",
+        "no_facebook": "Facebook drives appointment bookings for healthcare — your competitors use it.",
+        "no_whatsapp": "Patients in Zimbabwe book via WhatsApp. If you're not on it, you're losing bookings.",
+        "slow_website": "A slow site loses 53% of visitors before they even see your services.",
+        "no_https": "An insecure site damages trust — especially for a healthcare brand.",
+        "stale_social": "Your social pages look abandoned. Active clinics post 3-5x/week and get patient DMs daily.",
+        "no_booking": "No online booking means every appointment is a phone-tag game — patients give up."
+      }
+    },
+    {
+      "id": "solar",
+      "label": "Solar & Backup Power",
+      "icon": "☀️",
+      "description": "Solar installers, backup power, inverter suppliers, ZESA alternatives",
+      "queries": [
+        "solar installation",
+        "solar panels Zimbabwe",
+        "backup power installer",
+        "inverter installer",
+        "solar energy company",
+        "solar supplier",
+        "off-grid power",
+        "generator supplier",
+        "battery backup",
+        "solar geyser",
+        "solar water heater"
+      ],
+      "service_angles": {
+        "no_website": "Homeowners and businesses search 'solar installers Harare' every day. No website means zero leads from search.",
+        "low_reviews": "High-ticket installs need trust signals. Competitors with 50+ reviews win the quote before you even pitch.",
+        "no_instagram": "Solar before/after and system tours perform well on Instagram — easy content for a visual product.",
+        "no_facebook": "Facebook groups drive referrals in the solar space. Your competitors are there.",
+        "no_whatsapp": "Every solar inquiry in Zimbabwe starts on WhatsApp. Not having a number there costs you leads daily.",
+        "slow_website": "A slow, clunky website says your installation quality matches — prospects bounce and call the next guy.",
+        "no_https": "An insecure site in 2024 is a red flag, especially when you're asking people to spend thousands.",
+        "stale_social": "Your social looks frozen. Customers want to see recent projects and happy clients before they call.",
+        "no_booking": "No clear call-to-action means interested buyers have to hunt for how to contact you."
+      }
+    }
+  ],
+  "follow_up_sequence": [
+    {
+      "day": 1,
+      "channel": "same",
+      "template": "Hey {first_name}, just checking this landed okay. Happy to show you exactly what I spotted on {business_name}'s page if it's easier to jump on a quick call."
+    },
+    {
+      "day": 4,
+      "channel": "same",
+      "template": "Hi {first_name} — I know things get busy. Quick one: I put together a 3-point audit of {business_name}'s online presence. Worth a 10-minute chat before the week's out?"
+    },
+    {
+      "day": 10,
+      "channel": "same",
+      "template": "Last nudge from me, {first_name}. The gap I spotted in {business_name}'s marketing is still there — which means your competitors could close it first. Worth a look when you're free."
+    }
+  ]
+}

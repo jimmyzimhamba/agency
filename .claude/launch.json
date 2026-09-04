@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "phoenix",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["phoenix/agent/main.py"],
+      "port": 8720
+    },
+    {
+      "name": "studio-x-command",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["devserver.py", "8532", "app"],
+      "port": 8532
+    },
+    {
+      "name": "grounds-command",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["/Users/kirmireelectronics/Landscaping Lead Command Center/devserver.py"],
+      "port": 8010
+    }
+  ]
+}

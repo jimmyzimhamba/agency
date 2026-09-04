@@ -1,0 +1,338 @@
+Real Estate Sense	Real Estate Agencies	Harare	0774823232					B	50
+Integrated Properties	Real Estate Agencies	Harare	0731798497					B	50
+Fingold Real Estate	Real Estate Agencies	Harare	0771564110					B	50
+Sunvas Real Estate	Real Estate Agencies	Eastlea	0718085328					B	50
+Terrace Africa	Real Estate Agencies	Harare	0774452545					B	55
+Midstar Properties	Real Estate Agencies	Belgravia	0775431598					B	50
+Cyrex Business	Real Estate Agencies	Harare	0772401008					B	50
+Proptech.zw	Real Estate Agencies	Harare	0785705630					B	55
+Legacy Real Estate	Real Estate Agencies	Harare	0772322215					B	50
+Homelux Real Estate	Real Estate Agencies	Harare	0912700200					B	50
+Bard Real Estate	Real Estate Agencies	Harare	0773589468					B	50
+Kennan Properties	Real Estate Agencies	Borrowdale						B	55
+Seeff Properties	Real Estate Agencies	Highlands						A	45
+WestProp	Real Estate Agencies	Harare						A	40
+Merctrust Real Estate	Real Estate Agencies	Harare						B	50
+Rod Bell Real Estate	Real Estate Agencies	Highlands						A	45
+Realty World	Real Estate Agencies	Milton Park						B	50
+Dawn Properties	Real Estate Agencies	Harare						A	40
+Property Porte	Real Estate Agencies	Milton Park						B	50
+Foresight Property Development	Real Estate Agencies	Hatfield						B	55
+Auto Heaven	Car Dealerships	Harare	0779868190	ralphchisango@gmail.com				B	55
+Brilliant Cars	Car Dealerships	Harare	0772893759	sympathy.razunguzwa@yahoo.com				B	50
+Chisi Auto	Car Dealerships	Chisipite	0783837156	chisiautovehiclesales@gmail.com				B	50
+City Motors	Car Dealerships	Harare	0771244153					B	50
+Linrik Luxury Cars	Car Dealerships	Harare	0772726609	admin@linrik.com				B	55
+Patch Auto Dealership	Car Dealerships	Harare	0785766437	chobvani23@gmail.com				B	50
+White Stallion Auto Group	Car Dealerships	Harare	0772387774	jkchikosi@gmail.com				B	55
+High Class Car Sales	Car Dealerships	Borrowdale	0719370612	ronaldmoyoh@gmail.com				B	55
+Marine Center	Car Dealerships	Graniteside	0772285896	yamaha@zol.co.zw				B	45
+Only Classic Car Sales	Car Dealerships	Harare City Centre	0775940316	lucamuche@gmail.com				B	50
+Duly's	Car Dealerships	Harare	0714331058	portian@dulys.co.zw				A	35
+Gateway Auto Dealers	Car Dealerships	Harare	0773024178	tichaonanewtonmomb@gmail.com				B	50
+Kingsman Autotrader	Car Dealerships	Harare	0778358554	ishegombi@gmail.com				B	50
+S And A Auto Traders	Car Dealerships	Harare	0774636885	mhlangasams@gmail.com				B	50
+Bargain Car Sales	Car Dealerships	Harare	0785210018	bargaincarsalesinternational@gmail.com				B	50
+1 Stop Motor Club	Car Dealerships	Harare	0773192901	1stopmotorclub@gmail.com				B	50
+Admire Motors	Car Dealerships	Harare	0773189374	admiremukarwe@gmail.com				B	45
+Betamelia Motors	Car Dealerships	Harare	0772100955	beta23motors@gmail.com				B	45
+Flow Motors	Car Dealerships	Harare	0712214427	flowkapanga@gmail.com				B	45
+Hirum Investments	Car Dealerships	Harare	0772352928	princemuf@gmail.com				B	45
+James Motors	Car Dealerships	Harare	0785179004	jamesnahavira@gmail.com				B	45
+Advocate Emmanuel T. Nhachi	Professional Services (law, accounting, consulting)	Harare	0774029516					B	55
+Marufu Attorneys at Law	Professional Services (law, accounting, consulting)	Eastlea	0719610254					B	55
+Godwin & Associates PR	Professional Services (law, accounting, consulting)	Harare	0779204155					B	55
+Nexia Zimbabwe	Professional Services (law, accounting, consulting)	Harare	0772804201					A	40
+Alinial Chartered Accountants	Professional Services (law, accounting, consulting)	CBD	0773144178					B	50
+Mangwana & Partners	Professional Services (law, accounting, consulting)	Meyrick Park						A	45
+Chihambakwe Mutizwa & Partners	Professional Services (law, accounting, consulting)	Milton Park						A	45
+Danziger & Partners	Professional Services (law, accounting, consulting)	CBD						A	40
+Gill Godlonton & Gerrans Legal Practitioners	Professional Services (law, accounting, consulting)	CBD						A	35
+Mawere & Sibanda Legal Practitioners	Professional Services (law, accounting, consulting)	CBD						B	50
+Costa & Madzonga	Professional Services (law, accounting, consulting)	Newlands						B	50
+Hussein Ranchhod & Co	Professional Services (law, accounting, consulting)	Harare						A	40
+Kanokanga & Partners	Professional Services (law, accounting, consulting)	Harare						A	45
+Matipano & Associates	Professional Services (law, accounting, consulting)	Eastlea						B	50
+C&J Accounting	Professional Services (law, accounting, consulting)	Mount Pleasant						B	55
+Pedrollo Boreholes	Solar Installers	CBD	0718665335					B	50
+Riverine Borehole Drilling	Solar Installers	Workington	0787848348					B	50
+Solarpro Zimbabwe	Solar Installers	Harare	0772924393					B	55
+Madison Solar Engineering	Solar Installers	Msasa	0772238490					B	55
+Pristine Technologies	Solar Installers	Eastlea	0719227895					B	50
+Axis Power	Solar Installers	Harare	0776076559					B	50
+Sesco	Solar Installers	Eastlea	0775229687					B	50
+Chai Institute	Solar Installers	Hatfield	0715024928					B	45
+Sona Solar Zimbabwe	Solar Installers	Eastlea	0789222847	sonasolarzw@gmail.com				B	55
+Frecon	Solar Installers	Belvedere	0772302542	sales@frecon.co.zw				B	50
+DPA Africa	Solar Installers	Borrowdale		enquiries@dpaafrica.com				B	50
+Horizon Solar Systems	Solar Installers	Harare			horizonsolar_systems			B	60
+Rentech Systems Zimbabwe	Solar Installers	Harare			rentechsystemszimbabwe			B	55
+Royeno Solartech	Solar Installers	Harare			royeno_solartech			B	55
+SolarCity	Solar Installers	CBD				4.0	Only 1 Google review despite claiming over 100 installs since 2012	B	60
+Clamore Solar	Solar Installers	Borrowdale						B	50
+Eden Villas	Hotels & Lodges	Harare	0773336549					B	50
+Fivebulls Travel Tours & Safaris	Hotels & Lodges	Harare	0776032834					B	50
+Pandhari Hotel	Hotels & Lodges	Glen Lorne	0771649901					B	55
+Sunbird Guesthouse	Hotels & Lodges	Greendale	0771566715					B	50
+Willow Lodge	Hotels & Lodges	Colne Valley	0773599548					B	50
+Armadale Lodge	Hotels & Lodges	Borrowdale	0777045244	bookings@armadalelodge.com				B	55
+Villa Gianni Boutique Hotel	Hotels & Lodges	Avondale	0784802055					B	55
+The Peech Boutique Hotel	Hotels & Lodges	Harare			thepeechboutiquehotel			A	45
+Sterling Boutique Lodge	Hotels & Lodges	Harare			sterlingboutiquelodge			B	55
+Cresta Lodge Harare	Hotels & Lodges	Harare						A	35
+Holiday Inn Harare	Hotels & Lodges	CBD						A	30
+Meikles Hotel	Hotels & Lodges	CBD						A	30
+Crowne Plaza Monomotapa	Hotels & Lodges	CBD						A	30
+Horizon Inn	Hotels & Lodges	Harare						B	50
+Wedding Centre	Events & Wedding Vendors	Harare	0772327577	alexandermabandla@gmail.com				B	55
+Rumour Has It Events	Events & Wedding Vendors	Harare	0732432272	rhtedecor@gmail.com				B	55
+Raintree	Events & Wedding Vendors	Harare	0772407119					A	45
+Pabani Venue	Events & Wedding Vendors	Harare	0787509816					B	50
+Fancy Feelings Bridal	Events & Wedding Vendors	Craneborne	0772990006					B	50
+Joshua Kumunda Photography	Events & Wedding Vendors	Harare	0773254340					B	55
+Michele Fortmann Photography	Events & Wedding Vendors	Harare	0732245114					B	50
+Robin Knott Photography	Events & Wedding Vendors	Harare	0784895888					B	50
+Tukeni Studio	Events & Wedding Vendors	Harare	0774152544					B	50
+Exquisite Events Hire Company	Events & Wedding Vendors	Harare			exquisite_events_hire_company			B	55
+Jamaica Reggae Flavas	Restaurants & Cafes	Borrowdale	0779405243					B	55
+Chicken Hut Portuguese BBQ Shop	Restaurants & Cafes	Avondale	0785220125					B	50
+Eat n Lick	Restaurants & Cafes	Harare	0731444501					B	50
+Atia Traditional Foods	Restaurants & Cafes	Hatfield	0773798741					B	50
+Corner Cafe	Restaurants & Cafes	Newlands	0781063539					B	50
+La Fontaine	Restaurants & Cafes	CBD						B	50
+The Pavillion Restaurant & Coffee Bar	Restaurants & Cafes	CBD						B	50
+Amanzi Restaurant	Restaurants & Cafes	Highlands						A	45
+Bejazzled	Restaurants & Cafes	Newlands						B	50
+Jazz 105 Restaurant & Pub	Restaurants & Cafes	CBD						B	50
+The Pointe Restaurant	Restaurants & Cafes	Avenues						B	50
+Botanic Gardens Restaurant	Restaurants & Cafes	Avenues						B	50
+Cafe Espresso	Restaurants & Cafes	Avondale						B	50
+Keg & Maiden	Restaurants & Cafes	CBD						B	45
+Keg & Sable	Restaurants & Cafes	Borrowdale						B	45
+Victoria 22 Restaurant	Restaurants & Cafes	Harare						B	50
+Sorella's	Restaurants & Cafes	Rolf Valley						B	50
+Picobello's	Restaurants & Cafes	Newlands						B	50
+The Sitar	Restaurants & Cafes	Newlands						B	50
+Garwe Restaurant	Restaurants & Cafes	Eastlea				3.5	Ranked 85 of 161 Harare restaurants on Tripadvisor with only 3.5 rating	B	55
+Nicolexis Precious Collections	Fashion & Boutiques	Belvedere	0783851302					B	55
+Garshields Trading (True African Boutique)	Fashion & Boutiques	Tynwald	0772944243					B	55
+Natalie's Bridal Boutique	Fashion & Boutiques	New Marlborough	0772331150					B	55
+Angelique Bridal Boutique	Fashion & Boutiques	Arundel	0772238804					B	55
+Rubies Beauty Parlour & Boutique	Fashion & Boutiques	Borrowdale	0912436554					B	50
+Bubbly Bee Boutique	Fashion & Boutiques	Avondale	0783661620	melaniachinorumba@gmail.com	bubblybeeboutique.zw			B	55
+Eco-Chic Exchange	Fashion & Boutiques	Homegate Mall	0782973822					B	55
+Harare Drip Store	Fashion & Boutiques	Shasha Mall	0783845698		_harare_drip_store_			B	60
+Natasha's Season Boutique	Fashion & Boutiques	Borrowdale		tashasboutique0@gmail.com	natashasseasonboutique			B	55
+Luxxlavish Fashion Boutique	Fashion & Boutiques	CBD			luxxlavish_fashion			B	55
+Ultimate In Fashion	Fashion & Boutiques	Borrowdale						B	50
+Classique Boutiques	Fashion & Boutiques	CBD						B	50
+Bodilicious Fashions	Fashion & Boutiques	Borrowdale						B	50
+Florentine Boutique	Fashion & Boutiques	CBD						B	50
+Kiss Kiss Boutique	Fashion & Boutiques	Avondale						B	50
+Laurel Boutique	Fashion & Boutiques	Belgravia						B	50
+The Gym Shop	Fitness & Gyms	Eastlea	0773776059					B	50
+Total Health Zone	Fitness & Gyms	Avondale	0912226048					B	50
+Invictus Fitness Centre	Fitness & Gyms	Lorraine Drive	0789095252					B	55
+Pro Fitness Health Club (Sam Levy's Village)	Fitness & Gyms	Borrowdale	0783134628					A	45
+Body Active Gym	Fitness & Gyms	Borrowdale	0775464982					B	50
+Hyperbeast Gym	Fitness & Gyms	Greendale	0771248476					B	55
+Reserve Bank Sports Club and Gym	Fitness & Gyms	Marimba	0713533988					A	40
+Pro Fitness Health Club	Fitness & Gyms	Coventry Road						A	45
+Executive Health Spa	Fitness & Gyms	Newlands						B	50
+Fitness Warehouse	Fitness & Gyms	Msasa						B	50
+Muneni Medical Ultrasound	Private Healthcare & Clinics	Avenues	0772321870					B	50
+Dr S A Pfumojena	Private Healthcare & Clinics	Milton Park	0719705826					B	50
+Muchuweti David (Dr)	Private Healthcare & Clinics	Josiah Tongogara	0772348981					B	50
+Sante24 Maternity & ER	Private Healthcare & Clinics	Southerton	0731433505					B	55
+Avenues Clinic	Private Healthcare & Clinics	Baines Avenue						A	40
+Womens Clinic	Private Healthcare & Clinics	Baines Avenue						B	50
+West End Clinic	Private Healthcare & Clinics	Baines Avenue						A	40
+Mountain View Dental and Medical Clinic	Private Healthcare & Clinics	Domboshava Road						B	50
+The Well Woman Clinic	Private Healthcare & Clinics	Belgravia						B	50
+The Montagu Clinic	Private Healthcare & Clinics	CBD						A	40
+Baines Clinic	Private Healthcare & Clinics	Belvedere						A	40
+AMI Hospital Harare	Private Healthcare & Clinics	Belgravia						A	35
+Michael Gelfand Clinic	Private Healthcare & Clinics	CBD						B	50
+Arundel Mediclinic	Private Healthcare & Clinics	Mount Pleasant						A	40
+Ultra-Med Health Clinic	Private Healthcare & Clinics	Baines Avenue						B	50
+Propertyend Group	Real Estate Agencies	Harare						B	50
+Hammer and Tongues	Real Estate Agencies	Graniteside						B	50
+TEREZIM FORTRESS PROPERTIES	Real Estate Agencies	Eastlea						B	50
+Brooklyn Properties	Real Estate Agencies	Harare						B	50
+Chiedza Kambasha Property Group	Real Estate Agencies	Borrowdale	0719918293					B	55
+The Housing Hub	Real Estate Agencies	Harare	0771103511					B	55
+Zimre Property Investments	Real Estate Agencies	Harare						A	40
+CB Richard Ellis	Real Estate Agencies	CBD						A	35
+Slyfield Real Estate	Real Estate Agencies	CBD						B	50
+EM Properties	Real Estate Agencies	Hatfield	0773358381					B	55
+Prodev Property Development Consultants	Real Estate Agencies	Borrowdale	0772437723					B	55
+PropertyHandle	Real Estate Agencies	Harare	0771339140					B	55
+Great Zimbabwe Realtors	Real Estate Agencies	CBD						B	50
+Bill and Eileen Property Sales	Real Estate Agencies	CBD						B	50
+Fox and Carney	Real Estate Agencies	Newlands						A	40
+Northway Real Estate	Real Estate Agencies	CBD						B	50
+Property Qube Real Estate	Real Estate Agencies	CBD						B	50
+Tony West Real Estate	Real Estate Agencies	Harare						B	50
+Chivaura Real Estate	Real Estate Agencies	CBD						B	50
+Highrise Real Estate	Real Estate Agencies	CBD						B	50
+Fairvest Real Estate	Real Estate Agencies	CBD						B	50
+Astol Motors	Car Dealerships	Graniteside						B	50
+Unifreight Bus Sales Services and Spares	Car Dealerships	Southerton						B	50
+AMC Amalgamated Motor Corporation	Car Dealerships	Workington						B	50
+LuxMotors	Car Dealerships	CBD	0775389410					B	55
+Denaug Enterprises	Car Dealerships	CBD	0776428264					B	55
+Gift Investments	Car Dealerships	Avondale						B	50
+Toyota Zimbabwe	Car Dealerships	Msasa						A	30
+Talitacumi Auto Sales	Car Dealerships	Greencroft	0782683236					B	55
+Autoworld 4x4	Car Dealerships	Chisipite						B	45
+Car Junction	Car Dealerships	CBD						B	50
+Motor City Toyota	Car Dealerships	Graniteside						A	30
+Bluemotion	Car Dealerships	Hatfield	0773397763					B	55
+Drive Africa	Car Dealerships	Harare						B	50
+Mr Cruiser	Car Dealerships	Marlborough						B	50
+Ownai Zimbabwe	Car Dealerships	Msasa						B	50
+Chinawa Law Chambers	Professional Services (law, accounting, consulting)	CBD						B	50
+International Visas	Professional Services (law, accounting, consulting)	Highlands						B	50
+The Temple Bar	Professional Services (law, accounting, consulting)	CBD						B	50
+I.e.g Musimbe and Partners	Professional Services (law, accounting, consulting)	Milton Park						B	50
+Chambati Mataka and Makonese Attorneys At Law	Professional Services (law, accounting, consulting)	CBD						B	50
+Nenjy Nyamapfene Law Practice	Professional Services (law, accounting, consulting)	Belvedere						B	50
+5wh Forensic Auditors and Fraud Investigators	Professional Services (law, accounting, consulting)	Hatfield	0772466540					B	55
+STAMP AFRICA	Professional Services (law, accounting, consulting)	Avondale	0772383533					B	55
+Limitless Vision Zimbabwe	Professional Services (law, accounting, consulting)	CBD	0772698846					B	55
+Nolston Accounting Solutions	Professional Services (law, accounting, consulting)	CBD	0773048822					B	55
+July28	Professional Services (law, accounting, consulting)	Alexandra Park	0772159387					B	55
+Afri-Tax Management	Professional Services (law, accounting, consulting)	Msasa	0772307502					B	55
+Mashiri and Co Registered Public Accountants	Professional Services (law, accounting, consulting)	CBD	0783545876					B	55
+ZIMDART ACCOUNTANTS	Professional Services (law, accounting, consulting)	CBD						B	50
+BDO Zimbabwe	Professional Services (law, accounting, consulting)	CBD						A	30
+SBS Consultants	Professional Services (law, accounting, consulting)	CBD						B	50
+PEL Business Advisory Services	Professional Services (law, accounting, consulting)	Prospect	0772260408					B	55
+Xerxes Consulting	Professional Services (law, accounting, consulting)	Mount Pleasant						B	50
+Anderson Hill Advisory Services	Professional Services (law, accounting, consulting)	CBD						B	50
+N C Consultancy	Professional Services (law, accounting, consulting)	CBD	0774888418					B	55
+Kardia Holdings	Solar Installers	Eastlea						B	50
+SNIPE SERVICES	Solar Installers	Msasa						B	50
+GreenSparks ENERGY Solutions	Solar Installers	Chisipite						B	50
+Africa Solar Power Technology	Solar Installers	Harare						B	50
+Everlasting Technology	Solar Installers	Harare						B	50
+Sustech	Solar Installers	Belgravia						B	50
+Amplivolt	Solar Installers	Harare						B	50
+Africa On Solar	Solar Installers	CBD						B	50
+Chiltern Hills Guest House	Hotels & Lodges	Glen Lorne						B	50
+Baines Bed and Breakfast	Hotels & Lodges	Avenues						B	50
+Gache Gauche Lodge	Hotels & Lodges	CBD						B	50
+Kerrygan's	Restaurants & Cafes	Greendale						B	50
+Mateo's	Restaurants & Cafes	Kensington						B	50
+Vero's	Restaurants & Cafes	Borrowdale						B	50
+Blossom Manor	Restaurants & Cafes	Belgravia						B	50
+Cafe Afrique	Restaurants & Cafes	CBD						B	50
+Cafe Med	Restaurants & Cafes	Borrowdale						B	50
+Chef Takue	Restaurants & Cafes	Eastlea						B	50
+Coconut Grove	Restaurants & Cafes	Greendale						B	50
+Delhi Palace	Restaurants & Cafes	Greystone Park						B	50
+Fat Mama's	Restaurants & Cafes	Avenues						B	50
+Gaby's Restaurant	Restaurants & Cafes	CBD						B	50
+Giovannj's Restaurant	Restaurants & Cafes	Arundel						B	50
+Harlequins	Restaurants & Cafes	Glen Lorne						B	50
+Harvest Garden	Restaurants & Cafes	CBD						A	35
+Kentucky Airport Hotel Restaurant	Restaurants & Cafes	Hatfield						B	50
+Kombahari	Restaurants & Cafes	CBD						A	35
+Libby's Restaurant Shops	Restaurants & Cafes	Newlands						B	50
+Marco's	Restaurants & Cafes	CBD						B	50
+Bumble Bee Boutique	Fashion & Boutiques	CBD						B	50
+Obsession	Fashion & Boutiques	Borrowdale						B	50
+First Gear Fashions For Men	Fashion & Boutiques	CBD						B	50
+Next	Fashion & Boutiques	Borrowdale						A	35
+Ninette's Fashions	Fashion & Boutiques	Milton Park						B	50
+Kelly Fitness	Fitness & Gyms	CBD	0773001883					B	55
+Weight4life	Fitness & Gyms	Avondale	0773827453					B	55
+Focus Fitness Gym	Fitness & Gyms	Borrowdale	0772304278					B	55
+Moonlife Global	Fitness & Gyms	Marlborough	0715500435					B	55
+Rolf Valley Sport and Health	Fitness & Gyms	Rolf Valley						B	50
+Opulent Events	Events & Wedding Vendors	CBD	0773620316					B	55
+Alibee Garden	Events & Wedding Vendors	The Grange	0772664459					B	55
+Joystuck Events	Events & Wedding Vendors	Tynwald						B	50
+Plan My Wedding	Events & Wedding Vendors	Milton Park	0778852641					B	55
+Mega Decor	Events & Wedding Vendors	Southerton	0772251188					B	55
+Weddings by Tsitsi	Events & Wedding Vendors	Mount Pleasant	0772197794					B	55
+Verissa Events and Conferences	Events & Wedding Vendors	CBD	0733972426					B	55
+La Divine Events Management	Events & Wedding Vendors	Marlborough	0714776647					B	55
+AFRECAPE EVENTS MANAGERS	Events & Wedding Vendors	Harare	0778858446					B	55
+Chrisias Weddings	Events & Wedding Vendors	CBD	0733969575					B	55
+Cansaf Creative Teaming	Events & Wedding Vendors	Highlands						B	50
+Southern Exposure Photo and Video	Events & Wedding Vendors	Mount Pleasant	0782382370					B	55
+Tnash Photography	Events & Wedding Vendors	CBD	0774825261					B	55
+Calch Media	Events & Wedding Vendors	CBD	0773630814					B	55
+Linval Makaza Photography	Events & Wedding Vendors	CBD	0775704332					B	55
+Farleu	Events & Wedding Vendors	The Grange	0773435956					B	55
+Veremu A Mr Photography	Events & Wedding Vendors	Glen Lorne						B	50
+Wild Productions	Events & Wedding Vendors	Glen Lorne	0772328359					B	55
+Divine Health Centre	Private Healthcare & Clinics	Milton Park						B	50
+SOTA Home Healthcare Zimbabwe	Private Healthcare & Clinics	Avondale						B	50
+UTANO AFRICA	Private Healthcare & Clinics	CBD						B	50
+KDB Healthcare	Private Healthcare & Clinics	Workington						B	50
+MedTours Africa	Private Healthcare & Clinics	CBD						B	50
+Westend Radiology	Private Healthcare & Clinics	Avenues						B	50
+Chinhara Orthodontics	Private Healthcare & Clinics	Avondale						B	50
+Cimas Medical Laboratory	Private Healthcare & Clinics	Avenues						A	40
+Vaxiglobal	Private Healthcare & Clinics	CBD						B	50
+Dr Farayi Shakespeare Moyana	Private Healthcare & Clinics	Avenues						B	50
+Medirite Healthcare	Private Healthcare & Clinics	Graniteside	0773256873					B	55
+Tessa Duboisee de R Speech Therapist	Private Healthcare & Clinics	Harare	0776662813					B	55
+MedQ Medical	Private Healthcare & Clinics	Harare	0774715026					B	55
+Andivest Healthcare	Private Healthcare & Clinics	CBD	0732370870					B	55
+Emras Ambulance Services	Private Healthcare & Clinics	Avenues						B	50
+West Wing Health Center	Private Healthcare & Clinics	CBD						B	50
+Eastend Physiotherapy Clinic	Private Healthcare & Clinics	CBD						B	50
+Wadzanai Makanza Speech Therapy	Private Healthcare & Clinics	Borrowdale	0779601598					B	55
+Friendship Bench	Private Healthcare & Clinics	Harare	0784236633					B	50
+Medivision	Private Healthcare & Clinics	Southerton						B	50
+Quality Eye Consultancy	Private Healthcare & Clinics	Eastlea						B	50
+Shiron Medical	Private Healthcare & Clinics	Parktown						B	50
+QV Medical Chambers	Private Healthcare & Clinics	Avenues						B	50
+Afropride Smart Energy	Solar Installers	Borrowdale	0712710785					B	55
+Shinko Afrika	Solar Installers	Harare	0772858254					B	55
+Felicity Solar	Solar Installers	Meyrick Park	0773407196					B	55
+Harry Frackson	Solar Installers	CBD	0773115471					B	55
+Maxi Energy	Solar Installers	Belvedere						B	50
+Shimesh Solar Energy	Solar Installers	Hatfield	0774448211					B	55
+Star Track Projects	Solar Installers	Workington	0733676676					B	55
+Waterwarehouse	Solar Installers	Hatfield						B	50
+Zonful Energy	Solar Installers	Harare						B	50
+Afrigen Mechatronics	Solar Installers	Graniteside						B	50
+Switched On Solar	Solar Installers	Mount Pleasant						B	50
+Cool Solar	Solar Installers	Msasa						B	50
+Power Brands	Solar Installers	Harare	0774112069					B	55
+Solar Kings	Solar Installers	CBD	0773812884					B	55
+Bling Hub	Fashion & Boutiques	Graniteside	0778231743					B	55
+Orchid Simply Lingerie	Fashion & Boutiques	Chisipite	0773349271					B	55
+House of Sandals	Fashion & Boutiques	Newlands						B	50
+Peresias Textiles And Garments	Fashion & Boutiques	CBD	0772693960					B	55
+Astro Slack	Fashion & Boutiques	CBD	0773007347					B	55
+Enbee Stores	Fashion & Boutiques	CBD						B	50
+YoMarketPlace Zimbabwe	Fashion & Boutiques	CBD	0716294882					B	55
+Elmala Sports	Fashion & Boutiques	CBD						B	50
+Tafashly Investments	Fashion & Boutiques	CBD						B	50
+Ganlod Gifts and Branding	Fashion & Boutiques	Avondale						B	50
+Jacaranda Textiles	Fashion & Boutiques	Southerton						B	50
+Vine Design Apparel	Fashion & Boutiques	CBD						B	50
+Tots Fashions	Fashion & Boutiques	Highlands	0773262526					B	55
+ms lees kollection	Fashion & Boutiques	Helensvale	0773429278					B	55
+Sleek Missy Collections	Fashion & Boutiques	Harare						B	50
+Brooks Fabrics	Fashion & Boutiques	CBD						B	50
+Fabric Library	Fashion & Boutiques	CBD						B	50
+Unique Events	Events & Wedding Vendors	Hatfield	0772362990					B	55
+Glamour Weddings	Events & Wedding Vendors	Belvedere	0734194832					B	55
+E.n Bridal Centre	Fashion & Boutiques	CBD	0772935981					B	55
+Kersh Pearls Bridal	Fashion & Boutiques	CBD	0774421968					B	55
+MiGym Harare	Fitness & Gyms	Harare			migym.zw			B	55
+Kyma	Fitness & Gyms	Harare			kyma.gym			B	55
+The Jungle Gym	Fitness & Gyms	Harare			thejunglegymzim			B	55
+Total Fitness Studio	Fitness & Gyms	Belvedere						B	50
+Kingsmead Guesthouse	Hotels & Lodges	Kingsmead						B	50
+Tanaka Guest House	Hotels & Lodges	Borrowdale						B	50
+Pomona BB House	Hotels & Lodges	Pomona						B	50
+Green Garden Guest House	Hotels & Lodges	Harare						B	50
+Pemabwe Guest Lodge	Hotels & Lodges	Harare						B	50
+Amanzi Lodge	Hotels & Lodges	Harare						A	45

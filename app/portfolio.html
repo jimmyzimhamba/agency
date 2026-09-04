@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+<title>Our Work</title>
+<meta name="description" content="A showcase of past work" />
+<link rel="icon" href="icons/favicon-32.png" />
+<link rel="stylesheet" href="css/styles.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div class="ambient-glow a"></div>
+  <div class="ambient-glow b"></div>
+  <div class="grain"></div>
+  <div class="toast-wrap"></div>
+
+  <div id="app">
+    <div id="portfolio-root" class="review-page-wrap"></div>
+  </div>
+
+  <!-- This page reads directly from Supabase (anon key) rather than through
+       an Edge Function, unlike review.html — the content it fetches is
+       explicitly public/marketing material, gated by RLS to only ever
+       return rows the owner has switched to "published" on a showcase
+       they've explicitly turned "public". See supabase/migration_portfolio.sql
+       for the full reasoning. No realtime, no login — a plain load-on-visit
+       page. -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script type="module" src="js/portfolioPublic.js"></script>
+</body>
+</html>
