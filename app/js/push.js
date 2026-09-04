@@ -90,11 +90,16 @@ export async function disablePush() {
   }
 }
 
-// Fire-and-forget: tells the send-push Edge Function someone should be
-// pinged. Never blocks or surfaces errors to the UI — a failed/unset-up
-// notification should never get in the way of the actual add/assign action.
+// Fire-and-forget: tells the send-push and send-email Edge Functions someone
+// should be told. Never blocks or surfaces errors to the UI — a
+// failed/unset-up notification should never get in the way of the actual
+// add/assign action that triggered it.
 export function notify(type, prospect_id, agent_id) {
-  sb.functions.invoke("send-push", { body: { type, prospect_id, agent_id } }).catch((err) => {
+  const body = { type, prospect_id, agent_id };
+  sb.functions.invoke("send-push", { body }).catch((err) => {
     console.error("send-push invoke failed", err);
+  });
+  sb.functions.invoke("send-email", { body }).catch((err) => {
+    console.error("send-email invoke failed", err);
   });
 }

@@ -1877,3 +1877,72 @@ Copilot reuses the **same** `ANTHROPIC_API_KEY` secret you already set up for AI
 - You can watch actual spend anytime at **console.anthropic.com → Usage**.
 
 If you'd rather skip this feature entirely, that's fine — everything else in the app works exactly as before.
+
+## Step 145 — Email Notifications
+
+Alongside pop-up (push) notifications from Step "Notifications" in Team settings, teammates can now also get an **email** for the same three moments: a new prospect is added (owners get emailed), a prospect is assigned to someone (that teammate gets emailed), and an invoice goes overdue (owners and whoever created the invoice get emailed — see Step "overdue invoice alerts" for that cron job). Each teammate can turn email notifications on or off for themselves from a new **Email Notifications** toggle in Team settings, right under the existing pop-up notifications card — on by default.
+
+This uses **Resend**, an email-sending service with a free tier that doesn't require a credit card to start.
+
+### 145.1 — Add the new database field
+
+1. In Supabase, click **SQL Editor** → **New query**.
+2. Open **`supabase/migration_email_notifications.sql`** from this project folder, select all, copy it, paste into the SQL Editor, click **Run**. You should see "Success. No rows returned." Safe to run even twice.
+
+If you're setting this up on a brand-new/empty Supabase project instead, you don't need this file separately — `supabase/schema.sql` (Step 2) already includes this field.
+
+### 145.2 — Get a Resend API key
+
+1. Go to **resend.com** and sign up (no card needed for the free tier).
+2. Once in, go to **API Keys** → **Create API Key**. Give it any name (e.g. "Studio X Command"), leave permissions at default (Full access is fine), click **Create**.
+3. Copy the key that appears — you won't be able to see it again after you leave the page.
+
+**This key never goes into the app or any file in this project** — it only ever lives inside Supabase's secure backend, in the next step.
+
+### 145.3 — Deploy the send-email function
+
+1. In Supabase, click **Edge Functions** → **Create a new function** (or **Deploy a new function**).
+2. Name it exactly: `send-email`
+3. Open **`supabase/functions/send-email/index.ts`** from this project folder, select all, copy it, and paste it into the code editor, replacing the placeholder.
+4. Click **Deploy**.
+
+### 145.4 — Add your API key as a secret
+
+1. Still in **Edge Functions**, find **Secrets** (sometimes **Manage secrets**).
+2. Add a new secret:
+   - **Name**: `RESEND_API_KEY`
+   - **Value**: the key you copied in Step 145.2.
+3. Save.
+
+That's enough to get emails sending. Two more secrets are optional:
+
+- `RESEND_FROM_EMAIL` — without a verified domain (see the note below), leave this unset; it defaults to Resend's built-in testing address.
+- `APP_URL` — the web address your team opens Studio X Command from (e.g. your Netlify URL). If set, emails include an "Open Studio X Command" button. If unset, emails just skip the button — nothing breaks.
+
+### 145.5 — Redeploy the changed overdue-invoices function too
+
+Step "overdue invoice alerts" (the daily cron job) was updated to also send emails, not just pop-ups. Since that function already exists in your Supabase project, you need to **replace** its code, not create it fresh:
+
+1. In Supabase, click **Edge Functions** → open the existing `check-overdue-invoices` function.
+2. Open **`supabase/functions/check-overdue-invoices/index.ts`** from this project folder, select all, copy it, and paste it into the code editor, replacing what's there.
+3. Click **Deploy** (or **Save & Deploy**).
+
+If you never set up overdue invoice alerts in the first place, skip this — it'll just work once you do set it up later.
+
+### 145.6 — Redeploy and try it
+
+1. Redeploy the `app/` folder via Netlify Drop, same as any other update — the service worker's cache version was bumped so every phone picks up the change automatically.
+2. Reload the app. Open **Team** → confirm you see the new **Email Notifications** toggle (on by default) under the pop-up Notifications card.
+3. Add a new prospect (or have a teammate add one) → confirm owners receive an email within a minute or two.
+
+### An important catch with the free testing address
+
+If you leave `RESEND_FROM_EMAIL` unset, Resend's default sender (`onboarding@resend.dev`) can only deliver to **the email address you signed up to Resend with** — emails to anyone else will silently fail to arrive. This is a Resend anti-spam restriction, not a bug in this app. To email your whole team properly, you'll need to verify a domain you own in Resend (**Domains → Add Domain**, then add a couple of DNS records at wherever you bought the domain) and set `RESEND_FROM_EMAIL` to an address at that domain (e.g. `"Studio X Command <notifications@studioxmarketing.com>"`). This is a bit more setup — ask if you want a hand with it once you have a domain in mind.
+
+### What this costs, plainly
+
+- Resend's free tier is generous for a small team: roughly **3,000 emails a month, up to 100 a day**, no card required. Studio X's realistic notification volume is far below that.
+- If you ever outgrow the free tier, Resend's paid plans start cheap and scale with usage — you'd see a clear warning in your Resend dashboard before anything stops working.
+- You can watch usage anytime at **resend.com → your dashboard**.
+
+If you'd rather skip this feature entirely, that's fine — everything else in the app works exactly as before, and pop-up notifications (Step "Notifications") still work on their own.

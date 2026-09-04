@@ -292,13 +292,26 @@ export function renderTeam() {
         <button class="btn btn-ghost btn-sm" id="tm-notif-toggle" style="width:auto;" disabled>...</button>
       </div>
 
+      <div class="card" style="margin-bottom:16px;">
+        <div class="flex-between">
+          <div style="min-width:0;padding-right:12px;">
+            <div style="font-weight:700;font-size:13.5px;">Email Notifications</div>
+            <div class="text-faint" style="font-size:11.5px;margin-top:4px;line-height:1.4;">Get an email when a prospect is added or assigned to you, and when an invoice goes overdue.</div>
+          </div>
+          <label class="switch" title="Toggle email notifications">
+            <input type="checkbox" id="tm-email-notif-switch" />
+            <span class="track"><span class="thumb"></span></span>
+          </label>
+        </div>
+      </div>
+
       <div class="section-title mt-0">Team Members</div>
       <div id="tm-list"></div>
 
       <div class="divider"></div>
       <button class="btn btn-ghost" id="tm-signout">Sign Out</button>
       <p class="text-faint" style="font-size:11px;text-align:center;margin-top:20px;">Agency Command · ${esc(store.organization?.name || "Sales & Team Sync")}</p>
-      <p class="text-faint" style="font-size:10px;text-align:center;margin-top:4px;opacity:0.6;">build sxc-v152</p>
+      <p class="text-faint" style="font-size:10px;text-align:center;margin-top:4px;opacity:0.6;">build sxc-v153</p>
     </div>
   `);
   root.appendChild(wrap);
@@ -333,6 +346,7 @@ export function renderTeam() {
   if (isOwner) { renderLeaderboard(wrap); renderLeadsSourced(wrap); }
 
   wireNotificationsToggle(wrap);
+  wireEmailNotificationsToggle(wrap);
   wireInviteCode(wrap, isOwner);
 
   const listEl = wrap.querySelector("#tm-list");
@@ -586,6 +600,30 @@ async function wireNotificationsToggle(wrap) {
   });
 
   await refresh();
+}
+
+function wireEmailNotificationsToggle(wrap) {
+  const switchEl = wrap.querySelector("#tm-email-notif-switch");
+  if (!switchEl) return;
+
+  switchEl.checked = store.profile.email_notifications_enabled !== false;
+
+  switchEl.addEventListener("change", async () => {
+    const next = switchEl.checked;
+    switchEl.disabled = true;
+    const { error } = await sb
+      .from("profiles")
+      .update({ email_notifications_enabled: next })
+      .eq("id", store.profile.id);
+    switchEl.disabled = false;
+    if (error) {
+      switchEl.checked = !next;
+      toast(error.message, "error");
+      return;
+    }
+    store.profile = { ...store.profile, email_notifications_enabled: next };
+    toast(next ? "Email notifications turned on" : "Email notifications turned off", "success");
+  });
 }
 
 export function initTeamView() {

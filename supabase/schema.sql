@@ -84,6 +84,9 @@ create table if not exists public.profiles (
   -- flips to false, so a removed teammate is actually locked out, not just
   -- hidden in the UI.
   active boolean not null default true,
+  -- Lets each teammate opt out of email notifications from their own Team
+  -- screen, separate from (and on by default alongside) pop-up notifications.
+  email_notifications_enabled boolean not null default true,
   created_at timestamptz not null default now()
 );
 
