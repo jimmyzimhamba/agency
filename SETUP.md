@@ -1836,3 +1836,44 @@ Unlike the free Supabase and free-tier Anthropic setup, **Google Places API is n
 - You can watch actual spend anytime in Google Cloud Console under **Billing → Reports**.
 
 If you'd rather skip this feature entirely, that's fine — everything else in the app works exactly as before, and prospects can still be added one at a time or via Bulk Import.
+
+## Step 144 — Copilot (AI chat assistant for your team's data)
+
+A new **Copilot** tab, right at the top of the sidebar. It's a chat box — type a question in plain English like *"who hasn't been followed up with this week?"*, *"what's our signed MRR right now?"*, or *"show me tier A prospects in the Fitness niche"*, and it answers using your team's real, current data. It's built on the same Claude AI that powers AI Research (Step 8), just given the ability to look things up instead of writing outreach messages.
+
+**What it can see:** the same things the app already shows that teammate — an owner's Copilot can answer about the whole pipeline, an agent's Copilot only answers about prospects assigned to or added by that agent (contracts, invoices, and tasks are visible to everyone, same as elsewhere in the app). It never makes anything up — if it doesn't have a tool to look something up, it says so instead of guessing.
+
+**Known limitation (by design, for now):** chat history is **not saved** — it resets if you reload the page or switch tabs and come back. This keeps the first version simple. If your team ends up using Copilot heavily and wants it to remember past conversations, that can be added later (ask for it).
+
+### 144.1 — Add the new database table
+
+1. In Supabase, click **SQL Editor** → **New query**.
+2. Open **`supabase/migration_copilot.sql`** from this project folder, select all, copy it, paste into the SQL Editor, click **Run**. You should see "Success. No rows returned." Safe to run even twice.
+
+If you're setting this up on a brand-new/empty Supabase project instead, you don't need this file separately — `supabase/schema.sql` (Step 2) already includes this table.
+
+### 144.2 — Deploy the copilot-chat function
+
+1. In Supabase, click **Edge Functions** → **Create a new function** (or **Deploy a new function**).
+2. Name it exactly: `copilot-chat`
+3. Open **`supabase/functions/copilot-chat/index.ts`** from this project folder, select all, copy it, and paste it into the code editor, replacing the placeholder.
+4. Click **Deploy**.
+
+### 144.3 — No new API key needed
+
+Copilot reuses the **same** `ANTHROPIC_API_KEY` secret you already set up for AI Research in Step 8. If you've already done Step 8, there's nothing else to add here — skip straight to redeploying below. If you haven't done Step 8 yet, Copilot will show a friendly "not set up yet" message until you add that key.
+
+### 144.4 — Redeploy and try it
+
+1. Redeploy the `app/` folder via Netlify Drop, same as any other update — the service worker's cache version was bumped so every phone picks up the new tab automatically.
+2. Reload the app. Open **Copilot** in the sidebar (desktop) or **More → Copilot** (phone).
+3. Try a question like "what's in my pipeline right now?" — within a few seconds you should get a real answer built from your actual data.
+
+### What this costs, plainly
+
+- Uses **claude-sonnet-4-6**, a mid-tier Claude model — chosen deliberately over the more expensive top-tier model since chat questions are short and this keeps ongoing cost low without a noticeable quality drop for this kind of lookup-and-answer task.
+- Typical cost is a fraction of a cent per message, similar in spirit to AI Research (Step 8).
+- **Safety cap**: no single teammate can send more than **30 messages per hour** — built into the backend function, not adjustable from the app.
+- You can watch actual spend anytime at **console.anthropic.com → Usage**.
+
+If you'd rather skip this feature entirely, that's fine — everything else in the app works exactly as before.

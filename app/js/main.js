@@ -8,6 +8,7 @@ import { initTheme, toggleTheme } from "./theme.js";
 
 import { renderPipeline, initPipelineView, openAddProspectSheet } from "./views/pipeline.js";
 import { renderDiscovery, initDiscoveryView } from "./views/discovery.js";
+import { renderCopilot } from "./views/copilot.js";
 import { openProspectDetail } from "./views/prospectDetail.js";
 import { renderDashboard, initDashboardView } from "./views/dashboard.js";
 import { renderNiches, initNichesView } from "./views/niches.js";
@@ -29,6 +30,7 @@ import { renderCommunity, initCommunityView } from "./views/community.js";
 const VIEWS = {
   pipeline: renderPipeline,
   discovery: renderDiscovery,
+  copilot: renderCopilot,
   dashboard: renderDashboard,
   tasks: renderTasks,
   messages: renderMessages,
@@ -74,6 +76,9 @@ export function switchView(name) {
 function openMoreMenu() {
   const box = el(`
     <div>
+      <div class="task-row" data-go="copilot" style="cursor:pointer;">
+        <div class="task-label">Copilot</div>
+      </div>
       <div class="task-row" data-go="discovery" style="cursor:pointer;">
         <div class="task-label">Discovery</div>
       </div>

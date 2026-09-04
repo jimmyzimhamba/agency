@@ -487,6 +487,26 @@ alter table public.discovery_requests enable row level security;
 -- discover-places function ever touches this table.
 
 -- ----------------------------------------------------------------------------
+-- 5c. COPILOT REQUESTS  (invisible rate-limit log for the AI chat assistant)
+-- ----------------------------------------------------------------------------
+-- Same pattern as research_requests / discovery_requests above: one row per
+-- chat message sent to Claude, never shown in the app, read only by the
+-- copilot-chat backend function (via the service-role key, which bypasses
+-- RLS) to cap how many messages one teammate can send per hour.
+create table if not exists public.copilot_requests (
+  id uuid primary key default gen_random_uuid(),
+  org_id uuid references public.organizations (id) on delete set null,
+  requested_by uuid references public.profiles (id) on delete cascade,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists idx_copilot_requests_by_user on public.copilot_requests (requested_by, created_at);
+
+alter table public.copilot_requests enable row level security;
+-- No select/insert policies for ordinary clients on purpose — only the
+-- copilot-chat function ever touches this table.
+
+-- ----------------------------------------------------------------------------
 -- 6. ACTIVITY LOG  (powers the live "Team activity feed")
 -- ----------------------------------------------------------------------------
 create table if not exists public.activity_log (
