@@ -23,6 +23,8 @@ const els = () => ({
   agencyName: document.getElementById("auth-agency-name"),
   inviteCodeField: document.getElementById("auth-invite-code-field"),
   inviteCode: document.getElementById("auth-invite-code"),
+  benefits: document.getElementById("auth-benefits"),
+  terms: document.getElementById("auth-terms"),
 });
 
 function setAgencyMode(next) {
@@ -43,6 +45,8 @@ function setMode(next) {
     e.toggle.textContent = "Sign in";
     e.nameField.style.display = "";
     e.agencyModeRow.style.display = "";
+    e.benefits.style.display = "";
+    e.terms.style.display = "";
     setAgencyMode(agencyMode);
   } else {
     e.submit.textContent = "Sign In";
@@ -52,6 +56,8 @@ function setMode(next) {
     e.agencyModeRow.style.display = "none";
     e.agencyNameField.style.display = "none";
     e.inviteCodeField.style.display = "none";
+    e.benefits.style.display = "none";
+    e.terms.style.display = "none";
   }
   e.error.style.display = "none";
 }

@@ -2172,3 +2172,24 @@ These avatars come from a free public avatar-generator service (DiceBear) — no
 4. Try the "Type a name..." + Generate box with your own name — confirm a new avatar appears and gets saved the same way.
 5. Sign out, then view the sign-in screen on your phone — confirm it looks the same as before (single column, no layout changes).
 6. If you have a laptop/desktop handy, open the app there at a wide browser width — confirm the sign-in/sign-up card now sits on the left with a decorative panel on the right.
+
+## Step 154 — Landing page animations, and a fuller sign-up form
+
+More polish for the public marketing page (`index.html`) and the sign-up screen, continuing the "another app's design" inspiration from Step 153. No SQL to run — pure front-end, just redeploy.
+
+**1. The landing page has subtle motion now.** The two soft background glows drift slowly in the background the whole time. As you scroll down the marketing page, each section (feature cards, the "why a dedicated command center" table, the FAQ, the final call-to-action) gently fades and slides into place the first time it comes into view, instead of just sitting there statically. The three feature-card grids also lift slightly when you hover over a card with a mouse. The hero section at the very top now animates in piece by piece when the page first loads (badge, then headline, then the "See it in action" device mockup). Anyone with "reduce motion" turned on in their phone/computer settings sees none of this — everything just appears normally, fully visible, with no animation at all — same accessibility approach as everything else already on this page.
+
+**2. A new "What running your agency this way looks like" section.** Sits between the "built for how agencies actually work" section and the comparison table. It shows three short example quotes about what using Agency Command day-to-day could feel like (a team not double-messaging the same lead, opening the app on weak signal, a signed deal turning into a project same-day). These are clearly labeled **"Illustrative examples"** right above the heading, and each one says "Example: [role]" rather than a real person's name — because Studio X doesn't have real customer testimonials yet, and it would be dishonest to present made-up quotes as if they were real ones. Swap these out for genuine client quotes once you have some — just ask me to update that section.
+
+**3. Sign-up now shows the same "why sign up" checklist inside the form itself** (not just in the decorative side panel on wide screens) — three bullet points about the pipeline, WhatsApp outreach, and it being free for the whole team — plus a short line under the "Create Account" button about using the app responsibly. Sign-in mode is unchanged (no checklist, no fine print — that's sign-up only).
+
+**Setup:** just redeploy the `app/` folder via Netlify Drop.
+
+**Now test it:**
+
+1. Reload the app (hard refresh if it still looks old — the service worker's cache version was bumped).
+2. Open the public landing page and scroll down slowly — confirm each section fades/slides into view as it appears, rather than everything already being visible on load.
+3. Hover your mouse over a feature card (desktop) — confirm it lifts slightly.
+4. Scroll to the new "What running your agency this way looks like" section and confirm it's clearly labeled "Illustrative examples" and reads as example scenarios, not real reviews.
+5. Go to sign-up (not sign-in) — confirm the three-item checklist appears above the form fields, and the responsible-use line appears under "Create Account". Switch back to sign-in — confirm both disappear.
+6. If your phone/computer has "reduce motion" turned on in its accessibility settings, confirm the landing page still looks and works fine, just without the fade/slide/drift effects.

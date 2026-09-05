@@ -136,6 +136,20 @@ body {
 }
 .ambient-glow.a { top: -80px; left: -60px; width: 260px; height: 260px; background: var(--purple); }
 .ambient-glow.b { bottom: 40px; right: -80px; width: 220px; height: 220px; background: var(--gold); opacity: 0.12; }
+/* A slow, barely-there drift — makes the whole app (and the marketing
+   homepage, which shares this stylesheet) feel a little alive instead of
+   a static gradient sitting in the corner forever. Transform-only (no
+   layout thrash) and skipped entirely for anyone with reduced-motion on. */
+@media (prefers-reduced-motion: no-preference) {
+  .ambient-glow.a { animation: glow-drift-a 24s ease-in-out infinite alternate; }
+  .ambient-glow.b { animation: glow-drift-b 28s ease-in-out infinite alternate; }
+}
+@keyframes glow-drift-a { from { transform: translate(0, 0) scale(1); } to { transform: translate(30px, 40px) scale(1.12); } }
+@keyframes glow-drift-b { from { transform: translate(0, 0) scale(1); } to { transform: translate(-26px, -30px) scale(1.08); } }
+
+/* Shared "rise into place" entrance, reused by the auth card and (via its
+   own inline stylesheet) sections of the marketing homepage. */
+@keyframes riseIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
 
 a { color: inherit; text-decoration: none; }
 button { font-family: inherit; }
@@ -760,6 +774,23 @@ main {
 .auth-logo p { color: var(--text-faint); font-size: 12.5px; margin-top: 4px; letter-spacing: 0.3px; }
 .auth-toggle { display: flex; justify-content: center; gap: 18px; margin-top: 16px; font-size: 13px; color: var(--text-dim); }
 .auth-toggle b { color: var(--gold-soft); cursor: pointer; }
+
+/* Sign-up-only benefit checklist, shown above the form fields (same spot
+   Biiblo puts theirs) — compact enough to sit above the card on every
+   screen size, not just the desktop showcase panel. */
+.auth-benefits { list-style: none; margin: 0 0 16px; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.auth-benefits li { display: flex; align-items: flex-start; gap: 8px; font-size: 12px; line-height: 1.4; color: var(--text-dim); }
+.auth-benefits li svg { flex: 0 0 auto; width: 14px; height: 14px; color: var(--success); margin-top: 2px; }
+.auth-terms { font-size: 10.5px; color: var(--text-faint); text-align: center; line-height: 1.5; margin: 10px 0 0; }
+
+/* A gentle one-time rise-into-place for the sign-in/sign-up card itself —
+   the auth screen only ever mounts once per visit, so this isn't a scroll
+   trigger, just a soft entrance instead of the card appearing instantly. */
+@media (prefers-reduced-motion: no-preference) {
+  .auth-form-panel .glow-card { animation: riseIn 0.5s ease both; }
+  .auth-logo { animation: riseIn 0.5s ease both; }
+  .auth-toggle { animation: riseIn 0.5s ease both 0.12s; }
+}
 
 /* Desktop/laptop-width visitors (an owner setting the team up from a
    computer) get a decorative split screen — the form keeps its same
