@@ -118,7 +118,13 @@ Deno.serve(async (req: Request) => {
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "claude-opus-4-7",
+        // Mid-tier model, same one the Copilot chat function uses. Chosen
+        // deliberately over the top-tier model: a coaching note is 3-4
+        // sentences of plain advice, which this handles well, and keeping
+        // both AI features on the same tier keeps the monthly bill
+        // predictable. Swap to "claude-opus-4-7" here and redeploy if the
+        // notes ever start feeling shallow.
+        model: "claude-sonnet-4-6",
         max_tokens: 400,
         // The coaching brief above is identical on every single request, so it
         // is marked cacheable — repeat requests reuse it instead of paying to

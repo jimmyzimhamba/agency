@@ -2332,7 +2332,8 @@ Redeploy the `app/` folder via Netlify Drop as usual. The service worker cache v
 
 ### What this costs, plainly
 
-- Uses **claude-opus-4-7**, the top-tier Claude model. Coach notes are short (3-4 sentences), so a single practice answer still costs a fraction of a cent — but note this is a **more expensive model than Copilot uses** (Copilot is on the mid-tier `claude-sonnet-4-6`). It's set this way because coaching quality is the whole product here, and the volume is low: a few dozen practice answers a week, not hundreds of chat messages a day. **If you'd rather cut this cost, say so and it's a one-word change** — swap `claude-opus-4-7` for `claude-sonnet-4-6` in `supabase/functions/pitch-coach/index.ts` and redeploy that function.
+- Uses **claude-sonnet-4-6**, the same mid-tier Claude model Copilot uses (Step 144). Coach notes are short (3-4 sentences of plain advice), which this model handles well, and keeping both AI features on the same tier keeps the monthly bill predictable. Typical cost is a fraction of a cent per practice answer.
+- If the coach notes ever start feeling shallow, swapping to the top-tier model is a one-word change: replace `claude-sonnet-4-6` with `claude-opus-4-7` in `supabase/functions/pitch-coach/index.ts` and redeploy that one function. Nothing else changes.
 - **Safety cap**: no single teammate can get more than **40 coach notes per hour**, built into the backend function.
 - Watch actual spend anytime at **console.anthropic.com → Usage**.
 
