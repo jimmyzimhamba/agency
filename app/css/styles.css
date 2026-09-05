@@ -196,6 +196,47 @@ button { font-family: inherit; }
 }
 .db-welcome-sub { font-size: 13px; color: var(--text-faint); margin: 0 2px 18px; }
 
+/* The Dashboard's collapsible "Data Health" header. The little chevron points
+   down while the section is closed and flips to point up once it's open, so
+   the card itself shows which way tapping it will go. */
+.db-collapse-arrow { color: var(--text-faint); display: flex; align-items: center; transition: transform 0.2s ease; }
+.db-collapse-head.open .db-collapse-arrow { transform: rotate(180deg); }
+
+/* ---------------------------------------------------------------------------
+   Pitch Practice — the face-down card you tap to draw, and the objection card
+   it turns into. The face-down state is deliberately a bit theatrical (big
+   mark, gradient, lifts on hover): drawing a card should feel like drawing a
+   card, and that half-second of "what am I about to get" is the whole reason
+   this reads as practice rather than as another form to fill in.
+   --------------------------------------------------------------------------- */
+.pp-card-back {
+  cursor: pointer; text-align: center; padding: 34px 20px;
+  background: linear-gradient(150deg, var(--black-raised), var(--black-card) 60%, rgba(124, 58, 237, 0.16));
+  border: 1px dashed var(--line-strong, var(--line));
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+.pp-card-back:hover { transform: translateY(-2px); box-shadow: 0 14px 34px -18px var(--purple-glow); }
+.pp-card-back:active { transform: scale(0.985); }
+.pp-card-mark {
+  width: 54px; height: 54px; margin: 0 auto; border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; font-weight: 800; color: #fff;
+  background: linear-gradient(135deg, var(--purple), var(--gold));
+  box-shadow: 0 10px 26px -10px var(--purple-glow);
+}
+/* The drawn card. The fade-and-rise is what sells it as having just been
+   turned over, without needing a real 3D flip (which reads as gimmicky on a
+   work tool and janks on cheap Android phones). */
+.pp-card-face { animation: ppReveal 0.26s ease; }
+@keyframes ppReveal {
+  from { opacity: 0; transform: translateY(8px) scale(0.99); }
+  to { opacity: 1; transform: none; }
+}
+.pp-card-quote {
+  font-size: 16px; line-height: 1.5; font-weight: 600; color: var(--text);
+  padding-left: 12px; border-left: 3px solid var(--purple);
+}
+
 .topbar-actions { display: flex; align-items: center; gap: 10px; }
 .icon-btn {
   width: 36px; height: 36px; border-radius: 50%;

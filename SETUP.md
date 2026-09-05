@@ -2271,3 +2271,80 @@ A round of polish fixes from a screenshot of the sign-in screen showing a dead b
 6. Look around the app (landing page, toasts, empty states, contracts/invoices) for any leftover "—" dash — there shouldn't be any left.
 7. On the Dashboard, confirm you see a bold "Welcome back, [your name]." headline with a subtle glow, above the "Here's how the pipeline is doing" line.
 8. On your phone, tap from another tab straight into the **Pipeline** tab in the bottom nav — confirm the on-screen keyboard does **not** pop up automatically. Then tap into the Pipeline search box yourself and type something — confirm the keyboard behaves normally and your cursor position isn't lost while the list filters.
+
+## Step 158 — Pitch Practice (a card game your team builds), and a tidier Dashboard
+
+Two changes: a new practice game for the sales team, and a Dashboard that stops burying you in cards.
+
+### The idea behind it
+
+You asked for a game people can *play and build*. The important word there is **build** — the game isn't a quiz someone at head office wrote once. The team fills the deck themselves, out of the objections they actually hear on real calls in Harare. Every card added makes the deck better for whoever joins next month.
+
+Two deliberate decisions about how it works, because they're the difference between something people use and something people quietly resent:
+
+- **There is no score.** Not a mark out of ten, not points, not a percentage, not a rank. The AI coach is specifically instructed never to give one. The moment practising produces a number, it stops being practice and becomes an assessment, and people start playing it safe instead of trying the answer they're unsure about.
+- **Nobody can see anyone else's answers — including you.** This is enforced by the database itself, not just hidden in the app. An agent fumbling an objection in practice is the entire point of practice; it only works if it's genuinely private. What *is* shared is the deck: everyone sees every card the team adds.
+
+There's a small weekly progress ring ("2 / 5 cards practised this week"). It's not a target anyone is measured against and nothing happens if it isn't filled — it just gives the week somewhere to end. And deliberately **not** a streak: a streak punishes people for being sick, on leave, or having a genuinely busy week, which is a rotten thing to do to staff.
+
+### 1. Pitch Practice — what your team sees
+
+A new **Pitch Practice** item in the sidebar (desktop) or under **More** (phone).
+
+- **Draw a card.** A face-down card flips over to reveal something a real prospect said, e.g. *"We already have someone doing our social media"* or *"Send me an email and I'll get back to you."* The app shows who on the team added that card.
+- **Type how you'd answer it** in your own words, the way you'd actually say it on a call.
+- **Get a coach note back** within a few seconds: what specifically worked in your answer, then one concrete thing to try instead, with a sample line. Written for Zimbabwean small-business selling — USD pricing, tight budgets, the owner is usually the decision maker, most follow-up happens on WhatsApp.
+- **Skip** if a card isn't relevant to you. The deck prefers cards you haven't tried yet, so it doesn't hand you the same one over and over.
+- **Add a card** — anyone on the team can, not just owners. The people taking the calls are the ones who know which objections actually come up. You type what the prospect said and optionally tag which niche it came from.
+- **Your own history** is on the same screen: your past answers and the coach notes on them, visible only to you.
+
+The deck starts empty. It fills up as the team adds to it — so a good first move is everyone adding the two or three objections they heard most this month.
+
+### 2. A tidier Dashboard
+
+The Dashboard had grown to around twenty separate cards for an owner, which meant the important things were competing with the merely useful ones.
+
+Ten of those cards — Win-Back Candidates, missing MRR, no follow-up date, unassigned prospects, orphaned prospects, at-risk clients, overdue projects, signed-with-no-project, client anniversaries, and grid plans needing attention — are now folded into **one** section called **Data Health**, collapsed by default. Tap it to open, tap again to close.
+
+**Nothing was removed or hidden from you.** The collapsed header shows a **count** of how many things are actually in there, so a real warning can never be silently buried — if it says "0 Nothing needs attention, everything's tidy," there's genuinely nothing to open. Every card behaves exactly as it did before once you expand it. Your monthly Business Snapshot was moved *above* the fold so it stays visible.
+
+### 158.1 — Add the new database tables
+
+1. In Supabase, click **SQL Editor** → **New query**.
+2. Open **`supabase/migration_pitch_practice.sql`** from this project folder, select all, copy it, paste into the SQL Editor, click **Run**. You should see "Success. No rows returned." Safe to run twice.
+
+This adds three tables: `pitch_scenarios` (the deck), `pitch_attempts` (private practice answers), and `pitch_coach_requests` (an internal counter for the safety cap below).
+
+### 158.2 — Deploy the pitch-coach function
+
+1. In Supabase, click **Edge Functions** → **Create a new function** (or **Deploy a new function**).
+2. Name it exactly: `pitch-coach`
+3. Open **`supabase/functions/pitch-coach/index.ts`** from this project folder, select all, copy it, paste it into the code editor replacing the placeholder.
+4. Click **Deploy**.
+
+### 158.3 — No new API key needed
+
+This reuses the **same** `ANTHROPIC_API_KEY` secret already set up for AI Research (Step 8) and Copilot (Step 144). Nothing new to add. If that key isn't set, Pitch Practice will show a plain "not set up yet" message rather than an error.
+
+### 158.4 — Redeploy
+
+Redeploy the `app/` folder via Netlify Drop as usual. The service worker cache version was bumped to `sxc-v165`, so every phone picks up the new screen automatically. (You can confirm which version a phone is on at the bottom of the **Team** page.)
+
+### What this costs, plainly
+
+- Uses **claude-opus-4-7**, the top-tier Claude model. Coach notes are short (3-4 sentences), so a single practice answer still costs a fraction of a cent — but note this is a **more expensive model than Copilot uses** (Copilot is on the mid-tier `claude-sonnet-4-6`). It's set this way because coaching quality is the whole product here, and the volume is low: a few dozen practice answers a week, not hundreds of chat messages a day. **If you'd rather cut this cost, say so and it's a one-word change** — swap `claude-opus-4-7` for `claude-sonnet-4-6` in `supabase/functions/pitch-coach/index.ts` and redeploy that function.
+- **Safety cap**: no single teammate can get more than **40 coach notes per hour**, built into the backend function.
+- Watch actual spend anytime at **console.anthropic.com → Usage**.
+
+### Now test it
+
+1. Run the SQL from 158.1 and deploy the function from 158.2, then redeploy `app/` and hard-refresh the app.
+2. Open **Pitch Practice** (sidebar on desktop, **More** on phone). With an empty deck, confirm it invites you to add the first card rather than showing an error.
+3. Tap **Add a card**, type an objection you've genuinely heard (e.g. "It's too expensive"), pick a niche or leave it on "Any niche", and save. Confirm it appears in the deck count.
+4. Tap **Draw a card** — confirm a card reveals with the objection and "Card by [whoever added it]".
+5. Type an answer and tap the coach button. Within a few seconds you should get a short note that praises something specific and suggests one improvement. **Confirm it does not give you a score or a mark out of anything** — if it ever does, that's a bug worth reporting.
+6. Draw and answer a second card, then check the history section lower down — confirm both your answers and their coach notes are listed.
+7. Sign in as a different teammate. Confirm they can see the **cards** you added, but **not** your answers or coach notes.
+8. Go to the **Dashboard**. Confirm you now see a **Data Health** section, closed, with a number on it. Tap it — confirm it opens to reveal the Win-Back / unassigned / at-risk / overdue cards you're used to, and that tapping any of those still takes you to the right screen. Tap the header again to close it.
+9. Confirm your monthly **Business Snapshot** is still visible above Data Health without needing to expand anything.
+10. Do steps 8 and 9 again on your phone to confirm the section opens and closes properly on a narrow screen.

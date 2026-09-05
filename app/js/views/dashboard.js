@@ -329,6 +329,18 @@ export function renderDashboard() {
   const anniversaries = hasBizData ? clientAnniversaries() : [];
   const gridAttention = store.gridPlans.length ? gridPlansNeedingChanges() : [];
 
+  // Everything that used to be its own always-visible card down the length of
+  // the Dashboard is now folded into one collapsible "Data Health" section.
+  // These are all real signals, but they're *occasional* ones — a client
+  // anniversary or a missing MRR value doesn't need to cost you a screenful of
+  // scrolling every single morning. Collapsed, they cost one line; the count
+  // below is what makes that safe, because it's the one number that tells you
+  // whether opening the section is worth it. A closable "4 things to look at"
+  // loop beats ten cards that mostly say "nothing to see here."
+  const healthCount =
+    winback.length + zeroMrr.length + noFollowUp.length + unassigned.length + orphaned.length +
+    atRisk.length + overdueProj.length + signedNoProject.length + anniversaries.length + gridAttention.length;
+
   const checklistItems = getChecklistItems(isOwner);
   const checklistDone = checklistItems.filter((i) => i.done).length;
   const checklistDismissed = localStorage.getItem(checklistDismissKey()) === "1";
@@ -395,6 +407,34 @@ export function renderDashboard() {
         </div>
       </div>
 
+      ${hasBizData ? `
+      <div class="section-title">Business Snapshot</div>
+      <div class="stat-grid cols-3" id="db-biz-grid" style="margin-bottom:4px;">
+        <div class="stat-card purple" data-go="invoices" data-filter="sent"><div class="num">${money(outstandingInvoices)}</div><div class="label">Outstanding</div></div>
+        <div class="stat-card ${overdueInvoices ? "accent" : ""}" data-go="invoices" data-filter="sent"><div class="num">${overdueInvoices}</div><div class="label">Overdue Inv.</div></div>
+        <div class="stat-card" data-go="contracts" data-filter="sent"><div class="num">${contractsAwaitingSignature}</div><div class="label">Awaiting Sig.</div></div>
+        <div class="stat-card" data-go="projects" data-filter="in_progress"><div class="num">${activeProjects}</div><div class="label">Active Projects</div></div>
+      </div>
+      ` : ""}
+
+      <div class="section-title">Data Health</div>
+      <div class="card db-collapse-head ${healthCount ? "glow-card" : ""}" id="db-health-toggle" role="button" tabindex="0" aria-expanded="false" aria-controls="db-health-body" style="margin-bottom:4px;cursor:pointer;">
+        <div class="flex-between">
+          <div>
+            <div style="font-size:22px;font-weight:800;">${healthCount}</div>
+            <div class="text-faint" style="font-size:11.5px;">${
+              healthCount
+                ? `Thing${healthCount === 1 ? "" : "s"} worth a look: win-backs, missing details, delivery gaps`
+                : `Nothing needs attention, everything's tidy`
+            }</div>
+          </div>
+          <span class="db-collapse-arrow" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          </span>
+        </div>
+      </div>
+
+      <div id="db-health-body" hidden>
       <div class="section-title">Win-Back Candidates</div>
       <div class="card" id="db-winback-card" style="margin-bottom:4px;cursor:pointer;">
         <div class="flex-between">
@@ -469,14 +509,6 @@ export function renderDashboard() {
       ` : ""}
 
       ${hasBizData ? `
-      <div class="section-title">Business Snapshot</div>
-      <div class="stat-grid cols-3" id="db-biz-grid" style="margin-bottom:4px;">
-        <div class="stat-card purple" data-go="invoices" data-filter="sent"><div class="num">${money(outstandingInvoices)}</div><div class="label">Outstanding</div></div>
-        <div class="stat-card ${overdueInvoices ? "accent" : ""}" data-go="invoices" data-filter="sent"><div class="num">${overdueInvoices}</div><div class="label">Overdue Inv.</div></div>
-        <div class="stat-card" data-go="contracts" data-filter="sent"><div class="num">${contractsAwaitingSignature}</div><div class="label">Awaiting Sig.</div></div>
-        <div class="stat-card" data-go="projects" data-filter="in_progress"><div class="num">${activeProjects}</div><div class="label">Active Projects</div></div>
-      </div>
-
       <div class="section-title">Revenue at Risk</div>
       <div class="card ${atRisk.length ? "glow-card" : ""}" id="db-risk-card" style="margin-bottom:4px;cursor:pointer;">
         <div class="flex-between">
@@ -564,6 +596,7 @@ export function renderDashboard() {
         </div>
       </div>
       ` : ""}
+      </div>
 
       <div class="section-title">This Month: Leaderboard</div>
       <div id="db-leaderboard" style="margin-bottom:12px;"></div>
@@ -606,6 +639,23 @@ export function renderDashboard() {
       wrap.querySelector("#db-checklist-wrap")?.remove();
     });
   }
+
+  // "Data Health" open/closed. Every card inside stays in the DOM whether the
+  // section is open or not, so all the click handlers further down still find
+  // their cards by ID exactly as before — this only hides them visually.
+  const healthToggle = wrap.querySelector("#db-health-toggle");
+  const healthBody = wrap.querySelector("#db-health-body");
+  const toggleHealth = () => {
+    const open = healthBody.hasAttribute("hidden");
+    if (open) healthBody.removeAttribute("hidden");
+    else healthBody.setAttribute("hidden", "");
+    healthToggle.setAttribute("aria-expanded", open ? "true" : "false");
+    healthToggle.classList.toggle("open", open);
+  };
+  healthToggle.addEventListener("click", toggleHealth);
+  healthToggle.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleHealth(); }
+  });
 
   wrap.querySelector("#db-share-recap").addEventListener("click", () => {
     const text = buildRecapText(weeklyRecapStats());

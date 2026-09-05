@@ -28,6 +28,7 @@ import { renderGridPlans, initGridPlansView, leaveGridPlansView } from "./views/
 import { renderServices, initServicesView } from "./views/services.js";
 import { renderPortfolio, initPortfolioView } from "./views/portfolio.js";
 import { renderCommunity, initCommunityView } from "./views/community.js";
+import { renderPitchPractice, refreshPitchPractice } from "./views/pitchPractice.js";
 
 const VIEWS = {
   pipeline: renderPipeline,
@@ -47,6 +48,7 @@ const VIEWS = {
   services: renderServices,
   portfolio: renderPortfolio,
   community: renderCommunity,
+  pitch: renderPitchPractice,
 };
 const PRIMARY_TABS = ["dashboard", "pipeline", "tasks", "messages"];
 let currentView = "dashboard";
@@ -128,6 +130,10 @@ function openMoreMenu() {
       <div class="task-row" data-go="portfolio" style="cursor:pointer;">
         <div class="icon-badge sm gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="m3 15 4.5-4.5a2 2 0 0 1 2.8 0L15 15M13 13l2-2a2 2 0 0 1 2.8 0L21 14"/><circle cx="8" cy="8.5" r="1.3"/></svg></div>
         <div class="task-label">Portfolio Studio</div>
+      </div>
+      <div class="task-row" data-go="pitch" style="cursor:pointer;">
+        <div class="icon-badge sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3.5 8.5 12 4l8.5 4.5L12 13 3.5 8.5Z"/><path d="M20.5 8.5v5"/><path d="M7 10.7v4.1c0 1.6 2.2 2.9 5 2.9s5-1.3 5-2.9v-4.1"/></svg></div>
+        <div class="task-label">Pitch Practice</div>
       </div>
       <div class="task-row" data-go="community" style="cursor:pointer;">
         <div class="icon-badge sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></div>
@@ -514,6 +520,11 @@ async function enterApp(session) {
     initServicesView();
     initPortfolioView();
     initCommunityView();
+    // Pitch Practice loads its own deck lazily the first time the tab is
+    // opened (it isn't part of the main loadAll() payload, since most sessions
+    // never open it). This just clears anything left from a previous account
+    // in the same tab so a new sign-in never sees the last person's cards.
+    refreshPitchPractice();
 
     document.getElementById("boot-loading").style.display = "none";
     document.getElementById("app-shell").style.display = "block";
