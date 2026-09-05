@@ -201,6 +201,24 @@ button { font-family: inherit; }
    instead of a card heading. */
 .icon-badge.sm { width: 30px; height: 30px; border-radius: 9px; }
 .icon-badge.sm svg { width: 15px; height: 15px; }
+/* Achievements wall — a badge the person hasn't unlocked yet. Same shape,
+   dimmed and desaturated so unlocked (colored) ones visually "pop" out of
+   the grid without needing a separate empty-state layout. */
+.icon-badge.locked {
+  background: var(--black-card); color: var(--text-faint);
+  filter: grayscale(1); opacity: 0.45;
+}
+.badge-chip {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  width: 72px; cursor: pointer; text-align: center;
+}
+.badge-chip .icon-badge { width: 46px; height: 46px; border-radius: 14px; }
+.badge-chip .icon-badge svg { width: 22px; height: 22px; }
+.badge-chip .badge-chip-label { font-size: 10px; line-height: 1.2; color: var(--text-dim); }
+.badge-chip.locked .badge-chip-label { color: var(--text-faint); }
+.badges-grid {
+  display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;
+}
 .badge-dot {
   position: absolute; top: -3px; right: -3px;
   min-width: 16px; height: 16px; border-radius: 8px;

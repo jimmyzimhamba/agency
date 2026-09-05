@@ -42,6 +42,11 @@ export const store = {
   // than a screenful of points.
   pointsLog: [],
   pointsTotals: [],
+  // Badges — see supabase/migration_badges.sql. Loaded in full (not capped
+  // like pointsLog) since expected row count per org is tiny — a handful of
+  // teammates times ~14 possible badges each, nowhere near pointsLog's
+  // unbounded growth.
+  badgesEarned: [],
 };
 
 export function on(key, fn) {
@@ -99,7 +104,7 @@ export async function loadAll() {
   // RLS alone to do.
   const myOrgId = store.profile?.org_id;
 
-  const [organization, profiles, niches, prospects, templates, dailyTasks, dailyCompletions, agentTargets, activityLog, monthlyGoal, contracts, invoices, projects, projectTasks, gridPlans, gridPosts, gridPostMedia, servicePackages, portfolioSettings, portfolioItems, communityPosts, communityComments, communityReactions, pointsLog, pointsTotals] =
+  const [organization, profiles, niches, prospects, templates, dailyTasks, dailyCompletions, agentTargets, activityLog, monthlyGoal, contracts, invoices, projects, projectTasks, gridPlans, gridPosts, gridPostMedia, servicePackages, portfolioSettings, portfolioItems, communityPosts, communityComments, communityReactions, pointsLog, pointsTotals, badgesEarned] =
     await Promise.all([
       sb.from("organizations").select("*").maybeSingle(),
       sb.from("profiles").select("*").order("full_name"),
@@ -126,6 +131,7 @@ export async function loadAll() {
       sb.from("community_reactions").select("*"),
       sb.from("points_log").select("*").order("created_at", { ascending: false }).limit(200),
       sb.from("points_totals").select("*"),
+      sb.from("badges_earned").select("*"),
     ]);
 
   store.organization = organization.data || null;
@@ -153,6 +159,7 @@ export async function loadAll() {
   store.communityReactions = communityReactions.data || [];
   store.pointsLog = pointsLog.data || [];
   store.pointsTotals = pointsTotals.data || [];
+  store.badgesEarned = badgesEarned.data || [];
 
   emit("organization"); emit("profiles"); emit("niches"); emit("prospects"); emit("templates");
   emit("dailyTasks"); emit("dailyCompletions"); emit("agentTargets");
@@ -162,7 +169,7 @@ export async function loadAll() {
   emit("servicePackages");
   emit("portfolioSettings"); emit("portfolioItems");
   emit("communityPosts"); emit("communityComments"); emit("communityReactions");
-  emit("pointsLog"); emit("pointsTotals");
+  emit("pointsLog"); emit("pointsTotals"); emit("badgesEarned");
 }
 
 export function firstOfMonth() {
@@ -328,6 +335,14 @@ export function startRealtime() {
       }
       emit("pointsLog");
       emit("pointsTotals");
+    })
+    // badges_earned rows are also append-only (a badge, once unlocked, is
+    // never revoked or edited) — INSERT only, same as points_log above.
+    .on("postgres_changes", { event: "INSERT", schema: "public", table: "badges_earned" }, (payload) => {
+      if (!store.badgesEarned.some((b) => b.id === payload.new.id)) {
+        store.badgesEarned = [...store.badgesEarned, payload.new];
+        emit("badgesEarned");
+      }
     })
     .on("postgres_changes", { event: "*", schema: "public", table: "community_reactions" }, (payload) => {
       // Reactions have no natural "updated" case (insert to like, delete to

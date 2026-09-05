@@ -2106,3 +2106,30 @@ Points are worked out entirely on the server, from things that already happen in
 5. Add a test prospect, then check the Points Leaderboard again — your number should have gone up by 5, and it should update for a teammate on another device/phone without them refreshing (same real-time sync as everything else in the app).
 6. Tap your own Points card (or anyone's row on the leaderboard) — confirm a short list pops up showing what earned those points and when.
 7. Have a non-owner teammate check their own Team page — confirm they can see the Points Leaderboard too (this one isn't restricted like the revenue leaderboard below it is).
+
+## Step 151 — Badges & Achievements
+
+Builds directly on the points system above (Step 150 must already be applied). Everyone's Team page now has a "🎖️ My Badges" section — a wall of 14 achievement badges that unlock automatically as the team works. Locked ones show up dimmed/greyed-out; unlocked ones light up in full color. Tapping any badge (locked or unlocked) pops up what it is, what it takes to earn it, and — if earned — when you got it. This is visible to everyone, same as the Points Leaderboard, since achievements aren't sensitive the way revenue numbers are.
+
+**The 14 badges:**
+- First Prospect (add 1) · Prospector (add 25)
+- First Deal (sign 1) · Closer (sign 5) · Rainmaker (sign 10)
+- Paperwork (draft 1 contract) · Ink Master (5 contracts signed)
+- Getting Paid (5 invoices paid)
+- Note Taker (10 notes) · Team Player (10 Community Feed posts) · Consistent (30 daily tasks completed)
+- Century Club (100 total points) · High Roller (500 total points) · Legend (1000 total points)
+
+Same as points, this is entirely automatic and server-side — the moment someone crosses a threshold, the badge unlocks itself and a celebratory line appears in the Activity Feed ("X earned the 'Closer' badge 🏅") so the whole team sees it happen. Nobody can hand themselves a badge early; there's no button for it anywhere.
+
+**Setup — do this first, before redeploying:**
+
+1. Open your **Supabase Dashboard → SQL Editor**, paste in the entire contents of the new file `supabase/migration_badges.sql`, and click **Run**. Safe to re-run if you're ever unsure. This creates a new `badges_earned` table and teaches the database to check for newly-earned badges every time someone earns points.
+2. Redeploy the `app/` folder via Netlify Drop.
+
+**Now test it:**
+
+3. Reload the app on your phone/browser (hard refresh if it still looks old — the service worker's cache version was bumped).
+4. Open **Team & Settings** — confirm you see a "🎖️ My Badges" section below the Points Leaderboard, showing all 14 badges (dimmed/grey if you haven't earned them yet).
+5. Tap a locked badge — confirm a pop-up explains what it is and what you need to do to earn it.
+6. Add a prospect (or do anything else that earns points) and check back — the matching badge (e.g. "First Prospect") should light up in color, and a note should appear in the Activity Feed announcing it.
+7. Tap a teammate's name on the Points Leaderboard — confirm their badge wall shows there too, alongside their points breakdown.

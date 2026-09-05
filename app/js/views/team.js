@@ -6,6 +6,7 @@ import { signOut } from "../auth.js";
 import { confirmModal, openModal, closeModal } from "../ui.js";
 import { pushSupported, isPushEnabled, enablePush, disablePush } from "../push.js";
 import { getTheme, setTheme } from "../theme.js";
+import { BADGES } from "../badges.js";
 
 // The team roster showed everyone's role but nothing about whether they're
 // actually working the pipeline right now — an owner had to open Activity
@@ -114,9 +115,12 @@ function openPointsBreakdownModal(profile, total) {
     <div>
       <div class="section-title mt-0">${esc(profile.full_name || profile.email)}'s Points</div>
       <div class="stat-card accent" style="margin-bottom:16px;"><div class="num">${total}</div><div class="label">Total Points</div></div>
+      <div class="section-title mt-0" style="font-size:11px;">Badges</div>
+      <div class="badges-grid" id="tm-modal-badges-grid" style="margin-bottom:6px;"></div>
       <div id="tm-points-events"></div>
     </div>
   `);
+  renderBadgesGrid(box.querySelector("#tm-modal-badges-grid"), profile.id);
   const listEl = box.querySelector("#tm-points-events");
   if (!events.length) {
     listEl.innerHTML = `<div class="text-faint" style="font-size:12.5px;padding:10px 0;">No recent events to show.</div>`;
@@ -180,6 +184,57 @@ function renderPointsLeaderboard(wrap) {
     `);
     row.addEventListener("click", () => openPointsBreakdownModal(p, total));
     box.appendChild(row);
+  });
+}
+
+// Which badge keys a person has actually unlocked, from badges_earned (see
+// supabase/migration_badges.sql — server-only writes, so this is always the
+// real, earned set, never something the client can fake).
+function earnedBadgeKeysFor(profileId) {
+  return new Set(store.badgesEarned.filter((b) => b.profile_id === profileId).map((b) => b.badge_key));
+}
+
+function badgeEarnedAtFor(profileId, badgeKey) {
+  return store.badgesEarned.find((b) => b.profile_id === profileId && b.badge_key === badgeKey)?.earned_at || null;
+}
+
+// Tap any badge (locked or unlocked) to see what it is and how to get it —
+// a toast's ~2.6s auto-dismiss is too short for a full description, so this
+// uses the same openModal() pattern as the points breakdown above instead.
+function openBadgeInfoModal(badge, isEarned, earnedAt) {
+  const box = el(`
+    <div style="text-align:center;">
+      <div class="icon-badge${isEarned ? (badge.tier === "gold" ? " gold" : "") : " locked"}" style="width:64px;height:64px;border-radius:18px;margin:0 auto 14px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:32px;height:32px;">${badge.icon}</svg>
+      </div>
+      <div style="font-weight:800;font-size:16px;margin-bottom:6px;">${esc(badge.label)}</div>
+      <div class="text-faint" style="font-size:12.5px;line-height:1.5;margin-bottom:12px;">${esc(badge.desc)}</div>
+      <div style="font-size:12px;font-weight:700;" class="${isEarned ? "text-gold" : "text-faint"}">${isEarned ? "Earned " + timeAgo(earnedAt) : "🔒 Not earned yet"}</div>
+    </div>
+  `);
+  openModal(box);
+}
+
+// Renders the badge wall for one person into `container` — unlocked badges
+// in full color (gold tier gets the gold tint, same as everywhere else in
+// the app), locked ones dimmed via .icon-badge.locked. Every badge in the
+// catalog always shows (so people can see what's still to unlock), never
+// just the earned subset.
+function renderBadgesGrid(container, profileId) {
+  const earned = earnedBadgeKeysFor(profileId);
+  container.innerHTML = "";
+  BADGES.forEach((badge) => {
+    const isEarned = earned.has(badge.key);
+    const chip = el(`
+      <div class="badge-chip${isEarned ? "" : " locked"}">
+        <div class="icon-badge${isEarned ? (badge.tier === "gold" ? " gold" : "") : " locked"}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${badge.icon}</svg>
+        </div>
+        <div class="badge-chip-label">${esc(badge.label)}</div>
+      </div>
+    `);
+    chip.addEventListener("click", () => openBadgeInfoModal(badge, isEarned, badgeEarnedAtFor(profileId, badge.key)));
+    container.appendChild(chip);
   });
 }
 
@@ -345,6 +400,10 @@ export function renderTeam() {
       <div class="text-faint" style="font-size:11px;margin:2px 0 10px;line-height:1.4;">Everyone can see this one. Points come from doing the work — adding a prospect, a follow-up, a signed deal, finishing your daily tasks — not just closed revenue.</div>
       <div id="tm-points-leaderboard" style="margin-bottom:16px;"></div>
 
+      <div class="section-title mt-0">🎖️ My Badges</div>
+      <div class="text-faint" style="font-size:11px;margin:2px 0 10px;line-height:1.4;">Tap any badge — locked ones show what you need to do to unlock them.</div>
+      <div class="badges-grid" id="tm-badges-grid"></div>
+
       ${isOwner ? `
       <div class="section-title mt-0">Team Leaderboard</div>
       <div id="tm-leaderboard" style="margin-bottom:16px;"></div>
@@ -406,7 +465,7 @@ export function renderTeam() {
       <div class="divider"></div>
       <button class="btn btn-ghost" id="tm-signout">Sign Out</button>
       <p class="text-faint" style="font-size:11px;text-align:center;margin-top:20px;">Agency Command · ${esc(store.organization?.name || "Sales & Team Sync")}</p>
-      <p class="text-faint" style="font-size:10px;text-align:center;margin-top:4px;opacity:0.6;">build sxc-v157</p>
+      <p class="text-faint" style="font-size:10px;text-align:center;margin-top:4px;opacity:0.6;">build sxc-v158</p>
     </div>
   `);
   root.appendChild(wrap);
@@ -442,6 +501,7 @@ export function renderTeam() {
   perfEl.querySelector("#tm-mrr-card").addEventListener("click", () => openMySignedModal(perf.signedList));
 
   renderPointsLeaderboard(wrap);
+  renderBadgesGrid(wrap.querySelector("#tm-badges-grid"), store.profile.id);
   if (isOwner) { renderLeaderboard(wrap); renderLeadsSourced(wrap); }
 
   wireNotificationsToggle(wrap);
@@ -731,6 +791,7 @@ export function initTeamView() {
   on("activityLog", () => { if (isActive()) renderTeam(); });
   on("prospects", () => { if (isActive()) renderTeam(); });
   on("pointsTotals", () => { if (isActive()) renderTeam(); });
+  on("badgesEarned", () => { if (isActive()) renderTeam(); });
 }
 function isActive() {
   return document.getElementById("view-team")?.classList.contains("active");
