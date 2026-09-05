@@ -20,8 +20,18 @@ create table if not exists public.pitch_scenarios (
   prompt_text text not null,
   niche text,
   active boolean not null default true,
+  -- True for the dozen ready-made cards a team can load in one tap when the
+  -- deck is empty, so nobody faces a blank screen on day one. Flagged rather
+  -- than silently attributed to whoever tapped the button: a card should say
+  -- honestly where it came from, and it also lets the app nudge a team that
+  -- is still running entirely on starter cards to write their own.
+  is_starter boolean not null default false,
   created_at timestamptz not null default now()
 );
+
+-- Separate statement so this migration is safe to re-run on a database that
+-- already had the table from an earlier version without this column.
+alter table public.pitch_scenarios add column if not exists is_starter boolean not null default false;
 
 create index if not exists idx_pitch_scenarios_org on public.pitch_scenarios (org_id, created_at desc);
 

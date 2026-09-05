@@ -38,6 +38,30 @@ import { closeSheet, openSheet } from "../ui.js";
 // somewhere to fill up to.
 const WEEKLY_AIM = 5;
 
+// A day-one deck, loaded in one tap when the team has nothing yet.
+//
+// The point of this feature is that the team writes its own cards, so this is
+// deliberately a starting point and not a library: twelve objections that come
+// up constantly when selling marketing to small businesses in Zimbabwe, and
+// nothing more. They're written the blunt way a real prospect says them, not
+// the tidied-up way a training manual would. No niche is set on any of them,
+// because niches are per-agency and a starter card shouldn't reference one
+// that doesn't exist. Every one can be edited or deleted like any other card.
+const STARTER_CARDS = [
+  "We already have someone doing our social media.",
+  "Send me an email with your prices and I'll get back to you.",
+  "How much? Ah no, that's way too expensive for us.",
+  "Business is slow right now. Maybe come back next year.",
+  "I need to discuss it with my partner first.",
+  "We tried a marketing company before and nothing came of it.",
+  "Can you guarantee me how many customers I'll get?",
+  "My nephew does it for me for free.",
+  "All our business comes from word of mouth. We don't need this.",
+  "Just do one post first and let me see, then we can talk.",
+  "Are you charging in USD? Most of our sales are in local currency.",
+  "I'm busy right now, call me next week.",
+];
+
 let scenarios = [];
 let myAttempts = [];
 let loaded = false;
@@ -159,22 +183,34 @@ function renderStage(stage) {
   if (!scenarios.length) {
     stage.appendChild(el(`
       <div class="empty-state" style="padding:26px 20px;">
-        <p>The deck is empty. Add the first card: the last objection a prospect actually gave you, word for word.</p>
+        <p>The deck is empty. The best first card is the last objection a prospect actually gave you, word for word.</p>
         <button class="btn btn-primary" id="pp-empty-add" style="width:auto;margin-top:12px;">Add the first card</button>
+        <div style="margin-top:14px;">
+          <span class="small-link" id="pp-seed">Or load ${STARTER_CARDS.length} common ones to start</span>
+        </div>
       </div>
     `));
     stage.querySelector("#pp-empty-add").addEventListener("click", openAddCardSheet);
+    stage.querySelector("#pp-seed").addEventListener("click", (e) => seedStarterCards(e.target, stage));
     return;
   }
 
   if (!currentCard) {
+    // If the whole deck is still the ready-made starter cards, say so once,
+    // here, where it's useful. The feature only really works once the team
+    // has written down objections they've actually heard, and this is the
+    // gentlest possible reminder of that.
+    const allStarter = scenarios.every((s) => s.is_starter);
     stage.appendChild(el(`
-      <div class="card pp-card-back" id="pp-draw">
-        <div class="pp-card-back-inner">
-          <div class="pp-card-mark">?</div>
-          <div style="font-weight:800;font-size:15px;margin-top:10px;">Draw a card</div>
-          <div class="text-faint" style="font-size:12px;margin-top:4px;">${scenarios.length} objection${scenarios.length === 1 ? "" : "s"} in the deck</div>
+      <div>
+        <div class="card pp-card-back" id="pp-draw">
+          <div class="pp-card-back-inner">
+            <div class="pp-card-mark">?</div>
+            <div style="font-weight:800;font-size:15px;margin-top:10px;">Draw a card</div>
+            <div class="text-faint" style="font-size:12px;margin-top:4px;">${scenarios.length} objection${scenarios.length === 1 ? "" : "s"} in the deck</div>
+          </div>
         </div>
+        ${allStarter ? `<div class="text-faint" style="font-size:12px;text-align:center;margin-top:10px;padding:0 12px;">These are all starter cards. The deck gets a lot sharper once you add the objections your own team keeps hearing.</div>` : ""}
       </div>
     `));
     stage.querySelector("#pp-draw").addEventListener("click", () => {
@@ -193,7 +229,9 @@ function renderStage(stage) {
           ${currentCard.niche ? `<span class="text-faint" style="font-size:11px;">${esc(currentCard.niche)}</span>` : ""}
         </div>
         <div class="pp-card-quote">${esc(currentCard.prompt_text)}</div>
-        <div class="text-faint" style="font-size:11px;margin-top:10px;">Card by ${esc(author?.full_name || "a teammate")}</div>
+        <div class="text-faint" style="font-size:11px;margin-top:10px;">${
+          currentCard.is_starter ? "Starter card" : `Card by ${esc(author?.full_name || "a teammate")}`
+        }</div>
       </div>
 
       <div class="field" style="margin-top:12px;">
@@ -216,6 +254,42 @@ function renderStage(stage) {
     renderStage(stage);
   });
   card.querySelector("#pp-coach").addEventListener("click", () => submitAnswer(stage, card));
+}
+
+// One-tap day-one deck. These go in as ordinary cards owned by the agency —
+// editable and deletable like any other — just flagged as starter cards so
+// they aren't falsely credited to whoever pressed the button.
+async function seedStarterCards(link, stage) {
+  link.textContent = "Loading the deck...";
+  link.style.pointerEvents = "none";
+
+  // Check the database, not the copy held in this tab. If a teammate seeded
+  // the deck from their own phone a minute ago, this tab wouldn't know, and
+  // we'd cheerfully insert the same twelve cards a second time.
+  const { data: existing } = await sb.from("pitch_scenarios").select("id").eq("is_starter", true).limit(1);
+  if (existing?.length) {
+    toast("A teammate already loaded these");
+    loaded = false;
+    await loadData();
+    return;
+  }
+
+  const rows = STARTER_CARDS.map((text) => ({ prompt_text: text, niche: null, created_by: null, is_starter: true }));
+  const { data, error } = await sb.from("pitch_scenarios").insert(rows).select();
+
+  if (error) {
+    console.error("pitchPractice: could not load starter cards", error);
+    // The likeliest cause by far is an older copy of the migration without the
+    // is_starter column, so point at the fix instead of showing a raw error.
+    toast("Couldn't load the starter cards. Re-run the SQL in SETUP.md Step 158.", "error");
+    link.textContent = `Or load ${STARTER_CARDS.length} common ones to start`;
+    link.style.pointerEvents = "";
+    return;
+  }
+
+  scenarios = (data || []).concat(scenarios);
+  toast(`${data.length} starter cards added`);
+  renderStage(stage);
 }
 
 // Prefer cards you haven't practised yet, so the deck doesn't keep handing

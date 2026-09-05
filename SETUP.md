@@ -2298,7 +2298,9 @@ A new **Pitch Practice** item in the sidebar (desktop) or under **More** (phone)
 - **Add a card** — anyone on the team can, not just owners. The people taking the calls are the ones who know which objections actually come up. You type what the prospect said and optionally tag which niche it came from.
 - **Your own history** is on the same screen: your past answers and the coach notes on them, visible only to you.
 
-The deck starts empty. It fills up as the team adds to it — so a good first move is everyone adding the two or three objections they heard most this month.
+**Starter cards, so day one isn't a blank screen.** While the deck is empty, there's a link under the "Add the first card" button: **"Or load 12 common ones to start"**. Tapping it drops in twelve objections that come up constantly when selling marketing to small businesses in Zimbabwe — *"My nephew does it for me for free"*, *"Can you guarantee me how many customers I'll get?"*, *"Are you charging in USD?"*, and so on. They're written the blunt way a prospect actually says them.
+
+Those cards are labelled **"Starter card"** rather than credited to whoever tapped the button, and they behave like any other card — you can edit or delete them. Only one person needs to tap it; if a teammate has already loaded them, the app notices and won't add a second copy. While the deck is *still* nothing but starter cards, a small line under the draw card points out that it gets sharper once the team adds their own. That's the real goal — the starter deck is a starting point, not the product.
 
 ### 2. A tidier Dashboard
 
@@ -2314,6 +2316,8 @@ Ten of those cards — Win-Back Candidates, missing MRR, no follow-up date, unas
 2. Open **`supabase/migration_pitch_practice.sql`** from this project folder, select all, copy it, paste into the SQL Editor, click **Run**. You should see "Success. No rows returned." Safe to run twice.
 
 This adds three tables: `pitch_scenarios` (the deck), `pitch_attempts` (private practice answers), and `pitch_coach_requests` (an internal counter for the safety cap below).
+
+**If you already ran this file once before the starter cards were added**, run it again — it now also adds an `is_starter` column to `pitch_scenarios`, and re-running is safe (it skips everything that already exists). If you skip this, the "load 12 common ones" link will show a message telling you to re-run the SQL.
 
 ### 158.2 — Deploy the pitch-coach function
 
@@ -2341,11 +2345,12 @@ Redeploy the `app/` folder via Netlify Drop as usual. The service worker cache v
 
 1. Run the SQL from 158.1 and deploy the function from 158.2, then redeploy `app/` and hard-refresh the app.
 2. Open **Pitch Practice** (sidebar on desktop, **More** on phone). With an empty deck, confirm it invites you to add the first card rather than showing an error.
-3. Tap **Add a card**, type an objection you've genuinely heard (e.g. "It's too expensive"), pick a niche or leave it on "Any niche", and save. Confirm it appears in the deck count.
-4. Tap **Draw a card** — confirm a card reveals with the objection and "Card by [whoever added it]".
-5. Type an answer and tap the coach button. Within a few seconds you should get a short note that praises something specific and suggests one improvement. **Confirm it does not give you a score or a mark out of anything** — if it ever does, that's a bug worth reporting.
-6. Draw and answer a second card, then check the history section lower down — confirm both your answers and their coach notes are listed.
-7. Sign in as a different teammate. Confirm they can see the **cards** you added, but **not** your answers or coach notes.
-8. Go to the **Dashboard**. Confirm you now see a **Data Health** section, closed, with a number on it. Tap it — confirm it opens to reveal the Win-Back / unassigned / at-risk / overdue cards you're used to, and that tapping any of those still takes you to the right screen. Tap the header again to close it.
-9. Confirm your monthly **Business Snapshot** is still visible above Data Health without needing to expand anything.
-10. Do steps 8 and 9 again on your phone to confirm the section opens and closes properly on a narrow screen.
+3. Tap **"Or load 12 common ones to start"** — confirm the deck jumps to 12 cards and you see a note that they're all starter cards.
+4. Tap **Add a card**, type an objection you've genuinely heard (e.g. "It's too expensive"), pick a niche or leave it on "Any niche", and save. Confirm the deck count goes up by one and the "all starter cards" note disappears.
+5. Tap **Draw a card** — confirm a card reveals with the objection, and that a starter card says "Starter card" while your own says "Card by [your name]".
+6. Type an answer and tap the coach button. Within a few seconds you should get a short note that praises something specific and suggests one improvement. **Confirm it does not give you a score or a mark out of anything** — if it ever does, that's a bug worth reporting.
+7. Draw and answer a second card, then check the history section lower down — confirm both your answers and their coach notes are listed.
+8. Sign in as a different teammate. Confirm they can see the **cards** you added, but **not** your answers or coach notes. Confirm the starter cards aren't duplicated for them (the deck should still say 13, not 25).
+9. Go to the **Dashboard**. Confirm you now see a **Data Health** section, closed, with a number on it. Tap it — confirm it opens to reveal the Win-Back / unassigned / at-risk / overdue cards you're used to, and that tapping any of those still takes you to the right screen. Tap the header again to close it.
+10. Confirm your monthly **Business Snapshot** is still visible above Data Health without needing to expand anything.
+11. Do steps 9 and 10 again on your phone to confirm the section opens and closes properly on a narrow screen.
