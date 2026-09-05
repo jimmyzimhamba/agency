@@ -19,6 +19,21 @@
   })();
 </script>
 
+<!-- Same idea as the theme script above, for the desktop sidebar's
+     minimize-to-icons preference (js/sidebar.js) — set before the
+     stylesheet loads so a returning user who collapsed the sidebar never
+     sees it flash full-width first. No-op on phone widths, where the
+     sidebar is hidden entirely regardless of this attribute. -->
+<script>
+  (function () {
+    try {
+      if (localStorage.getItem("sxc-sidebar-collapsed") === "1") {
+        document.documentElement.setAttribute("data-sidebar", "collapsed");
+      }
+    } catch (e) {}
+  })();
+</script>
+
 <!-- Installable app config -->
 <link rel="manifest" href="manifest.json" />
 <meta name="theme-color" content="#0a0a0d" />
@@ -97,6 +112,9 @@
         <!-- desktop/tablet sidebar — hidden on phone widths, replaces the
              bottom nav once there's room for a persistent rail. -->
         <nav class="app-sidebar" id="app-sidebar">
+          <button class="sidebar-toggle" id="sidebar-toggle" title="Minimize sidebar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m15 6-6 6 6 6"/></svg>
+          </button>
           <div class="sidebar-brand">
             <div class="brand-mark"><img src="icons/mark.png" alt="" /></div>
             <div class="brand-name"><span class="text-purple-grad">Agency</span> Command<small id="sidebar-org-name">HARARE OUTREACH</small></div>
@@ -112,89 +130,89 @@
 
           <div class="sidebar-scroll">
             <div class="sidebar-group-label">Overview</div>
-            <button class="sidebar-link" data-view="dashboard">
+            <button class="sidebar-link" title="Dashboard" data-view="dashboard">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V10M12 19V5M20 19v-7"/></svg>
-              Dashboard
+              <span class="sidebar-label">Dashboard</span>
             </button>
-            <button class="sidebar-link" data-view="copilot">
+            <button class="sidebar-link" title="Copilot" data-view="copilot">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a7 7 0 0 0-7 7c0 2.4 1.2 4.5 3 5.7V17h8v-2.3c1.8-1.2 3-3.3 3-5.7a7 7 0 0 0-7-7Z"/><path d="M9 21h6M10 17v2M14 17v2"/></svg>
-              Copilot
+              <span class="sidebar-label">Copilot</span>
             </button>
 
             <div class="sidebar-group-label">Pipeline</div>
-            <button class="sidebar-link" data-view="pipeline">
+            <button class="sidebar-link" title="Prospects" data-view="pipeline">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg>
-              Prospects
+              <span class="sidebar-label">Prospects</span>
             </button>
-            <button class="sidebar-link" data-view="discovery">
+            <button class="sidebar-link" title="Discovery" data-view="discovery">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-              Discovery
+              <span class="sidebar-label">Discovery</span>
             </button>
-            <button class="sidebar-link" data-view="tasks">
+            <button class="sidebar-link" title="Tasks" data-view="tasks">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 13 4 4L19 7"/></svg>
-              Tasks
+              <span class="sidebar-label">Tasks</span>
             </button>
-            <button class="sidebar-link" data-view="messages">
+            <button class="sidebar-link" title="Messages" data-view="messages">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-              Messages
+              <span class="sidebar-label">Messages</span>
             </button>
 
             <div class="sidebar-group-label">Strategy</div>
-            <button class="sidebar-link" data-view="niches">
+            <button class="sidebar-link" title="Niche Matrix" data-view="niches">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg>
-              Niche Matrix
+              <span class="sidebar-label">Niche Matrix</span>
             </button>
-            <button class="sidebar-link" data-view="pipelinevalue">
+            <button class="sidebar-link" title="Pipeline Value" data-view="pipelinevalue">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg>
-              Pipeline Value
+              <span class="sidebar-label">Pipeline Value</span>
             </button>
-            <button class="sidebar-link" id="sidebar-deal-pricing">
+            <button class="sidebar-link" title="Deal Pricing" id="sidebar-deal-pricing">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 12h2M12 12h2M16 12h2M8 16h2M12 16h2M16 16h2"/></svg>
-              Deal Pricing
+              <span class="sidebar-label">Deal Pricing</span>
             </button>
 
             <div class="sidebar-group-label">Business</div>
-            <button class="sidebar-link" data-view="contracts">
+            <button class="sidebar-link" title="Contracts" data-view="contracts">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h9l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M9 12h6M9 16h6M9 8h2"/></svg>
-              Contracts
+              <span class="sidebar-label">Contracts</span>
             </button>
-            <button class="sidebar-link" data-view="invoices">
+            <button class="sidebar-link" title="Invoices" data-view="invoices">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>
-              Invoices
+              <span class="sidebar-label">Invoices</span>
             </button>
-            <button class="sidebar-link" data-view="projects">
+            <button class="sidebar-link" title="Projects" data-view="projects">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg>
-              Projects
+              <span class="sidebar-label">Projects</span>
             </button>
-            <button class="sidebar-link" data-view="gridplans">
+            <button class="sidebar-link" title="Grid Plans" data-view="gridplans">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-              Grid Plans
+              <span class="sidebar-label">Grid Plans</span>
             </button>
-            <button class="sidebar-link" data-view="services">
+            <button class="sidebar-link" title="Services & Packages" data-view="services">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7h-4V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2H4a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1Z"/><path d="M10 5h4v2h-4z"/></svg>
-              Services &amp; Packages
+              <span class="sidebar-label">Services &amp; Packages</span>
             </button>
-            <button class="sidebar-link" data-view="portfolio">
+            <button class="sidebar-link" title="Portfolio Studio" data-view="portfolio">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="m3 15 4.5-4.5a2 2 0 0 1 2.8 0L15 15M13 13l2-2a2 2 0 0 1 2.8 0L21 14"/><circle cx="8" cy="8.5" r="1.3"/></svg>
-              Portfolio Studio
+              <span class="sidebar-label">Portfolio Studio</span>
             </button>
 
             <div class="sidebar-group-label">Team</div>
-            <button class="sidebar-link" data-view="community">
+            <button class="sidebar-link" title="Community Feed" data-view="community">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-              Community Feed
+              <span class="sidebar-label">Community Feed</span>
             </button>
-            <button class="sidebar-link" data-view="activity">
+            <button class="sidebar-link" title="Activity Feed" data-view="activity">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
-              Activity Feed
+              <span class="sidebar-label">Activity Feed</span>
             </button>
-            <button class="sidebar-link" data-view="team">
+            <button class="sidebar-link" title="Team & Settings" data-view="team">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.4"/><path d="M2.5 20.5c0-3.3 2.9-6 6.5-6s6.5 2.7 6.5 6"/><path d="M16 4.6c1.6.5 2.8 2 2.8 3.8s-1.2 3.3-2.8 3.8"/><path d="M17.5 14.7c2.6.6 4.5 2.7 4.5 5.3"/></svg>
-              Team &amp; Settings
+              <span class="sidebar-label">Team &amp; Settings</span>
             </button>
           </div>
 
-          <button class="sidebar-foot" id="sidebar-foot">
+          <button class="sidebar-foot" id="sidebar-foot" title="Account & Settings">
             <span id="sidebar-avatar-slot" style="display:inline-flex;width:32px;height:32px;flex:0 0 auto;"></span>
             <div class="sidebar-foot-text">
               <div class="sidebar-foot-name" id="sidebar-user-name">&nbsp;</div>

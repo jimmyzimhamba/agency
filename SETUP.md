@@ -2049,3 +2049,18 @@ No new tables, no new secrets — just the rename, the safety-net redirect scrip
 3. Visit your bare root domain (`your-site.netlify.app/`) in a normal browser tab (not from an installed icon) and confirm you see the new marketing homepage, the tabs under "See it in action" switch between Pipeline/WhatsApp/Contracts, the FAQ items expand, and both "Sign in" and "Get started free" buttons take you to the real app.
 4. Visit `your-site.netlify.app/app.html` directly and confirm it's the familiar sign-in screen.
 5. If you already have the app installed on your phone (home screen icon), open it once after redeploying — confirm it still drops you straight into sign-in/dashboard as always, not the new marketing page. You don't need to reinstall anything; this should just work.
+
+## Step 148 — Landing page motion, and a minimize button for the sidebar
+
+Two small, unrelated polish requests bundled together since neither touches your data or setup.
+
+**"See it in action" now plays itself.** The tabbed mockup on the homepage (Step 147) used to just sit there until someone clicked a tab. Now it auto-advances through Pipeline → WhatsApp → Contracts & Invoices on its own, with a thin line filling in under the active tab as a countdown to the next switch. The moment a visitor clicks a tab themselves, it stops auto-advancing — they're in control from that point on, and it won't yank the mockup away mid-read. Each pane's content also fades/staggers in instead of just appearing, and the WhatsApp pane shows a little bouncing "typing…" bubble before each reply, so it reads more like a live chat than a screenshot. Anyone with "reduce motion" turned on in their device settings just sees each pane's finished state instantly — none of this applies to them.
+
+**The sidebar can now minimize to icons only.** In the real app (not the homepage), the desktop-width sidebar on the left now has a small circular arrow button on its top-right edge. Clicking it shrinks the sidebar down to just the icons (hover over one — or tap it, on a touchscreen with a mouse-like pointer — and you'll still see which page it is, since the icon itself doubles as a tooltip label). Click the arrow again to bring the labels back. Whichever state you leave it in is remembered on that device (same idea as the light/dark mode switch — it's a personal screen preference, not something that syncs to your teammates). Phone-width screens are unaffected — they never had this sidebar to begin with; they use the bottom tab bar exactly as before.
+
+No new tables, no new secrets, no edge functions touched — pure front-end polish.
+
+1. Redeploy the `app/` folder via Netlify Drop.
+2. On a wide/desktop browser window, open the app and confirm the small circular arrow sits on the sidebar's edge; click it and confirm the sidebar shrinks to icons, the page content shifts over to fill the extra space, and clicking again brings the full sidebar back.
+3. Reload the page after minimizing it — confirm it stays minimized (the preference is remembered).
+4. Visit the homepage and watch the "See it in action" mockup for 15–20 seconds without touching it — confirm it cycles through all three tabs on its own.

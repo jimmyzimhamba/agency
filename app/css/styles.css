@@ -213,11 +213,12 @@ button { font-family: inherit; }
 .app-main-col { min-width: 0; }
 .app-sidebar { display: none; }
 
-.sidebar-brand { display: flex; align-items: center; gap: 10px; padding: 18px 16px 16px; }
-.sidebar-scroll { flex: 1; overflow-y: auto; padding: 4px 10px 10px; }
+.sidebar-brand { display: flex; align-items: center; gap: 10px; padding: 18px 16px 16px; overflow: hidden; }
+.sidebar-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 4px 10px 10px; }
 .sidebar-group-label {
   font-size: 10.5px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase;
   color: var(--text-faint); margin: 16px 10px 6px;
+  white-space: nowrap; overflow: hidden;
 }
 .sidebar-group-label:first-child { margin-top: 4px; }
 .sidebar-link {
@@ -225,6 +226,7 @@ button { font-family: inherit; }
   background: none; border: none; border-radius: var(--radius-sm);
   color: var(--text-dim); font-family: var(--font); font-weight: 600; font-size: 13.5px;
   padding: 9px 10px; margin-bottom: 2px; cursor: pointer; text-align: left;
+  white-space: nowrap; overflow: hidden;
   transition: background 0.15s ease, color 0.15s ease;
 }
 .sidebar-link svg { width: 18px; height: 18px; flex: 0 0 auto; opacity: 0.85; }
@@ -239,14 +241,29 @@ button { font-family: inherit; }
   display: flex; align-items: center; gap: 10px; width: 100%;
   background: none; border: none; border-top: 1px solid var(--line);
   padding: 12px 16px; cursor: pointer; text-align: left; color: var(--text);
+  overflow: hidden;
 }
 .sidebar-foot:hover { background: rgba(255,255,255,0.03); }
 .sidebar-foot-text { min-width: 0; flex: 1; }
 .sidebar-foot-name { font-size: 13px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .sidebar-foot-role { font-size: 11px; color: var(--text-faint); text-transform: capitalize; }
 
+/* Minimize-to-icons toggle — a small circular button that straddles the
+   sidebar's right edge (half in, half out), matching the floating-chevron
+   pattern from the reference app. Sits on top of everything else in the
+   sidebar via position:absolute against .app-sidebar's own positioning
+   context (position:sticky below still establishes one for descendants). */
+.sidebar-toggle {
+  display: none; position: absolute; top: 22px; right: -12px; z-index: 5;
+  width: 24px; height: 24px; border-radius: 50%; align-items: center; justify-content: center;
+  background: var(--black-card); border: 1px solid var(--line-strong); color: var(--text-dim);
+  cursor: pointer; padding: 0; transition: background 0.15s ease, color 0.15s ease, transform 0.25s ease;
+}
+.sidebar-toggle:hover { background: var(--black-raised); color: var(--text); }
+.sidebar-toggle svg { width: 13px; height: 13px; }
+
 @media (min-width: 960px) {
-  :root { --sidebar-w: 246px; }
+  :root { --sidebar-w: 246px; --sidebar-w-collapsed: 76px; }
   #app { max-width: none; }
   .app-layout { display: flex; align-items: stretch; min-height: 100vh; }
   .app-sidebar {
@@ -254,8 +271,10 @@ button { font-family: inherit; }
     position: sticky; top: 0; height: 100vh;
     background: linear-gradient(180deg, var(--black-raised), var(--black));
     border-right: 1px solid var(--line);
+    transition: width 0.2s ease, flex-basis 0.2s ease;
   }
-  .app-main-col { flex: 1; min-width: 0; max-width: calc(100% - var(--sidebar-w)); }
+  .app-main-col { flex: 1; min-width: 0; max-width: calc(100% - var(--sidebar-w)); transition: max-width 0.2s ease; }
+  .sidebar-toggle { display: flex; }
 
   /* the sidebar now owns the brand + primary nav, so the topbar narrows
      down to just page-level actions (due today, quick menu). */
@@ -265,6 +284,28 @@ button { font-family: inherit; }
   .app-main-col main { padding-bottom: 30px; }
   .app-main-col .fab { bottom: 24px; max-width: none; }
 }
+
+/* Collapsed ("minimized") sidebar — icon rail only. Only takes effect at
+   the same desktop breakpoint the sidebar itself appears at; on phone
+   widths the attribute is simply inert since .app-sidebar is display:none
+   there regardless. Labels/search/group headings are hidden rather than
+   removed, so switching back just fades the same DOM back in — no
+   re-render, no lost scroll position. */
+:root[data-sidebar="collapsed"] {
+  --sidebar-w: var(--sidebar-w-collapsed);
+}
+:root[data-sidebar="collapsed"] .sidebar-brand .brand-name,
+:root[data-sidebar="collapsed"] .sidebar-search,
+:root[data-sidebar="collapsed"] .sidebar-group-label,
+:root[data-sidebar="collapsed"] .sidebar-label,
+:root[data-sidebar="collapsed"] .sidebar-foot-text,
+:root[data-sidebar="collapsed"] .sidebar-foot .badge-dot {
+  display: none;
+}
+:root[data-sidebar="collapsed"] .sidebar-brand { justify-content: center; padding: 18px 0 16px; }
+:root[data-sidebar="collapsed"] .sidebar-link { justify-content: center; padding: 9px; gap: 0; }
+:root[data-sidebar="collapsed"] .sidebar-foot { justify-content: center; padding: 12px 0; }
+:root[data-sidebar="collapsed"] .sidebar-toggle svg { transform: rotate(180deg); }
 
 /* ---- content area ------------------------------------------------------*/
 main {

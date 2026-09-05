@@ -5,6 +5,7 @@ import { initGlobalUI, openSheet, closeSheet, openModal, closeModal } from "./ui
 import { el, esc, fmtDate, withTimeout, avatarHTML } from "./utils.js";
 import { initGlobalSearch } from "./globalSearch.js";
 import { initTheme, toggleTheme } from "./theme.js";
+import { initSidebarCollapse, toggleSidebarCollapsed, isSidebarCollapsed } from "./sidebar.js";
 
 import { renderPipeline, initPipelineView, openAddProspectSheet } from "./views/pipeline.js";
 import { renderDiscovery, initDiscoveryView } from "./views/discovery.js";
@@ -265,6 +266,13 @@ function initKeyboardShortcuts() {
   });
 }
 
+// Keeps the toggle button's tooltip/label matching its actual effect —
+// "Minimize" when the sidebar is currently full-width, "Expand" once it's
+// already collapsed to icons.
+function syncSidebarToggleTitle(btn) {
+  btn.title = isSidebarCollapsed() ? "Expand sidebar" : "Minimize sidebar";
+}
+
 function wireChrome() {
   document.querySelectorAll(".nav-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -282,6 +290,13 @@ function wireChrome() {
   });
   document.getElementById("sidebar-deal-pricing").addEventListener("click", openDealPricingCalculator);
   document.getElementById("sidebar-foot").addEventListener("click", () => switchView("team"));
+
+  const sidebarToggleBtn = document.getElementById("sidebar-toggle");
+  syncSidebarToggleTitle(sidebarToggleBtn);
+  sidebarToggleBtn.addEventListener("click", () => {
+    toggleSidebarCollapsed();
+    syncSidebarToggleTitle(sidebarToggleBtn);
+  });
 
   on("prospects", refreshDueBadge);
   on("prospects", refreshSidebarDueBadge);
@@ -372,6 +387,7 @@ const BOOT_TIMEOUT_MS = 20000;
 
 async function bootApp() {
   initTheme();
+  initSidebarCollapse();
   initGlobalUI();
 
   if (!CONFIGURED) {
