@@ -2022,3 +2022,20 @@ Twilio signs every request it sends here with a secret signature so this functio
 - Twilio's trial credit covers a meaningful amount of Sandbox testing before you need to add real funds.
 
 If you'd rather skip this feature entirely, that's fine — everything else in the app works exactly as before, and pop-up notifications (Step "Notifications") still work on their own.
+
+---
+
+## Step 147 — Public landing page (`landing.html`)
+
+Requested after you shared screenshots of Biiblo's marketing site as inspiration for "a landing page and the other UI like a similar system." This adds a standalone, public marketing page for Agency Command — a place to send someone who's never seen the app before, instead of dropping them straight onto the sign-in screen.
+
+**What it is:** a new file, `app/landing.html`, built in the same dark/violet/gold visual language as the app itself (same fonts, buttons, cards, icon badges) — a hero section with a headline and a "see it in action" tabbed mockup (Pipeline / WhatsApp / Contracts & Invoices), feature cards for the real features (prospecting, WhatsApp, Copilot, contracts/invoices, projects, Portfolio Studio, team targets), a "built for how agencies actually work" section (installable, works offline, real-time, free), a comparison table, an FAQ, and a final "Get started free" call to action. Every "Sign in" / "Get started free" button links to `index.html` — the real app — since this page is pure marketing, not a separate login system.
+
+**What it isn't:** it doesn't replace `index.html` as the app's front door. Everyone who already has the app installed (home screen icon, bookmark) keeps opening straight into `index.html` exactly as before — nothing about that changed. `landing.html` is a second, separate page you can link to from ads, social media, or a WhatsApp bio link, e.g. `https://your-site.netlify.app/landing.html`. If you'd rather have this page be the very first thing anyone sees at your root domain instead, that's a bigger, deliberate change (it affects the installed-app shortcut behavior) — just ask and it can be done as its own step.
+
+Like `review.html` and `portfolio.html`, this page deliberately isn't cached for offline use — it's meant for first-time visitors with a live connection, not returning team members.
+
+No new tables, no new secrets, no JS logic changes — pure new HTML/CSS page.
+
+1. Redeploy the `app/` folder via Netlify Drop.
+2. Visit `your-site.netlify.app/landing.html` and confirm the page loads, the tabs under "See it in action" switch between Pipeline/WhatsApp/Contracts, the FAQ items expand, and both "Sign in" and "Get started free" buttons take you to the real app.

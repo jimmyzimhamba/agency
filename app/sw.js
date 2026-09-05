@@ -2,7 +2,7 @@
 // Makes the app open instantly and work (in read-only "last synced" mode)
 // even with a weak or dropped connection. Bump CACHE_VERSION any time you
 // want to force everyone's phone to fetch fresh files.
-const CACHE_VERSION = "sxc-v154";
+const CACHE_VERSION = "sxc-v155";
 
 // Plain fetch() has no timeout of its own — on a flaky/carrier-throttled
 // mobile-data connection a request can sit "pending" indefinitely instead
@@ -100,6 +100,13 @@ self.addEventListener("fetch", (event) => {
   // connection while a prospect is browsing someone's showcase would serve
   // them the AGENCY app shell instead of an error.
   if (url.pathname.endsWith("/portfolio.html")) return;
+
+  // The public marketing landing page is the same story again: its own
+  // standalone page (not in APP_SHELL), meant to be visited by people who
+  // don't have the app installed at all, so it must never get cached under
+  // the "index.html" key — that would risk serving the AGENCY app shell to
+  // a dropped-connection visitor who was just reading marketing copy.
+  if (url.pathname.endsWith("/landing.html")) return;
 
   // Page navigations: try the network first (freshest app), but give up
   // after 8 seconds if it's just hanging (not erroring) and fall back to
