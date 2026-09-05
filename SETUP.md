@@ -2214,3 +2214,31 @@ Nothing new to track in the database for this — every checkbox is just reading
 4. Tap an unfinished item (e.g. "Create your first invoice") — confirm it takes you straight to that screen. Tap "Set your monthly revenue goal" (owners only) — confirm it opens the goal pop-up instead of navigating away.
 5. Tap "Hide" — confirm the card disappears, and reload the page to confirm it stays hidden.
 6. If you're testing as a non-owner team member, confirm you only see 5 items (no "set revenue goal" or "invite a teammate" — those stay owner-only, same as elsewhere in the app).
+
+## Step 156 — A short welcome wizard after signing up, and the Team page split into tabs
+
+Two more pieces from the same "another app's design" folder as Steps 153–155. No SQL to run — pure front-end, just redeploy.
+
+**1. A short welcome wizard, shown once, right after someone creates a brand-new account** (not shown on an ordinary sign-in, and never shown again after the first time). It's deliberately short — just two or three screens:
+   - **Pick an avatar** — the same AI-avatar picker already on the Profile tab, front and center on day one instead of something to stumble on later.
+   - **Invite your team** (only shown to whoever just created the agency, not someone who joined an existing one) — the invite code, front and center, with a Copy button, so it's shared before it's forgotten about.
+   - **You're all set** — a quick pointer to the Dashboard's "Getting Started" checklist (Step 155) for what to actually do next.
+
+   There's a "Skip" link at all times, and a progress bar at the top. It doesn't try to repeat everything the Getting Started checklist already covers — it's about making the workspace feel set up, not about the day-to-day tasks.
+
+**2. The Team page is now three tabs instead of one long scroll** — **Profile**, **Team**, and **Settings** — using the same pill-style tab switcher already on the sign-up screen ("New agency / Join a team"), so it should feel familiar rather than new.
+   - **Profile**: your own profile card, My Performance, and My Badges.
+   - **Team**: the Points Leaderboard, (owners only) the Team Leaderboard and Leads Sourced, the invite code, and the Team Members roster.
+   - **Settings**: Appearance (dark/light), Notifications, Email Notifications, and Sign Out.
+
+   Nothing was removed — everything that used to be on the Team page is still there, just sorted into the tab it actually belongs under. Whichever tab someone's on stays selected even if the page quietly refreshes in the background (e.g. a teammate adds a prospect elsewhere).
+
+**Setup:** just redeploy the `app/` folder via Netlify Drop.
+
+**Now test it:**
+
+1. Reload the app (hard refresh if it still looks old — the service worker's cache version was bumped).
+2. Sign up for a brand-new test account — confirm the welcome wizard appears right after, with the avatar step first. Pick an avatar and confirm it applies. Continue through — if you created a new agency, confirm you see an "Invite your team" step with the correct code; if you joined an existing one via invite code instead, confirm that step is skipped. Confirm the final "You're all set" step's button closes the wizard onto the Dashboard.
+3. Sign out and sign back in with that same account — confirm the wizard does **not** appear again.
+4. Go to the Team page — confirm you land on "Profile" by default, and confirm "Team" and "Settings" show the right content each (compare against the list above — nothing should be missing).
+5. Switch to "Settings", then do something elsewhere that would normally refresh the Team page in the background (or just wait) — confirm it doesn't jump back to "Profile" on its own.

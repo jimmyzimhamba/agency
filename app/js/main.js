@@ -17,6 +17,7 @@ import { renderMessages, initMessagesView } from "./views/messages.js";
 import { renderTasks, initTasksView } from "./views/tasks.js";
 import { renderActivity, initActivityView } from "./views/activity.js";
 import { renderTeam, initTeamView } from "./views/team.js";
+import { openOnboardingWizard } from "./views/onboarding.js";
 import { renderPipelineValue, initPipelineValueView } from "./views/pipelineValue.js";
 import { openDealPricingCalculator } from "./views/dealPricing.js";
 import { openInstallAppSheet } from "./views/installApp.js";
@@ -503,6 +504,15 @@ async function enterApp(session) {
     document.getElementById("app-shell").style.display = "block";
     switchView("dashboard");
     refreshDueBadge();
+
+    // One-shot flag set in auth.js right before signUp() — see the comment
+    // there. Consumed (removed) immediately so a page reload straight after
+    // signing up, or a later ordinary sign-in in the same tab, never shows
+    // this twice.
+    if (sessionStorage.getItem("sxc_just_signed_up") === "1") {
+      sessionStorage.removeItem("sxc_just_signed_up");
+      openOnboardingWizard();
+    }
   } catch (err) {
     console.error("enterApp failed", err);
     showBootError("Couldn't load your data. Check your connection and try again.");

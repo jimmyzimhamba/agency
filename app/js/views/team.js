@@ -16,6 +16,20 @@ import { BADGES } from "../badges.js";
 // matching a given actor_id is that person's most recent action.
 const INACTIVE_DAYS = 3;
 
+// This page used to be one long scroll mixing three different concerns —
+// your own profile/performance/badges, the whole team's roster and
+// leaderboards, and app-wide preferences like theme/notifications/sign-out.
+// Split into three subtabs (reusing the same .subtabs/.subtab segmented
+// control already used for the sign-up screen's "New agency / Join a team"
+// toggle, rather than inventing new tab CSS) so each visit lands on
+// whichever concern actually brought someone here. Kept as module state
+// (not a URL/view — this is still the single "Team" nav destination) so a
+// re-render triggered by an unrelated realtime update (someone else added a
+// prospect, etc. — see initTeamView's listeners below) doesn't silently
+// snap an owner back to "Profile" while they're in the middle of managing
+// the roster on "Team".
+let activeTeamTab = "profile";
+
 // Shown under a teammate's role picker once they're set to one of the new
 // grid-plan-specific roles, so the owner can see at a glance what that role
 // actually unlocks without having to go look it up. "Agent" and "Owner"
@@ -374,101 +388,125 @@ export function renderTeam() {
   root.innerHTML = "";
   const isOwner = store.profile?.role === "owner";
 
+  const panelStyle = (name) => (activeTeamTab === name ? "" : "display:none;");
+
   const wrap = el(`
     <div>
       <div class="page-title">Team<span class="accent">.</span></div>
 
-      <div class="card" style="margin-bottom:16px;">
-        <div class="flex-between">
-          <div style="display:flex;align-items:center;gap:10px;min-width:0;">
-            ${avatarHTML(store.profile?.full_name || store.profile?.email, store.profile?.avatar_url, 40, 14)}
-            <div style="min-width:0;">
-              <div style="font-weight:700;font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(store.profile?.full_name || store.profile?.email)}</div>
-              <div class="text-faint" style="font-size:12px;text-transform:capitalize;">${esc(store.profile?.role)}</div>
+      <div class="subtabs" id="tm-subtabs">
+        <div class="subtab ${activeTeamTab === "profile" ? "active" : ""}" data-tab="profile">Profile</div>
+        <div class="subtab ${activeTeamTab === "team" ? "active" : ""}" data-tab="team">Team</div>
+        <div class="subtab ${activeTeamTab === "settings" ? "active" : ""}" data-tab="settings">Settings</div>
+      </div>
+
+      <div data-panel="profile" style="${panelStyle("profile")}">
+        <div class="card" style="margin-bottom:16px;">
+          <div class="flex-between">
+            <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+              ${avatarHTML(store.profile?.full_name || store.profile?.email, store.profile?.avatar_url, 40, 14)}
+              <div style="min-width:0;">
+                <div style="font-weight:700;font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(store.profile?.full_name || store.profile?.email)}</div>
+                <div class="text-faint" style="font-size:12px;text-transform:capitalize;">${esc(store.profile?.role)}</div>
+              </div>
             </div>
+            <span class="small-link" id="tm-edit-profile" style="flex:0 0 auto;">Edit</span>
           </div>
-          <span class="small-link" id="tm-edit-profile" style="flex:0 0 auto;">Edit</span>
         </div>
+
+        <div class="section-title mt-0">My Performance</div>
+        <div class="stat-grid" style="margin-bottom:16px;" id="tm-my-performance"></div>
+
+        <div class="section-title mt-0">🎖️ My Badges</div>
+        <div class="text-faint" style="font-size:11px;margin:2px 0 10px;line-height:1.4;">Tap any badge — locked ones show what you need to do to unlock them.</div>
+        <div class="badges-grid" id="tm-badges-grid"></div>
       </div>
 
-      <div class="section-title mt-0">My Performance</div>
-      <div class="stat-grid" style="margin-bottom:16px;" id="tm-my-performance"></div>
-
-      <div class="flex-between" style="margin-bottom:2px;">
-        <div class="section-title mt-0" style="margin-bottom:0;">🏆 Points Leaderboard</div>
-      </div>
-      <div class="text-faint" style="font-size:11px;margin:2px 0 10px;line-height:1.4;">Everyone can see this one. Points come from doing the work — adding a prospect, a follow-up, a signed deal, finishing your daily tasks — not just closed revenue.</div>
-      <div id="tm-points-leaderboard" style="margin-bottom:16px;"></div>
-
-      <div class="section-title mt-0">🎖️ My Badges</div>
-      <div class="text-faint" style="font-size:11px;margin:2px 0 10px;line-height:1.4;">Tap any badge — locked ones show what you need to do to unlock them.</div>
-      <div class="badges-grid" id="tm-badges-grid"></div>
-
-      ${isOwner ? `
-      <div class="section-title mt-0">Team Leaderboard</div>
-      <div id="tm-leaderboard" style="margin-bottom:16px;"></div>
-
-      <div class="section-title mt-0">Leads Sourced</div>
-      <div id="tm-sourced" style="margin-bottom:16px;"></div>
-      ` : ""}
-
-      <div class="card" style="margin-bottom:16px;">
+      <div data-panel="team" style="${panelStyle("team")}">
         <div class="flex-between" style="margin-bottom:2px;">
-          <div style="font-weight:700;font-size:13.5px;">${esc(store.organization?.name || "Your Agency")}</div>
+          <div class="section-title mt-0" style="margin-bottom:0;">🏆 Points Leaderboard</div>
         </div>
-        <div class="text-faint" style="font-size:11.5px;margin:4px 0 10px;line-height:1.4;">Share this invite code with new teammates so they land in your agency when they sign up.</div>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <code style="flex:1;background:var(--black-card);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px;letter-spacing:0.5px;">${esc(store.organization?.invite_code || "—")}</code>
-          <button class="btn btn-ghost btn-sm" id="tm-copy-invite" style="width:auto;">Copy</button>
-        </div>
-        ${isOwner ? `<button class="btn btn-ghost btn-sm" id="tm-regen-invite" style="width:auto;margin-top:9px;">Regenerate Code</button>` : ""}
-      </div>
+        <div class="text-faint" style="font-size:11px;margin:2px 0 10px;line-height:1.4;">Everyone can see this one. Points come from doing the work — adding a prospect, a follow-up, a signed deal, finishing your daily tasks — not just closed revenue.</div>
+        <div id="tm-points-leaderboard" style="margin-bottom:16px;"></div>
 
-      <div class="card" style="margin-bottom:16px;">
-        <div class="flex-between">
-          <div style="min-width:0;padding-right:12px;">
-            <div style="font-weight:700;font-size:13.5px;">Appearance</div>
-            <div class="text-faint" style="font-size:11.5px;margin-top:4px;line-height:1.4;">Switch between dark and light mode. This is a per-device setting — it won't change how the app looks for your teammates.</div>
+        ${isOwner ? `
+        <div class="section-title mt-0">Team Leaderboard</div>
+        <div id="tm-leaderboard" style="margin-bottom:16px;"></div>
+
+        <div class="section-title mt-0">Leads Sourced</div>
+        <div id="tm-sourced" style="margin-bottom:16px;"></div>
+        ` : ""}
+
+        <div class="card" style="margin-bottom:16px;">
+          <div class="flex-between" style="margin-bottom:2px;">
+            <div style="font-weight:700;font-size:13.5px;">${esc(store.organization?.name || "Your Agency")}</div>
           </div>
-          <label class="switch" title="Toggle light/dark mode">
-            <input type="checkbox" id="tm-theme-switch" />
-            <span class="track"><span class="thumb"></span></span>
-          </label>
-        </div>
-      </div>
-
-      <div class="card" style="margin-bottom:16px;">
-        <div class="flex-between" style="margin-bottom:2px;">
-          <div style="font-weight:700;font-size:13.5px;">Notifications</div>
-          <span class="text-faint" style="font-size:11px;" id="tm-notif-status">Checking…</span>
-        </div>
-        <div class="text-faint" style="font-size:11.5px;margin:4px 0 10px;line-height:1.4;">Get a pop-up when a prospect is added or assigned to you — even when the app isn't open.</div>
-        <button class="btn btn-ghost btn-sm" id="tm-notif-toggle" style="width:auto;" disabled>...</button>
-      </div>
-
-      <div class="card" style="margin-bottom:16px;">
-        <div class="flex-between">
-          <div style="min-width:0;padding-right:12px;">
-            <div style="font-weight:700;font-size:13.5px;">Email Notifications</div>
-            <div class="text-faint" style="font-size:11.5px;margin-top:4px;line-height:1.4;">Get an email when a prospect is added or assigned to you, and when an invoice goes overdue.</div>
+          <div class="text-faint" style="font-size:11.5px;margin:4px 0 10px;line-height:1.4;">Share this invite code with new teammates so they land in your agency when they sign up.</div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <code style="flex:1;background:var(--black-card);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px;letter-spacing:0.5px;">${esc(store.organization?.invite_code || "—")}</code>
+            <button class="btn btn-ghost btn-sm" id="tm-copy-invite" style="width:auto;">Copy</button>
           </div>
-          <label class="switch" title="Toggle email notifications">
-            <input type="checkbox" id="tm-email-notif-switch" />
-            <span class="track"><span class="thumb"></span></span>
-          </label>
+          ${isOwner ? `<button class="btn btn-ghost btn-sm" id="tm-regen-invite" style="width:auto;margin-top:9px;">Regenerate Code</button>` : ""}
         </div>
+
+        <div class="section-title mt-0">Team Members</div>
+        <div id="tm-list"></div>
       </div>
 
-      <div class="section-title mt-0">Team Members</div>
-      <div id="tm-list"></div>
+      <div data-panel="settings" style="${panelStyle("settings")}">
+        <div class="card" style="margin-bottom:16px;">
+          <div class="flex-between">
+            <div style="min-width:0;padding-right:12px;">
+              <div style="font-weight:700;font-size:13.5px;">Appearance</div>
+              <div class="text-faint" style="font-size:11.5px;margin-top:4px;line-height:1.4;">Switch between dark and light mode. This is a per-device setting — it won't change how the app looks for your teammates.</div>
+            </div>
+            <label class="switch" title="Toggle light/dark mode">
+              <input type="checkbox" id="tm-theme-switch" />
+              <span class="track"><span class="thumb"></span></span>
+            </label>
+          </div>
+        </div>
 
-      <div class="divider"></div>
-      <button class="btn btn-ghost" id="tm-signout">Sign Out</button>
-      <p class="text-faint" style="font-size:11px;text-align:center;margin-top:20px;">Agency Command · ${esc(store.organization?.name || "Sales & Team Sync")}</p>
-      <p class="text-faint" style="font-size:10px;text-align:center;margin-top:4px;opacity:0.6;">build sxc-v162</p>
+        <div class="card" style="margin-bottom:16px;">
+          <div class="flex-between" style="margin-bottom:2px;">
+            <div style="font-weight:700;font-size:13.5px;">Notifications</div>
+            <span class="text-faint" style="font-size:11px;" id="tm-notif-status">Checking…</span>
+          </div>
+          <div class="text-faint" style="font-size:11.5px;margin:4px 0 10px;line-height:1.4;">Get a pop-up when a prospect is added or assigned to you — even when the app isn't open.</div>
+          <button class="btn btn-ghost btn-sm" id="tm-notif-toggle" style="width:auto;" disabled>...</button>
+        </div>
+
+        <div class="card" style="margin-bottom:16px;">
+          <div class="flex-between">
+            <div style="min-width:0;padding-right:12px;">
+              <div style="font-weight:700;font-size:13.5px;">Email Notifications</div>
+              <div class="text-faint" style="font-size:11.5px;margin-top:4px;line-height:1.4;">Get an email when a prospect is added or assigned to you, and when an invoice goes overdue.</div>
+            </div>
+            <label class="switch" title="Toggle email notifications">
+              <input type="checkbox" id="tm-email-notif-switch" />
+              <span class="track"><span class="thumb"></span></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+        <button class="btn btn-ghost" id="tm-signout">Sign Out</button>
+        <p class="text-faint" style="font-size:11px;text-align:center;margin-top:20px;">Agency Command · ${esc(store.organization?.name || "Sales & Team Sync")}</p>
+        <p class="text-faint" style="font-size:10px;text-align:center;margin-top:4px;opacity:0.6;">build sxc-v163</p>
+      </div>
     </div>
   `);
   root.appendChild(wrap);
+
+  wrap.querySelectorAll("#tm-subtabs .subtab").forEach((tabEl) => {
+    tabEl.addEventListener("click", () => {
+      const target = tabEl.dataset.tab;
+      if (target === activeTeamTab) return;
+      activeTeamTab = target;
+      wrap.querySelectorAll("#tm-subtabs .subtab").forEach((t) => t.classList.toggle("active", t === tabEl));
+      wrap.querySelectorAll("[data-panel]").forEach((p) => { p.style.display = p.dataset.panel === target ? "" : "none"; });
+    });
+  });
 
   wrap.querySelector("#tm-signout").addEventListener("click", () => {
     confirmModal({
@@ -609,14 +647,30 @@ async function refreshAfterProfileEdit(patch) {
 // (mirrors the AI-avatar-picker pattern from the Biiblo inspo screenshots).
 // DiceBear's HTTP API needs no key/auth — the seed alone deterministically
 // produces the same picture every time, so these are stable forever.
-const AVATAR_PRESETS = [
+// Exported (not just used by the Edit Profile modal below) because the
+// post-signup onboarding wizard (views/onboarding.js) reuses this exact
+// preset list and URL scheme for its own "pick an avatar" step, rather than
+// keeping a second copy that could drift out of sync.
+export const AVATAR_PRESETS = [
   "Nova Scout", "Circuit Ace", "Zenith Lead", "Ember Fox",
   "Pulse Wave", "Sage Owl", "Rally Team", "Vex Star",
   "Milo Builder", "Halo Ring", "Kito Spark", "Zara Prime",
 ];
 
-function dicebearUrl(seed) {
+export function dicebearUrl(seed) {
   return `https://api.dicebear.com/9.x/avataaars/svg?seed=${encodeURIComponent(seed)}&radius=50`;
+}
+
+// The actual "save this avatar_url to the DB and refresh local state" logic,
+// pulled out of openEditProfileModal's selectAvatarUrl so the onboarding
+// wizard can reuse it too (it needs its own local preview, but the same
+// persistence step) — one code path for "an avatar was chosen," not two.
+export async function saveAvatarUrl(url) {
+  const { error } = await sb.from("profiles").update({ avatar_url: url }).eq("id", store.profile.id);
+  if (error) { toast(error.message, "error"); return false; }
+  toast("Avatar updated", "success");
+  await refreshAfterProfileEdit({ avatar_url: url });
+  return true;
 }
 
 function openEditProfileModal() {
@@ -676,10 +730,7 @@ function openEditProfileModal() {
   // image itself from the seed baked into the URL.
   async function selectAvatarUrl(url) {
     slot.innerHTML = `<span class="avatar" style="width:76px;height:76px;"><img src="${url}" alt="" /></span>`;
-    const { error: dbErr } = await sb.from("profiles").update({ avatar_url: url }).eq("id", store.profile.id);
-    if (dbErr) return toast(dbErr.message, "error");
-    toast("Avatar updated", "success");
-    await refreshAfterProfileEdit({ avatar_url: url });
+    await saveAvatarUrl(url);
   }
 
   const grid = box.querySelector("#ep-avatar-grid");

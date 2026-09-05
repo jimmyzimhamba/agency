@@ -88,6 +88,14 @@ async function handleSubmit() {
 
   try {
     if (mode === "signup") {
+      // Set *before* calling signUp() rather than after: Supabase's
+      // SIGNED_IN event (which main.js listens for to boot the app) can
+      // fire as a side effect of this call, sometimes before the outer
+      // await here even resolves. Flag has to already be in place by then
+      // or main.js's enterApp() would miss the moment. Cleared below on
+      // failure so a rejected signup attempt can't wrongly trigger the
+      // wizard on some later, unrelated sign-in.
+      sessionStorage.setItem("sxc_just_signed_up", "1");
       const { error } = await sb.auth.signUp({
         email, password,
         options: {
@@ -99,7 +107,7 @@ async function handleSubmit() {
           },
         },
       });
-      if (error) throw error;
+      if (error) { sessionStorage.removeItem("sxc_just_signed_up"); throw error; }
       toast("Account created — you're in!", "success");
     } else {
       const { error } = await sb.auth.signInWithPassword({ email, password });
