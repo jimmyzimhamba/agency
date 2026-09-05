@@ -2242,3 +2242,32 @@ Two more pieces from the same "another app's design" folder as Steps 153–155. 
 3. Sign out and sign back in with that same account — confirm the wizard does **not** appear again.
 4. Go to the Team page — confirm you land on "Profile" by default, and confirm "Team" and "Settings" show the right content each (compare against the list above — nothing should be missing).
 5. Switch to "Settings", then do something elsewhere that would normally refresh the Team page in the background (or just wait) — confirm it doesn't jump back to "Profile" on its own.
+
+## Step 157 — Full-screen fix, sidebar arrow fix, "+" button moved, dashboard greeting, and a mobile keyboard bug fix
+
+A round of polish fixes from a screenshot of the sign-in screen showing a dead black strip on the right side on a wide browser window, plus a few other things reported at the same time. No SQL to run — pure front-end, just redeploy.
+
+**1. The sign-in screen (and the whole app) now actually fills the screen.** On a wide/desktop window, the sign-in screen used to leave a blank black strip down the right edge instead of using the full width. Cause: one line of code was telling the screen to lay itself out sideways ("row" layout) instead of letting the actual sign-in card stretch to fill the space. Fixed — the sign-in screen and the rest of the app now always fill the full width and height of whatever screen or window it's opened on, phone or desktop.
+
+**2. The little arrow that collapses/expands the sidebar (desktop only) was getting visually clipped** by the top bar overlapping it. Fixed by telling the sidebar to draw itself above the top bar instead of underneath it. The arrow is now fully visible and clickable.
+
+**3. The floating "+" button (for adding a new prospect) used to float on top of every single screen** — Dashboard, Messages, Team, Settings, all of them — which made it feel like a stray button rather than a clear action. It now only appears on the **Pipeline** ("Prospects") screen, where it's obvious what tapping it does. Nothing about what it does changed, just where it shows up.
+
+**4. Removed every plain-text "—" dash anywhere in the app**, from the public landing page through every screen inside the app (toasts, hints, empty-state messages, placeholders, the PWA install text, contracts/invoices, everything). Replaced with plainer punctuation or reworded sentences, whichever read better in each spot.
+
+**5. The Dashboard now greets you by name** — a bold "Welcome back, [Your Name]." headline at the top with a soft glowing gradient effect, above the usual "Here's how the pipeline is doing" line.
+
+**6. Fixed a mobile bug where tapping into the Pipeline tab from the bottom nav bar would instantly pop up the on-screen keyboard**, even though you hadn't tapped the search box. Cause: the search box was being told to grab focus every single time the Pipeline screen redrew itself, including on a fresh tap into the tab, not just while you were actually typing. Fixed so it only keeps/restores focus if you were genuinely already typing in the search box — tapping into Pipeline fresh no longer pops the keyboard, but typing still works exactly as before (no lost cursor position, no interruptions).
+
+**Setup:** just redeploy the `app/` folder via Netlify Drop.
+
+**Now test it:**
+
+1. Reload the app (hard refresh if it still looks old — the service worker's cache version was bumped).
+2. On a desktop/wide browser window, open the sign-in screen — confirm it fills the entire window with no blank strip on either side. Resize the window narrower and wider a few times to confirm it keeps filling correctly.
+3. On your phone (or a narrow browser window), confirm the sign-in screen and the app after logging in both fill the whole screen edge to edge.
+4. On desktop, find the small arrow that collapses the sidebar (near the top of the sidebar) — confirm you can see it fully and click it, and that it actually collapses/expands the sidebar.
+5. Go to the Dashboard, Messages, and Team screens — confirm the floating "+" button does **not** appear on any of them. Go to Pipeline ("Prospects") — confirm the "+" button appears there and still opens "Add Prospect" when tapped.
+6. Look around the app (landing page, toasts, empty states, contracts/invoices) for any leftover "—" dash — there shouldn't be any left.
+7. On the Dashboard, confirm you see a bold "Welcome back, [your name]." headline with a subtle glow, above the "Here's how the pipeline is doing" line.
+8. On your phone, tap from another tab straight into the **Pipeline** tab in the bottom nav — confirm the on-screen keyboard does **not** pop up automatically. Then tap into the Pipeline search box yourself and type something — confirm the keyboard behaves normally and your cursor position isn't lost while the list filters.

@@ -121,15 +121,15 @@ export function renderInvoices() {
       ` : ""}
       <div class="stat-grid" style="margin-bottom:16px;grid-template-columns:1fr;">
         <div class="stat-card" id="iv-avg-pay-card" style="${paidWithDates.length ? "cursor:pointer;" : ""}">
-          <div class="num">${avgDaysToPay === null ? "—" : avgDaysToPay + "d"}</div>
-          <div class="label">Avg. Days to Get Paid${paidWithDates.length ? " — tap to see slowest payers" : " — no paid invoices yet"}</div>
+          <div class="num">${avgDaysToPay === null ? "-" : avgDaysToPay + "d"}</div>
+          <div class="label">Avg. Days to Get Paid${paidWithDates.length ? ", tap to see slowest payers" : ", no paid invoices yet"}</div>
         </div>
       </div>
       ${topClients.length ? `
         <div class="stat-grid" style="margin-bottom:16px;grid-template-columns:1fr;">
           <div class="stat-card purple" id="iv-topclients-card" style="cursor:pointer;">
             <div class="num">${money(topClients[0].total)}</div>
-            <div class="label">Top client by revenue: ${esc(topClients[0].prospect.business_name)} — tap for full ranking</div>
+            <div class="label">Top client by revenue: ${esc(topClients[0].prospect.business_name)}, tap for full ranking</div>
           </div>
         </div>
       ` : ""}
@@ -203,7 +203,7 @@ function renderList(listEl) {
     listEl.appendChild(el(`
       <div class="empty-state">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>
-        <p>No invoices yet — create one once a client's ready to be billed.</p>
+        <p>No invoices yet. Create one once a client's ready to be billed.</p>
       </div>
     `));
     return;
@@ -434,7 +434,7 @@ function openAgingBucketModal(label, invoices) {
   const rows = invoices.slice().sort((a, b) => (daysUntilDue(a) ?? 999) - (daysUntilDue(b) ?? 999));
   const box = el(`
     <div>
-      <div style="font-weight:800;font-size:16px;margin-bottom:12px;">Outstanding — ${esc(label)}</div>
+      <div style="font-weight:800;font-size:16px;margin-bottom:12px;">Outstanding: ${esc(label)}</div>
       <div id="iv-aging-list"></div>
     </div>
   `);
@@ -510,7 +510,7 @@ function sendPaymentReminder(invoice, prospect) {
   const label = invoice.invoice_number ? `invoice ${invoice.invoice_number}` : "your invoice";
   const message = isOverdue
     ? `Hi ${prospect.business_name}, just a friendly reminder that ${label} for ${money(invoice.amount)} was due ${fmtDate(invoice.due_date)} and is still outstanding. Could you let us know when we can expect payment? Thanks!`
-    : `Hi ${prospect.business_name}, quick reminder that ${label} for ${money(invoice.amount)}${invoice.due_date ? " is due " + fmtDate(invoice.due_date) : " is awaiting payment"}. Let us know if you have any questions — thanks!`;
+    : `Hi ${prospect.business_name}, quick reminder that ${label} for ${money(invoice.amount)}${invoice.due_date ? " is due " + fmtDate(invoice.due_date) : " is awaiting payment"}. Let us know if you have any questions, thanks!`;
   window.open(buildWhatsAppLink(prospect.whatsapp_number, message), "_blank");
 }
 
@@ -721,7 +721,7 @@ export function openInvoiceSheet(existing) {
       if (!dateISO) return toast("Set a due date first", "error");
       const prospect = prospectById(i.prospect_id);
       downloadReminderICS(`invoice-due-${(i.invoice_number || "invoice").toLowerCase()}.ics`, {
-        title: `Invoice due — ${i.invoice_number || "Invoice"}${prospect ? " (" + prospect.business_name + ")" : ""}`,
+        title: `Invoice due: ${i.invoice_number || "Invoice"}${prospect ? " (" + prospect.business_name + ")" : ""}`,
         description: `${money(box.querySelector("#iv-amount").value ? Number(box.querySelector("#iv-amount").value) : i.amount)} due${prospect ? " from " + prospect.business_name : ""}.`,
         dateISO,
       });

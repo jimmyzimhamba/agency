@@ -113,7 +113,7 @@ function renderHotLeads(container, myId, isOwner) {
   if (!container) return;
   const leads = hotLeadsForMe(myId, isOwner);
   if (!leads.length) {
-    container.innerHTML = `<div class="text-faint" style="font-size:12.5px;padding:4px 0;">No untouched hot leads right now — nice work.</div>`;
+    container.innerHTML = `<div class="text-faint" style="font-size:12.5px;padding:4px 0;">No untouched hot leads right now, nice work.</div>`;
     return;
   }
   container.innerHTML = "";
@@ -162,7 +162,7 @@ async function loadNotesCatchUp(container) {
   if (!document.body.contains(container)) return;
   if (error) { container.innerHTML = `<div class="text-faint" style="font-size:12.5px;">${esc(error.message)}</div>`; return; }
   if (!data || !data.length) {
-    container.innerHTML = `<div class="text-faint" style="font-size:12.5px;padding:4px 0;">Nothing logged yet — notes your team adds will show up here.</div>`;
+    container.innerHTML = `<div class="text-faint" style="font-size:12.5px;padding:4px 0;">Nothing logged yet, notes your team adds will show up here.</div>`;
     return;
   }
 
@@ -218,7 +218,7 @@ function renderTeamChecklist(container) {
             ${avatarHTML(r.agent.full_name || r.agent.email, r.agent.avatar_url, 26)}
             <span style="font-size:13px;font-weight:600;">${esc(r.agent.full_name || r.agent.email)}</span>
           </div>
-          <span class="text-gold" style="font-size:12px;">${r.total ? `${r.done} / ${r.total}` : "—"}</span>
+          <span class="text-gold" style="font-size:12px;">${r.total ? `${r.done} / ${r.total}` : "-"}</span>
         </div>
         <div class="progress-track"><div class="progress-fill" style="width:${r.pct}%"></div></div>
         ${r.pending.length ? `<div class="text-faint" style="font-size:11px;margin-top:6px;">Outstanding: ${r.pending.map((t) => esc(t.title)).join(", ")}</div>` : ""}
@@ -276,7 +276,7 @@ function renderTaskTypeBreakdown(container) {
       <div class="card" style="margin-bottom:8px;">
         <div class="flex-between" style="margin-bottom:6px;">
           <span style="font-size:13px;font-weight:600;">${esc(DAY_TYPE_LABELS[r.type] || r.type.replace("_", " "))}</span>
-          <span class="text-gold" style="font-size:12px;">${r.done} / ${r.total} — ${r.pct}%</span>
+          <span class="text-gold" style="font-size:12px;">${r.done} / ${r.total} (${r.pct}%)</span>
         </div>
         <div class="progress-track"><div class="progress-fill" style="width:${r.pct}%"></div></div>
       </div>
@@ -372,11 +372,11 @@ async function loadTeamPace(container) {
   container.innerHTML = `
     <div class="stat-card ${teamSendsPct < LOW_PACE_PCT ? "accent" : ""}" id="tb-pace-sends" style="cursor:pointer;">
       <div class="num">${totalSends} / ${totalSendsTarget}</div>
-      <div class="label">Team Sends Today — ${teamSendsPct}%</div>
+      <div class="label">Team Sends Today (${teamSendsPct}%)</div>
     </div>
     <div class="stat-card ${teamMeetingsPct < LOW_PACE_PCT ? "accent" : ""}" id="tb-pace-meetings" style="cursor:pointer;">
       <div class="num">${totalMeetings} / ${totalMeetingsTarget}</div>
-      <div class="label">Team Meetings This Week — ${teamMeetingsPct}%</div>
+      <div class="label">Team Meetings This Week (${teamMeetingsPct}%)</div>
     </div>
   `;
   container.querySelector("#tb-pace-sends").addEventListener("click", () => openTeamPaceModal(rows, "sends"));
@@ -464,7 +464,7 @@ async function loadStreak(container, myTasks, myId) {
   container.innerHTML = `
     <div class="stat-card ${streak ? "accent" : ""}">
       <div class="num">🔥 ${streak}</div>
-      <div class="label">Day Streak${todayDone ? "" : streak ? " — finish today's checklist to extend it" : " — complete today's checklist to start one"}</div>
+      <div class="label">Day Streak${todayDone ? "" : streak ? ", finish today's checklist to extend it" : ", complete today's checklist to start one"}</div>
     </div>
   `;
 }
@@ -584,7 +584,7 @@ function openTaskForm() {
           <option value="">Everyone (shared checklist)</option>
           ${store.profiles.filter((p) => p.active !== false).map((p) => `<option value="${p.id}">${esc(p.full_name || p.email)}</option>`).join("")}
         </select>
-        <div class="hint">Pick a person to give them this task only — it won't show up on anyone else's checklist. This repeats daily until you remove it.</div>
+        <div class="hint">Pick a person to give them this task only, it won't show up on anyone else's checklist. This repeats daily until you remove it.</div>
       </div>
       <button class="btn btn-primary" id="tk-save">Add Task</button>
     </div>

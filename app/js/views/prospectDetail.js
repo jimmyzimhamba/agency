@@ -156,7 +156,7 @@ function render(p0) {
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
           ${avatarHTML(assignee.full_name || assignee.email, assignee.avatar_url, 26, 11)}
           <span style="font-size:13.5px;font-weight:600;">${esc(assignee.full_name || assignee.email)}</span>
-        </div>` : `<div class="text-faint" style="font-size:13px;margin-bottom:10px;">Unassigned — up for grabs</div>`}
+        </div>` : `<div class="text-faint" style="font-size:13px;margin-bottom:10px;">Unassigned, up for grabs</div>`}
       ${isOwner ? `
         <select id="pd-assign">
           <option value="">Unassigned</option>
@@ -302,7 +302,7 @@ function render(p0) {
       const dateISO = box.querySelector("#pd-followup").value;
       if (!dateISO) return;
       downloadReminderICS(`follow-up-${p.business_name.replace(/[^\w]+/g, "-").toLowerCase()}.ics`, {
-        title: `Follow up — ${p.business_name}`,
+        title: `Follow up: ${p.business_name}`,
         description: `Agency Command follow-up reminder for ${p.business_name}${p.area ? ` (${p.area})` : ""}.`,
         dateISO,
       });
@@ -400,7 +400,7 @@ function renderAISection(box, p) {
           <div class="section-title mt-0" style="margin-bottom:0;">Message</div>
           ${p.message_source === "ai_generated" ? `<span class="text-faint" style="font-size:11px;">AI-GENERATED</span>` : ""}
         </div>
-        ${isAutoTemplate ? `<div class="conflict-flag" style="display:inline-block;margin-bottom:8px;background:rgba(212,175,55,0.15);color:#d4af37;">AUTO-TEMPLATE — REVIEW BEFORE SENDING</div>` : ""}
+        ${isAutoTemplate ? `<div class="conflict-flag" style="display:inline-block;margin-bottom:8px;background:rgba(212,175,55,0.15);color:#d4af37;">AUTO-TEMPLATE: REVIEW BEFORE SENDING</div>` : ""}
         <div style="font-size:13.5px;line-height:1.5;white-space:pre-wrap;">${esc(preview)}</div>
       </div>
     ` : ""}
@@ -408,7 +408,7 @@ function renderAISection(box, p) {
     ${researching ? `
       <div class="card" style="margin-bottom:14px;">
         <div class="section-title mt-0">AI Research</div>
-        <div class="text-faint" style="font-size:12.5px;">Researching this business online — this usually takes under a minute. Reopen this card shortly.</div>
+        <div class="text-faint" style="font-size:12.5px;">Researching this business online. This usually takes under a minute. Reopen this card shortly.</div>
       </div>
     ` : hasResearched ? `
       <div class="card" style="margin-bottom:14px;">
@@ -416,7 +416,7 @@ function renderAISection(box, p) {
           <div class="section-title mt-0" style="margin-bottom:0;">AI Research</div>
           <span class="small-link" id="pd-regenerate">Regenerate</span>
         </div>
-        <div class="text-faint" style="font-size:13px;line-height:1.5;">${esc(p.research_summary || (p.research_status === "failed" ? "AI research couldn't complete for this business — try again." : "No summary saved."))}</div>
+        <div class="text-faint" style="font-size:13px;line-height:1.5;">${esc(p.research_summary || (p.research_status === "failed" ? "AI research couldn't complete for this business, try again." : "No summary saved."))}</div>
       </div>
     ` : `
       <div class="card" style="margin-bottom:14px;">
@@ -475,7 +475,7 @@ function renderWhatsAppSection(box, p) {
         </div>
         <button class="btn btn-whatsapp" id="pd-wa-send">Send</button>
       ` : `
-        <div class="text-faint" style="font-size:12px;">It's been more than 24 hours since they last messaged — WhatsApp requires them to message first before you can reply here again. Use the Send WhatsApp button above to reach out.</div>
+        <div class="text-faint" style="font-size:12px;">It's been more than 24 hours since they last messaged. WhatsApp requires them to message first before you can reply here again. Use the Send WhatsApp button above to reach out.</div>
       `}
     </div>
   `;
@@ -558,7 +558,7 @@ function renderNotes(prospectId) {
   if (!notesEl) return;
   const notes = store.notesByProspect[prospectId] || [];
   if (!notes.length) {
-    notesEl.innerHTML = `<div class="text-faint" style="font-size:12.5px;">No notes yet — be the first to leave an update.</div>`;
+    notesEl.innerHTML = `<div class="text-faint" style="font-size:12.5px;">No notes yet. Be the first to leave an update.</div>`;
     return;
   }
   notesEl.innerHTML = notes
@@ -608,7 +608,7 @@ function promptLostReason(prospect) {
   box.querySelector("#pd-lost-other-save").addEventListener("click", () => {
     const text = box.querySelector("#pd-lost-other").value.trim();
     if (!text) return;
-    saveLostReason(prospect.id, `Other — ${text}`);
+    saveLostReason(prospect.id, `Other: ${text}`);
   });
   openModal(box);
 }

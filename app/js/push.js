@@ -38,11 +38,11 @@ export async function enablePush() {
     return false;
   }
   if (!VAPID_PUBLIC_KEY) {
-    toast("Notifications aren't finished setting up yet — ask the owner", "error");
+    toast("Notifications aren't finished setting up yet, ask the owner", "error");
     return false;
   }
   if (Notification.permission === "denied") {
-    toast("Notifications are blocked — turn them on for this app in your browser/phone settings", "error");
+    toast("Notifications are blocked, turn them on for this app in your browser/phone settings", "error");
     return false;
   }
 

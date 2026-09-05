@@ -117,11 +117,11 @@ export function renderNiches() {
         ${isOwner ? `<span class="small-link" id="nc-add">+ Add Niche</span>` : ""}
       </div>
       <p class="text-faint" style="font-size:12.5px;margin-top:-6px;margin-bottom:10px;">
-        ${sortMode === "score" ? "Ranked by overall opportunity — where the team should focus outreach first." : "Ranked by actual signed-conversion rate — how niches are really performing."}
+        ${sortMode === "score" ? "Ranked by overall opportunity: where the team should focus outreach first." : "Ranked by actual signed-conversion rate: how niches are really performing."}
       </p>
       ${untapped.length ? `
         <div class="stat-grid" style="margin-bottom:14px;grid-template-columns:1fr;">
-          <div class="stat-card accent" id="nc-untapped-card" style="cursor:pointer;"><div class="num">${untapped.length}</div><div class="label">High-opportunity niche${untapped.length === 1 ? "" : "s"} with zero prospects — tap to review</div></div>
+          <div class="stat-card accent" id="nc-untapped-card" style="cursor:pointer;"><div class="num">${untapped.length}</div><div class="label">High-opportunity niche${untapped.length === 1 ? "" : "s"} with zero prospects, tap to review</div></div>
         </div>
       ` : ""}
       <div class="chip-row" style="margin-bottom:14px;">
@@ -193,9 +193,9 @@ function nicheCard(n, isOwner) {
       <div class="${lowConversion ? "status-pill stale" : "text-faint"}" style="margin-top:10px;${lowConversion ? "display:inline-block;" : ""}font-size:12px;">
         ${conv ? `Converting ${Math.round(conv.rate * 100)}% (${conv.signed}/${conv.total} signed)` : "No prospects yet"}
       </div>
-      ${noWebsite ? `<div class="text-faint" style="margin-top:4px;font-size:11.5px;">${Math.round(noWebsite.rate * 100)}% have no website (${noWebsite.noSite}/${noWebsite.total}) — strong opener angle</div>` : ""}
+      ${noWebsite ? `<div class="text-faint" style="margin-top:4px;font-size:11.5px;">${Math.round(noWebsite.rate * 100)}% have no website (${noWebsite.noSite}/${noWebsite.total}), strong opener angle</div>` : ""}
       ${needsOpener ? `<span class="status-pill stale" style="margin-top:10px;display:inline-block;cursor:pointer;" data-add-opener>No opener template</span>` : ""}
-      ${isUntapped(n) ? `<span class="status-pill stale" style="margin-top:10px;display:inline-block;">Untapped — no prospects yet</span>` : ""}
+      ${isUntapped(n) ? `<span class="status-pill stale" style="margin-top:10px;display:inline-block;">Untapped, no prospects yet</span>` : ""}
       ${isOwner ? `<div class="small-link" style="margin-top:10px;" data-edit>Edit</div>` : ""}
     </div>
   `);
@@ -286,7 +286,7 @@ export function openNicheForm(existing) {
       <div class="field">
         <label>Discovery search phrase (optional)</label>
         <input id="nf-search-query" type="text" value="${esc(n.search_query || "")}" placeholder="Leave blank to search for &quot;${esc(n.name || "this niche's name")}&quot;" />
-        <div class="hint">What the Discovery tab types into Google Maps for this niche — e.g. "gym" instead of "Fitness &amp; Gyms".</div>
+        <div class="hint">What the Discovery tab types into Google Maps for this niche, e.g. "gym" instead of "Fitness &amp; Gyms".</div>
       </div>
       <button class="btn btn-primary" id="nf-save">${existing ? "Save Changes" : "Add Niche"}</button>
       ${existing ? `<button class="btn btn-danger" id="nf-delete" style="margin-top:10px;">Delete Niche</button>` : ""}

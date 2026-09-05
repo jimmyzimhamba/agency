@@ -36,9 +36,9 @@ let activeTeamTab = "profile";
 // keep their existing full-access meaning everywhere else in the app, so
 // they don't need a hint here.
 const GRID_ROLE_HINTS = {
-  manager: "Full access to Grid Plan Review, same as Agent — can build plans and send them to clients.",
+  manager: "Full access to Grid Plan Review, same as Agent: can build plans and send them to clients.",
   designer: "Can edit grid plans (captions, media, reorder) but can't send a plan to a client.",
-  contributor: "View-only on Grid Plan Review — can't edit or send plans.",
+  contributor: "View-only on Grid Plan Review, can't edit or send plans.",
 };
 function lastActivityFor(profileId) {
   return store.activityLog.find((a) => a.actor_id === profileId)?.created_at || null;
@@ -171,7 +171,7 @@ function renderPointsLeaderboard(wrap) {
     .sort((a, b) => b.total - a.total);
 
   if (!ranked.length) {
-    box.innerHTML = `<div class="text-faint" style="font-size:12.5px;">No points earned yet — they show up as soon as someone adds a prospect, sends a follow-up, or checks off a daily task.</div>`;
+    box.innerHTML = `<div class="text-faint" style="font-size:12.5px;">No points earned yet. They show up as soon as someone adds a prospect, sends a follow-up, or checks off a daily task.</div>`;
     return;
   }
 
@@ -418,7 +418,7 @@ export function renderTeam() {
         <div class="stat-grid" style="margin-bottom:16px;" id="tm-my-performance"></div>
 
         <div class="section-title mt-0">🎖️ My Badges</div>
-        <div class="text-faint" style="font-size:11px;margin:2px 0 10px;line-height:1.4;">Tap any badge — locked ones show what you need to do to unlock them.</div>
+        <div class="text-faint" style="font-size:11px;margin:2px 0 10px;line-height:1.4;">Tap any badge. Locked ones show what you need to do to unlock them.</div>
         <div class="badges-grid" id="tm-badges-grid"></div>
       </div>
 
@@ -426,7 +426,7 @@ export function renderTeam() {
         <div class="flex-between" style="margin-bottom:2px;">
           <div class="section-title mt-0" style="margin-bottom:0;">🏆 Points Leaderboard</div>
         </div>
-        <div class="text-faint" style="font-size:11px;margin:2px 0 10px;line-height:1.4;">Everyone can see this one. Points come from doing the work — adding a prospect, a follow-up, a signed deal, finishing your daily tasks — not just closed revenue.</div>
+        <div class="text-faint" style="font-size:11px;margin:2px 0 10px;line-height:1.4;">Everyone can see this one. Points come from doing the work: adding a prospect, a follow-up, a signed deal, finishing your daily tasks, not just closed revenue.</div>
         <div id="tm-points-leaderboard" style="margin-bottom:16px;"></div>
 
         ${isOwner ? `
@@ -443,7 +443,7 @@ export function renderTeam() {
           </div>
           <div class="text-faint" style="font-size:11.5px;margin:4px 0 10px;line-height:1.4;">Share this invite code with new teammates so they land in your agency when they sign up.</div>
           <div style="display:flex;align-items:center;gap:8px;">
-            <code style="flex:1;background:var(--black-card);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px;letter-spacing:0.5px;">${esc(store.organization?.invite_code || "—")}</code>
+            <code style="flex:1;background:var(--black-card);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px;letter-spacing:0.5px;">${esc(store.organization?.invite_code || "-")}</code>
             <button class="btn btn-ghost btn-sm" id="tm-copy-invite" style="width:auto;">Copy</button>
           </div>
           ${isOwner ? `<button class="btn btn-ghost btn-sm" id="tm-regen-invite" style="width:auto;margin-top:9px;">Regenerate Code</button>` : ""}
@@ -458,7 +458,7 @@ export function renderTeam() {
           <div class="flex-between">
             <div style="min-width:0;padding-right:12px;">
               <div style="font-weight:700;font-size:13.5px;">Appearance</div>
-              <div class="text-faint" style="font-size:11.5px;margin-top:4px;line-height:1.4;">Switch between dark and light mode. This is a per-device setting — it won't change how the app looks for your teammates.</div>
+              <div class="text-faint" style="font-size:11.5px;margin-top:4px;line-height:1.4;">Switch between dark and light mode. This is a per-device setting, it won't change how the app looks for your teammates.</div>
             </div>
             <label class="switch" title="Toggle light/dark mode">
               <input type="checkbox" id="tm-theme-switch" />
@@ -472,7 +472,7 @@ export function renderTeam() {
             <div style="font-weight:700;font-size:13.5px;">Notifications</div>
             <span class="text-faint" style="font-size:11px;" id="tm-notif-status">Checking…</span>
           </div>
-          <div class="text-faint" style="font-size:11.5px;margin:4px 0 10px;line-height:1.4;">Get a pop-up when a prospect is added or assigned to you — even when the app isn't open.</div>
+          <div class="text-faint" style="font-size:11.5px;margin:4px 0 10px;line-height:1.4;">Get a pop-up when a prospect is added or assigned to you, even when the app isn't open.</div>
           <button class="btn btn-ghost btn-sm" id="tm-notif-toggle" style="width:auto;" disabled>...</button>
         </div>
 
@@ -492,7 +492,7 @@ export function renderTeam() {
         <div class="divider"></div>
         <button class="btn btn-ghost" id="tm-signout">Sign Out</button>
         <p class="text-faint" style="font-size:11px;text-align:center;margin-top:20px;">Agency Command · ${esc(store.organization?.name || "Sales & Team Sync")}</p>
-        <p class="text-faint" style="font-size:10px;text-align:center;margin-top:4px;opacity:0.6;">build sxc-v163</p>
+        <p class="text-faint" style="font-size:10px;text-align:center;margin-top:4px;opacity:0.6;">build sxc-v164</p>
       </div>
     </div>
   `);
@@ -579,7 +579,7 @@ export function renderTeam() {
           ? stale
             ? `<span class="status-pill stale" style="margin-top:6px;display:inline-block;">${lastActive ? "Inactive · " + timeAgo(lastActive) : "No activity yet"}</span>`
             : `<div class="text-faint" style="font-size:11px;margin-top:6px;">Active ${timeAgo(lastActive)}</div>`
-          : `<div class="text-faint" style="font-size:11px;margin-top:6px;">Access removed — can't sign in.</div>`}
+          : `<div class="text-faint" style="font-size:11px;margin-top:6px;">Access removed, can't sign in.</div>`}
         ${isOwner && !isSelf ? `<div style="display:flex;align-items:center;gap:14px;margin-top:9px;flex-wrap:wrap;">` : ""}
         ${isOwner && !isSelf && isMemberActive
           ? `<span class="small-link" data-view-perf>View Performance</span>`
@@ -607,7 +607,7 @@ export function renderTeam() {
         if (isMemberActive) {
           confirmModal({
             title: `Remove ${p.full_name || p.email}'s access?`,
-            body: "They'll be signed out and won't be able to log back in. Everything they've already done stays in the pipeline — you can restore their access any time.",
+            body: "They'll be signed out and won't be able to log back in. Everything they've already done stays in the pipeline, you can restore their access any time.",
             confirmLabel: "Remove Access",
             danger: true,
             onConfirm: () => callManageAccess(p, "deactivate"),
@@ -821,7 +821,7 @@ function wireInviteCode(wrap, isOwner) {
         await navigator.clipboard.writeText(code);
         toast("Invite code copied", "success");
       } catch {
-        toast("Couldn't copy — long-press the code to select it", "error");
+        toast("Couldn't copy, long-press the code to select it", "error");
       }
     });
   }
@@ -832,7 +832,7 @@ function wireInviteCode(wrap, isOwner) {
   regenBtn.addEventListener("click", () => {
     confirmModal({
       title: "Regenerate invite code?",
-      body: "The old code stops working immediately — anyone you've already shared it with won't be able to use it to join.",
+      body: "The old code stops working immediately, anyone you've already shared it with won't be able to use it to join.",
       confirmLabel: "Regenerate",
       danger: true,
       onConfirm: async () => {

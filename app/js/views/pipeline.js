@@ -269,7 +269,7 @@ async function distributeEvenly(ids) {
   const summary = Array.from(byAgent.entries())
     .map(([agentId, agentIds]) => `${profileById(agentId)?.full_name?.split(" ")[0] || "Someone"}: ${agentIds.length}`)
     .join(", ");
-  toast(`Distributed ${ids.length} prospect${ids.length === 1 ? "" : "s"} — ${summary}`, "success");
+  toast(`Distributed ${ids.length} prospect${ids.length === 1 ? "" : "s"}: ${summary}`, "success");
   exitSelectMode();
 }
 
@@ -345,6 +345,17 @@ function renderBulkBar() {
 
 export function renderPipeline() {
   const root = document.getElementById("view-pipeline");
+  // Every filter chip/sort/select-mode click above calls renderPipeline()
+  // again, which wipes and rebuilds the whole view — including a brand new
+  // #pl-search element. Unconditionally focusing that new element afterward
+  // (further down) used to fire on *every single one* of those re-renders,
+  // including the very first one when a user simply taps into the Pipeline
+  // tab from the nav bar — which is what was popping the mobile keyboard
+  // open every time someone just wanted to look at the list. Capturing
+  // whether the search box actually had focus *before* the rebuild lets us
+  // restore it only when the user was genuinely mid-search, not on a fresh
+  // navigation or an unrelated chip tap.
+  const hadSearchFocus = document.activeElement?.id === "pl-search";
   root.innerHTML = "";
 
   const wrap = el(`
@@ -417,7 +428,7 @@ export function renderPipeline() {
       e.stopPropagation();
       confirmModal({
         title: "Delete this view?",
-        body: `Remove <b>${esc(v.name)}</b> from your saved views? This only lives on this device — nothing shared gets touched.`,
+        body: `Remove <b>${esc(v.name)}</b> from your saved views? This only lives on this device, nothing shared gets touched.`,
         confirmLabel: "Delete",
         danger: true,
         onConfirm: () => {
@@ -517,9 +528,11 @@ export function renderPipeline() {
   const searchInput = wrap.querySelector("#pl-search");
   const onSearch = debounce((val) => { filters.search = val; renderList(); }, 200);
   searchInput.addEventListener("input", (e) => onSearch(e.target.value));
-  searchInput.focus({ preventScroll: true });
-  // keep cursor position after re-render
-  searchInput.setSelectionRange(searchInput.value.length, searchInput.value.length);
+  if (hadSearchFocus) {
+    searchInput.focus({ preventScroll: true });
+    // keep cursor position after re-render
+    searchInput.setSelectionRange(searchInput.value.length, searchInput.value.length);
+  }
 
   renderList();
   renderBulkBar();
@@ -612,7 +625,7 @@ function openDuplicateAuditSheet() {
   const box = el(`<div></div>`);
 
   if (!pairs.length) {
-    box.innerHTML = `<div class="text-faint" style="font-size:13px;text-align:center;padding:20px 0;">No duplicates found — the pipeline's clean.</div>`;
+    box.innerHTML = `<div class="text-faint" style="font-size:13px;text-align:center;padding:20px 0;">No duplicates found. The pipeline's clean.</div>`;
   } else {
     box.innerHTML = `<div class="text-faint" style="font-size:12.5px;margin-bottom:12px;">${pairs.length} possible duplicate pair${pairs.length === 1 ? "" : "s"} found, matched by business name or WhatsApp number. Open each and decide which to keep.</div>`;
     pairs.forEach((pair) => {
@@ -744,7 +757,7 @@ export async function sendWhatsApp(p) {
 
   const { data: claimed, error: claimErr } = await sb.rpc("claim_prospect", { p_id: p.id });
   if (claimErr) return toast(claimErr.message, "error");
-  if (!claimed) return toast("Someone just claimed this prospect — pick another", "error");
+  if (!claimed) return toast("Someone just claimed this prospect, pick another", "error");
 
   // No message written yet? Auto-personalize one from this prospect's niche
   // template (business name, area, gap note filled in) so nobody has to

@@ -53,12 +53,12 @@ async function callFn(name, body) {
       body: JSON.stringify(body),
     });
   } catch {
-    throw new Error("Couldn't reach the server — check your connection and try again");
+    throw new Error("Couldn't reach the server, check your connection and try again");
   }
   let json = null;
   try { json = await res.json(); } catch { /* non-JSON body — json stays null */ }
   if (!res.ok) {
-    const err = new Error((json && json.error) || "Something went wrong — please try again");
+    const err = new Error((json && json.error) || "Something went wrong, please try again");
     err.status = res.status;
     if (json && json.conflict) {
       err.conflict = true;
@@ -250,7 +250,7 @@ function renderBuilder() {
 function renderTiles(tilesEl, posts) {
   tilesEl.innerHTML = "";
   if (!posts.length) {
-    tilesEl.appendChild(el(`<div class="text-faint" style="font-size:12.5px;grid-column:1/-1;">No posts on this plan yet — check back soon.</div>`));
+    tilesEl.appendChild(el(`<div class="text-faint" style="font-size:12.5px;grid-column:1/-1;">No posts on this plan yet. Check back soon.</div>`));
     return;
   }
   posts.forEach((post) => {
@@ -325,7 +325,7 @@ function openPostModal(post0) {
       ${post.client_note ? `
         <div class="field client-note-field review-note-readonly">
           <label>Note from the agency</label>
-          <div class="client-note-warning">⚠ A private note about this post — not part of the caption.</div>
+          <div class="client-note-warning">⚠ A private note about this post, not part of the caption.</div>
           <textarea readonly>${esc(post.client_note)}</textarea>
         </div>
       ` : ""}
@@ -424,7 +424,7 @@ function showConflictPrompt(post, patch) {
     closeModal();
     const ok = await submitUpdate(post, null, patch, { force: true });
     stopEditingHeartbeat();
-    if (ok) toast("Saved — your version overwrote theirs", "success");
+    if (ok) toast("Saved: your version overwrote theirs", "success");
   });
   openModal(box);
 }
@@ -440,7 +440,7 @@ function openSubmitModal() {
   const box = el(`
     <div>
       <div style="font-weight:800;font-size:16px;margin-bottom:8px;">Submit your review</div>
-      <div style="font-size:13.5px;color:var(--text-dim);margin-bottom:14px;line-height:1.4;">If everything looks good, the agency will get it ready to publish. If anything still needs work, they'll see that too — add a note below if it helps.</div>
+      <div style="font-size:13.5px;color:var(--text-dim);margin-bottom:14px;line-height:1.4;">If everything looks good, the agency will get it ready to publish. If anything still needs work, they'll see that too. Add a note below if it helps.</div>
       <div class="field">
         <label>Anything else to add? (optional)</label>
         <textarea id="rvs-message" placeholder="Optional message for the agency..."></textarea>
@@ -472,7 +472,7 @@ function renderSubmitted() {
     <div class="review-center-state">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 6L9 17l-5-5"/></svg>
       <h1>${approved ? "Plan approved!" : "Review submitted"}</h1>
-      <p>${approved ? "Thanks — the agency has been notified and will get these posts ready to go." : "Thanks — the agency has been notified and will follow up on what you flagged."}</p>
+      <p>${approved ? "Thanks. The agency has been notified and will get these posts ready to go." : "Thanks. The agency has been notified and will follow up on what you flagged."}</p>
       <button class="btn btn-ghost btn-sm" id="rs-back">Back to Review</button>
     </div>
   `);

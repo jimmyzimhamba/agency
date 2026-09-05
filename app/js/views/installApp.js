@@ -42,7 +42,7 @@ export function openInstallAppSheet() {
   if (deferredPrompt) {
     box.innerHTML = `
       <div class="hint" style="margin-bottom:14px;line-height:1.5;">
-        Install Agency Command on this device for one-tap access, a real app icon, and full-screen use — no browser bar, works offline.
+        Install Agency Command on this device for one-tap access, a real app icon, and full-screen use, no browser bar, works offline.
       </div>
       <button class="btn btn-primary" id="install-now" style="width:100%;">Install App</button>
     `;
@@ -66,7 +66,7 @@ export function openInstallAppSheet() {
         <li>Scroll down and tap <strong>Add to Home Screen</strong>.</li>
         <li>Tap <strong>Add</strong> in the top right.</li>
       </ol>
-      <div class="hint" style="margin-top:14px;">The Agency Command icon will then sit on your home screen like any other app — full screen, no Safari bar.</div>
+      <div class="hint" style="margin-top:14px;">The Agency Command icon will then sit on your home screen like any other app, full screen, no Safari bar.</div>
     `;
     openSheet("Get the App", box);
     return;

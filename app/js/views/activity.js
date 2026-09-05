@@ -128,7 +128,7 @@ function renderList(listEl) {
   const items = filteredActivity();
 
   if (!store.activityLog.length) {
-    listEl.innerHTML = `<div class="text-faint" style="font-size:12.5px;padding:10px 0;">Nothing yet — activity will appear here live as the team works the pipeline.</div>`;
+    listEl.innerHTML = `<div class="text-faint" style="font-size:12.5px;padding:10px 0;">Nothing yet. Activity will appear here live as the team works the pipeline.</div>`;
     return;
   }
   if (!items.length) {

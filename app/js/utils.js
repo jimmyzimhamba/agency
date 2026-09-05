@@ -5,7 +5,7 @@
 // indefinitely with no way out except force-quitting the app.
 export function withTimeout(promise, ms, label = "Request") {
   return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error(`${label} timed out — check your connection`)), ms);
+    const timer = setTimeout(() => reject(new Error(`${label} timed out, check your connection`)), ms);
     promise.then(
       (val) => { clearTimeout(timer); resolve(val); },
       (err) => { clearTimeout(timer); reject(err); }

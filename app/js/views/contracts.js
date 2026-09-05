@@ -119,7 +119,7 @@ export function renderContracts() {
   const voided = voidedContracts();
   const outcomes = contractOutcomeTotals();
   const voidRatePct = outcomes.total ? Math.round((outcomes.voided / outcomes.total) * 100) : null;
-  const voidCardLabel = "Void Rate — " + outcomes.voided + " of " + outcomes.total + " contracts drafted fell through";
+  const voidCardLabel = "Void Rate: " + outcomes.voided + " of " + outcomes.total + " contracts drafted fell through";
 
   const wrap = el(`
     <div>
@@ -135,14 +135,14 @@ export function renderContracts() {
         <div class="stat-card purple" id="ct-signed-value-card" style="${signedThisMonth.length ? "cursor:pointer;" : ""}"><div class="num">${money(signedThisMonthValue)}</div><div class="label">Value Signed This Month</div></div>
       </div>
       <div class="stat-grid" style="margin-bottom:16px;grid-template-columns:1fr;">
-        <div class="stat-card" id="ct-avg-sign-card" style="${withSignTime.length ? "cursor:pointer;" : ""}"><div class="num">${avgSignDays === null ? "—" : avgSignDays + "d"}</div><div class="label">Avg. Days to Sign${withSignTime.length ? " — tap to see slowest" : " — no signed contracts with both dates yet"}</div></div>
+        <div class="stat-card" id="ct-avg-sign-card" style="${withSignTime.length ? "cursor:pointer;" : ""}"><div class="num">${avgSignDays === null ? "-" : avgSignDays + "d"}</div><div class="label">Avg. Days to Sign${withSignTime.length ? ", tap to see slowest" : ", no signed contracts with both dates yet"}</div></div>
       </div>
       <div class="stat-grid" style="margin-bottom:16px;grid-template-columns:1fr;">
-        <div class="stat-card" id="ct-avg-deal-card" style="${withValue.length ? "cursor:pointer;" : ""}"><div class="num">${dealSize === null ? "—" : money(dealSize)}</div><div class="label">Avg. Deal Size${withValue.length ? " — tap to see biggest deals" : " — no signed contracts with a value yet"}</div></div>
+        <div class="stat-card" id="ct-avg-deal-card" style="${withValue.length ? "cursor:pointer;" : ""}"><div class="num">${dealSize === null ? "-" : money(dealSize)}</div><div class="label">Avg. Deal Size${withValue.length ? ", tap to see biggest deals" : ", no signed contracts with a value yet"}</div></div>
       </div>
       ${pendingSignature.length ? `
         <div class="stat-grid" style="margin-bottom:16px;grid-template-columns:1fr;">
-          <div class="stat-card purple" id="ct-pending-value-card" style="cursor:pointer;"><div class="num">${money(pendingSignatureValue)}</div><div class="label">Value Awaiting Signature — ${pendingSignature.length} contract${pendingSignature.length === 1 ? "" : "s"} sent, not yet signed</div></div>
+          <div class="stat-card purple" id="ct-pending-value-card" style="cursor:pointer;"><div class="num">${money(pendingSignatureValue)}</div><div class="label">Value Awaiting Signature: ${pendingSignature.length} contract${pendingSignature.length === 1 ? "" : "s"} sent, not yet signed</div></div>
         </div>
       ` : ""}
       ${staleCount ? `
@@ -202,7 +202,7 @@ function renderList(listEl) {
     listEl.appendChild(el(`
       <div class="empty-state">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 3h9l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M9 12h6M9 16h6M9 8h2"/></svg>
-        <p>No contracts yet — draft one once a deal's ready to close.</p>
+        <p>No contracts yet. Draft one once a deal's ready to close.</p>
       </div>
     `));
     return;
@@ -452,7 +452,7 @@ function exportContractsCSV() {
 function sendContractWhatsApp(contract, prospect, { nudge = false } = {}) {
   if (!prospect?.whatsapp_number) return toast("No WhatsApp number saved for this client", "error");
   const statusPhrase = contract.status === "signed"
-    ? "which we now both have signed — thank you!"
+    ? "which we now both have signed, thank you!"
     : contract.status === "sent"
     ? "which is ready for your signature whenever you get a chance"
     : "for your review";
@@ -460,7 +460,7 @@ function sendContractWhatsApp(contract, prospect, { nudge = false } = {}) {
   // of re-sending the same "here it is" copy — this is a follow-up, not the
   // first ask, so it shouldn't read like one.
   const message = nudge
-    ? `Hi ${prospect.business_name}, just checking in on "${contract.title || "our agreement"}" (${money(contract.value)}) — no rush, just want to make sure it didn't get buried. Let me know if you have any questions or need anything else to sign it!`
+    ? `Hi ${prospect.business_name}, just checking in on "${contract.title || "our agreement"}" (${money(contract.value)}), no rush, just want to make sure it didn't get buried. Let me know if you have any questions or need anything else to sign it!`
     : `Hi ${prospect.business_name}, sending over "${contract.title || "our agreement"}" (${money(contract.value)}) ${statusPhrase}. Let me know if you have any questions!`;
   window.open(buildWhatsAppLink(prospect.whatsapp_number, message), "_blank");
 }
@@ -518,7 +518,7 @@ export function openContractSheet(existing) {
     <div>
       <div class="field">
         <label>Contract title *</label>
-        <input id="ct-title" type="text" value="${esc(c.title || "")}" placeholder="e.g. Monthly Social Retainer — WestProp" />
+        <input id="ct-title" type="text" value="${esc(c.title || "")}" placeholder="e.g. Monthly Social Retainer: WestProp" />
       </div>
       <div class="field">
         <label>Linked prospect</label>
@@ -552,7 +552,7 @@ export function openContractSheet(existing) {
       </div>
       ${mismatchedProspect ? `
         <div class="card" style="margin-bottom:14px;border:1px solid var(--warn);">
-          <div style="font-size:12.5px;margin-bottom:8px;">This contract is signed at <b>${money(c.value)}</b> but ${esc(mismatchedProspect.business_name)}'s profile MRR still says <b>${money(mismatchedProspect.mrr || 0)}</b> — every revenue number elsewhere in the app reads from the profile, not the contract.</div>
+          <div style="font-size:12.5px;margin-bottom:8px;">This contract is signed at <b>${money(c.value)}</b> but ${esc(mismatchedProspect.business_name)}'s profile MRR still says <b>${money(mismatchedProspect.mrr || 0)}</b>. Every revenue number elsewhere in the app reads from the profile, not the contract.</div>
           <button id="ct-sync-mrr" class="btn btn-ghost btn-sm" style="width:100%;">Sync MRR to ${money(c.value)}</button>
         </div>
       ` : ""}
@@ -653,7 +653,7 @@ export function openNewContractSheet(prospect) {
     prospect
       ? {
           prospect_id: prospect.id,
-          title: prospect.business_name ? `Agreement — ${prospect.business_name}` : "",
+          title: prospect.business_name ? `Agreement: ${prospect.business_name}` : "",
           value: prospect.mrr > 0 ? prospect.mrr : undefined,
         }
       : null

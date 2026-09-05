@@ -165,19 +165,19 @@ export function renderProjects() {
       </div>
       <div class="stat-grid ${extraCards === 2 ? "cols-3" : ""}" style="margin-bottom:14px;${extraCards ? "" : "grid-template-columns:1fr;"}">
         <div class="stat-card" id="pj-avg-delivery-card" style="${completed.length ? "cursor:pointer;" : ""}">
-          <div class="num">${avgDeliveryDays === null ? "—" : avgDeliveryDays + "d"}</div>
-          <div class="label">Avg. Delivery Time${completed.length ? " — tap to see slowest deliveries" : " — no completed projects yet"}</div>
+          <div class="num">${avgDeliveryDays === null ? "-" : avgDeliveryDays + "d"}</div>
+          <div class="label">Avg. Delivery Time${completed.length ? ", tap to see slowest deliveries" : ", no completed projects yet"}</div>
         </div>
         ${dueSoon.length ? `
           <div class="stat-card" id="pj-duesoon-card" style="cursor:pointer;">
             <div class="num">${dueSoon.length}</div>
-            <div class="label">Due within ${DUE_SOON_DAYS} days — tap to see</div>
+            <div class="label">Due within ${DUE_SOON_DAYS} days, tap to see</div>
           </div>
         ` : ""}
         ${bottlenecks.length ? `
           <div class="stat-card accent" id="pj-bottleneck-card" style="cursor:pointer;">
             <div class="num">${bottlenecks.length}</div>
-            <div class="label">Common bottleneck${bottlenecks.length === 1 ? "" : "s"} — tap to see</div>
+            <div class="label">Common bottleneck${bottlenecks.length === 1 ? "" : "s"}, tap to see</div>
           </div>
         ` : ""}
       </div>
@@ -249,7 +249,7 @@ function renderList(listEl) {
     listEl.appendChild(el(`
       <div class="empty-state">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg>
-        <p>No projects yet — start one once delivery work begins.</p>
+        <p>No projects yet. Start one once delivery work begins.</p>
       </div>
     `));
     return;
@@ -297,7 +297,7 @@ function exportProjectsCSV() {
   const columns = [
     { label: "Name", get: (p) => p.name },
     { label: "Client", get: (p) => prospectById(p.prospect_id)?.business_name || "" },
-    { label: "Status", get: (p) => (isOverdueProject(p) ? "Overdue — " : isIdleProject(p) ? `Idle (${daysSinceUpdate(p)}d) — ` : isReadyToClose(p) ? "Ready to close — " : "") + (STATUS_LABELS[p.status] || p.status) },
+    { label: "Status", get: (p) => (isOverdueProject(p) ? "Overdue: " : isIdleProject(p) ? `Idle (${daysSinceUpdate(p)}d): ` : isReadyToClose(p) ? "Ready to close: " : "") + (STATUS_LABELS[p.status] || p.status) },
     { label: "Due Date", get: (p) => p.due_date || "" },
     { label: "Tasks Done", get: (p) => store.projectTasks.filter((t) => t.project_id === p.id && t.done).length },
     { label: "Tasks Total", get: (p) => store.projectTasks.filter((t) => t.project_id === p.id).length },
@@ -389,7 +389,7 @@ function openBottlenecksModal(bottlenecks) {
   const box = el(`
     <div>
       <div style="font-weight:800;font-size:16px;margin-bottom:4px;">Common Bottlenecks</div>
-      <div class="text-faint" style="font-size:11.5px;margin-bottom:12px;">Checklist items still unchecked on ${BOTTLENECK_MIN_PROJECTS}+ active projects at once — tap one to see which.</div>
+      <div class="text-faint" style="font-size:11.5px;margin-bottom:12px;">Checklist items still unchecked on ${BOTTLENECK_MIN_PROJECTS}+ active projects at once, tap one to see which.</div>
       <div id="pj-bottleneck-list"></div>
     </div>
   `);
@@ -417,7 +417,7 @@ function openBottlenecksModal(bottlenecks) {
       if (!detail.childElementCount) {
         stuckProjects.forEach((project) => {
           const prospect = prospectById(project.prospect_id);
-          const link = el(`<div class="small-link" style="display:block;margin-bottom:4px;">${esc(project.name)}${prospect ? " — " + esc(prospect.business_name) : ""}</div>`);
+          const link = el(`<div class="small-link" style="display:block;margin-bottom:4px;">${esc(project.name)}${prospect ? ": " + esc(prospect.business_name) : ""}</div>`);
           link.addEventListener("click", (e) => {
             e.stopPropagation();
             closeModal();
@@ -512,8 +512,8 @@ function openProjectDetail(p0) {
       const dateISO = box.querySelector("#pj-due").value;
       if (!dateISO) return;
       downloadReminderICS(`project-due-${p.name.replace(/[^\w]+/g, "-").toLowerCase()}.ics`, {
-        title: `Project due — ${p.name}`,
-        description: `${prospect ? prospect.business_name + " — " : ""}${p.name} is due.`,
+        title: `Project due: ${p.name}`,
+        description: `${prospect ? prospect.business_name + ": " : ""}${p.name} is due.`,
         dateISO,
       });
       toast("Calendar file downloaded", "success");
@@ -603,7 +603,7 @@ function renderChecklist(box, projectId) {
   const tasks = store.projectTasks.filter((t) => t.project_id === projectId).sort((a, b) => a.sort_order - b.sort_order);
 
   if (!tasks.length) {
-    wrap.innerHTML = `<div class="text-faint" style="font-size:12.5px;">No checklist items yet — add the first deliverable below.</div>`;
+    wrap.innerHTML = `<div class="text-faint" style="font-size:12.5px;">No checklist items yet. Add the first deliverable below.</div>`;
     return;
   }
 
@@ -635,7 +635,7 @@ function openNewProjectSheet(prospect) {
     <div>
       <div class="field">
         <label>Project name *</label>
-        <input id="npj-name" type="text" placeholder="e.g. Onboarding — WestProp" />
+        <input id="npj-name" type="text" placeholder="e.g. Onboarding: WestProp" />
       </div>
       <div class="field">
         <label>Linked prospect</label>

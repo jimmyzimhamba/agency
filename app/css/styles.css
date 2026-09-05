@@ -183,6 +183,19 @@ button { font-family: inherit; }
   -webkit-background-clip: text; background-clip: text; color: transparent;
 }
 
+/* Dashboard's "Welcome back" greeting — bold gradient text with a soft
+   glow behind it. text-shadow still renders around the glyph outlines even
+   though the fill itself is transparent (background-clip:text), so the two
+   combine into a "glowing gradient" look without needing an extra element. */
+.db-welcome {
+  font-size: 21px; font-weight: 800; letter-spacing: -0.3px; line-height: 1.3;
+  margin: 2px 2px 3px;
+  background: linear-gradient(135deg, #fff 10%, var(--purple-soft) 65%, var(--gold-soft));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  text-shadow: 0 0 22px var(--purple-glow), 0 0 42px var(--purple-glow);
+}
+.db-welcome-sub { font-size: 13px; color: var(--text-faint); margin: 0 2px 18px; }
+
 .topbar-actions { display: flex; align-items: center; gap: 10px; }
 .icon-btn {
   width: 36px; height: 36px; border-radius: 50%;
@@ -315,7 +328,7 @@ button { font-family: inherit; }
   .app-layout { display: flex; align-items: stretch; min-height: 100vh; }
   .app-sidebar {
     display: flex; flex-direction: column; width: var(--sidebar-w); flex: 0 0 var(--sidebar-w);
-    position: sticky; top: 0; height: 100vh;
+    position: sticky; top: 0; height: 100vh; z-index: 31;
     background: linear-gradient(180deg, var(--black-raised), var(--black));
     border-right: 1px solid var(--line);
     transition: width 0.2s ease, flex-basis 0.2s ease;
@@ -851,13 +864,20 @@ main {
 .offline-banner.show { display: block; }
 
 /* ---- misc ------------------------------------------------------------------------*/
+/* Hidden by default now — only the Pipeline ("Prospects") view turns this
+   on via the .show class (see switchView() in main.js). It used to float
+   over every single view regardless of context, which made "add a
+   prospect" feel like a random floating button rather than a page-specific
+   action. */
 .fab {
   position: fixed; right: 18px; bottom: calc(var(--nav-h) + var(--safe-bottom) + 16px); z-index: 35;
   width: 54px; height: 54px; border-radius: 50%; border: none; cursor: pointer;
   background: linear-gradient(135deg, var(--purple), var(--gold)); color: white;
-  box-shadow: 0 10px 30px -8px var(--purple-glow); display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 10px 30px -8px var(--purple-glow); align-items: center; justify-content: center;
   max-width: 560px;
+  display: none;
 }
+.fab.show { display: flex; }
 .fab:active { transform: scale(0.94); }
 .divider { height: 1px; background: var(--line); margin: 14px 0; }
 .text-faint { color: var(--text-faint); }

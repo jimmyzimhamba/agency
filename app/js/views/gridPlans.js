@@ -103,7 +103,7 @@ function buildList() {
         <div class="flex-between">
           <div>
             <div style="font-size:22px;font-weight:800;">${staleCount}</div>
-            <div class="text-faint" style="font-size:11.5px;">Plan${staleCount === 1 ? "" : "s"} sitting untouched ${STALE_PLAN_DAYS}+ days — worth a nudge before the client wonders what's happening</div>
+            <div class="text-faint" style="font-size:11.5px;">Plan${staleCount === 1 ? "" : "s"} sitting untouched ${STALE_PLAN_DAYS}+ days, worth a nudge before the client wonders what's happening</div>
           </div>
           <span class="status-pill dead">Stale</span>
         </div>
@@ -136,7 +136,7 @@ function buildList() {
     listEl.appendChild(el(`
       <div class="empty-state">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="4" width="7" height="7"/><rect x="13" y="4" width="7" height="7"/><rect x="4" y="13" width="7" height="7"/><rect x="13" y="13" width="7" height="7"/></svg>
-        <p>${store.gridPlans.length ? "No grid plans match this filter." : canManage() ? "No grid plans yet — start one for a client." : "No grid plans yet."}</p>
+        <p>${store.gridPlans.length ? "No grid plans match this filter." : canManage() ? "No grid plans yet. Start one for a client." : "No grid plans yet."}</p>
       </div>
     `));
     return wrap;
@@ -343,7 +343,7 @@ function handleSaveConflict(post, payload) {
     onConfirm: async () => {
       const { error } = await sb.from("grid_posts").update(payload).eq("id", post.id);
       if (error) return toast(error.message, "error");
-      toast("Saved — your version overwrote theirs", "success");
+      toast("Saved: your version overwrote theirs", "success");
       pingPlanChannel();
       stopEditingHeartbeat();
     },
@@ -521,7 +521,7 @@ async function shareWithClient(plan) {
     })
     .eq("id", plan.id);
   if (error) return toast(error.message, "error");
-  toast("Share link ready — the client review page ships in a follow-up update", "success");
+  toast("Share link ready, the client review page ships in a follow-up update", "success");
 }
 
 async function copyShareLink(plan) {
@@ -571,7 +571,7 @@ function exportPlanJSON(plan, posts) {
 }
 
 function buildWhatsAppText(plan, posts) {
-  const lines = [`📋 ${plan.client_name} — Content Plan`, ""];
+  const lines = [`📋 ${plan.client_name}: Content Plan`, ""];
   posts
     .slice()
     .sort((a, b) => a.position - b.position)
@@ -593,10 +593,10 @@ async function exportPlanWhatsApp(plan, posts) {
   const text = buildWhatsAppText(plan, posts);
   try {
     await navigator.clipboard.writeText(text);
-    toast("Copied — paste it straight into WhatsApp", "success");
+    toast("Copied, paste it straight into WhatsApp", "success");
   } catch {
     downloadTextFile(`${slugify(plan.client_name)}-whatsapp.txt`, text, "text/plain;charset=utf-8;");
-    toast("Clipboard unavailable — downloaded as a text file instead", "");
+    toast("Clipboard unavailable, downloaded as a text file instead", "");
   }
 }
 
@@ -636,8 +636,8 @@ function openImportPreviewModal(rows, unrecognizedPlatformCount) {
     <div>
       <div style="font-weight:800;font-size:16px;margin-bottom:6px;">Import ${rows.length} Post${rows.length === 1 ? "" : "s"}</div>
       <div class="text-faint" style="font-size:12px;margin-bottom:12px;line-height:1.5;">
-        These get added to the end of this plan as new pending posts — nothing is saved until you confirm below. Media isn't part of JSON import; add images/video on each post afterward.
-        ${unrecognizedPlatformCount ? `<br>⚠ ${unrecognizedPlatformCount} post${unrecognizedPlatformCount === 1 ? "" : "s"} had a platform not in the list — imported without a platform tag.` : ""}
+        These get added to the end of this plan as new pending posts, nothing is saved until you confirm below. Media isn't part of JSON import; add images/video on each post afterward.
+        ${unrecognizedPlatformCount ? `<br>⚠ ${unrecognizedPlatformCount} post${unrecognizedPlatformCount === 1 ? "" : "s"} had a platform not in the list, imported without a platform tag.` : ""}
       </div>
       <div id="gpi-preview" style="max-height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;margin-bottom:16px;"></div>
       <button class="btn btn-primary" id="gpi-confirm">Import ${rows.length} Post${rows.length === 1 ? "" : "s"}</button>
@@ -757,7 +757,7 @@ function openPostModal(post0) {
 
       <div class="field client-note-field">
         <label>Client note</label>
-        <div class="client-note-warning">⚠ A private note for the client — not the caption itself.</div>
+        <div class="client-note-warning">⚠ A private note for the client, not the caption itself.</div>
         <textarea id="gpm-note" placeholder="A note for the client about this post (not the caption)...">${esc(post.client_note || "")}</textarea>
       </div>
 
@@ -765,7 +765,7 @@ function openPostModal(post0) {
         <div class="field" style="margin-bottom:0;">
           <label>Platform</label>
           <select id="gpm-platform">
-            <option value="">—</option>
+            <option value="">Select platform</option>
             ${PLATFORMS.map((pl) => `<option value="${pl}" ${post.platform === pl ? "selected" : ""}>${pl}</option>`).join("")}
           </select>
         </div>

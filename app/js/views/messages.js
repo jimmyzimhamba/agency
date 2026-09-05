@@ -125,7 +125,7 @@ export function renderMessages() {
         <div class="stat-grid" style="margin-bottom:16px;grid-template-columns:1fr;">
           <div class="stat-card accent" id="mk-generic-card" style="cursor:pointer;">
             <div class="num">${genericTemplates.length}</div>
-            <div class="label">Template${genericTemplates.length === 1 ? "" : "s"} with no personalization — tap to review</div>
+            <div class="label">Template${genericTemplates.length === 1 ? "" : "s"} with no personalization, tap to review</div>
           </div>
         </div>
       ` : ""}
@@ -150,7 +150,7 @@ export function renderMessages() {
 
   const list = wrap.querySelector("#mk-list");
   if (!store.templates.length) {
-    list.appendChild(el(`<div class="empty-state"><p>No templates yet — add your first one.</p></div>`));
+    list.appendChild(el(`<div class="empty-state"><p>No templates yet. Add your first one.</p></div>`));
     return;
   }
 
@@ -182,7 +182,7 @@ function openGenericTemplatesModal(items) {
           <span style="font-weight:700;font-size:13.5px;">${esc(t.title)}</span>
           <span class="template-cat">${t.category.replace("_", " ")}</span>
         </div>
-        <div class="text-faint" style="font-size:11px;margin-top:2px;">${niche ? "For: " + esc(niche.name) : "General — all niches"}</div>
+        <div class="text-faint" style="font-size:11px;margin-top:2px;">${niche ? "For: " + esc(niche.name) : "General, all niches"}</div>
       </div>
     `);
     row.addEventListener("click", () => {
@@ -236,7 +236,7 @@ function templateCard(t) {
         <div class="template-title">${esc(t.title)}</div>
         <span class="template-cat">${t.category.replace("_", " ")}</span>
       </div>
-      <div class="text-faint" style="font-size:11px;margin-bottom:6px;">${niche ? "For: " + esc(niche.name) : "General — all niches"}</div>
+      <div class="text-faint" style="font-size:11px;margin-bottom:6px;">${niche ? "For: " + esc(niche.name) : "General, all niches"}</div>
       ${isGeneric(t) ? `<span class="status-pill stale" style="margin-bottom:6px;display:inline-block;">No personalization</span>` : ""}
       <div class="template-body">${esc(t.body)}</div>
       <div class="btn-block-row">
@@ -250,7 +250,7 @@ function templateCard(t) {
       await navigator.clipboard.writeText(t.body);
       toast("Copied to clipboard", "success");
     } catch {
-      toast("Couldn't copy — long-press the text instead", "error");
+      toast("Couldn't copy, long-press the text instead", "error");
     }
   });
   card.querySelector('[data-action="edit"]').addEventListener("click", () => openTemplateForm(t));
@@ -282,7 +282,7 @@ export function openTemplateForm(existing) {
       <div class="field">
         <label>Niche</label>
         <select id="tf-niche">
-          <option value="">General — all niches</option>
+          <option value="">General, all niches</option>
           ${nicheOptions}
         </select>
         <div class="hint">If this is an Opener tagged to a niche, the app auto-personalizes and inserts it the first time an agent messages a prospect in that niche.</div>
@@ -290,7 +290,7 @@ export function openTemplateForm(existing) {
       <div class="field">
         <label>Message</label>
         <textarea id="tf-body" style="min-height:120px;">${esc(t.body || "")}</textarea>
-        <div class="hint">Use {{business_name}}, {{area_clause}}, {{gap_clause}}, {{agent_name}} to auto-fill per prospect — or [Name]/[Business] as manual placeholders if you'd rather personalise by hand.</div>
+        <div class="hint">Use {{business_name}}, {{area_clause}}, {{gap_clause}}, {{agent_name}} to auto-fill per prospect, or [Name]/[Business] as manual placeholders if you'd rather personalise by hand.</div>
       </div>
       <div class="field">
         <label>Live Preview</label>
@@ -325,7 +325,7 @@ export function openTemplateForm(existing) {
       return;
     }
     previewEl.textContent = personalizeMessage(body, sample, agentFirst);
-    sourceEl.textContent = `Previewed using "${sample.business_name}"${store.prospects.length ? "" : " (sample — no real prospects loaded yet)"}.`;
+    sourceEl.textContent = `Previewed using "${sample.business_name}"${store.prospects.length ? "" : " (sample, no real prospects loaded yet)"}.`;
   }
   box.querySelector("#tf-body").addEventListener("input", updatePreview);
   box.querySelector("#tf-niche").addEventListener("change", updatePreview);

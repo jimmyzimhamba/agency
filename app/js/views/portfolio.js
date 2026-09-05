@@ -44,7 +44,7 @@ export function renderPortfolio() {
         ${isOwner ? `<span class="small-link" id="pf-new">+ New Case Study</span>` : ""}
       </div>
       <p class="text-faint" style="font-size:12.5px;margin-top:-6px;margin-bottom:10px;">
-        ${isOwner ? "Build a public showcase of past work to send prospects — nothing here goes live until you publish it." : "The agency's public case-study catalog. Only the owner can add or publish new work."}
+        ${isOwner ? "Build a public showcase of past work to send prospects. Nothing here goes live until you publish it." : "The agency's public case-study catalog. Only the owner can add or publish new work."}
       </p>
       <div class="card" style="margin-bottom:16px;">
         <div class="flex-between" style="margin-bottom:${isPublic ? "10px" : "0"};">
@@ -93,7 +93,7 @@ function renderList(listEl, isOwner) {
     listEl.appendChild(el(`
       <div class="empty-state">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="m3 15 4.5-4.5a2 2 0 0 1 2.8 0L15 15M13 13l2-2a2 2 0 0 1 2.8 0L21 14"/><circle cx="8" cy="8.5" r="1.3"/></svg>
-        <p>${store.portfolioItems.length ? "No case studies match this filter." : isOwner ? "No case studies yet — add your first project to start building the showcase." : "No case studies in the catalog yet."}</p>
+        <p>${store.portfolioItems.length ? "No case studies match this filter." : isOwner ? "No case studies yet. Add your first project to start building the showcase." : "No case studies in the catalog yet."}</p>
       </div>
     `));
     return;
@@ -208,7 +208,7 @@ export function openPortfolioItemSheet(existing) {
       </div>
       <div class="field">
         <label>Results</label>
-        <textarea id="pf-results" placeholder="What did it achieve — metrics, outcomes...">${esc(p.results || "")}</textarea>
+        <textarea id="pf-results" placeholder="What did it achieve: metrics, outcomes...">${esc(p.results || "")}</textarea>
       </div>
       <div class="field">
         <label>External link (optional)</label>

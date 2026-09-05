@@ -70,7 +70,7 @@ export function renderCommunity() {
     <div>
       <div class="page-title mt-0">Community Feed<span class="accent">.</span></div>
       <p class="text-faint" style="font-size:12.5px;margin-top:-6px;margin-bottom:14px;">
-        Wins, updates, and shout-outs for the whole team — anyone can post, comment, and like. ${isOwnerNow() ? "As owner, you can also pin a post to the top or delete one outright." : ""}
+        Wins, updates, and shout-outs for the whole team, anyone can post, comment, and like. ${isOwnerNow() ? "As owner, you can also pin a post to the top or delete one outright." : ""}
       </p>
       <div class="card" id="cf-composer-card" style="margin-bottom:18px;"></div>
       <div id="cf-feed"></div>
@@ -160,7 +160,7 @@ function renderFeed(feedEl) {
     feedEl.appendChild(el(`
       <div class="empty-state">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-        <p>No posts yet — be the first to share something with the team.</p>
+        <p>No posts yet. Be the first to share something with the team.</p>
       </div>
     `));
     return;

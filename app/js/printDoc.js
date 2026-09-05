@@ -32,7 +32,7 @@ function partyBlock(label, prospect) {
   return `
     <div>
       <div class="print-label">${esc(label)}</div>
-      <div class="print-value">${esc(prospect?.business_name || "—")}</div>
+      <div class="print-value">${esc(prospect?.business_name || "-")}</div>
       ${prospect?.area || prospect?.city ? `<div class="print-value">${esc([prospect.area, prospect.city].filter(Boolean).join(", "))}</div>` : ""}
       ${prospect?.email ? `<div class="print-value">${esc(prospect.email)}</div>` : ""}
     </div>
@@ -131,9 +131,9 @@ export function printClientStatement(prospect) {
         <tbody>
           ${contracts.map((c) => `
             <tr>
-              <td>${esc(c.title || "—")}</td>
+              <td>${esc(c.title || "-")}</td>
               <td>${esc(contractLabels[c.status] || c.status)}</td>
-              <td>${c.signed_date ? esc(fmtDate(c.signed_date)) : "—"}</td>
+              <td>${c.signed_date ? esc(fmtDate(c.signed_date)) : "-"}</td>
               <td style="text-align:right;">${money(c.value)}</td>
             </tr>
           `).join("")}
@@ -148,9 +148,9 @@ export function printClientStatement(prospect) {
         <tbody>
           ${invoices.map((i) => `
             <tr>
-              <td>${esc(i.invoice_number || "—")}</td>
+              <td>${esc(i.invoice_number || "-")}</td>
               <td>${esc(invoiceLabels[i.status] || i.status)}</td>
-              <td>${i.due_date ? esc(fmtDate(i.due_date)) : "—"}</td>
+              <td>${i.due_date ? esc(fmtDate(i.due_date)) : "-"}</td>
               <td style="text-align:right;">${money(i.amount)}</td>
             </tr>
           `).join("")}

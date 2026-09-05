@@ -108,7 +108,7 @@ async function handleSubmit() {
         },
       });
       if (error) { sessionStorage.removeItem("sxc_just_signed_up"); throw error; }
-      toast("Account created — you're in!", "success");
+      toast("Account created, you're in!", "success");
     } else {
       const { error } = await sb.auth.signInWithPassword({ email, password });
       if (error) throw error;

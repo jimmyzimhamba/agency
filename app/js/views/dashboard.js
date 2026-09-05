@@ -245,7 +245,7 @@ function weeklyRecapStats() {
 
 function buildRecapText(s) {
   const lines = [
-    `📊 Weekly Recap — ${new Date().toLocaleDateString()}`,
+    `📊 Weekly Recap: ${new Date().toLocaleDateString()}`,
     ``,
     `New leads added: ${s.newLeads}`,
     `Contracts signed: ${s.signedCount}${s.signedValue ? ` (${money(s.signedValue)})` : ""}`,
@@ -341,7 +341,8 @@ export function renderDashboard() {
         <div class="page-title mt-0">Dashboard<span class="accent">.</span></div>
         <span class="small-link" id="db-share-recap">Share Update</span>
       </div>
-      <div class="text-faint" style="font-size:13px;margin:-8px 2px 18px;">${firstName ? `Welcome back, ${esc(firstName)} — ` : ""}here's how the pipeline is doing.</div>
+      <div class="db-welcome">${firstName ? `Welcome back, ${esc(firstName)}.` : "Welcome back."}</div>
+      <div class="db-welcome-sub">Here's how the pipeline is doing.</div>
 
       ${showChecklist ? `
       <div id="db-checklist-wrap">
@@ -370,7 +371,7 @@ export function renderDashboard() {
           ${isOwner ? `<span class="small-link" id="db-set-goal">Set Goal</span>` : ""}
         </div>
         <div class="progress-track"><div class="progress-fill" style="width:${goalPct}%"></div></div>
-        <div class="text-faint" style="font-size:11px;margin-top:6px;">${goalPct}% of target — tap for the client list</div>
+        <div class="text-faint" style="font-size:11px;margin-top:6px;">${goalPct}% of target, tap for the client list</div>
         ${goalPace ? `
         <div style="margin-top:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
           <span class="status-pill ${goalPace.onPace ? "paid" : "stale"}">${goalPace.onPace ? "On pace" : "Behind pace"}</span>
@@ -387,7 +388,7 @@ export function renderDashboard() {
             <div class="text-faint" style="font-size:11.5px;">${
               stale.length
                 ? `Active lead${stale.length === 1 ? "" : "s"} with no update in ${STALE_DAYS}+ days`
-                : `Nothing's gone quiet — every active lead's been touched in the last ${STALE_DAYS} days`
+                : `Nothing's gone quiet, every active lead's been touched in the last ${STALE_DAYS} days`
             }</div>
           </div>
           ${stale.length ? `<span class="status-pill stale">Going cold</span>` : ""}
@@ -401,7 +402,7 @@ export function renderDashboard() {
             <div style="font-size:22px;font-weight:800;">${winback.length}</div>
             <div class="text-faint" style="font-size:11.5px;">${
               winback.length
-                ? `Dead lead${winback.length === 1 ? "" : "s"} sitting untouched for ${WINBACK_DAYS}+ days — worth a second look`
+                ? `Dead lead${winback.length === 1 ? "" : "s"} sitting untouched for ${WINBACK_DAYS}+ days, worth a second look`
                 : `No long-dormant dead leads right now`
             }</div>
           </div>
@@ -416,8 +417,8 @@ export function renderDashboard() {
             <div style="font-size:22px;font-weight:800;">${zeroMrr.length}</div>
             <div class="text-faint" style="font-size:11.5px;">${
               zeroMrr.length
-                ? `Signed client${zeroMrr.length === 1 ? "" : "s"} with no MRR set — probably a missed retainer amount, quietly understating every revenue number`
-                : `Every signed client has an MRR value set — nice`
+                ? `Signed client${zeroMrr.length === 1 ? "" : "s"} with no MRR set, probably a missed retainer amount, quietly understating every revenue number`
+                : `Every signed client has an MRR value set, nice`
             }</div>
           </div>
           ${zeroMrr.length ? `<span class="status-pill stale">Check MRR</span>` : ""}
@@ -430,8 +431,8 @@ export function renderDashboard() {
             <div style="font-size:22px;font-weight:800;">${noFollowUp.length}</div>
             <div class="text-faint" style="font-size:11.5px;">${
               noFollowUp.length
-                ? `Active lead${noFollowUp.length === 1 ? "" : "s"} with no follow-up date set — invisible to Due Today until someone sets one`
-                : `Every active lead has a follow-up date set — nice`
+                ? `Active lead${noFollowUp.length === 1 ? "" : "s"} with no follow-up date set, invisible to Due Today until someone sets one`
+                : `Every active lead has a follow-up date set, nice`
             }</div>
           </div>
           ${noFollowUp.length ? `<span class="status-pill stale">Set reminder</span>` : ""}
@@ -446,7 +447,7 @@ export function renderDashboard() {
             <div style="font-size:22px;font-weight:800;">${unassigned.length}</div>
             <div class="text-faint" style="font-size:11.5px;">${
               unassigned.length
-                ? `Active lead${unassigned.length === 1 ? "" : "s"} with nobody assigned — easy to lose track of`
+                ? `Active lead${unassigned.length === 1 ? "" : "s"} with nobody assigned, easy to lose track of`
                 : `Every active lead has someone assigned to it`
             }</div>
           </div>
@@ -459,7 +460,7 @@ export function renderDashboard() {
         <div class="flex-between">
           <div>
             <div style="font-size:22px;font-weight:800;">${orphaned.length}</div>
-            <div class="text-faint" style="font-size:11.5px;">Active lead${orphaned.length === 1 ? "" : "s"} still assigned to a removed teammate — needs reassigning</div>
+            <div class="text-faint" style="font-size:11.5px;">Active lead${orphaned.length === 1 ? "" : "s"} still assigned to a removed teammate, needs reassigning</div>
           </div>
           <span class="status-pill blocked">Reassign</span>
         </div>
@@ -483,7 +484,7 @@ export function renderDashboard() {
             <div style="font-size:22px;font-weight:800;">${atRisk.length}</div>
             <div class="text-faint" style="font-size:11.5px;">${
               atRisk.length
-                ? `Signed client${atRisk.length === 1 ? "" : "s"} showing warning signs — overdue billing, a blocked project, or no invoice yet`
+                ? `Signed client${atRisk.length === 1 ? "" : "s"} showing warning signs: overdue billing, a blocked project, or no invoice yet`
                 : `No signed clients showing warning signs right now`
             }</div>
           </div>
@@ -523,7 +524,7 @@ export function renderDashboard() {
             <div style="font-size:22px;font-weight:800;">${signedNoProject.length}</div>
             <div class="text-faint" style="font-size:11.5px;">${
               signedNoProject.length
-                ? `Signed client${signedNoProject.length === 1 ? "" : "s"} with no project started — delivery work isn't being tracked anywhere`
+                ? `Signed client${signedNoProject.length === 1 ? "" : "s"} with no project started, delivery work isn't being tracked anywhere`
                 : `Every signed client has a project started`
             }</div>
           </div>
@@ -538,7 +539,7 @@ export function renderDashboard() {
             <div style="font-size:22px;font-weight:800;">${anniversaries.length}</div>
             <div class="text-faint" style="font-size:11.5px;">${
               anniversaries.length
-                ? `Signed client${anniversaries.length === 1 ? "" : "s"} within ${ANNIVERSARY_WINDOW_DAYS} days of a yearly sign-up anniversary — worth a renewal check-in`
+                ? `Signed client${anniversaries.length === 1 ? "" : "s"} within ${ANNIVERSARY_WINDOW_DAYS} days of a yearly sign-up anniversary, worth a renewal check-in`
                 : `No clients approaching a sign-up anniversary right now`
             }</div>
           </div>
@@ -555,7 +556,7 @@ export function renderDashboard() {
             <div style="font-size:22px;font-weight:800;">${gridAttention.length}</div>
             <div class="text-faint" style="font-size:11.5px;">${
               gridAttention.length
-                ? `Grid plan${gridAttention.length === 1 ? "" : "s"} sent back with changes requested — worth a look before the client waits too long`
+                ? `Grid plan${gridAttention.length === 1 ? "" : "s"} sent back with changes requested, worth a look before the client waits too long`
                 : `No grid plans currently waiting on changes`
             }</div>
           </div>
@@ -564,7 +565,7 @@ export function renderDashboard() {
       </div>
       ` : ""}
 
-      <div class="section-title">This Month — Leaderboard</div>
+      <div class="section-title">This Month: Leaderboard</div>
       <div id="db-leaderboard" style="margin-bottom:12px;"></div>
 
       ${isOwner ? `
@@ -572,7 +573,7 @@ export function renderDashboard() {
       <div id="db-workload" style="margin-bottom:12px;"></div>
       ` : ""}
 
-      <div class="section-title">This Week — Team</div>
+      <div class="section-title">This Week: Team</div>
       <div id="db-week-total" class="stat-grid" style="margin-bottom:12px;"></div>
       <div id="db-week-team"></div>
 
@@ -666,14 +667,14 @@ export function renderDashboard() {
     openProspectListModal(
       "No Follow-up Date Set",
       noFollowUp.map((p) => ({ prospect: p, meta: `${statusLabel(p.status)} · last touched ${timeAgo(p.updated_at)}` })),
-      "Every active lead has a follow-up date set — nice."
+      "Every active lead has a follow-up date set, nice."
     )
   );
   wrap.querySelector("#db-zeromrr-card").addEventListener("click", () =>
     openProspectListModal(
       "Signed, No MRR Set",
       zeroMrr.map((p) => ({ prospect: p, meta: `Signed ${timeAgo(p.updated_at)}` })),
-      "Every signed client has an MRR value set — nice."
+      "Every signed client has an MRR value set, nice."
     )
   );
   const unassignedCard = wrap.querySelector("#db-unassigned-card");
@@ -783,8 +784,8 @@ async function loadChurned(wrap) {
         <div style="font-size:22px;font-weight:800;">${rows.length}</div>
         <div class="text-faint" style="font-size:11.5px;">${
           rows.length
-            ? `Signed client${rows.length === 1 ? "" : "s"} lost — ${money(lostMRR)} MRR churned`
-            : `No signed clients have churned — nice`
+            ? `Signed client${rows.length === 1 ? "" : "s"} lost, ${money(lostMRR)} MRR churned`
+            : `No signed clients have churned, nice`
         }</div>
       </div>
       ${rows.length ? `<span class="status-pill dead">Churned</span>` : ""}
@@ -797,7 +798,7 @@ async function loadChurned(wrap) {
         .slice()
         .sort((a, b) => (Number(b.prospect.mrr) || 0) - (Number(a.prospect.mrr) || 0))
         .map((r) => ({ prospect: r.prospect, meta: `${money(Number(r.prospect.mrr) || 0)} MRR · churned ${timeAgo(r.changedAt)}` })),
-      "No signed clients have churned — nice."
+      "No signed clients have churned, nice."
     )
   );
 }
@@ -951,7 +952,7 @@ function openStaleListModal(staleList) {
     .slice()
     .sort((a, b) => new Date(a.updated_at) - new Date(b.updated_at)) // most stale first
     .map((p) => ({ prospect: p, meta: `${statusLabel(p.status)} · last touched ${timeAgo(p.updated_at)}` }));
-  openProspectListModal("Needs Follow-up", list, "Nothing's gone quiet — nice work staying on top of it.");
+  openProspectListModal("Needs Follow-up", list, "Nothing's gone quiet, nice work staying on top of it.");
 }
 
 function openWinBackModal(list) {
@@ -1110,7 +1111,7 @@ function openGoalDetailModal(signedProspects) {
     .slice()
     .sort((a, b) => (Number(b.mrr) || 0) - (Number(a.mrr) || 0))
     .map((p) => ({ prospect: p, meta: money(Number(p.mrr) || 0) + " MRR" }));
-  openProspectListModal("Signed Clients — MRR", list, "No signed clients yet this month.");
+  openProspectListModal("Signed Clients: MRR", list, "No signed clients yet this month.");
 }
 
 async function loadWeeklyStats(wrap) {
@@ -1187,12 +1188,12 @@ function openWeeklyEventsModal(title, entries, emptyMsg) {
 
 function openMetricDetailModal(metric) {
   const entries = weeklyHistory.filter((h) => h.new_status === metric);
-  openWeeklyEventsModal(`This Week — ${METRIC_LABELS[metric]}`, entries, "Nothing this week yet.");
+  openWeeklyEventsModal(`This Week: ${METRIC_LABELS[metric]}`, entries, "Nothing this week yet.");
 }
 
 function openAgentDetailModal(agentId, name) {
   const entries = weeklyHistory.filter((h) => (h.changed_by || "unknown") === agentId);
-  openWeeklyEventsModal(`This Week — ${name}`, entries, "No activity this week.");
+  openWeeklyEventsModal(`This Week: ${name}`, entries, "No activity this week.");
 }
 
 function openGoalModal(current) {

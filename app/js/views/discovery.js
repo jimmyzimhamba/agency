@@ -35,7 +35,7 @@ export function renderDiscovery() {
         </div>
         <div class="field">
           <label>Area (optional)</label>
-          <input id="dc-area" type="text" placeholder="Borrowdale — leave blank to search all of Harare" />
+          <input id="dc-area" type="text" placeholder="Borrowdale, leave blank to search all of Harare" />
         </div>
         <button class="btn btn-primary" id="dc-search" ${store.niches.length ? "" : "disabled"}>Search Google Maps</button>
       </div>
@@ -154,7 +154,7 @@ function renderResults(wrap, results, query) {
 
       if (error) return toast(error.message, "error");
 
-      toast(`Added ${rows.length} prospect${rows.length === 1 ? "" : "s"} — researching them online...`, "success");
+      toast(`Added ${rows.length} prospect${rows.length === 1 ? "" : "s"}, researching them online...`, "success");
       (data || []).forEach((p) => {
         sb.functions.invoke("research-prospect", { body: { prospect_id: p.id } }).catch((err) => {
           console.error("research-prospect invoke failed", err);

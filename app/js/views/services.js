@@ -61,7 +61,7 @@ export function renderServices() {
         </div>
       </div>
       <p class="text-faint" style="font-size:12.5px;margin-top:-6px;margin-bottom:10px;">
-        ${isOwner ? "The fixed menu of what you sell — add or reprice a package here and everyone quotes off the same numbers." : "The agency's fixed menu — use these when quoting a client. Only the owner can add or reprice a package."}
+        ${isOwner ? "The fixed menu of what you sell: add or reprice a package here and everyone quotes off the same numbers." : "The agency's fixed menu. Use these when quoting a client. Only the owner can add or reprice a package."}
       </p>
       <div class="stat-grid" style="margin-bottom:16px;">
         <div class="stat-card"><div class="num">${active.length}</div><div class="label">Active Packages</div></div>
@@ -113,7 +113,7 @@ function renderList(listEl, isOwner) {
     listEl.appendChild(el(`
       <div class="empty-state">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 7h-4V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2H4a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1Z"/><path d="M10 5h4v2h-4z"/></svg>
-        <p>${store.servicePackages.length ? "No packages match this filter." : isOwner ? "No packages yet — add your first one to start building the catalog." : "No packages in the catalog yet."}</p>
+        <p>${store.servicePackages.length ? "No packages match this filter." : isOwner ? "No packages yet. Add your first one to start building the catalog." : "No packages in the catalog yet."}</p>
       </div>
     `));
     return;

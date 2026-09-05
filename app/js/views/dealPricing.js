@@ -203,7 +203,7 @@ async function openRecentQuotesModal() {
     const author = profileById(n.author_id);
     // The saved note body already reads as a full sentence — just strip the
     // marker emoji/prefix so the card shows the useful part (tier + price).
-    const summary = n.body.replace(`${QUOTE_MARKER} — `, "");
+    const summary = n.body.replace(`${QUOTE_MARKER}: `, "");
     const row = el(`
       <div class="card" style="margin-bottom:8px;${prospect ? "cursor:pointer;" : ""}">
         <div class="flex-between" style="margin-bottom:4px;">
@@ -325,7 +325,7 @@ export function openDealPricingCalculator(prospect = null) {
   box.innerHTML = `
     <div class="flex-between" style="margin:-4px 2px 4px;">
       <p class="text-faint" style="font-size:13px;line-height:1.5;margin:0;flex:1;">
-        Answer a few quick questions to get a Harare-market-accurate quote — a recommended
+        Answer a few quick questions to get a Harare-market-accurate quote: a recommended
         retainer, a floor you should never go below, and a launch package to open with.
       </p>
     </div>
@@ -370,7 +370,7 @@ export function openDealPricingCalculator(prospect = null) {
       <div class="section-title mt-0">Quoting For (optional)</div>
       <div class="field" style="margin-bottom:16px;">
         <select id="dpc-prospect-select">
-          <option value="">— Not tied to a prospect —</option>
+          <option value="">Not tied to a prospect</option>
           ${options}
         </select>
         <div class="hint">Pick a prospect to enable saving this quote to their record.</div>
@@ -460,7 +460,7 @@ export function openDealPricingCalculator(prospect = null) {
       btn.textContent = "Saving…";
       btn.setAttribute("disabled", "true");
       const body =
-        `💰 Deal Pricing Calculator quote — ${lastQuote.tier.label}: recommended ${money(lastQuote.price)}/mo ` +
+        `💰 Deal Pricing Calculator quote: ${lastQuote.tier.label}, recommended ${money(lastQuote.price)}/mo ` +
         `(floor ${money(lastQuote.floor)}/mo). Launch package: ${money(lastQuote.launch)} once-off. ` +
         `Basis: ${answers.platforms === 4 ? "4+" : answers.platforms} platform(s), ` +
         `${volumeKey(answers.volume)} content, video: ${videoKey(answers.video)}, ` +

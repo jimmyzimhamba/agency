@@ -68,13 +68,13 @@ function itemCard(item) {
 
 async function load() {
   if (!sb) return renderMessage("Not available", "This page isn't configured correctly. Please contact the agency directly.");
-  if (!orgId) return renderMessage("Portfolio not found", "This link is missing some information — please ask the agency for a fresh link.");
+  if (!orgId) return renderMessage("Portfolio not found", "This link is missing some information, please ask the agency for a fresh link.");
 
   root.innerHTML = `<div style="text-align:center;padding:60px 20px;" class="text-faint">Loading…</div>`;
 
   const { data: settings } = await sb.from("portfolio_settings").select("*").eq("org_id", orgId).eq("is_public", true).maybeSingle();
   if (!settings) {
-    return renderMessage("Portfolio not available", "This showcase isn't public right now — please ask the agency for a fresh link.");
+    return renderMessage("Portfolio not available", "This showcase isn't public right now, please ask the agency for a fresh link.");
   }
 
   const { data: items } = await sb
@@ -100,7 +100,7 @@ async function load() {
   if (!items || !items.length) {
     listEl.appendChild(el(`
       <div class="empty-state">
-        <p>Nothing published here yet — check back soon.</p>
+        <p>Nothing published here yet. Check back soon.</p>
       </div>
     `));
     return;

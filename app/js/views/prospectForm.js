@@ -84,7 +84,7 @@ export function buildProspectForm(existing, onSaved) {
         ` : ""}
         <textarea id="pf-message" placeholder="${existing ? "" : "Leave blank to auto-research this business and write it for you"}">${esc(p.outreach_message || "")}</textarea>
         <div class="hint">${existing
-          ? `Niche templates auto-fill using the business name, area, and gap note above. If you see <code>{{agent_name}}</code> in the text, leave it — it turns into whoever's sending automatically.`
+          ? `Niche templates auto-fill using the business name, area, and gap note above. If you see <code>{{agent_name}}</code> in the text, leave it: it turns into whoever's sending automatically.`
           : `Leave this blank and Agency Command will research the business online and write a ready-to-send message for you (takes about a minute). Type your own message here instead to skip auto-research.`}</div>
       </div>
       ${!existing ? `
@@ -110,9 +110,9 @@ export function buildProspectForm(existing, onSaved) {
         <div class="field">
           <label>Tier</label>
           <select id="pf-tier">
-            <option value="A" ${p.tier === "A" ? "selected" : ""}>A — Priority</option>
-            <option value="B" ${!p.tier || p.tier === "B" ? "selected" : ""}>B — Standard</option>
-            <option value="C" ${p.tier === "C" ? "selected" : ""}>C — Low priority</option>
+            <option value="A" ${p.tier === "A" ? "selected" : ""}>A: Priority</option>
+            <option value="B" ${!p.tier || p.tier === "B" ? "selected" : ""}>B: Standard</option>
+            <option value="C" ${p.tier === "C" ? "selected" : ""}>C: Low priority</option>
           </select>
         </div>
         <div class="field">
@@ -200,7 +200,7 @@ export function buildProspectForm(existing, onSaved) {
         if (data?.id) notify("new_prospect", data.id);
 
         if (wantsResearch && data?.id) {
-          toast("Prospect added — researching this business online...", "success");
+          toast("Prospect added, researching this business online...", "success");
           sb.functions.invoke("research-prospect", { body: { prospect_id: data.id } }).catch((err) => {
             console.error("research-prospect invoke failed", err);
           });

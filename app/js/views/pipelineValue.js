@@ -156,13 +156,13 @@ function patchOutputs() {
     `<b>${money(proj.threeMonth)}</b>/mo if none churn.`;
   refs.billsLine.innerHTML = proj.depositsNeeded > 0
     ? `To clear <b>${money(inputs.bills)}</b> in bills, you need ~<b>${proj.depositsNeeded}</b> deposit${proj.depositsNeeded === 1 ? "" : "s"} (50% upfront)` +
-      (proj.weeksToClear ? ` — roughly <b>${proj.weeksToClear}</b> week${proj.weeksToClear === 1 ? "" : "s"} at this rate.` : `, at this rate that's not moving — send more messages or raise your close rate.`)
+      (proj.weeksToClear ? `, roughly <b>${proj.weeksToClear}</b> week${proj.weeksToClear === 1 ? "" : "s"} at this rate.` : `, at this rate that's not moving, send more messages or raise your close rate.`)
     : `Set a bills amount above to see how many deposits you'd need to clear it.`;
 
   refs.badge.className = "pv-badge " + (isCustom ? "custom" : "live");
   refs.badge.innerHTML = isCustom
     ? `<span class="dot"></span> Custom scenario`
-    : `<span class="dot"></span> Live — last ${WINDOW_DAYS} days`;
+    : `<span class="dot"></span> Live: last ${WINDOW_DAYS} days`;
   refs.resetBtn.style.display = isCustom ? "" : "none";
 }
 
@@ -189,7 +189,7 @@ export function renderPipelineValue() {
     <div>
       <div class="page-title">Pipeline Value<span class="accent">.</span></div>
       <p class="text-faint" style="font-size:13px;line-height:1.5;margin:-6px 2px 18px;">
-        Model your month. Sliders start from your team's real outreach — drag any of them to test a scenario.
+        Model your month. Sliders start from your team's real outreach, drag any of them to test a scenario.
       </p>
 
       <div class="card glow-card" style="margin-bottom:18px;">
@@ -238,19 +238,19 @@ export function renderPipelineValue() {
 
       <div class="section-title">Win Rate by Heat Score</div>
       <div class="stat-grid cols-3" id="pv-heat-win-grid" style="margin-bottom:6px;"></div>
-      <div class="hint" style="margin:8px 2px 20px;">Every other breakdown here groups win rate by niche or agent — this groups it by the hand-assigned Heat Score itself, so you can see whether "hot" leads actually convert better or the scoring habit is just noise.</div>
+      <div class="hint" style="margin:8px 2px 20px;">Every other breakdown here groups win rate by niche or agent. This groups it by the hand-assigned Heat Score itself, so you can see whether "hot" leads actually convert better or the scoring habit is just noise.</div>
 
       <div class="section-title">Win Rate by Tier</div>
       <div class="stat-grid cols-3" id="pv-tier-win-grid" style="margin-bottom:6px;"></div>
-      <div class="hint" style="margin:8px 2px 20px;">Same lens as Heat Score, but for the other hand-assigned field — the A/B/C tier your team sets manually. Shows whether the highest-priority tier actually closes more often, or whether the tiering habit needs a rethink.</div>
+      <div class="hint" style="margin:8px 2px 20px;">Same lens as Heat Score, but for the other hand-assigned field: the A/B/C tier your team sets manually. Shows whether the highest-priority tier actually closes more often, or whether the tiering habit needs a rethink.</div>
 
       <div class="section-title">Average Time in Stage</div>
       <div class="stat-grid cols-2" id="pv-timing-grid" style="margin-bottom:6px;"></div>
-      <div class="hint" style="margin:8px 2px 20px;">How long deals typically sit in each stage before moving to the next, based on status changes logged over the last ${TIMING_WINDOW_DAYS} days. Shows where time actually leaks out of the funnel — not just where it stalls in count.</div>
+      <div class="hint" style="margin:8px 2px 20px;">How long deals typically sit in each stage before moving to the next, based on status changes logged over the last ${TIMING_WINDOW_DAYS} days. Shows where time actually leaks out of the funnel, not just where it stalls in count.</div>
 
       <div class="section-title">Best Day to Send</div>
       <div class="stat-grid cols-3" id="pv-day-grid" style="margin-bottom:6px;"></div>
-      <div class="hint" style="margin:8px 2px 20px;">Reply rate by the day of the week your first outreach went out, based on the same ${TIMING_WINDOW_DAYS}-day status history above. Days with no sends yet show "—".</div>
+      <div class="hint" style="margin:8px 2px 20px;">Reply rate by the day of the week your first outreach went out, based on the same ${TIMING_WINDOW_DAYS}-day status history above. Days with no sends yet show "-".</div>
 
       <div class="section-title">Lost Reasons</div>
       <div class="stat-grid cols-2" id="pv-lost-grid" style="margin-bottom:6px;"></div>
@@ -258,7 +258,7 @@ export function renderPipelineValue() {
 
       <div class="section-title">Quote Conversion Rate</div>
       <div class="stat-grid cols-2" id="pv-quote-grid" style="margin-bottom:6px;"></div>
-      <div class="hint" style="margin:8px 2px 20px;">Win rate for prospects who've had a Deal Pricing Calculator quote saved to their record, vs. everyone else who's been contacted — a check on whether quoting actually correlates with closing.</div>
+      <div class="hint" style="margin:8px 2px 20px;">Win rate for prospects who've had a Deal Pricing Calculator quote saved to their record, vs. everyone else who's been contacted: a check on whether quoting actually correlates with closing.</div>
     </div>
   `);
   root.appendChild(wrap);
@@ -389,7 +389,7 @@ function renderRevenueBreakdown() {
       ? nicheCells
           .map((c) => statCard(c.label, money(c.revenue), `${c.count} client${c.count === 1 ? "" : "s"}`))
           .join("")
-      : `<div class="hint">No signed clients yet — this fills in as deals close.</div>`;
+      : `<div class="hint">No signed clients yet. This fills in as deals close.</div>`;
   }
 
   if (refs.tierGrid) {
@@ -421,7 +421,7 @@ function renderRevenueBreakdown() {
       ? cityCells
           .map((c) => statCard(c.label, money(c.revenue), `${c.count} client${c.count === 1 ? "" : "s"}`))
           .join("")
-      : `<div class="hint">No signed clients yet — this fills in as deals close.</div>`;
+      : `<div class="hint">No signed clients yet. This fills in as deals close.</div>`;
   }
 }
 
@@ -471,7 +471,7 @@ function renderConversionBreakdown() {
     const cells = winRateCells(labeled);
     refs.nicheWinGrid.innerHTML = cells.length
       ? cells.map((c) => statCard(c.label, c.pct + "%", `${c.signed}/${c.total} signed`)).join("")
-      : `<div class="hint">No outreach logged yet — this fills in once leads move past Not Contacted.</div>`;
+      : `<div class="hint">No outreach logged yet. This fills in once leads move past Not Contacted.</div>`;
   }
 
   if (refs.agentWinGrid) {
@@ -492,7 +492,7 @@ function renderConversionBreakdown() {
     const cells = winRateCells(labeled);
     refs.agentWinGrid.innerHTML = cells.length
       ? cells.map((c) => statCard(c.label, c.pct + "%", `${c.signed}/${c.total} signed`)).join("")
-      : `<div class="hint">No outreach logged yet — this fills in once leads move past Not Contacted.</div>`;
+      : `<div class="hint">No outreach logged yet. This fills in once leads move past Not Contacted.</div>`;
   }
 
   if (refs.heatWinGrid) {
@@ -507,7 +507,7 @@ function renderConversionBreakdown() {
     const cells = winRateCells(byBand);
     refs.heatWinGrid.innerHTML = cells.length
       ? cells.map((c) => statCard(c.label, c.pct + "%", `${c.signed}/${c.total} signed`)).join("")
-      : `<div class="hint">No outreach logged yet — this fills in once leads move past Not Contacted.</div>`;
+      : `<div class="hint">No outreach logged yet. This fills in once leads move past Not Contacted.</div>`;
   }
 
   if (refs.tierWinGrid) {
@@ -521,7 +521,7 @@ function renderConversionBreakdown() {
     const cells = winRateCells(byTier);
     refs.tierWinGrid.innerHTML = cells.length
       ? cells.map((c) => statCard(c.label, c.pct + "%", `${c.signed}/${c.total} signed`)).join("")
-      : `<div class="hint">No outreach logged yet — this fills in once leads move past Not Contacted.</div>`;
+      : `<div class="hint">No outreach logged yet. This fills in once leads move past Not Contacted.</div>`;
   }
 }
 
@@ -574,10 +574,10 @@ function renderStageTimingBreakdown() {
         .map((c) =>
           c.count > 0
             ? statCard(c.label, `${fmt1(c.avg)}d`, `${c.count} deal${c.count === 1 ? "" : "s"}`)
-            : statCard(c.label, "—", "No data yet")
+            : statCard(c.label, "-", "No data yet")
         )
         .join("")
-    : `<div class="hint">No stage transitions logged yet in the last ${TIMING_WINDOW_DAYS} days — this fills in as outreach moves through the pipeline.</div>`;
+    : `<div class="hint">No stage transitions logged yet in the last ${TIMING_WINDOW_DAYS} days. This fills in as outreach moves through the pipeline.</div>`;
 }
 
 const DOW_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -624,10 +624,10 @@ function renderBestDayBreakdown() {
         .map((c) =>
           c.sent > 0
             ? statCard(c.label, `${c.pct}%`, `${c.sent} sent`)
-            : statCard(c.label, "—", "No sends yet")
+            : statCard(c.label, "-", "No sends yet")
         )
         .join("")
-    : `<div class="hint">No outreach sent yet in the last ${TIMING_WINDOW_DAYS} days — this fills in as messages go out.</div>`;
+    : `<div class="hint">No outreach sent yet in the last ${TIMING_WINDOW_DAYS} days. This fills in as messages go out.</div>`;
 }
 
 // Every other breakdown on this page explains why deals win. This is the
@@ -642,7 +642,7 @@ function computeLostReasons() {
   const counts = new Map();
   lostReasonsCache.forEach((n) => {
     const reason = n.body.slice(LOST_REASON_MARKER.length).trim();
-    const label = reason.startsWith("Other —") ? "Other" : reason;
+    const label = reason.startsWith("Other:") ? "Other" : reason;
     counts.set(label, (counts.get(label) || 0) + 1);
   });
   return Array.from(counts.entries())
@@ -655,7 +655,7 @@ function renderLostReasonsBreakdown() {
   const cells = computeLostReasons();
   refs.lostGrid.innerHTML = cells.length
     ? cells.map((c) => statCard(c.label, c.count, null)).join("")
-    : `<div class="hint">No reasons logged yet — these fill in as prospects move to Dead and a reason is picked.</div>`;
+    : `<div class="hint">No reasons logged yet. These fill in as prospects move to Dead and a reason is picked.</div>`;
 }
 
 // Every other win-rate lens here groups by a hand-assigned attribute
@@ -687,7 +687,7 @@ function renderQuoteConversionBreakdown() {
   const gotQuote = cells.find((c) => c.label === "Got a Quote");
   refs.quoteGrid.innerHTML = gotQuote && gotQuote.total > 0
     ? cells.map((c) => statCard(c.label, c.pct + "%", `${c.signed}/${c.total} signed`)).join("")
-    : `<div class="hint">No quotes saved yet — this fills in once a quote is saved from the Deal Pricing Calculator.</div>`;
+    : `<div class="hint">No quotes saved yet. This fills in once a quote is saved from the Deal Pricing Calculator.</div>`;
 }
 
 function resetToLive(wrap, sliderInputs) {

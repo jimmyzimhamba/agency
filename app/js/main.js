@@ -71,6 +71,13 @@ export function switchView(name) {
   document.querySelectorAll(".sidebar-link[data-view]").forEach((btn) => {
     btn.classList.toggle("active", btn.dataset.view === name);
   });
+  // The floating "+" only makes sense where it's unambiguous what it adds.
+  // It used to float over every single view (Dashboard, Messages, Team,
+  // Settings, ...) which made it feel like a stray button rather than a
+  // clear "add a prospect" action — so it's now shown only on the Pipeline
+  // view (the "Prospects" list), where tapping it obviously means "add one
+  // here."
+  document.getElementById("fab-add")?.classList.toggle("show", name === "pipeline");
   VIEWS[name]?.();
   window.scrollTo(0, 0);
 }
@@ -441,7 +448,15 @@ async function bootApp() {
 
 function showAuthScreen() {
   document.getElementById("boot-loading").style.display = "none";
-  document.getElementById("auth-screen").style.display = "flex";
+  // "block", not "flex" — .auth-wrap (this element's class) has no flex
+  // styling of its own; .auth-shell (its child) is what does the row/column
+  // split-screen layout. Toggling *this* wrapper to display:flex turns it
+  // into an unintended row-flex container, and a flex item with no
+  // flex-grow shrinks to its content width instead of filling the screen —
+  // that's what was leaving a dead strip of black down the right edge of
+  // the sign-in screen on wide/desktop windows. "block" lets .auth-shell
+  // fill 100% of the wrapper's width the normal way.
+  document.getElementById("auth-screen").style.display = "block";
   document.getElementById("app-shell").style.display = "none";
   initAuthScreen();
 }

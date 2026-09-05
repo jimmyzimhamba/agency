@@ -62,7 +62,7 @@ export function openOnboardingWizard() {
     if (name === "welcome") {
       body.innerHTML = `
         <div style="font-weight:800;font-size:17px;margin-bottom:4px;">Welcome, ${esc(firstName)}! 👋</div>
-        <div class="text-faint" style="font-size:13px;line-height:1.5;margin-bottom:16px;">Let's make this workspace yours — pick an avatar below (or skip and do it later from Team).</div>
+        <div class="text-faint" style="font-size:13px;line-height:1.5;margin-bottom:16px;">Let's make this workspace yours: pick an avatar below (or skip and do it later from Team).</div>
         <div id="ob-avatar-grid" style="display:flex;flex-wrap:wrap;gap:9px;"></div>
       `;
       const grid = body.querySelector("#ob-avatar-grid");
@@ -80,9 +80,9 @@ export function openOnboardingWizard() {
     } else if (name === "invite") {
       body.innerHTML = `
         <div style="font-weight:800;font-size:17px;margin-bottom:4px;">Invite your team</div>
-        <div class="text-faint" style="font-size:13px;line-height:1.5;margin-bottom:14px;">Share this code with teammates — they'll land straight in ${esc(store.organization?.name || "your agency")} when they sign up. You can find it again any time under Team.</div>
+        <div class="text-faint" style="font-size:13px;line-height:1.5;margin-bottom:14px;">Share this code with teammates: they'll land straight in ${esc(store.organization?.name || "your agency")} when they sign up. You can find it again any time under Team.</div>
         <div style="display:flex;align-items:center;gap:8px;">
-          <code style="flex:1;background:var(--black-card);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px;letter-spacing:0.5px;">${esc(store.organization?.invite_code || "—")}</code>
+          <code style="flex:1;background:var(--black-card);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px;letter-spacing:0.5px;">${esc(store.organization?.invite_code || "-")}</code>
           <button class="btn btn-ghost btn-sm" id="ob-copy-invite" style="width:auto;">Copy</button>
         </div>
       `;
@@ -93,7 +93,7 @@ export function openOnboardingWizard() {
           await navigator.clipboard.writeText(code);
           toast("Invite code copied", "success");
         } catch {
-          toast("Couldn't copy — long-press the code to select it", "error");
+          toast("Couldn't copy, long-press the code to select it", "error");
         }
       });
     } else {
@@ -101,7 +101,7 @@ export function openOnboardingWizard() {
         <div style="text-align:center;padding:8px 0 4px;">
           <div style="font-size:38px;margin-bottom:10px;">🎉</div>
           <div style="font-weight:800;font-size:17px;margin-bottom:6px;">You're all set</div>
-          <div class="text-faint" style="font-size:13px;line-height:1.5;">Head to the Dashboard for a quick checklist of what to do next — add a prospect, reach out, and the rest follows.</div>
+          <div class="text-faint" style="font-size:13px;line-height:1.5;">Head to the Dashboard for a quick checklist of what to do next: add a prospect, reach out, and the rest follows.</div>
         </div>
       `;
     }

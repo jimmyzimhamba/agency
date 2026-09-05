@@ -11,11 +11,11 @@ export function openBulkImportSheet() {
     <div>
       <p style="font-size:13px;color:var(--text-dim);line-height:1.5;margin-top:0;">
         Paste rows copied straight from a spreadsheet (or type your own, one prospect per line).
-        Separate the fields on each line with <b>commas</b> or <b>tabs</b> — whichever your list already uses.
+        Separate the fields on each line with <b>commas</b> or <b>tabs</b>, whichever your list already uses.
       </p>
       <div class="card" style="margin-bottom:12px;font-size:11.5px;color:var(--text-faint);">
         Column order: ${COLUMNS.map((c, i) => `${i + 1}. ${c}`).join(" &nbsp;·&nbsp; ")}
-        <br/><br/>Only <b>Business Name</b> is required — leave the rest blank if you don't have it.
+        <br/><br/>Only <b>Business Name</b> is required, leave the rest blank if you don't have it.
         <br/><br/><span class="small-link" id="bi-download-template">Download Sample CSV</span>
       </div>
       <div class="field">
@@ -137,7 +137,7 @@ function runPreview(box) {
     ? "<div class=\"card\" style=\"margin-bottom:10px;border-color:var(--warn);\">"
       + "<div style=\"font-weight:700;font-size:13px;color:var(--warn);margin-bottom:6px;\">⚠ " + noContactRows.length
       + (noContactRows.length === 1 ? " row has" : " rows have")
-      + " no WhatsApp, email, or Instagram — they'll import fine, but land as \"Unreachable\" in Pipeline until enriched</div>"
+      + " no WhatsApp, email, or Instagram. They'll import fine, but land as \"Unreachable\" in Pipeline until enriched</div>"
       + noContactListHtml
       + "</div>"
     : "";
@@ -150,12 +150,12 @@ function runPreview(box) {
     </div>
     ${dupeCount ? `
       <div class="card" style="margin-bottom:10px;border-color:var(--warn);">
-        <div style="font-weight:700;font-size:13px;color:var(--warn);margin-bottom:6px;">⚠ ${dupeCount} possible duplicate${dupeCount === 1 ? "" : "s"} found — unchecked rows below will be skipped</div>
+        <div style="font-weight:700;font-size:13px;color:var(--warn);margin-bottom:6px;">⚠ ${dupeCount} possible duplicate${dupeCount === 1 ? "" : "s"} found, unchecked rows below will be skipped</div>
         ${rows.map((r, i) => dupFlags[i] ? `
           <div class="field checkbox-row" style="margin-bottom:6px;">
             <input type="checkbox" class="bi-dupe-check" data-idx="${i}" id="bi-dupe-${i}" />
             <label style="margin:0;font-size:12px;line-height:1.4;" for="bi-dupe-${i}">
-              Import <b>${esc(r.business_name)}</b> anyway — ${dupFlags[i].inBatch ? "duplicate within this pasted list, matches" : "already in the pipeline as"} <b>${esc(dupFlags[i].with)}</b> (${dupFlags[i].reason === "phone" ? "same WhatsApp number" : "same name"})
+              Import <b>${esc(r.business_name)}</b> anyway: ${dupFlags[i].inBatch ? "duplicate within this pasted list, matches" : "already in the pipeline as"} <b>${esc(dupFlags[i].with)}</b> (${dupFlags[i].reason === "phone" ? "same WhatsApp number" : "same name"})
             </label>
           </div>
         ` : "").join("")}
@@ -164,14 +164,14 @@ function runPreview(box) {
     ${noContactCard}
     ${nicheUnmatched.length ? `
       <div class="card" style="margin-bottom:10px;border-color:var(--warn);">
-        <div style="font-weight:700;font-size:13px;color:var(--warn);margin-bottom:6px;">⚠ ${nicheUnmatched.length} niche name${nicheUnmatched.length === 1 ? "" : "s"} didn't match — pick the right one</div>
+        <div style="font-weight:700;font-size:13px;color:var(--warn);margin-bottom:6px;">⚠ ${nicheUnmatched.length} niche name${nicheUnmatched.length === 1 ? "" : "s"} didn't match, pick the right one</div>
         ${nicheUnmatched.map(({ idx, raw }) => `
           <div class="field" style="margin-bottom:8px;">
             <label style="font-size:12px;line-height:1.4;display:block;margin-bottom:4px;">
-              <b>${esc(rows[idx].business_name)}</b> — typed "${esc(raw)}"
+              <b>${esc(rows[idx].business_name)}</b>: typed "${esc(raw)}"
             </label>
             <select id="bi-niche-fix-${idx}">
-              <option value="">— No niche —</option>
+              <option value="">No niche</option>
               ${store.niches.map((n) => `<option value="${n.id}">${esc(n.name)}</option>`).join("")}
             </select>
           </div>
@@ -193,7 +193,7 @@ function runPreview(box) {
         if (!cb.checked) skipIdx.add(Number(cb.dataset.idx));
       });
       const toInsert = rows.filter((_, i) => !skipIdx.has(i));
-      if (!toInsert.length) return toast("Nothing left to import — check a duplicate row to import it anyway", "error");
+      if (!toInsert.length) return toast("Nothing left to import, check a duplicate row to import it anyway", "error");
 
       confirmBtn.disabled = true;
       confirmBtn.textContent = "Importing...";
