@@ -78,52 +78,68 @@ function openMoreMenu() {
   const box = el(`
     <div>
       <div class="task-row" data-go="copilot" style="cursor:pointer;">
+        <div class="icon-badge sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a7 7 0 0 0-7 7c0 2.4 1.2 4.5 3 5.7V17h8v-2.3c1.8-1.2 3-3.3 3-5.7a7 7 0 0 0-7-7Z"/><path d="M9 21h6M10 17v2M14 17v2"/></svg></div>
         <div class="task-label">Copilot</div>
       </div>
       <div class="task-row" data-go="discovery" style="cursor:pointer;">
+        <div class="icon-badge sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></div>
         <div class="task-label">Discovery</div>
       </div>
       <div class="task-row" data-go="niches" style="cursor:pointer;">
+        <div class="icon-badge sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg></div>
         <div class="task-label">Niche Strategy Matrix</div>
       </div>
       <div class="task-row" data-go="pipelinevalue" style="cursor:pointer;">
+        <div class="icon-badge sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg></div>
         <div class="task-label">Pipeline Value Calculator</div>
       </div>
       <div class="task-row" id="more-deal-pricing" style="cursor:pointer;">
+        <div class="icon-badge sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 12h2M12 12h2M16 12h2M8 16h2M12 16h2M16 16h2"/></svg></div>
         <div class="task-label">Deal Pricing Calculator</div>
       </div>
       <div class="task-row" data-go="contracts" style="cursor:pointer;">
+        <div class="icon-badge sm gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h9l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M9 12h6M9 16h6M9 8h2"/></svg></div>
         <div class="task-label">Contracts</div>
       </div>
       <div class="task-row" data-go="invoices" style="cursor:pointer;">
+        <div class="icon-badge sm gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg></div>
         <div class="task-label">Invoices</div>
       </div>
       <div class="task-row" data-go="projects" style="cursor:pointer;">
+        <div class="icon-badge sm gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg></div>
         <div class="task-label">Projects</div>
       </div>
       <div class="task-row" data-go="gridplans" style="cursor:pointer;">
+        <div class="icon-badge sm gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
         <div class="task-label">Grid Plans</div>
       </div>
       <div class="task-row" data-go="services" style="cursor:pointer;">
+        <div class="icon-badge sm gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7h-4V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2H4a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1Z"/><path d="M10 5h4v2h-4z"/></svg></div>
         <div class="task-label">Services &amp; Packages</div>
       </div>
       <div class="task-row" data-go="portfolio" style="cursor:pointer;">
+        <div class="icon-badge sm gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="m3 15 4.5-4.5a2 2 0 0 1 2.8 0L15 15M13 13l2-2a2 2 0 0 1 2.8 0L21 14"/><circle cx="8" cy="8.5" r="1.3"/></svg></div>
         <div class="task-label">Portfolio Studio</div>
       </div>
       <div class="task-row" data-go="community" style="cursor:pointer;">
+        <div class="icon-badge sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></div>
         <div class="task-label">Community Feed</div>
       </div>
       <div class="task-row" data-go="activity" style="cursor:pointer;">
+        <div class="icon-badge sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg></div>
         <div class="task-label">Team Activity Feed</div>
       </div>
       <div class="task-row" data-go="team" style="cursor:pointer;">
+        <div class="icon-badge sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.4"/><path d="M2.5 20.5c0-3.3 2.9-6 6.5-6s6.5 2.7 6.5 6"/><path d="M16 4.6c1.6.5 2.8 2 2.8 3.8s-1.2 3.3-2.8 3.8"/><path d="M17.5 14.7c2.6.6 4.5 2.7 4.5 5.3"/></svg></div>
         <div class="task-label">Team &amp; Settings</div>
       </div>
       <div class="task-row" id="more-install-app" style="cursor:pointer;">
-        <div class="task-label">📲 Get the App</div>
+        <div class="icon-badge sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg></div>
+        <div class="task-label">Get the App</div>
       </div>
       <div class="task-row" id="more-shortcuts" style="cursor:pointer;">
-        <div class="task-label">⌨️ Keyboard Shortcuts</div>
+        <div class="icon-badge sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M6 14h12"/></svg></div>
+        <div class="task-label">Keyboard Shortcuts</div>
       </div>
     </div>
   `);

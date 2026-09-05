@@ -196,6 +196,11 @@ button { font-family: inherit; }
 }
 .icon-badge svg { width: 19px; height: 19px; }
 .icon-badge.gold { background: var(--gold-dim); color: var(--gold-soft); }
+/* Compact variant for list rows (the phone "More" sheet) — same tinted-
+   square treatment, just sized to sit next to a single line of text
+   instead of a card heading. */
+.icon-badge.sm { width: 30px; height: 30px; border-radius: 9px; }
+.icon-badge.sm svg { width: 15px; height: 15px; }
 .badge-dot {
   position: absolute; top: -3px; right: -3px;
   min-width: 16px; height: 16px; border-radius: 8px;

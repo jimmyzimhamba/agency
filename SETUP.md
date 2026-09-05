@@ -2064,3 +2064,16 @@ No new tables, no new secrets, no edge functions touched — pure front-end poli
 2. On a wide/desktop browser window, open the app and confirm the small circular arrow sits on the sidebar's edge; click it and confirm the sidebar shrinks to icons, the page content shifts over to fill the extra space, and clicking again brings the full sidebar back.
 3. Reload the page after minimizing it — confirm it stays minimized (the preference is remembered).
 4. Visit the homepage and watch the "See it in action" mockup for 15–20 seconds without touching it — confirm it cycles through all three tabs on its own.
+
+## Step 149 — Icons on the phone "More" menu
+
+On a phone, tapping "More" in the bottom bar opens a list of every other page in the app (Copilot, Contracts, Invoices, and so on). Until now that list was plain text — every row looked the same, so you had to read each label to find what you wanted. Two rows ("Get the App" and "Keyboard Shortcuts") had an emoji in front, but nothing else did.
+
+Every row now has a small tinted icon, using the exact same icon shapes as the matching item in the desktop sidebar (Step 148) and the icons on the homepage — so the same feature looks the same everywhere in the app. The color follows the same grouping as the homepage: day-to-day sales items (Copilot, Discovery, Niche Matrix, calculators, Team, etc.) get the purple icon treatment, and the client-facing/paperwork group (Contracts, Invoices, Projects, Grid Plans, Services & Packages, Portfolio Studio) gets the gold treatment. The two emoji ("📲" and "⌨️") were replaced with proper icons in the same style so the whole list is consistent.
+
+Nothing about what happens when you tap a row changed — same pages open, same buttons underneath. This is a visual-only change: no new tables, no new secrets, no edge functions touched.
+
+1. Redeploy the `app/` folder via Netlify Drop.
+2. On a phone (or a narrow browser window), sign in and tap "More" in the bottom bar.
+3. Confirm every row now shows a small icon in a tinted rounded-square box to the left of its label, and that "Get the App" / "Keyboard Shortcuts" no longer show emoji.
+4. Tap a couple of rows and confirm they still open the right page, same as before.
