@@ -94,6 +94,95 @@ function openTeammatePerformanceModal(profile) {
   openModal(box);
 }
 
+// All-time point total for one person, from the points_totals DB view (see
+// supabase/migration_points.sql) — never computed by summing pointsLog
+// client-side, since that list is capped to the last 200 org-wide events
+// and would silently under-count a very active team.
+function totalPointsFor(profileId) {
+  return store.pointsTotals.find((t) => t.profile_id === profileId)?.total_points || 0;
+}
+
+// Tap a name on the points leaderboard (or your own Points stat card) to
+// see WHY — a plain list of recent point-earning events, newest first.
+// Pulled from the same capped, org-wide pointsLog the store already keeps
+// in memory (no extra query) — on a very active team someone's older events
+// may have scrolled out of that shared window, but the TOTAL shown at the
+// top is always exact regardless, straight from points_totals.
+function openPointsBreakdownModal(profile, total) {
+  const events = store.pointsLog.filter((e) => e.profile_id === profile.id).slice(0, 20);
+  const box = el(`
+    <div>
+      <div class="section-title mt-0">${esc(profile.full_name || profile.email)}'s Points</div>
+      <div class="stat-card accent" style="margin-bottom:16px;"><div class="num">${total}</div><div class="label">Total Points</div></div>
+      <div id="tm-points-events"></div>
+    </div>
+  `);
+  const listEl = box.querySelector("#tm-points-events");
+  if (!events.length) {
+    listEl.innerHTML = `<div class="text-faint" style="font-size:12.5px;padding:10px 0;">No recent events to show.</div>`;
+  } else {
+    events.forEach((e) => {
+      listEl.appendChild(el(`
+        <div class="card" style="margin-bottom:8px;">
+          <div class="flex-between">
+            <span style="font-size:13px;">${esc(e.reason)}</span>
+            <span class="text-gold" style="font-size:12px;font-weight:700;">+${e.points}</span>
+          </div>
+          <div class="text-faint" style="font-size:10.5px;margin-top:2px;">${timeAgo(e.created_at)}</div>
+        </div>
+      `));
+    });
+  }
+  openModal(box);
+}
+
+// Everyone-visible leaderboard — deliberately separate from the MRR-based
+// "Team Leaderboard" below, which stays owner-only since it's revenue.
+// Points reward the DOING of the work (adding a prospect, a follow-up
+// landing, finishing daily tasks) rather than only who happened to close
+// the one big deal this month, so a consistent grinder shows up here even
+// on a month they don't personally sign anything. Ranked purely by
+// all-time total_points — no revenue involved anywhere in this section.
+function renderPointsLeaderboard(wrap) {
+  const box = wrap.querySelector("#tm-points-leaderboard");
+  if (!box) return;
+
+  const ranked = store.profiles
+    .filter((p) => p.active !== false)
+    .map((p) => ({ profile: p, total: totalPointsFor(p.id) }))
+    .sort((a, b) => b.total - a.total);
+
+  if (!ranked.length) {
+    box.innerHTML = `<div class="text-faint" style="font-size:12.5px;">No points earned yet — they show up as soon as someone adds a prospect, sends a follow-up, or checks off a daily task.</div>`;
+    return;
+  }
+
+  box.innerHTML = "";
+  ranked.forEach((entry, i) => {
+    const rank = i + 1;
+    const { profile: p, total } = entry;
+    const isSelf = p.id === store.profile.id;
+    const row = el(`
+      <div class="card" style="margin-bottom:8px;cursor:pointer;${rank === 1 ? "border-color:var(--gold-line,var(--gold));" : ""}">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="${rank === 1 ? "text-gold" : "text-faint"}" style="width:18px;text-align:center;font-weight:800;font-size:14px;flex:0 0 auto;">${rank === 1 ? "🏆" : rank}</div>
+          ${avatarHTML(p.full_name || p.email, p.avatar_url, 30, 11)}
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:700;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(p.full_name || p.email)}${isSelf ? " (You)" : ""}</div>
+            <div class="text-faint" style="font-size:11px;">Tap for recent activity</div>
+          </div>
+          <div style="text-align:right;flex:0 0 auto;">
+            <div class="${rank === 1 ? "text-gold" : ""}" style="font-weight:800;font-size:13px;">${total}</div>
+            <div class="text-faint" style="font-size:10px;">points</div>
+          </div>
+        </div>
+      </div>
+    `);
+    row.addEventListener("click", () => openPointsBreakdownModal(p, total));
+    box.appendChild(row);
+  });
+}
+
 // Owner-only ranked view of the whole team's numbers, side by side. Every
 // existing performance surface is one-person-at-a-time (My Performance is
 // self-only, the roster's "View Performance" link is a one-off drill-down
@@ -250,6 +339,12 @@ export function renderTeam() {
       <div class="section-title mt-0">My Performance</div>
       <div class="stat-grid" style="margin-bottom:16px;" id="tm-my-performance"></div>
 
+      <div class="flex-between" style="margin-bottom:2px;">
+        <div class="section-title mt-0" style="margin-bottom:0;">🏆 Points Leaderboard</div>
+      </div>
+      <div class="text-faint" style="font-size:11px;margin:2px 0 10px;line-height:1.4;">Everyone can see this one. Points come from doing the work — adding a prospect, a follow-up, a signed deal, finishing your daily tasks — not just closed revenue.</div>
+      <div id="tm-points-leaderboard" style="margin-bottom:16px;"></div>
+
       ${isOwner ? `
       <div class="section-title mt-0">Team Leaderboard</div>
       <div id="tm-leaderboard" style="margin-bottom:16px;"></div>
@@ -311,7 +406,7 @@ export function renderTeam() {
       <div class="divider"></div>
       <button class="btn btn-ghost" id="tm-signout">Sign Out</button>
       <p class="text-faint" style="font-size:11px;text-align:center;margin-top:20px;">Agency Command · ${esc(store.organization?.name || "Sales & Team Sync")}</p>
-      <p class="text-faint" style="font-size:10px;text-align:center;margin-top:4px;opacity:0.6;">build sxc-v156</p>
+      <p class="text-faint" style="font-size:10px;text-align:center;margin-top:4px;opacity:0.6;">build sxc-v157</p>
     </div>
   `);
   root.appendChild(wrap);
@@ -332,17 +427,21 @@ export function renderTeam() {
   themeSwitch.addEventListener("change", () => setTheme(themeSwitch.checked ? "light" : "dark"));
 
   const perf = myPerformanceStats();
+  const myPoints = totalPointsFor(store.profile.id);
   const perfEl = wrap.querySelector("#tm-my-performance");
   perfEl.innerHTML = `
+    <div class="stat-card accent" id="tm-points-card" style="cursor:pointer;"><div class="num">🏆 ${myPoints}</div><div class="label">Points</div></div>
     <div class="stat-card"><div class="num">${perf.active}</div><div class="label">Active Leads</div></div>
     <div class="stat-card accent" id="tm-signed-card" style="cursor:pointer;"><div class="num">${perf.signedCount}</div><div class="label">Signed (All-Time)</div></div>
     <div class="stat-card purple" id="tm-mrr-card" style="cursor:pointer;"><div class="num">${money(perf.mrr)}</div><div class="label">MRR Won</div></div>
     <div class="stat-card"><div class="num">${perf.winRate}%</div><div class="label">Win Rate</div></div>
     <div class="stat-card"><div class="num">${perf.replyRate}%</div><div class="label">Reply Rate</div></div>
   `;
+  perfEl.querySelector("#tm-points-card").addEventListener("click", () => openPointsBreakdownModal(store.profile, myPoints));
   perfEl.querySelector("#tm-signed-card").addEventListener("click", () => openMySignedModal(perf.signedList));
   perfEl.querySelector("#tm-mrr-card").addEventListener("click", () => openMySignedModal(perf.signedList));
 
+  renderPointsLeaderboard(wrap);
   if (isOwner) { renderLeaderboard(wrap); renderLeadsSourced(wrap); }
 
   wireNotificationsToggle(wrap);
@@ -631,6 +730,7 @@ export function initTeamView() {
   on("organization", () => { if (isActive()) renderTeam(); });
   on("activityLog", () => { if (isActive()) renderTeam(); });
   on("prospects", () => { if (isActive()) renderTeam(); });
+  on("pointsTotals", () => { if (isActive()) renderTeam(); });
 }
 function isActive() {
   return document.getElementById("view-team")?.classList.contains("active");

@@ -33,6 +33,15 @@ export const store = {
   communityPosts: [],
   communityComments: [],
   communityReactions: [],
+  // Gamification — see supabase/migration_points.sql. pointsLog is a recent
+  // slice of the ledger (enough for an "activity so far" breakdown per
+  // person); pointsTotals is the authoritative all-time sum per profile
+  // (from the points_totals view), which the leaderboard actually ranks
+  // by — it's never computed by summing pointsLog client-side, since that
+  // list is capped and would silently under-count once someone earns more
+  // than a screenful of points.
+  pointsLog: [],
+  pointsTotals: [],
 };
 
 export function on(key, fn) {
@@ -90,7 +99,7 @@ export async function loadAll() {
   // RLS alone to do.
   const myOrgId = store.profile?.org_id;
 
-  const [organization, profiles, niches, prospects, templates, dailyTasks, dailyCompletions, agentTargets, activityLog, monthlyGoal, contracts, invoices, projects, projectTasks, gridPlans, gridPosts, gridPostMedia, servicePackages, portfolioSettings, portfolioItems, communityPosts, communityComments, communityReactions] =
+  const [organization, profiles, niches, prospects, templates, dailyTasks, dailyCompletions, agentTargets, activityLog, monthlyGoal, contracts, invoices, projects, projectTasks, gridPlans, gridPosts, gridPostMedia, servicePackages, portfolioSettings, portfolioItems, communityPosts, communityComments, communityReactions, pointsLog, pointsTotals] =
     await Promise.all([
       sb.from("organizations").select("*").maybeSingle(),
       sb.from("profiles").select("*").order("full_name"),
@@ -115,6 +124,8 @@ export async function loadAll() {
       sb.from("community_posts").select("*").order("created_at", { ascending: false }),
       sb.from("community_comments").select("*").order("created_at", { ascending: true }),
       sb.from("community_reactions").select("*"),
+      sb.from("points_log").select("*").order("created_at", { ascending: false }).limit(200),
+      sb.from("points_totals").select("*"),
     ]);
 
   store.organization = organization.data || null;
@@ -140,6 +151,8 @@ export async function loadAll() {
   store.communityPosts = communityPosts.data || [];
   store.communityComments = communityComments.data || [];
   store.communityReactions = communityReactions.data || [];
+  store.pointsLog = pointsLog.data || [];
+  store.pointsTotals = pointsTotals.data || [];
 
   emit("organization"); emit("profiles"); emit("niches"); emit("prospects"); emit("templates");
   emit("dailyTasks"); emit("dailyCompletions"); emit("agentTargets");
@@ -149,6 +162,7 @@ export async function loadAll() {
   emit("servicePackages");
   emit("portfolioSettings"); emit("portfolioItems");
   emit("communityPosts"); emit("communityComments"); emit("communityReactions");
+  emit("pointsLog"); emit("pointsTotals");
 }
 
 export function firstOfMonth() {
@@ -287,6 +301,33 @@ export function startRealtime() {
     .on("postgres_changes", { event: "*", schema: "public", table: "community_comments" }, (payload) => {
       upsertLocal("communityComments", payload);
       emit("communityComments");
+    })
+    // points_log is append-only (never updated/deleted), so this only ever
+    // needs to handle INSERT. Updates BOTH the recent-events list (capped,
+    // for the "why did I earn this" breakdown) and the running per-person
+    // total (points_totals is a DB view, not a realtime-subscribable table,
+    // so its numbers are kept in sync here by hand instead of refetching it
+    // on every single point earned).
+    .on("postgres_changes", { event: "INSERT", schema: "public", table: "points_log" }, (payload) => {
+      store.pointsLog = [payload.new, ...store.pointsLog].slice(0, 200);
+      const idx = store.pointsTotals.findIndex((t) => t.profile_id === payload.new.profile_id);
+      if (idx === -1) {
+        store.pointsTotals = [
+          ...store.pointsTotals,
+          { org_id: payload.new.org_id, profile_id: payload.new.profile_id, total_points: payload.new.points, event_count: 1, last_earned_at: payload.new.created_at },
+        ];
+      } else {
+        const copy = store.pointsTotals.slice();
+        copy[idx] = {
+          ...copy[idx],
+          total_points: copy[idx].total_points + payload.new.points,
+          event_count: copy[idx].event_count + 1,
+          last_earned_at: payload.new.created_at,
+        };
+        store.pointsTotals = copy;
+      }
+      emit("pointsLog");
+      emit("pointsTotals");
     })
     .on("postgres_changes", { event: "*", schema: "public", table: "community_reactions" }, (payload) => {
       // Reactions have no natural "updated" case (insert to like, delete to

@@ -2077,3 +2077,32 @@ Nothing about what happens when you tap a row changed — same pages open, same 
 2. On a phone (or a narrow browser window), sign in and tap "More" in the bottom bar.
 3. Confirm every row now shows a small icon in a tinted rounded-square box to the left of its label, and that "Get the App" / "Keyboard Shortcuts" no longer show emoji.
 4. Tap a couple of rows and confirm they still open the right page, same as before.
+
+## Step 150 — Points & a Team Leaderboard everyone can see
+
+A first step toward making the day-to-day work a bit more fun. The app now quietly keeps score: doing things — adding a prospect, sending a follow-up, finishing your daily tasks, drafting a contract, getting an invoice paid, and of course signing a client — earns points. There's a new **Points Leaderboard** on the Team page that ranks everyone by their total, and it's visible to the whole team, not just you — unlike the existing revenue-based "Team Leaderboard" further down that page, which stays owner-only on purpose (money numbers are still private to you). Tapping anyone's name (including your own "Points" card near the top of the page) shows a short list of what they've earned points for recently.
+
+**Current point values** (all of this can be rebalanced later just by asking — nothing about the app's data changes, only these numbers):
+- Adding a prospect: 5
+- Prospect replies: 5 · Meeting booked: 10 · Signing a client: 30
+- Leaving a note: 2
+- Finishing a daily task: 3
+- Posting in the Community Feed: 3
+- Drafting a contract: 8 · Contract signed: 15
+- Creating an invoice: 5 · Invoice paid: 15
+- Starting a project: 5 · Finishing a project: 10
+
+Points are worked out entirely on the server, from things that already happen in the app — there's no button anyone can tap to "claim" points, and toggling something back and forth (like checking a daily task off and back on) doesn't pay out twice. This is a genuinely new feature (a new database table plus some new "watch for this happening" rules), so it needs the setup step below before you redeploy — skipping it won't break anything, but nobody will earn any points until it's run.
+
+**Setup — do this first, before redeploying:**
+
+1. Open your **Supabase Dashboard → SQL Editor**, paste in the entire contents of the new file `supabase/migration_points.sql`, and click **Run**. It's safe to re-run if you're ever unsure whether it already applied. This creates a new `points_log` table (a running record of who earned what and why) and teaches the database to award points automatically when the events above happen.
+2. Redeploy the `app/` folder via Netlify Drop.
+
+**Now test it:**
+
+3. Reload the app on your phone/browser (hard refresh if it still looks old — the service worker's cache version was bumped).
+4. Open **Team & Settings** — confirm you see a gold "Points" card near the top (probably showing 0 if this is brand new) and a "🏆 Points Leaderboard" section listing everyone on the team, ranked highest points first.
+5. Add a test prospect, then check the Points Leaderboard again — your number should have gone up by 5, and it should update for a teammate on another device/phone without them refreshing (same real-time sync as everything else in the app).
+6. Tap your own Points card (or anyone's row on the leaderboard) — confirm a short list pops up showing what earned those points and when.
+7. Have a non-owner teammate check their own Team page — confirm they can see the Points Leaderboard too (this one isn't restricted like the revenue leaderboard below it is).
