@@ -41,25 +41,41 @@ const WEEKLY_AIM = 5;
 // A day-one deck, loaded in one tap when the team has nothing yet.
 //
 // The point of this feature is that the team writes its own cards, so this is
-// deliberately a starting point and not a library: twelve objections that come
-// up constantly when selling marketing to small businesses in Zimbabwe, and
+// deliberately a starting point and not a library: objections that come up
+// constantly when selling marketing to small businesses in Zimbabwe, and
 // nothing more. They're written the blunt way a real prospect says them, not
-// the tidied-up way a training manual would. No niche is set on any of them,
-// because niches are per-agency and a starter card shouldn't reference one
-// that doesn't exist. Every one can be edited or deleted like any other card.
+// the tidied-up way a training manual would. Every one can be edited or
+// deleted like any other card.
+//
+// The niche field here is only ever a label printed on the card, so it's safe
+// for it to say "Salons" even if this particular agency never set up a niche
+// by that name. Most cards leave it blank on purpose: a general objection
+// tagged to one niche reads as if it only applies there.
 const STARTER_CARDS = [
-  "We already have someone doing our social media.",
-  "Send me an email with your prices and I'll get back to you.",
-  "How much? Ah no, that's way too expensive for us.",
-  "Business is slow right now. Maybe come back next year.",
-  "I need to discuss it with my partner first.",
-  "We tried a marketing company before and nothing came of it.",
-  "Can you guarantee me how many customers I'll get?",
-  "My nephew does it for me for free.",
-  "All our business comes from word of mouth. We don't need this.",
-  "Just do one post first and let me see, then we can talk.",
-  "Are you charging in USD? Most of our sales are in local currency.",
-  "I'm busy right now, call me next week.",
+  // Objections you'll hear from almost any small business.
+  { text: "We already have someone doing our social media." },
+  { text: "Send me an email with your prices and I'll get back to you." },
+  { text: "How much? Ah no, that's way too expensive for us." },
+  { text: "Business is slow right now. Maybe come back next year." },
+  { text: "I need to discuss it with my partner first." },
+  { text: "We tried a marketing company before and nothing came of it." },
+  { text: "Can you guarantee me how many customers I'll get?" },
+  { text: "My nephew does it for me for free." },
+  { text: "All our business comes from word of mouth. We don't need this." },
+  { text: "Just do one post first and let me see, then we can talk." },
+  { text: "Are you charging in USD? Most of our sales are in local currency." },
+  { text: "I'm busy right now, call me next week." },
+
+  // Salon-specific. Salons object differently from most small businesses:
+  // they already post constantly themselves, they're chair-bound all day, and
+  // their competition is the shop twenty metres down the road. An answer that
+  // works on a hardware store falls flat here.
+  { text: "My clients just walk in from the road. I don't need Instagram.", niche: "Salons" },
+  { text: "I already post my own pictures. My phone takes good photos.", niche: "Salons" },
+  { text: "The salon next door is cheaper. My clients will just go there.", niche: "Salons" },
+  { text: "I don't have time to be taking pictures while I'm doing someone's hair.", niche: "Salons" },
+  { text: "My WhatsApp status already gets plenty of views.", niche: "Salons" },
+  { text: "Weekends are already full. Can you actually bring me people on a Tuesday?", niche: "Salons" },
 ];
 
 let scenarios = [];
@@ -274,7 +290,7 @@ async function seedStarterCards(link, stage) {
     return;
   }
 
-  const rows = STARTER_CARDS.map((text) => ({ prompt_text: text, niche: null, created_by: null, is_starter: true }));
+  const rows = STARTER_CARDS.map((c) => ({ prompt_text: c.text, niche: c.niche || null, created_by: null, is_starter: true }));
   const { data, error } = await sb.from("pitch_scenarios").insert(rows).select();
 
   if (error) {
