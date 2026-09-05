@@ -219,6 +219,15 @@ button { font-family: inherit; }
 .badges-grid {
   display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;
 }
+/* AI avatar picker (Edit Profile modal) — a grid of DiceBear preset
+   thumbnails the person can tap instead of uploading a photo. */
+.avatar-preset {
+  width: 40px; height: 40px; border-radius: 50%; overflow: hidden; cursor: pointer;
+  border: 2px solid transparent; background: var(--black-card); flex: 0 0 auto;
+  transition: transform 0.12s ease, border-color 0.12s ease;
+}
+.avatar-preset:hover { border-color: var(--purple-soft); transform: scale(1.08); }
+.avatar-preset img { width: 100%; height: 100%; display: block; }
 .badge-dot {
   position: absolute; top: -3px; right: -3px;
   min-width: 16px; height: 16px; border-radius: 8px;
@@ -732,7 +741,13 @@ main {
 }
 
 /* ---- auth screen --------------------------------------------------------------*/
-.auth-wrap { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 24px; position: relative; z-index: 1; }
+.auth-wrap { min-height: 100vh; position: relative; z-index: 1; }
+/* Mobile default: a single centered column — identical behaviour to the
+   pre-redesign layout, since .auth-showcase-panel is display:none until the
+   desktop media query below turns .auth-shell into a real split screen. */
+.auth-shell { display: flex; flex-direction: column; min-height: 100vh; }
+.auth-form-panel { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 24px; }
+.auth-showcase-panel { display: none; }
 .auth-logo { text-align: center; margin-bottom: 28px; }
 .auth-logo .ring {
   width: 78px; height: 78px; border-radius: 50%; margin: 0 auto 14px;
@@ -745,6 +760,51 @@ main {
 .auth-logo p { color: var(--text-faint); font-size: 12.5px; margin-top: 4px; letter-spacing: 0.3px; }
 .auth-toggle { display: flex; justify-content: center; gap: 18px; margin-top: 16px; font-size: 13px; color: var(--text-dim); }
 .auth-toggle b { color: var(--gold-soft); cursor: pointer; }
+
+/* Desktop/laptop-width visitors (an owner setting the team up from a
+   computer) get a decorative split screen — the form keeps its same
+   centered-card look on the left, and a purple/gold gradient panel on the
+   right previews the pipeline so the screen doesn't feel like a mostly-
+   empty login box on a wide monitor. Phone widths never see this. */
+@media (min-width: 900px) {
+  .auth-form-panel { flex: 0 0 46%; max-width: 540px; padding: 48px; }
+  .auth-shell { flex-direction: row; }
+  .auth-showcase-panel {
+    display: flex; flex: 1; align-items: center; justify-content: center; padding: 48px;
+    position: relative; overflow: hidden;
+    background: linear-gradient(160deg, #1b0f38 0%, var(--black) 72%);
+    border-left: 1px solid var(--line);
+  }
+  .auth-showcase-panel::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(circle at 25% 15%, var(--purple-dim), transparent 55%),
+                radial-gradient(circle at 85% 85%, var(--gold-dim), transparent 50%);
+  }
+  .auth-showcase-inner { position: relative; z-index: 1; max-width: 420px; }
+  .auth-showcase-inner h2 { font-size: 25px; font-weight: 800; line-height: 1.35; margin: 0 0 22px; color: #fff; }
+  .auth-showcase-list { list-style: none; margin: 0 0 26px; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+  .auth-showcase-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; line-height: 1.5; color: var(--text-dim); }
+  .auth-showcase-list li svg { flex: 0 0 auto; margin-top: 2px; color: var(--gold-soft); }
+  .auth-showcase-mock {
+    background: rgba(23, 21, 29, 0.72); border: 1px solid var(--line-strong); border-radius: 14px;
+    padding: 14px; backdrop-filter: blur(8px);
+  }
+  .auth-mock-header { display: flex; align-items: center; gap: 6px; margin-bottom: 12px; }
+  .auth-mock-header .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .auth-mock-header .dot.r { background: #ef5350; }
+  .auth-mock-header .dot.y { background: #f5c542; }
+  .auth-mock-header .dot.g { background: #5fd47e; }
+  .auth-mock-title { margin-left: 6px; font-size: 11px; font-weight: 700; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.4px; }
+  .auth-mock-cols { display: flex; gap: 10px; }
+  .auth-mock-col { flex: 1; min-width: 0; }
+  .auth-mock-col-title { font-size: 10px; font-weight: 700; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 8px; }
+  .auth-mock-chip {
+    background: var(--black-card-2); border: 1px solid var(--line); border-radius: 8px;
+    padding: 7px 8px; font-size: 10.5px; font-weight: 600; color: var(--text-dim);
+    margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .auth-mock-chip.signed { border-color: rgba(95, 212, 126, 0.35); color: #8be6a3; }
+}
 
 /* ---- spinner ------------------------------------------------------------------*/
 .spinner { width: 22px; height: 22px; border-radius: 50%; border: 2.5px solid rgba(255,255,255,0.15); border-top-color: var(--gold); animation: spin 0.7s linear infinite; margin: 30px auto; }

@@ -2151,3 +2151,24 @@ These only pop up for YOUR OWN wins, on your own device — you won't see a pop-
 2. Do something worth 10+ points (e.g. mark a prospect as a signed client, or a contract as signed) and confirm a gold pop-up with a star appears near the top of the screen for a few seconds.
 3. If it also happens to unlock a badge you didn't have yet, confirm a second pop-up appears for that too.
 4. Do something small (like adding a note) and confirm nothing pops up — only the bigger wins do.
+
+## Step 153 — AI avatar picker on your Profile, and a nicer sign-in/sign-up screen
+
+Two visual upgrades, inspired by screenshots you shared of another app's design. No SQL to run — pure front-end, just redeploy.
+
+**1. Pick an AI avatar instead of uploading a photo.** Open **Team & Settings → Edit Profile** (tap your own name/avatar). Below the existing "Upload Custom Photo" option there's now a grid of 12 ready-made cartoon avatars — tap any one and it's saved as your profile picture instantly, no file upload needed. There's also a "Type a name to generate one..." box: type anything (your name, a nickname, anything) and hit **Generate** to get a unique cartoon avatar based on that text — same input always makes the same picture, so you can experiment and come back to a favorite. Your profile card also now shows your email and role as a quick reference, same idea as the "Personal Information" panel in the screenshots you sent.
+
+These avatars come from a free public avatar-generator service (DiceBear) — nothing to sign up for, no account needed, and no cost.
+
+**2. A friendlier sign-in/sign-up screen.** On a phone, sign-in/sign-up looks exactly the same as before — same fields, same buttons, nothing to relearn. On a wider screen (a laptop or desktop browser — e.g. if you ever set up the team from a computer instead of your phone), the screen now splits in two: your familiar sign-in/sign-up form stays on the left, and a new decorative panel appears on the right showing a few of what the app does (a mini mock pipeline board, bullet points about WhatsApp outreach, real-time team activity, and points/badges) — purely cosmetic, matching the split-screen style from the screenshots you sent. No new login method was added (no "Sign in with Google" — that would need a separate integration we haven't set up).
+
+**Setup:** just redeploy the `app/` folder via Netlify Drop.
+
+**Now test it:**
+
+1. Reload the app (hard refresh if it still looks old — the service worker's cache version was bumped).
+2. Open **Team & Settings → Edit Profile** and confirm the "Or pick an AI avatar" grid appears with 12 avatars, plus the email/role info boxes.
+3. Tap one of the preset avatars — confirm your avatar updates everywhere (top bar, Team roster, etc.) within a second or two.
+4. Try the "Type a name..." + Generate box with your own name — confirm a new avatar appears and gets saved the same way.
+5. Sign out, then view the sign-in screen on your phone — confirm it looks the same as before (single column, no layout changes).
+6. If you have a laptop/desktop handy, open the app there at a wide browser width — confirm the sign-in/sign-up card now sits on the left with a decorative panel on the right.

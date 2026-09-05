@@ -465,7 +465,7 @@ export function renderTeam() {
       <div class="divider"></div>
       <button class="btn btn-ghost" id="tm-signout">Sign Out</button>
       <p class="text-faint" style="font-size:11px;text-align:center;margin-top:20px;">Agency Command · ${esc(store.organization?.name || "Sales & Team Sync")}</p>
-      <p class="text-faint" style="font-size:10px;text-align:center;margin-top:4px;opacity:0.6;">build sxc-v159</p>
+      <p class="text-faint" style="font-size:10px;text-align:center;margin-top:4px;opacity:0.6;">build sxc-v160</p>
     </div>
   `);
   root.appendChild(wrap);
@@ -604,12 +604,28 @@ async function refreshAfterProfileEdit(patch) {
   await refetchProfiles();
 }
 
+// A curated set of DiceBear "avataaars" seeds, given friendly names so the
+// picker reads like a set of characters rather than a wall of random hashes
+// (mirrors the AI-avatar-picker pattern from the Biiblo inspo screenshots).
+// DiceBear's HTTP API needs no key/auth — the seed alone deterministically
+// produces the same picture every time, so these are stable forever.
+const AVATAR_PRESETS = [
+  "Nova Scout", "Circuit Ace", "Zenith Lead", "Ember Fox",
+  "Pulse Wave", "Sage Owl", "Rally Team", "Vex Star",
+  "Milo Builder", "Halo Ring", "Kito Spark", "Zara Prime",
+];
+
+function dicebearUrl(seed) {
+  return `https://api.dicebear.com/9.x/avataaars/svg?seed=${encodeURIComponent(seed)}&radius=50`;
+}
+
 function openEditProfileModal() {
   const p = store.profile;
+  const roleLabel = (p.role || "").replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
   const box = el(`
     <div>
       <div style="font-weight:800;font-size:16px;margin-bottom:14px;">Edit Profile</div>
-      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:20px;">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:18px;">
         <div id="ep-avatar-wrap" style="position:relative;cursor:pointer;width:76px;height:76px;">
           <span id="ep-avatar-slot" style="display:block;width:76px;height:76px;">${avatarHTML(p.full_name || p.email, p.avatar_url, 76, 26)}</span>
           <div style="position:absolute;bottom:0;right:0;background:var(--purple-soft,#a78bfa);border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;border:2px solid var(--black-card);pointer-events:none;">
@@ -617,13 +633,35 @@ function openEditProfileModal() {
           </div>
         </div>
         <input type="file" id="ep-file-input" accept="image/*" style="display:none;" />
-        <span class="small-link" id="ep-change-photo">Change Photo</span>
+        <span class="small-link" id="ep-change-photo">Upload Custom Photo</span>
       </div>
+
       <div class="field">
         <label>Full Name</label>
         <input id="ep-name-input" type="text" value="${esc(p.full_name || "")}" placeholder="Your name" />
       </div>
-      <button class="btn btn-gold" id="ep-save" style="margin-top:12px;">Save Changes</button>
+
+      <div style="display:flex;gap:10px;margin:2px 0 18px;">
+        <div style="flex:1;background:var(--black-card);border:1px solid var(--line);border-radius:10px;padding:8px 10px;">
+          <div style="font-size:10px;color:var(--text-faint);font-weight:700;text-transform:uppercase;letter-spacing:0.3px;">Email</div>
+          <div style="font-size:12.5px;font-weight:600;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(p.email || "")}</div>
+        </div>
+        <div style="flex:1;background:var(--black-card);border:1px solid var(--line);border-radius:10px;padding:8px 10px;">
+          <div style="font-size:10px;color:var(--text-faint);font-weight:700;text-transform:uppercase;letter-spacing:0.3px;">Role</div>
+          <div style="font-size:12.5px;font-weight:600;margin-top:2px;">${esc(roleLabel || "Member")}</div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:18px;">
+        <label style="display:block;font-size:12px;font-weight:700;color:var(--text-dim);margin-bottom:8px;">Or pick an AI avatar</label>
+        <div id="ep-avatar-grid" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;"></div>
+        <div style="display:flex;gap:6px;">
+          <input id="ep-avatar-seed" type="text" placeholder="Type a name to generate one..." style="flex:1;" />
+          <button class="btn btn-ghost" id="ep-avatar-generate" type="button" style="white-space:nowrap;padding:0 14px;">Generate</button>
+        </div>
+      </div>
+
+      <button class="btn btn-gold" id="ep-save" style="margin-top:2px;">Save Changes</button>
     </div>
   `);
 
@@ -632,6 +670,31 @@ function openEditProfileModal() {
   const openPicker = () => fileInput.click();
   box.querySelector("#ep-avatar-wrap").addEventListener("click", openPicker);
   box.querySelector("#ep-change-photo").addEventListener("click", openPicker);
+
+  // Selecting an AI avatar just points avatar_url at a DiceBear image URL —
+  // no storage upload needed, since DiceBear hosts (and regenerates) the
+  // image itself from the seed baked into the URL.
+  async function selectAvatarUrl(url) {
+    slot.innerHTML = `<span class="avatar" style="width:76px;height:76px;"><img src="${url}" alt="" /></span>`;
+    const { error: dbErr } = await sb.from("profiles").update({ avatar_url: url }).eq("id", store.profile.id);
+    if (dbErr) return toast(dbErr.message, "error");
+    toast("Avatar updated", "success");
+    await refreshAfterProfileEdit({ avatar_url: url });
+  }
+
+  const grid = box.querySelector("#ep-avatar-grid");
+  AVATAR_PRESETS.forEach((seed) => {
+    const url = dicebearUrl(seed);
+    const thumb = el(`<div class="avatar-preset" title="${esc(seed)}"><img src="${url}" alt="" loading="lazy" /></div>`);
+    thumb.addEventListener("click", () => selectAvatarUrl(url));
+    grid.appendChild(thumb);
+  });
+
+  box.querySelector("#ep-avatar-generate").addEventListener("click", () => {
+    const seed = box.querySelector("#ep-avatar-seed").value.trim();
+    if (!seed) return toast("Type a name first", "error");
+    selectAvatarUrl(dicebearUrl(seed));
+  });
 
   fileInput.addEventListener("change", async () => {
     const file = fileInput.files?.[0];

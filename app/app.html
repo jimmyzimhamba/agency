@@ -59,49 +59,94 @@
   <div id="app">
 
     <!-- ============ AUTH SCREEN ============ -->
+    <!-- Single-column on phone widths (where almost everyone on this team
+         actually signs in) — the split "showcase" panel below only appears
+         on wide/desktop viewports via a min-width media query in styles.css,
+         so the mobile sign-in/sign-up path is untouched by this redesign. -->
     <div id="auth-screen" class="auth-wrap" style="display:none;">
-      <div class="auth-logo">
-        <div class="ring"><img src="icons/mark.png" alt="" /></div>
-        <h1><span class="text-purple-grad">Agency</span> Command</h1>
-        <p>SALES &amp; TEAM SYNC COMMAND CENTER</p>
-      </div>
+      <div class="auth-shell">
+        <div class="auth-form-panel">
+          <div class="auth-logo">
+            <div class="ring"><img src="icons/mark.png" alt="" /></div>
+            <h1><span class="text-purple-grad">Agency</span> Command</h1>
+            <p>SALES &amp; TEAM SYNC COMMAND CENTER</p>
+          </div>
 
-      <div class="card glow-card" style="max-width:360px;margin:0 auto;width:100%;">
-        <div id="auth-error" class="hint" style="color:var(--danger);display:none;margin-bottom:10px;"></div>
+          <div class="card glow-card" style="max-width:360px;margin:0 auto;width:100%;">
+            <div id="auth-error" class="hint" style="color:var(--danger);display:none;margin-bottom:10px;"></div>
 
-        <div id="auth-agency-mode-row" class="subtabs" style="display:none;">
-          <div class="subtab active" id="auth-agency-create-tab" data-agency-mode="create">New agency</div>
-          <div class="subtab" id="auth-agency-join-tab" data-agency-mode="join">Join a team</div>
+            <div id="auth-agency-mode-row" class="subtabs" style="display:none;">
+              <div class="subtab active" id="auth-agency-create-tab" data-agency-mode="create">New agency</div>
+              <div class="subtab" id="auth-agency-join-tab" data-agency-mode="join">Join a team</div>
+            </div>
+
+            <div class="field">
+              <label>Full name</label>
+              <input id="auth-name" type="text" placeholder="Tariro Moyo" autocomplete="name" />
+            </div>
+            <div class="field" id="auth-agency-name-field" style="display:none;">
+              <label>Agency name</label>
+              <input id="auth-agency-name" type="text" placeholder="Studio X Marketing" autocomplete="organization" />
+            </div>
+            <div class="field" id="auth-invite-code-field" style="display:none;">
+              <label>Invite code</label>
+              <input id="auth-invite-code" type="text" placeholder="Ask your team owner for this" autocomplete="off" />
+            </div>
+            <div class="field">
+              <label>Email</label>
+              <input id="auth-email" type="email" placeholder="you@studioxmarketing.com" autocomplete="email" />
+            </div>
+            <div class="field">
+              <label>Password</label>
+              <input id="auth-password" type="password" placeholder="At least 6 characters" autocomplete="current-password" />
+            </div>
+
+            <button id="auth-submit" class="btn btn-primary" style="margin-top:4px;">Sign In</button>
+            <div id="auth-loading" class="spinner" style="display:none;"></div>
+          </div>
+
+          <div class="auth-toggle">
+            <span id="auth-mode-hint">New to Agency Command?</span>
+            <b id="auth-mode-toggle">Create account</b>
+          </div>
         </div>
 
-        <div class="field">
-          <label>Full name</label>
-          <input id="auth-name" type="text" placeholder="Tariro Moyo" autocomplete="name" />
+        <!-- Decorative only — desktop-width visitors (e.g. an owner setting
+             up the team on a laptop) get a preview of the pipeline instead
+             of empty space next to a narrow login card. Hidden entirely on
+             phone widths. -->
+        <div class="auth-showcase-panel">
+          <div class="auth-showcase-inner">
+            <h2>Everything your sales team needs to close, in one place.</h2>
+            <ul class="auth-showcase-list">
+              <li><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6L9 17l-5-5"/></svg> Every prospect, contract and invoice in one live pipeline — no spreadsheets.</li>
+              <li><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6L9 17l-5-5"/></svg> WhatsApp-first outreach with ready-made scripts and reply tracking.</li>
+              <li><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6L9 17l-5-5"/></svg> Real-time team activity — see who did what, the moment it happens.</li>
+              <li><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6L9 17l-5-5"/></svg> Points, badges and leaderboards that make hitting quota fun.</li>
+            </ul>
+            <div class="auth-showcase-mock">
+              <div class="auth-mock-header">
+                <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+                <span class="auth-mock-title">Pipeline</span>
+              </div>
+              <div class="auth-mock-cols">
+                <div class="auth-mock-col">
+                  <div class="auth-mock-col-title">Sent</div>
+                  <div class="auth-mock-chip">Nyasha's Bakery</div>
+                  <div class="auth-mock-chip">Kamba Studio</div>
+                </div>
+                <div class="auth-mock-col">
+                  <div class="auth-mock-col-title">Replied</div>
+                  <div class="auth-mock-chip">Sunrise Logistics</div>
+                </div>
+                <div class="auth-mock-col">
+                  <div class="auth-mock-col-title">Signed</div>
+                  <div class="auth-mock-chip signed">Mbare Fresh Foods ✓</div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="field" id="auth-agency-name-field" style="display:none;">
-          <label>Agency name</label>
-          <input id="auth-agency-name" type="text" placeholder="Studio X Marketing" autocomplete="organization" />
-        </div>
-        <div class="field" id="auth-invite-code-field" style="display:none;">
-          <label>Invite code</label>
-          <input id="auth-invite-code" type="text" placeholder="Ask your team owner for this" autocomplete="off" />
-        </div>
-        <div class="field">
-          <label>Email</label>
-          <input id="auth-email" type="email" placeholder="you@studioxmarketing.com" autocomplete="email" />
-        </div>
-        <div class="field">
-          <label>Password</label>
-          <input id="auth-password" type="password" placeholder="At least 6 characters" autocomplete="current-password" />
-        </div>
-
-        <button id="auth-submit" class="btn btn-primary" style="margin-top:4px;">Sign In</button>
-        <div id="auth-loading" class="spinner" style="display:none;"></div>
-      </div>
-
-      <div class="auth-toggle">
-        <span id="auth-mode-hint">New to Agency Command?</span>
-        <b id="auth-mode-toggle">Create account</b>
       </div>
     </div>
 
