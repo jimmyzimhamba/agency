@@ -322,7 +322,12 @@ create table if not exists public.prospects (
   follow_up_date date,
   created_by uuid references public.profiles (id) on delete set null,
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+  updated_at timestamptz not null default now(),
+  -- When this prospect last messaged us on WhatsApp. WhatsApp only lets a
+  -- business send free-form replies within 24 hours of the customer's last
+  -- message — see "7a. WHATSAPP MESSAGES" below for how this gates the
+  -- in-app reply thread.
+  whatsapp_last_inbound_at timestamptz
 );
 
 create index if not exists idx_prospects_org on public.prospects (org_id);
@@ -638,6 +643,72 @@ $$;
 create trigger trg_notes_log
   after insert on public.prospect_notes
   for each row execute function public.log_new_note();
+
+-- ----------------------------------------------------------------------------
+-- 7a. WHATSAPP MESSAGES  (two-way conversation thread per prospect, via
+-- Twilio — see supabase/functions/send-whatsapp and whatsapp-webhook)
+-- ----------------------------------------------------------------------------
+-- One row per WhatsApp message, in either direction. Outbound rows are
+-- created by the send-whatsapp function right after Twilio accepts the
+-- message; inbound rows (and delivery-status updates to outbound rows) are
+-- created/updated by the whatsapp-webhook function whenever Twilio calls it.
+-- Client apps never insert into this table directly — only those two
+-- backend functions do, using the service-role key.
+create table if not exists public.whatsapp_messages (
+  id uuid primary key default gen_random_uuid(),
+  prospect_id uuid not null references public.prospects (id) on delete cascade,
+  direction text not null check (direction in ('outbound', 'inbound')),
+  body text not null default '',
+  status text not null default 'queued'
+    check (status in ('queued', 'sent', 'delivered', 'read', 'failed', 'received')),
+  twilio_sid text,
+  -- Who sent it from inside the app. Null for inbound messages (the
+  -- prospect sent those) and null for outbound ones sent before this
+  -- column existed.
+  sent_by uuid references public.profiles (id) on delete set null,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists idx_whatsapp_messages_prospect on public.whatsapp_messages (prospect_id, created_at);
+
+-- Lets the webhook look up "which message is this a delivery-status update
+-- for" by Twilio's own message id, and stops the same inbound webhook call
+-- (Twilio sometimes retries) from being recorded twice.
+create unique index if not exists idx_whatsapp_messages_twilio_sid
+  on public.whatsapp_messages (twilio_sid)
+  where twilio_sid is not null;
+
+alter table public.whatsapp_messages enable row level security;
+
+-- A conversation thread is about a specific prospect, so only show it to
+-- people who can see that prospect (owner, or the team member it's
+-- assigned to/added) — same subquery-through-prospects'-own-RLS trick as
+-- prospect_notes above.
+create policy "whatsapp_messages: read visible prospects" on public.whatsapp_messages
+  for select using (
+    exists (select 1 from public.prospects p where p.id = whatsapp_messages.prospect_id)
+  );
+-- No insert/update/delete policy for ordinary clients on purpose — a plain
+-- client-side insert wouldn't actually send anything via Twilio, it'd just
+-- create a fake-looking message. Only send-whatsapp (outbound) and
+-- whatsapp-webhook (inbound + delivery status) ever write to this table.
+
+-- ----------------------------------------------------------------------------
+-- 7b. WHATSAPP SEND REQUESTS  (invisible rate-limit log, same pattern as
+-- research_requests / discovery_requests / copilot_requests above)
+-- ----------------------------------------------------------------------------
+create table if not exists public.whatsapp_send_requests (
+  id uuid primary key default gen_random_uuid(),
+  org_id uuid references public.organizations (id) on delete set null,
+  requested_by uuid references public.profiles (id) on delete cascade,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists idx_whatsapp_send_requests_by_user on public.whatsapp_send_requests (requested_by, created_at);
+
+alter table public.whatsapp_send_requests enable row level security;
+-- No select/insert policies for ordinary clients on purpose — only the
+-- send-whatsapp function ever touches this table.
 
 -- ----------------------------------------------------------------------------
 -- 8. MESSAGE TEMPLATES  (message kit — team can edit)
@@ -1077,6 +1148,7 @@ alter publication supabase_realtime add table public.contracts;
 alter publication supabase_realtime add table public.invoices;
 alter publication supabase_realtime add table public.projects;
 alter publication supabase_realtime add table public.project_tasks;
+alter publication supabase_realtime add table public.whatsapp_messages;
 
 -- ----------------------------------------------------------------------------
 -- 15. STARTER DATA  (Harare niche matrix + message kit + task board),

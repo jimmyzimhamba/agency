@@ -13,6 +13,7 @@ export const store = {
   niches: [],
   prospects: [],
   notesByProspect: {},
+  messagesByProspect: {},
   templates: [],
   dailyTasks: [],
   dailyCompletions: [],
@@ -166,6 +167,21 @@ export async function loadNotesFor(prospectId) {
   return store.notesByProspect[prospectId];
 }
 
+// Same targeted-per-prospect pattern as loadNotesFor above — a WhatsApp
+// thread can only ever be looked at from inside one prospect's detail
+// sheet, so there's no reason to pull every org's messages into memory
+// up front the way loadAll() does for small, always-visible tables.
+export async function loadMessagesFor(prospectId) {
+  const { data } = await sb
+    .from("whatsapp_messages")
+    .select("*")
+    .eq("prospect_id", prospectId)
+    .order("created_at", { ascending: true });
+  store.messagesByProspect[prospectId] = data || [];
+  emit("whatsapp:" + prospectId);
+  return store.messagesByProspect[prospectId];
+}
+
 // Refetches just the prospects table and re-renders. Used as a safety net
 // any time we might have missed a Realtime event — e.g. a phone drops the
 // websocket while backgrounded/asleep, so a teammate's new prospect never
@@ -197,6 +213,25 @@ export function startRealtime() {
         store.notesByProspect[pid] = [...store.notesByProspect[pid], payload.new];
         emit("notes:" + pid);
       }
+    })
+    // Same "only touch it if that prospect's thread is already loaded" rule
+    // as prospect_notes above — INSERT appends a new message (inbound reply,
+    // or an outbound send from a teammate on another device); UPDATE is a
+    // Twilio delivery-status callback (queued -> sent -> delivered -> read,
+    // or failed) landing on a message already in the thread.
+    .on("postgres_changes", { event: "*", schema: "public", table: "whatsapp_messages" }, (payload) => {
+      const pid = (payload.new || payload.old)?.prospect_id;
+      if (!pid || !store.messagesByProspect[pid]) return;
+      if (payload.eventType === "INSERT") {
+        if (!store.messagesByProspect[pid].some((m) => m.id === payload.new.id)) {
+          store.messagesByProspect[pid] = [...store.messagesByProspect[pid], payload.new];
+        }
+      } else if (payload.eventType === "UPDATE") {
+        store.messagesByProspect[pid] = store.messagesByProspect[pid].map((m) => (m.id === payload.new.id ? payload.new : m));
+      } else if (payload.eventType === "DELETE") {
+        store.messagesByProspect[pid] = store.messagesByProspect[pid].filter((m) => m.id !== payload.old.id);
+      }
+      emit("whatsapp:" + pid);
     })
     .on("postgres_changes", { event: "*", schema: "public", table: "daily_task_completions" }, (payload) => {
       upsertLocal("dailyCompletions", payload);

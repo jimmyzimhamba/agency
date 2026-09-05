@@ -1945,4 +1945,80 @@ If you leave `RESEND_FROM_EMAIL` unset, Resend's default sender (`onboarding@res
 - If you ever outgrow the free tier, Resend's paid plans start cheap and scale with usage — you'd see a clear warning in your Resend dashboard before anything stops working.
 - You can watch usage anytime at **resend.com → your dashboard**.
 
+## Step 146 — WhatsApp Integration (Twilio) — real two-way conversations in the app
+
+Up to now, "Send WhatsApp" on a prospect has always been a shortcut that hands off to *your own* WhatsApp app to send the first message — free, and it always will be, no setup needed. This step adds something new on top of that: once a prospect **replies**, a real conversation thread appears right inside their prospect card, and your team can read and reply to them without ever leaving Studio X Command.
+
+**Why it's a separate, optional step:** this uses Twilio, a paid messaging service (small per-message cost, see below), and WhatsApp's own rules for businesses. It's entirely optional — if you skip this step, the free "Send WhatsApp" button keeps working exactly as it always has.
+
+**The one rule to know going in:** WhatsApp only allows a business to send free-form text replies within **24 hours** of the customer's last message to you. Outside that window, WhatsApp requires a pre-approved message template (a whole separate Meta approval process this app doesn't set up for you). So in Studio X Command: the in-app reply box only appears while you're inside that 24-hour window. Once it closes, the card falls back to the same free "Send WhatsApp" cold-open button to restart the conversation — nothing breaks, it just changes how you reply.
+
+### 146.1 — Add the new database tables
+
+1. In Supabase, click **SQL Editor** → **New query**.
+2. Open **`supabase/migration_whatsapp.sql`** from this project folder, select all, copy it, paste into the SQL Editor, click **Run**. You should see "Success. No rows returned." Safe to run even twice.
+
+If you're setting this up on a brand-new/empty Supabase project instead, you don't need this file separately — `supabase/schema.sql` (Step 2) already includes these tables.
+
+### 146.2 — Create a Twilio account and get your credentials
+
+1. Go to **twilio.com** and sign up. Unlike Resend, Twilio does require a credit/debit card on file before it'll send real messages — that's how Twilio itself charges per message (see costs below).
+2. Once in, your **Account SID** and **Auth Token** are shown right on the Twilio Console home page. Copy both somewhere safe for a moment — you'll paste them into Supabase in Step 146.4, and nowhere else. They never go into any file in this project.
+3. Twilio gives every new account some free trial credit, enough to test this whole setup without spending real money first.
+
+### 146.3 — Get a WhatsApp sending number: Sandbox (free, for testing) or Production (real prospects)
+
+Twilio offers two ways to send WhatsApp messages, and it's worth understanding both before you pick:
+
+- **WhatsApp Sandbox** — free, ready in minutes, meant for testing. The catch: every phone number you want to message (including your own, for testing) has to first send a specific "join" code to a shared Twilio number on WhatsApp before Twilio will deliver anything to it. That's fine for you and your team to try this out, but it's **not usable for real prospects** — you can't ask a prospect to text a secret code before you're allowed to message them.
+- **Production WhatsApp Sender** — a real WhatsApp Business number tied to your own agency, approved through Meta (WhatsApp's parent company) via Twilio. This is what you need before using this feature on real prospects. It requires a Meta Business verification that can take anywhere from a few hours to a few days, and Twilio walks you through it in-console (**Messaging → Try it out → Send a WhatsApp message**, then look for **"Register a WhatsApp sender"** or similar — Twilio's onboarding flow changes shape occasionally, so follow whatever it shows you there).
+
+**Recommendation:** start with the Sandbox to test the whole flow end-to-end with your own phone this week; apply for the Production sender in parallel since it takes time to get approved, then switch over once it's live (just update one secret — Step 146.4 — nothing else changes).
+
+Either way, once you have a WhatsApp-enabled number (sandbox or production), note it down in the exact format Twilio shows it, e.g. `whatsapp:+14155238886`.
+
+### 146.4 — Deploy the two new functions and add your secrets
+
+This feature needs two backend functions: one that sends a message when your team types a reply, and one that receives messages/delivery updates from Twilio.
+
+1. In Supabase, click **Edge Functions** → **Create a new function**, name it exactly `send-whatsapp`. Open **`supabase/functions/send-whatsapp/index.ts`** from this project folder, select all, copy it, paste it into the code editor replacing the placeholder, click **Deploy**.
+2. Create a second function named exactly `whatsapp-webhook`. Open **`supabase/functions/whatsapp-webhook/index.ts`**, copy its contents in the same way, click **Deploy**.
+3. Still in **Edge Functions**, find **Secrets** and add:
+   - `TWILIO_ACCOUNT_SID` — from Step 146.2.
+   - `TWILIO_AUTH_TOKEN` — from Step 146.2.
+   - `TWILIO_WHATSAPP_FROM` — the number from Step 146.3, e.g. `whatsapp:+14155238886`.
+4. Save.
+
+The push (pop-up) and email notifications this feature sends when a prospect replies reuse whatever you already set up in earlier steps (VAPID keys for push, `RESEND_API_KEY` for email) — nothing new to add there if you've already done those steps. If you haven't, this feature still works fine; the person assigned just won't get pinged automatically.
+
+### 146.5 — Point Twilio's webhook at your new function
+
+Twilio needs to know where to send incoming WhatsApp messages and delivery updates. Both functions live at:
+
+```
+https://YOUR-PROJECT-REF.supabase.co/functions/v1/whatsapp-webhook
+```
+
+(swap in your actual Supabase project reference — the same one your app already connects to; find it in Supabase → **Settings → API**).
+
+1. **If you're using the Sandbox:** go to **Messaging → Try it out → Send a WhatsApp message → Sandbox settings**, and paste that URL into **"WHEN A MESSAGE COMES IN"**, method `HTTP POST`. Save.
+2. **If you're using a Production sender:** find your WhatsApp sender under **Messaging → Senders**, open it, and set the same URL as its incoming-message webhook (and, if offered separately, its status-callback URL — this same function handles both).
+
+Twilio signs every request it sends here with a secret signature so this function can tell a real Twilio request apart from anyone else who happens to find the URL — that check happens automatically using the `TWILIO_AUTH_TOKEN` secret you already added, nothing more to configure. (If Studio X Command is ever reached through a custom domain that's different from the default `supabase.co` address above, add one more secret, `TWILIO_WEBHOOK_URL`, set to the exact URL you entered into Twilio in this step — otherwise skip it.)
+
+### 146.6 — Redeploy and test
+
+1. Redeploy the `app/` folder via Netlify Drop, same as any other update — the service worker's cache version was bumped so every phone picks up the change automatically.
+2. **If testing with the Sandbox:** from your own phone, send the Sandbox's "join &lt;code&gt;" message to Twilio's Sandbox number on WhatsApp first (Twilio shows you the exact code to send).
+3. Add yourself as a test prospect with your own WhatsApp number, then send yourself the cold-open "Send WhatsApp" message as usual.
+4. Reply to it from your phone. Within a few seconds, that reply should appear in the new conversation thread on that prospect's card in Studio X Command, and whoever's assigned should get a push/email notification.
+5. Type a reply in the thread and send it — it should arrive on your phone within the 24-hour window. Confirm it shows a status (sent/delivered/read) that updates live as WhatsApp reports it back.
+
+### What this costs, plainly
+
+- Twilio charges **per message**, and the exact rate depends on your country and the type of conversation (business-initiated vs. customer-initiated) — this changes often enough that quoting a number here would likely be stale. Check Twilio's own live pricing page (**twilio.com/whatsapp/pricing**) for current rates before relying on this for volume.
+- A safety cap is already built in: no single teammate can send more than **30 WhatsApp messages an hour** through the in-app thread, regardless of plan — this just protects against an accidental runaway cost, not a limit you should expect to hit in normal day-to-day use.
+- The free cold-open "Send WhatsApp" button (unchanged, from before this step) never touches Twilio and never costs anything — only replies sent *from inside the app's conversation thread* go through Twilio and incur a cost.
+- Twilio's trial credit covers a meaningful amount of Sandbox testing before you need to add real funds.
+
 If you'd rather skip this feature entirely, that's fine — everything else in the app works exactly as before, and pop-up notifications (Step "Notifications") still work on their own.

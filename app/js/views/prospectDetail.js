@@ -1,10 +1,11 @@
 import { sb } from "../supabaseClient.js";
-import { store, on, profileById, nicheById, loadNotesFor } from "../state.js";
+import { store, on, profileById, nicheById, loadNotesFor, loadMessagesFor } from "../state.js";
 import { el, esc, avatarHTML, statusLabel, fmtDateTime, money, todayISO, buildWhatsAppLink, personalizeMessage, toast, downloadReminderICS, downloadVCard } from "../utils.js";
 import { openSheet, closeSheet, confirmModal, openModal, closeModal } from "../ui.js";
 import { buildProspectForm } from "./prospectForm.js";
 import { openDealPricingCalculator } from "./dealPricing.js";
 import { notify } from "../push.js";
+import { canSendFreeform, sendWhatsAppMessage } from "../whatsapp.js";
 
 const STATUSES = ["not_contacted", "sent", "replied", "meeting_booked", "signed", "dead"];
 
@@ -94,6 +95,8 @@ function render(p0) {
         ${!p.whatsapp_number && !p.email && !p.instagram && !p.website ? `<div class="text-faint">No contact details saved</div>` : ""}
       </div>
     </div>
+
+    <div id="pd-wa-section"></div>
 
     ${p.gap_note ? `<div class="section-title mt-0">Gap / Observation</div><div class="card" style="margin-bottom:14px;font-size:13.5px;line-height:1.5;">${esc(p.gap_note)}</div>` : ""}
 
@@ -355,22 +358,26 @@ function render(p0) {
   });
 
   renderAISection(box, p);
+  renderWhatsAppSection(box, p);
 
   openSheet(p.business_name, box);
   loadTimeline(p.id);
   renderNotes(p.id);
   loadNotesFor(p.id).then(() => renderNotes(p.id));
+  if (p.whatsapp_last_inbound_at) loadMessagesFor(p.id).then(() => renderWhatsAppThread(p.id));
 
   const offNotes = on("notes:" + p.id, () => renderNotes(p.id));
+  const offWhatsApp = on("whatsapp:" + p.id, () => renderWhatsAppThread(p.id));
   const offProspects = on("prospects", () => {
     const fresh = currentProspect(p.id);
     if (fresh) {
       const statusSel = document.getElementById("pd-status");
       if (statusSel && statusSel.value !== fresh.status) statusSel.value = fresh.status;
       renderAISection(box, fresh);
+      renderWhatsAppSection(box, fresh);
     }
   });
-  document.getElementById("sheet")._onClose = () => { offNotes(); offProspects(); };
+  document.getElementById("sheet")._onClose = () => { offNotes(); offWhatsApp(); offProspects(); };
 }
 
 // The "AI Research" + "Message" cards live in their own container so they
@@ -437,6 +444,90 @@ function renderAISection(box, p) {
       }
     });
   }
+}
+
+// Sits right below the Contact card, alongside the cold-open "Send
+// WhatsApp" button above. Renders nothing at all until a prospect has
+// actually replied on WhatsApp at least once (whatsapp_last_inbound_at is
+// null) — before that, the cold-open button is the only way to reach them,
+// exactly as it always has been. Once they've replied, this shows the real
+// two-way thread, with a reply box only while still inside WhatsApp's
+// 24-hour customer-service window (canSendFreeform) — outside it, the
+// thread is still shown (so history isn't lost), just read-only, pointing
+// back at the cold-open button to re-open the conversation.
+function renderWhatsAppSection(box, p) {
+  const wrap = box.querySelector("#pd-wa-section");
+  if (!wrap) return;
+
+  if (!p.whatsapp_last_inbound_at) {
+    wrap.innerHTML = "";
+    return;
+  }
+
+  const canReply = canSendFreeform(p);
+  wrap.innerHTML = `
+    <div class="card" style="margin-bottom:14px;">
+      <div class="section-title mt-0">WhatsApp Conversation</div>
+      <div id="pd-wa-thread" style="max-height:280px;overflow-y:auto;margin-bottom:10px;"><div class="text-faint" style="font-size:12.5px;">Loading...</div></div>
+      ${canReply ? `
+        <div class="field" style="margin-bottom:8px;">
+          <textarea id="pd-wa-input" placeholder="Type a reply..." style="min-height:44px;"></textarea>
+        </div>
+        <button class="btn btn-whatsapp" id="pd-wa-send">Send</button>
+      ` : `
+        <div class="text-faint" style="font-size:12px;">It's been more than 24 hours since they last messaged — WhatsApp requires them to message first before you can reply here again. Use the Send WhatsApp button above to reach out.</div>
+      `}
+    </div>
+  `;
+
+  const sendBtn = wrap.querySelector("#pd-wa-send");
+  if (sendBtn) {
+    sendBtn.addEventListener("click", async () => {
+      const input = wrap.querySelector("#pd-wa-input");
+      const body = input.value.trim();
+      if (!body) return;
+      sendBtn.disabled = true;
+      sendBtn.textContent = "Sending...";
+      const { data, error } = await sendWhatsAppMessage(p.id, body);
+      sendBtn.disabled = false;
+      sendBtn.textContent = "Send";
+      if (error || data?.error) {
+        toast(error?.message || data?.error || "Couldn't send that message", "error");
+        return;
+      }
+      input.value = "";
+    });
+  }
+
+  renderWhatsAppThread(p.id);
+}
+
+// Bubble-style thread, same visual language as Copilot's chat bubbles
+// (inbound left/neutral, outbound right/purple) — kept as a plain HTML
+// string like renderNotes below rather than DOM nodes since it only ever
+// needs a full re-render, never per-message patching.
+function renderWhatsAppThread(prospectId) {
+  const threadEl = document.getElementById("pd-wa-thread");
+  if (!threadEl) return;
+  const messages = store.messagesByProspect[prospectId] || [];
+  if (!messages.length) {
+    threadEl.innerHTML = `<div class="text-faint" style="font-size:12.5px;">No messages yet.</div>`;
+    return;
+  }
+  threadEl.innerHTML = messages
+    .map((m) => {
+      const isOut = m.direction === "outbound";
+      const statusNote = isOut && m.status ? ` · ${m.status}` : "";
+      return `<div style="display:flex;${isOut ? "justify-content:flex-end;" : "justify-content:flex-start;"}margin-bottom:8px;">
+        <div style="max-width:82%;padding:8px 11px;border-radius:var(--radius-sm);font-size:13px;line-height:1.4;white-space:pre-wrap;
+          ${isOut ? "background:var(--purple);color:#fff;" : "background:var(--black-card);border:1px solid var(--line);color:var(--text);"}">
+          ${esc(m.body)}
+          <div style="font-size:10px;opacity:0.7;margin-top:4px;">${fmtDateTime(m.created_at)}${statusNote}</div>
+        </div>
+      </div>`;
+    })
+    .join("");
+  threadEl.scrollTop = threadEl.scrollHeight;
 }
 
 async function loadTimeline(prospectId) {
