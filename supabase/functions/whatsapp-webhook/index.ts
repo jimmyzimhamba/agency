@@ -216,8 +216,12 @@ function escapeHtml(s: string) {
 }
 
 function buildEmailHtml(heading: string, line: string, appUrl?: string) {
+  // The site root is now the public marketing landing page (app/index.html),
+  // not the app itself — append /app.html so this button always deep-links
+  // straight into the real app instead of dropping someone back onto a
+  // sales pitch they've already seen.
   const button = appUrl
-    ? `<a href="${appUrl}" style="display:inline-block;margin-top:18px;padding:10px 20px;border-radius:999px;background:#7b2ff7;color:#ffffff;text-decoration:none;font-weight:600;font-size:14px;">Open Studio X Command</a>`
+    ? `<a href="${appUrl.replace(/\/$/, "")}/app.html" style="display:inline-block;margin-top:18px;padding:10px 20px;border-radius:999px;background:#7b2ff7;color:#ffffff;text-decoration:none;font-weight:600;font-size:14px;">Open Studio X Command</a>`
     : "";
   return `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:480px;margin:0 auto;padding:28px 24px;background:#ffffff;border:1px solid #e8e6ee;border-radius:16px;">
     <div style="font-size:12px;letter-spacing:0.06em;text-transform:uppercase;color:#7b2ff7;font-weight:700;margin-bottom:10px;">Studio X Command</div>

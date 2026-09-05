@@ -91,7 +91,10 @@ Deno.serve(async (req: Request) => {
 
     if (!subs || !subs.length) return json({ sent: 0 }, 200);
 
-    const payload = JSON.stringify({ title, body, url: "/" });
+    // "/app.html", not "/" — the site root is now the public marketing
+    // landing page (see app/index.html); a push notification should always
+    // open straight into the real app.
+    const payload = JSON.stringify({ title, body, url: "/app.html" });
     let sent = 0;
     const staleIds: string[] = [];
 

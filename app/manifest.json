@@ -2,7 +2,7 @@
   "name": "Agency Command",
   "short_name": "Agency Command",
   "description": "Agency Command — sales outreach and team-sync command center",
-  "start_url": "/index.html",
+  "start_url": "/app.html",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",

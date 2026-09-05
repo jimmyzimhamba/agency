@@ -2,310 +2,398 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
-<title>Agency Command</title>
-<meta name="description" content="Agency Command — sales outreach and team-sync command center" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Agency Command — the command center for outreach-driven agencies</title>
+<meta name="description" content="Agency Command is the free, installable command center for agency teams: pipeline, WhatsApp conversations, AI Copilot, contracts, invoices and projects — all in one place." />
 
-<!-- Applies the saved light/dark preference (js/theme.js) to <html> before
-     the stylesheet below is even requested, so a returning user in light
-     mode never sees a flash of the default dark theme on load. -->
+<!-- This is now the site's root page, so it's the URL every already-
+     installed home-screen shortcut/bookmark still points at (they were
+     saved before app.html existed, back when this same address WAS the
+     app). Anyone opening it as an *installed* app (standalone display
+     mode — i.e. it has no browser chrome, exactly what "Add to Home
+     Screen" produces) obviously still wants the real app, not a sales
+     pitch, so this bounces them straight to app.html before anything
+     renders. A normal browser tab (someone just visiting the URL) is
+     display-mode "browser", fails both checks below, and sees the
+     marketing page underneath exactly as intended. Runs before the
+     stylesheet/fonts even load so there's no flash of landing content
+     first. iOS Safari's "Add to Home Screen" doesn't set display-mode
+     via matchMedia, hence the separate navigator.standalone check. -->
 <script>
   (function () {
     try {
-      if (localStorage.getItem("sxc-theme") === "light") {
-        document.documentElement.setAttribute("data-theme", "light");
-      }
+      var isStandalone = window.matchMedia && window.matchMedia("(display-mode: standalone)").matches;
+      var isIosStandalone = window.navigator && window.navigator.standalone === true;
+      if (isStandalone || isIosStandalone) window.location.replace("app.html");
     } catch (e) {}
   })();
 </script>
 
-<!-- Installable app config -->
-<link rel="manifest" href="manifest.json" />
-<meta name="theme-color" content="#0a0a0d" />
-<meta name="background-color" content="#0a0a0d" />
-
-<!-- iOS "Add to Home Screen" behaviour -->
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<meta name="apple-mobile-web-app-title" content="Agency Command" />
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
 <link rel="icon" href="icons/favicon-32.png" />
-
 <link rel="stylesheet" href="css/styles.css" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  /* ==========================================================================
+     Landing-page-only layout. Deliberately NOT using #app (that id is capped
+     at --content-max/560px everywhere else in this codebase, for the phone-
+     first internal app) — this page needs to breathe on desktop widths, so
+     it gets its own full-width wrapper and its own responsive rules below,
+     while still borrowing every color/shape token (--purple, --gold, .btn,
+     .card, .icon-badge, pill radii, Inter) from the shared stylesheet so it
+     reads as unmistakably the same product, not a bolted-on microsite. */
+  .lp-wrap { position: relative; z-index: 1; max-width: 1120px; margin: 0 auto; padding: 0 20px; }
+  .lp-nav { display: flex; align-items: center; justify-content: space-between; padding: 18px 0; }
+  .lp-nav-actions { display: flex; align-items: center; gap: 10px; }
+  .lp-nav-actions .btn { width: auto; }
+  .lp-nav-actions a.btn { display: inline-flex; }
+
+  .lp-eyebrow {
+    display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px;
+    border-radius: 999px; background: var(--purple-dim); color: var(--purple-soft);
+    font-size: 12px; font-weight: 700; letter-spacing: 0.2px; margin-bottom: 18px;
+  }
+  .lp-hero { text-align: center; padding: 46px 0 10px; }
+  .lp-hero h1 { font-size: clamp(28px, 5vw, 46px); line-height: 1.12; font-weight: 800; letter-spacing: -0.5px; margin: 0 auto 16px; max-width: 780px; }
+  .lp-hero p.lead { color: var(--text-dim); font-size: clamp(14.5px, 2vw, 17px); max-width: 560px; margin: 0 auto 26px; line-height: 1.6; }
+  .lp-hero-ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 44px; }
+  .lp-hero-ctas .btn { width: auto; padding: 13px 26px; }
+
+  /* "See it in action" tabbed device mockup ------------------------------- */
+  .lp-tabs { display: flex; gap: 6px; background: var(--black-card); border: 1px solid var(--line); border-radius: 999px; padding: 4px; margin: 0 auto 22px; width: fit-content; }
+  .lp-tab { padding: 9px 18px; border-radius: 999px; font-size: 13px; font-weight: 700; color: var(--text-faint); cursor: pointer; user-select: none; border: none; background: none; font-family: var(--font); }
+  .lp-tab.active { background: linear-gradient(135deg, var(--purple), #5c1fd1); color: #fff; }
+  .lp-device {
+    max-width: 760px; margin: 0 auto; border-radius: var(--radius-lg);
+    background: linear-gradient(180deg, var(--black-card), var(--black-card-2));
+    border: 1px solid var(--line); box-shadow: 0 30px 70px -30px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.02) inset;
+    overflow: hidden; text-align: left;
+  }
+  .lp-device-bar { display: flex; align-items: center; gap: 6px; padding: 11px 14px; border-bottom: 1px solid var(--line); }
+  .lp-device-bar span { width: 10px; height: 10px; border-radius: 50%; background: var(--line-strong); }
+  .lp-device-bar .url { margin-left: 10px; font-size: 11.5px; color: var(--text-faint); }
+  .lp-device-body { padding: 18px; min-height: 260px; }
+  .lp-pane { display: none; }
+  .lp-pane.active { display: block; animation: fadein 0.2s ease; }
+
+  .lp-kanban { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .lp-kcol { background: var(--black-raised); border: 1px solid var(--line); border-radius: var(--radius-md); padding: 10px; }
+  .lp-kcol h4 { margin: 0 0 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-faint); }
+  .lp-kcard { background: var(--black-card); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; font-size: 12.5px; margin-bottom: 8px; }
+  .lp-kcard .pill { display: inline-block; margin-top: 5px; font-size: 10px; font-weight: 700; color: var(--success); background: var(--success-dim); padding: 2px 7px; border-radius: 999px; }
+
+  .lp-chatline { display: flex; margin-bottom: 10px; }
+  .lp-bubble { max-width: 74%; padding: 9px 13px; border-radius: 14px; font-size: 13px; line-height: 1.4; }
+  .lp-chatline.in .lp-bubble { background: var(--black-raised); border: 1px solid var(--line); }
+  .lp-chatline.out { justify-content: flex-end; }
+  .lp-chatline.out .lp-bubble { background: linear-gradient(135deg, var(--purple), #5c1fd1); color: #fff; }
+
+  .lp-docrow { display: flex; align-items: center; justify-content: space-between; padding: 11px 4px; border-bottom: 1px solid var(--line); font-size: 13px; }
+  .lp-docrow:last-child { border-bottom: none; }
+  .lp-docrow .status { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 999px; }
+  .lp-docrow .status.sent { color: var(--info); background: var(--info-dim); }
+  .lp-docrow .status.paid { color: var(--success); background: var(--success-dim); }
+  .lp-docrow .status.overdue { color: var(--danger); background: var(--danger-dim); }
+
+  /* feature grids ----------------------------------------------------------*/
+  .lp-section { padding: 54px 0; }
+  .lp-section h2 { text-align: center; font-size: clamp(22px, 3.4vw, 32px); font-weight: 800; letter-spacing: -0.3px; margin: 0 auto 12px; max-width: 640px; }
+  .lp-section p.sub { text-align: center; color: var(--text-dim); max-width: 560px; margin: 0 auto 34px; font-size: 14.5px; line-height: 1.6; }
+  .lp-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .lp-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .lp-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .lp-feature-card { padding: 20px; }
+  .lp-feature-card h3 { font-size: 15px; margin: 14px 0 6px; }
+  .lp-feature-card p { font-size: 13.5px; color: var(--text-dim); line-height: 1.55; margin: 0; }
+
+  .lp-badge-tag { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; background: var(--gold-dim); color: var(--gold-soft); font-size: 11.5px; font-weight: 700; margin: 0 auto 16px; width: fit-content; }
+  .lp-center { display: flex; flex-direction: column; align-items: center; }
+
+  /* checklist ---------------------------------------------------------------*/
+  .lp-check-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+  .lp-check-list li { display: flex; align-items: flex-start; gap: 12px; font-size: 14px; color: var(--text-dim); line-height: 1.5; }
+  .lp-check-list svg { flex: 0 0 auto; width: 20px; height: 20px; color: var(--success); margin-top: 1px; }
+  .lp-check-list b { color: var(--text); }
+
+  /* comparison table ---------------------------------------------------------*/
+  .lp-compare { width: 100%; border-collapse: collapse; overflow: hidden; border-radius: var(--radius-md); border: 1px solid var(--line); }
+  .lp-compare th, .lp-compare td { padding: 13px 16px; text-align: left; font-size: 13.5px; border-bottom: 1px solid var(--line); }
+  .lp-compare th { background: var(--black-card); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-faint); }
+  .lp-compare td:not(:first-child), .lp-compare th:not(:first-child) { text-align: center; width: 160px; }
+  .lp-compare tr:last-child td { border-bottom: none; }
+  .lp-compare .yes { color: var(--success); font-weight: 800; }
+  .lp-compare .no { color: var(--text-faint); }
+  .lp-compare th.hi { color: var(--purple-soft); }
+
+  /* FAQ (native <details>, zero JS) -------------------------------------- */
+  .lp-faq { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; }
+  .lp-faq details { background: var(--black-card); border: 1px solid var(--line); border-radius: var(--radius-md); padding: 4px 18px; }
+  .lp-faq summary { cursor: pointer; padding: 15px 0; font-weight: 700; font-size: 14.5px; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+  .lp-faq summary::-webkit-details-marker { display: none; }
+  .lp-faq summary::after { content: "+"; color: var(--text-faint); font-size: 20px; font-weight: 400; }
+  .lp-faq details[open] summary::after { content: "\2212"; }
+  .lp-faq p { margin: 0 0 16px; color: var(--text-dim); font-size: 13.5px; line-height: 1.6; }
+
+  .lp-final-cta { text-align: center; padding: 60px 0; }
+  .lp-final-cta h2 { font-size: clamp(22px, 3.6vw, 34px); margin: 0 0 10px; }
+  .lp-final-cta p { color: var(--text-dim); margin: 0 0 26px; }
+
+  .lp-footer { border-top: 1px solid var(--line); padding: 34px 0 40px; margin-top: 20px; }
+  .lp-footer-grid { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 28px; }
+  .lp-footer-brand p { color: var(--text-faint); font-size: 12.5px; max-width: 260px; margin: 10px 0 0; line-height: 1.5; }
+  .lp-footer-col h5 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-faint); margin: 0 0 12px; }
+  .lp-footer-col a { display: block; color: var(--text-dim); font-size: 13px; margin-bottom: 9px; }
+  .lp-footer-col a:hover { color: var(--text); }
+  .lp-footer-bottom { text-align: center; color: var(--text-faint); font-size: 11.5px; margin-top: 30px; }
+
+  @media (max-width: 860px) {
+    .lp-grid-3, .lp-grid-4, .lp-grid-2 { grid-template-columns: 1fr; }
+    .lp-kanban { grid-template-columns: 1fr; }
+    .lp-compare th:not(:first-child), .lp-compare td:not(:first-child) { width: auto; }
+  }
+</style>
 </head>
 <body>
   <div class="ambient-glow a"></div>
   <div class="ambient-glow b"></div>
   <div class="grain"></div>
-  <div class="toast-wrap"></div>
 
-  <div id="app">
+  <div class="lp-wrap">
 
-    <!-- ============ AUTH SCREEN ============ -->
-    <div id="auth-screen" class="auth-wrap" style="display:none;">
-      <div class="auth-logo">
-        <div class="ring"><img src="icons/mark.png" alt="" /></div>
-        <h1><span class="text-purple-grad">Agency</span> Command</h1>
-        <p>SALES &amp; TEAM SYNC COMMAND CENTER</p>
+    <!-- ============ NAV ============ -->
+    <nav class="lp-nav">
+      <div class="brand">
+        <div class="brand-mark"><img src="icons/mark.png" alt="" /></div>
+        <div class="brand-name"><span class="text-purple-grad">Agency</span> Command</div>
+      </div>
+      <div class="lp-nav-actions">
+        <a class="btn btn-ghost btn-sm" href="app.html">Sign in</a>
+        <a class="btn btn-primary btn-sm" href="app.html">Get started free</a>
+      </div>
+    </nav>
+
+    <!-- ============ HERO ============ -->
+    <header class="lp-hero">
+      <div class="lp-eyebrow">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 13 4 4L19 7"/></svg>
+        Built for outreach-driven agency teams
+      </div>
+      <h1>Run your whole agency from one command center.</h1>
+      <p class="lead">Prospecting, WhatsApp conversations, an AI Copilot, contracts, invoices and projects — all synced live across your team, installable as an app, and built to keep working even when the connection doesn't.</p>
+      <div class="lp-hero-ctas">
+        <a class="btn btn-primary" href="app.html">Get started free</a>
+        <a class="btn btn-ghost" href="#see-it">See it in action</a>
       </div>
 
-      <div class="card glow-card" style="max-width:360px;margin:0 auto;width:100%;">
-        <div id="auth-error" class="hint" style="color:var(--danger);display:none;margin-bottom:10px;"></div>
-
-        <div id="auth-agency-mode-row" class="subtabs" style="display:none;">
-          <div class="subtab active" id="auth-agency-create-tab" data-agency-mode="create">New agency</div>
-          <div class="subtab" id="auth-agency-join-tab" data-agency-mode="join">Join a team</div>
+      <div id="see-it">
+        <div class="lp-tabs" role="tablist">
+          <button class="lp-tab active" data-pane="pipeline">Pipeline</button>
+          <button class="lp-tab" data-pane="whatsapp">WhatsApp</button>
+          <button class="lp-tab" data-pane="business">Contracts &amp; Invoices</button>
         </div>
-
-        <div class="field">
-          <label>Full name</label>
-          <input id="auth-name" type="text" placeholder="Tariro Moyo" autocomplete="name" />
+        <div class="lp-device">
+          <div class="lp-device-bar">
+            <span></span><span></span><span></span>
+            <span class="url">app.agencycommand.com</span>
+          </div>
+          <div class="lp-device-body">
+            <div class="lp-pane active" data-pane="pipeline">
+              <div class="lp-kanban">
+                <div class="lp-kcol"><h4>New Lead</h4>
+                  <div class="lp-kcard">Mama's Kitchen<span class="pill" style="color:var(--purple-soft);background:var(--purple-dim);">Tier A</span></div>
+                  <div class="lp-kcard">Kumasi Autos<span class="pill" style="color:var(--purple-soft);background:var(--purple-dim);">Tier B</span></div>
+                </div>
+                <div class="lp-kcol"><h4>Meeting Booked</h4>
+                  <div class="lp-kcard">Harare Dental Co.<span class="pill">Follow up today</span></div>
+                </div>
+                <div class="lp-kcol"><h4>Signed</h4>
+                  <div class="lp-kcard">Nkosi &amp; Co.<span class="pill">Contract sent</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="lp-pane" data-pane="whatsapp">
+              <div class="lp-chatline in"><div class="lp-bubble">Hi, saw your message — what packages do you offer?</div></div>
+              <div class="lp-chatline out"><div class="lp-bubble">We do a starter site + social package from $250, happy to send details 🙂</div></div>
+              <div class="lp-chatline in"><div class="lp-bubble">Sounds great, send it over</div></div>
+              <div class="lp-chatline out"><div class="lp-bubble">Sending the proposal now — check your inbox in a sec.</div></div>
+            </div>
+            <div class="lp-pane" data-pane="business">
+              <div class="lp-docrow"><span>Contract — Nkosi &amp; Co.</span><span class="status sent">Sent</span></div>
+              <div class="lp-docrow"><span>Invoice #0042 — Adjei Web Studio</span><span class="status paid">Paid</span></div>
+              <div class="lp-docrow"><span>Invoice #0043 — Okafor Digital</span><span class="status overdue">Overdue</span></div>
+              <div class="lp-docrow"><span>Project — Harare Dental Co.</span><span class="status sent">In Progress</span></div>
+            </div>
+          </div>
         </div>
-        <div class="field" id="auth-agency-name-field" style="display:none;">
-          <label>Agency name</label>
-          <input id="auth-agency-name" type="text" placeholder="Studio X Marketing" autocomplete="organization" />
-        </div>
-        <div class="field" id="auth-invite-code-field" style="display:none;">
-          <label>Invite code</label>
-          <input id="auth-invite-code" type="text" placeholder="Ask your team owner for this" autocomplete="off" />
-        </div>
-        <div class="field">
-          <label>Email</label>
-          <input id="auth-email" type="email" placeholder="you@studioxmarketing.com" autocomplete="email" />
-        </div>
-        <div class="field">
-          <label>Password</label>
-          <input id="auth-password" type="password" placeholder="At least 6 characters" autocomplete="current-password" />
-        </div>
-
-        <button id="auth-submit" class="btn btn-primary" style="margin-top:4px;">Sign In</button>
-        <div id="auth-loading" class="spinner" style="display:none;"></div>
       </div>
+    </header>
 
-      <div class="auth-toggle">
-        <span id="auth-mode-hint">New to Agency Command?</span>
-        <b id="auth-mode-toggle">Create account</b>
+    <!-- ============ FEATURE TRIO ============ -->
+    <section class="lp-section">
+      <div class="lp-grid-3">
+        <div class="card lp-feature-card">
+          <div class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></div>
+          <h3>Prospecting built in</h3>
+          <p>Find real local businesses by niche and area straight from Google Maps, drop them into your pipeline, and track every status change from first touch to signed.</p>
+        </div>
+        <div class="card lp-feature-card">
+          <div class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+          <h3>WhatsApp, not just email</h3>
+          <p>Cold-open with a free WhatsApp link, and once a prospect replies, keep the whole two-way conversation live in-app — synced to your team in real time.</p>
+        </div>
+        <div class="card lp-feature-card">
+          <div class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a7 7 0 0 0-7 7c0 2.4 1.2 4.5 3 5.7V17h8v-2.3c1.8-1.2 3-3.3 3-5.7a7 7 0 0 0-7-7Z"/><path d="M9 21h6M10 17v2M14 17v2"/></svg></div>
+          <h3>Copilot in every step</h3>
+          <p>Ask a plain-English question about your pipeline, tasks, activity, or finances, and get a straight answer pulled live from your own team's data.</p>
+        </div>
       </div>
-    </div>
+    </section>
 
-    <!-- ============ APP SHELL ============ -->
-    <div id="app-shell" style="display:none;">
-      <div class="app-layout">
+    <!-- ============ CONNECTED FEATURES ============ -->
+    <section class="lp-section">
+      <div class="lp-center"><span class="lp-badge-tag">One connected workflow</span></div>
+      <h2>Every part of your agency, in one place</h2>
+      <p class="sub">Not five different tools stitched together — pipeline, conversations, business documents and team coordination all live in the same command center.</p>
+      <div class="lp-grid-4">
+        <div class="card lp-feature-card">
+          <div class="icon-badge gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h9l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M9 12h6M9 16h6M9 8h2"/></svg></div>
+          <h3>Contracts &amp; invoices</h3>
+          <p>Printable, professional documents with status tracking, staleness flags, and one-tap reminders — no separate invoicing app needed.</p>
+        </div>
+        <div class="card lp-feature-card">
+          <div class="icon-badge gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg></div>
+          <h3>Projects</h3>
+          <p>Turn a signed deal into a delivery checklist automatically, so the work starts moving the same day the ink dries.</p>
+        </div>
+        <div class="card lp-feature-card">
+          <div class="icon-badge gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="m3 15 4.5-4.5a2 2 0 0 1 2.8 0L15 15M13 13l2-2a2 2 0 0 1 2.8 0L21 14"/><circle cx="8" cy="8.5" r="1.3"/></svg></div>
+          <h3>Portfolio Studio</h3>
+          <p>Publish a shareable, public showcase of past work — the kind of proof that turns a cold prospect into a signed client.</p>
+        </div>
+        <div class="card lp-feature-card">
+          <div class="icon-badge gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.4"/><path d="M2.5 20.5c0-3.3 2.9-6 6.5-6s6.5 2.7 6.5 6"/><path d="M16 4.6c1.6.5 2.8 2 2.8 3.8s-1.2 3.3-2.8 3.8"/></svg></div>
+          <h3>Team &amp; targets</h3>
+          <p>Assign leads, track daily checklists, and see who's on pace — every teammate sees the same board update the instant it happens.</p>
+        </div>
+      </div>
+    </section>
 
-        <!-- desktop/tablet sidebar — hidden on phone widths, replaces the
-             bottom nav once there's room for a persistent rail. -->
-        <nav class="app-sidebar" id="app-sidebar">
-          <div class="sidebar-brand">
+    <!-- ============ BUILT FOR HOW AGENCIES WORK ============ -->
+    <section class="lp-section">
+      <div class="lp-grid-2" style="align-items:center;">
+        <div>
+          <span class="lp-badge-tag">Built for real conditions</span>
+          <h2 style="text-align:left;margin:0 0 14px;">Built for how agencies actually work here</h2>
+          <p class="sub" style="text-align:left;margin:0 0 26px;">Not a repurposed generic CRM — designed from the ground up around WhatsApp-first outreach and unreliable mobile data.</p>
+          <ul class="lp-check-list">
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 13 4 4L19 7"/></svg>
+              <span><b>Installs like a real app.</b> Add it to your home screen — no app store, no download size to worry about.</span>
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 13 4 4L19 7"/></svg>
+              <span><b>Keeps working when the signal drops.</b> Opens instantly from the last synced data instead of hanging on a loading screen.</span>
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 13 4 4L19 7"/></svg>
+              <span><b>Real-time, always.</b> Every teammate's screen updates the moment a lead moves, a message lands, or a status changes.</span>
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 13 4 4L19 7"/></svg>
+              <span><b>Free to run.</b> No subscription, no per-seat fee, no credit system — one team workspace, everyone included.</span>
+            </li>
+          </ul>
+        </div>
+        <div class="card" style="padding:22px;">
+          <div class="lp-docrow" style="border-color:var(--line);"><span>📶 Weak connection detected</span><span class="status sent">Still open</span></div>
+          <p style="font-size:13px;color:var(--text-dim);line-height:1.6;margin:14px 0 0;">A slightly stale cached app that actually opens beats a "fresh" one that never arrives — so on a dropped mobile-data connection, Agency Command falls back to the last synced version instead of leaving your team stuck on a loading screen.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ COMPARISON ============ -->
+    <section class="lp-section">
+      <h2>Why a dedicated command center, not a generic tool</h2>
+      <p class="sub">Spreadsheets and generic CRMs weren't built around WhatsApp-first outreach or the way a small agency actually closes clients.</p>
+      <table class="lp-compare">
+        <thead><tr><th>Feature</th><th class="hi">Agency Command</th><th>Spreadsheet / generic CRM</th></tr></thead>
+        <tbody>
+          <tr><td>Pipeline + two-way WhatsApp threads together</td><td class="yes">✓</td><td class="no">✗</td></tr>
+          <tr><td>AI Copilot across pipeline, tasks and finances</td><td class="yes">✓</td><td class="no">✗</td></tr>
+          <tr><td>Contracts, invoices and projects built in</td><td class="yes">✓</td><td class="no">✗</td></tr>
+          <tr><td>Installable, works offline in read-only mode</td><td class="yes">✓</td><td class="no">✗</td></tr>
+          <tr><td>Live real-time sync across the whole team</td><td class="yes">✓</td><td class="no">✗</td></tr>
+          <tr><td>Free, no subscription</td><td class="yes">✓</td><td class="no">Usually not</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ============ FAQ ============ -->
+    <section class="lp-section">
+      <h2>Common questions</h2>
+      <div class="lp-faq">
+        <details open>
+          <summary>Do I need to install anything?</summary>
+          <p>No app store required. Open it in your phone's browser and choose "Add to Home Screen" — it behaves like a real installed app from there on.</p>
+        </details>
+        <details>
+          <summary>What happens if my connection drops?</summary>
+          <p>The app opens instantly from the last data it synced, clearly marked as "last synced," so you're never stuck staring at a loading screen — live data resumes the moment you're back online.</p>
+        </details>
+        <details>
+          <summary>Is there a cost?</summary>
+          <p>Agency Command itself is free to run for your team. A couple of optional add-ons (like WhatsApp messaging through Twilio) have their own small usage-based costs from that provider, entirely separate from this app.</p>
+        </details>
+        <details>
+          <summary>Can more than one person on my team use it?</summary>
+          <p>Yes — create your agency's workspace once, then invite teammates with a simple invite code. Everyone sees the same pipeline, conversations and documents update live.</p>
+        </details>
+      </div>
+    </section>
+
+    <!-- ============ FINAL CTA ============ -->
+    <section class="lp-final-cta">
+      <h2>Your pipeline is one sign-up away.</h2>
+      <p>Set up your agency's workspace in a couple of minutes.</p>
+      <a class="btn btn-primary" href="app.html" style="width:auto;padding:13px 30px;">Get started free</a>
+    </section>
+
+    <!-- ============ FOOTER ============ -->
+    <footer class="lp-footer">
+      <div class="lp-footer-grid">
+        <div class="lp-footer-brand">
+          <div class="brand">
             <div class="brand-mark"><img src="icons/mark.png" alt="" /></div>
-            <div class="brand-name"><span class="text-purple-grad">Agency</span> Command<small id="sidebar-org-name">HARARE OUTREACH</small></div>
+            <div class="brand-name"><span class="text-purple-grad">Agency</span> Command</div>
           </div>
-
-          <div class="sidebar-search">
-            <div class="search-bar">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-              <input id="global-search-input" type="text" placeholder="Search everything..." autocomplete="off" />
-            </div>
-            <div id="global-search-results" class="gsearch-dropdown"></div>
-          </div>
-
-          <div class="sidebar-scroll">
-            <div class="sidebar-group-label">Overview</div>
-            <button class="sidebar-link" data-view="dashboard">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V10M12 19V5M20 19v-7"/></svg>
-              Dashboard
-            </button>
-            <button class="sidebar-link" data-view="copilot">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a7 7 0 0 0-7 7c0 2.4 1.2 4.5 3 5.7V17h8v-2.3c1.8-1.2 3-3.3 3-5.7a7 7 0 0 0-7-7Z"/><path d="M9 21h6M10 17v2M14 17v2"/></svg>
-              Copilot
-            </button>
-
-            <div class="sidebar-group-label">Pipeline</div>
-            <button class="sidebar-link" data-view="pipeline">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg>
-              Prospects
-            </button>
-            <button class="sidebar-link" data-view="discovery">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-              Discovery
-            </button>
-            <button class="sidebar-link" data-view="tasks">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 13 4 4L19 7"/></svg>
-              Tasks
-            </button>
-            <button class="sidebar-link" data-view="messages">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-              Messages
-            </button>
-
-            <div class="sidebar-group-label">Strategy</div>
-            <button class="sidebar-link" data-view="niches">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg>
-              Niche Matrix
-            </button>
-            <button class="sidebar-link" data-view="pipelinevalue">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg>
-              Pipeline Value
-            </button>
-            <button class="sidebar-link" id="sidebar-deal-pricing">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 12h2M12 12h2M16 12h2M8 16h2M12 16h2M16 16h2"/></svg>
-              Deal Pricing
-            </button>
-
-            <div class="sidebar-group-label">Business</div>
-            <button class="sidebar-link" data-view="contracts">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h9l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M9 12h6M9 16h6M9 8h2"/></svg>
-              Contracts
-            </button>
-            <button class="sidebar-link" data-view="invoices">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>
-              Invoices
-            </button>
-            <button class="sidebar-link" data-view="projects">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg>
-              Projects
-            </button>
-            <button class="sidebar-link" data-view="gridplans">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-              Grid Plans
-            </button>
-            <button class="sidebar-link" data-view="services">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7h-4V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2H4a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1Z"/><path d="M10 5h4v2h-4z"/></svg>
-              Services &amp; Packages
-            </button>
-            <button class="sidebar-link" data-view="portfolio">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="m3 15 4.5-4.5a2 2 0 0 1 2.8 0L15 15M13 13l2-2a2 2 0 0 1 2.8 0L21 14"/><circle cx="8" cy="8.5" r="1.3"/></svg>
-              Portfolio Studio
-            </button>
-
-            <div class="sidebar-group-label">Team</div>
-            <button class="sidebar-link" data-view="community">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-              Community Feed
-            </button>
-            <button class="sidebar-link" data-view="activity">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
-              Activity Feed
-            </button>
-            <button class="sidebar-link" data-view="team">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.4"/><path d="M2.5 20.5c0-3.3 2.9-6 6.5-6s6.5 2.7 6.5 6"/><path d="M16 4.6c1.6.5 2.8 2 2.8 3.8s-1.2 3.3-2.8 3.8"/><path d="M17.5 14.7c2.6.6 4.5 2.7 4.5 5.3"/></svg>
-              Team &amp; Settings
-            </button>
-          </div>
-
-          <button class="sidebar-foot" id="sidebar-foot">
-            <span id="sidebar-avatar-slot" style="display:inline-flex;width:32px;height:32px;flex:0 0 auto;"></span>
-            <div class="sidebar-foot-text">
-              <div class="sidebar-foot-name" id="sidebar-user-name">&nbsp;</div>
-              <div class="sidebar-foot-role" id="sidebar-user-role">&nbsp;</div>
-            </div>
-            <span id="sidebar-due-badge" class="badge-dot" style="display:none;position:static;border:none;">0</span>
-          </button>
-        </nav>
-
-        <div class="app-main-col">
-          <div class="topbar">
-            <div class="brand">
-              <div class="brand-mark"><img src="icons/mark.png" alt="" /></div>
-              <div class="brand-name"><span class="text-purple-grad">Agency</span> Command<small id="topbar-org-name">HARARE OUTREACH</small></div>
-            </div>
-            <div class="topbar-actions">
-              <button class="icon-btn" id="btn-search" title="Search">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-              </button>
-              <button class="icon-btn" id="btn-due" title="Due today">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z"/></svg>
-                <span id="due-badge" class="badge-dot" style="display:none;">0</span>
-              </button>
-              <button class="icon-btn" id="btn-theme" title="Toggle light/dark mode">
-                <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
-                <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
-              </button>
-              <button class="icon-btn" id="btn-profile" title="Menu">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-              </button>
-            </div>
-          </div>
-          <div id="offline-banner" class="offline-banner">You're offline — showing the last synced data</div>
-
-          <main>
-            <div id="view-pipeline" class="view"></div>
-            <div id="view-discovery" class="view"></div>
-            <div id="view-copilot" class="view"></div>
-            <div id="view-dashboard" class="view"></div>
-            <div id="view-tasks" class="view"></div>
-            <div id="view-messages" class="view"></div>
-            <div id="view-niches" class="view"></div>
-            <div id="view-community" class="view"></div>
-            <div id="view-activity" class="view"></div>
-            <div id="view-team" class="view"></div>
-            <div id="view-pipelinevalue" class="view"></div>
-            <div id="view-contracts" class="view"></div>
-            <div id="view-invoices" class="view"></div>
-            <div id="view-projects" class="view"></div>
-            <div id="view-gridplans" class="view"></div>
-            <div id="view-services" class="view"></div>
-            <div id="view-portfolio" class="view"></div>
-          </main>
-
-          <button class="fab" id="fab-add" title="Add prospect">
-            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="white" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
-          </button>
-
-          <nav class="bottom-nav">
-            <button class="nav-btn" data-view="dashboard">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V10M12 19V5M20 19v-7"/></svg>
-              Dashboard
-            </button>
-            <button class="nav-btn" data-view="pipeline">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg>
-              Pipeline
-            </button>
-            <button class="nav-btn" data-view="tasks">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 13 4 4L19 7"/></svg>
-              Tasks
-            </button>
-            <button class="nav-btn" data-view="messages">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-              Messages
-            </button>
-            <button class="nav-btn" data-view="more">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
-              More
-            </button>
-          </nav>
+          <p>The command center for outreach-driven agency teams — pipeline, WhatsApp, AI Copilot, and business ops in one place.</p>
+        </div>
+        <div class="lp-footer-col">
+          <h5>Product</h5>
+          <a href="app.html">Sign in</a>
+          <a href="app.html">Get started free</a>
+          <a href="#see-it">See it in action</a>
+        </div>
+        <div class="lp-footer-col">
+          <h5>Showcase</h5>
+          <a href="portfolio.html">Portfolio</a>
         </div>
       </div>
-    </div>
-
-    <div class="center-loading" id="boot-loading">
-      <div class="spinner"></div>
-    </div>
+      <div class="lp-footer-bottom">© 2026 Studio X Marketing. All rights reserved.</div>
+    </footer>
   </div>
 
-  <!-- generic bottom sheet used by prospect detail, add/edit forms, more-menu, due-today -->
-  <div class="sheet-backdrop" id="sheet-backdrop"></div>
-  <div class="sheet" id="sheet">
-    <div class="sheet-handle"></div>
-    <div class="sheet-header">
-      <div class="sheet-title" id="sheet-title">&nbsp;</div>
-      <button class="sheet-close" id="sheet-close">✕</button>
-    </div>
-    <div class="sheet-body" id="sheet-body"></div>
-  </div>
-
-  <!-- generic small modal used for confirmations -->
-  <div class="modal-backdrop" id="modal-backdrop">
-    <div class="modal-box" id="modal-box"></div>
-  </div>
-
-  <!-- hidden letterhead document filled in by printDoc.js right before
-       window.print() is called; @media print in styles.css hides everything
-       else on the page so only this prints (or gets "saved as PDF"). -->
-  <div id="print-area"></div>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script type="module" src="js/main.js"></script>
+  <script>
+    // Pure presentational tab switcher for the hero device mockup — no
+    // dependency on the app's real JS modules, since this page must load
+    // and work standalone for a visitor who has never signed in.
+    document.querySelectorAll(".lp-tab").forEach((tab) => {
+      tab.addEventListener("click", () => {
+        const key = tab.dataset.pane;
+        document.querySelectorAll(".lp-tab").forEach((t) => t.classList.toggle("active", t === tab));
+        document.querySelectorAll(".lp-pane").forEach((p) => p.classList.toggle("active", p.dataset.pane === key));
+      });
+    });
+  </script>
 </body>
 </html>

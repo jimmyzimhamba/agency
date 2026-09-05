@@ -3,7 +3,7 @@
 // table (no reason for a teammate's screen brightness preference to sync
 // to everyone else's phone, and no migration/RLS needed for it either).
 //
-// index.html has a tiny inline script (before the stylesheet loads) that
+// app.html has a tiny inline script (before the stylesheet loads) that
 // reads the same localStorage key and sets data-theme on <html> before
 // first paint, so the app never flashes dark-then-light on load. Everything
 // here just needs to stay in sync with that same key/values.
@@ -32,7 +32,7 @@ export function setTheme(mode) {
 
   // Keeps the browser/OS chrome (status bar, task switcher card) matching
   // the app's own background instead of staying stuck on the dark value
-  // baked into index.html's <meta name="theme-color">.
+  // baked into app.html's <meta name="theme-color">.
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta) meta.setAttribute("content", THEME_COLOR[theme]);
 }

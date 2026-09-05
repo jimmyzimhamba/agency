@@ -2025,17 +2025,27 @@ If you'd rather skip this feature entirely, that's fine — everything else in t
 
 ---
 
-## Step 147 — Public landing page (`landing.html`)
+## Step 147 — Public landing page, now made the homepage at your root domain
 
-Requested after you shared screenshots of Biiblo's marketing site as inspiration for "a landing page and the other UI like a similar system." This adds a standalone, public marketing page for Agency Command — a place to send someone who's never seen the app before, instead of dropping them straight onto the sign-in screen.
+Requested after you shared screenshots of Biiblo's marketing site as inspiration for "a landing page and the other UI like a similar system," then a follow-up request to make that landing page the actual homepage at your root domain, instead of a second, separate page.
 
-**What it is:** a new file, `app/landing.html`, built in the same dark/violet/gold visual language as the app itself (same fonts, buttons, cards, icon badges) — a hero section with a headline and a "see it in action" tabbed mockup (Pipeline / WhatsApp / Contracts & Invoices), feature cards for the real features (prospecting, WhatsApp, Copilot, contracts/invoices, projects, Portfolio Studio, team targets), a "built for how agencies actually work" section (installable, works offline, real-time, free), a comparison table, an FAQ, and a final "Get started free" call to action. Every "Sign in" / "Get started free" button links to `index.html` — the real app — since this page is pure marketing, not a separate login system.
+**What changed:** the app used to have one front door — `app/index.html` — which was both "the marketing pitch" and "the sign-in screen" at once (there wasn't really a pitch at all; visiting the site just dropped you straight onto sign-in). Now there are two files doing two separate jobs:
 
-**What it isn't:** it doesn't replace `index.html` as the app's front door. Everyone who already has the app installed (home screen icon, bookmark) keeps opening straight into `index.html` exactly as before — nothing about that changed. `landing.html` is a second, separate page you can link to from ads, social media, or a WhatsApp bio link, e.g. `https://your-site.netlify.app/landing.html`. If you'd rather have this page be the very first thing anyone sees at your root domain instead, that's a bigger, deliberate change (it affects the installed-app shortcut behavior) — just ask and it can be done as its own step.
+- **`app/index.html`** — the new homepage. This is what loads at your bare root domain now (`your-site.netlify.app/`). It's the marketing page built in Step 147's original work: hero section, "see it in action" tabbed mockup (Pipeline / WhatsApp / Contracts & Invoices), feature cards, a comparison table, an FAQ, and "Sign in" / "Get started free" buttons.
+- **`app/app.html`** — the real app. This is the old `index.html`, renamed — the actual sign-in screen and, once logged in, the entire installable app itself. Every "Sign in" / "Get started free" button on the new homepage links here.
 
-Like `review.html` and `portfolio.html`, this page deliberately isn't cached for offline use — it's meant for first-time visitors with a live connection, not returning team members.
+**Why this is safe for everyone who already has the app installed:** an installed home-screen icon or bookmark remembers the exact URL that was on screen the moment it was created — usually your bare root domain. Without any safety net, that would now open the marketing page instead of dropping people straight into their sign-in screen or dashboard. To prevent that, `app/index.html` has a tiny script at the very top of the page, before anything else loads, that checks "am I being opened as an installed app right now?" — if yes, it silently and instantly sends you to `app.html` instead, so nobody who already has the app installed sees the marketing page or has to do anything differently. Only people opening the bare link in a normal browser tab (i.e. someone who doesn't have it installed yet) actually sees the new homepage. This means **no one needs to reinstall or re-add the icon to their home screen** — it fixes itself the next time they open it.
 
-No new tables, no new secrets, no JS logic changes — pure new HTML/CSS page.
+Everything else that used to point at "the app at the root of the site" was updated to point at `app.html` instead, so links keep working exactly as before:
+- The installable-app config (`manifest.json`) now launches straight into `app.html` when someone taps an installed icon.
+- Push notifications (new prospect assigned, WhatsApp reply, overdue invoice, etc.) now open `app.html` when tapped, not the homepage.
+- The "Open Studio X Command" button in every notification email now links to `app.html` too.
+- Offline support (the service worker) now knows about both pages — if you're offline and open the homepage or the app, each shows its own last-saved version correctly, instead of one overwriting the other.
 
-1. Redeploy the `app/` folder via Netlify Drop.
-2. Visit `your-site.netlify.app/landing.html` and confirm the page loads, the tabs under "See it in action" switch between Pipeline/WhatsApp/Contracts, the FAQ items expand, and both "Sign in" and "Get started free" buttons take you to the real app.
+No new tables, no new secrets — just the rename, the safety-net redirect script, and updating every internal link that assumed "the root of the site" meant "the app."
+
+1. Redeploy the `app/` folder via Netlify Drop, exactly as usual.
+2. **Redeploy 4 edge functions** via the Supabase Dashboard, since their source changed to link to `app.html` instead of the root: `send-push`, `send-email`, `check-overdue-invoices`, `whatsapp-webhook`. For each one: open it in the Supabase Dashboard's Edge Functions editor, paste in the updated code from this project, and deploy — same copy-paste process as every other edge function update in this guide.
+3. Visit your bare root domain (`your-site.netlify.app/`) in a normal browser tab (not from an installed icon) and confirm you see the new marketing homepage, the tabs under "See it in action" switch between Pipeline/WhatsApp/Contracts, the FAQ items expand, and both "Sign in" and "Get started free" buttons take you to the real app.
+4. Visit `your-site.netlify.app/app.html` directly and confirm it's the familiar sign-in screen.
+5. If you already have the app installed on your phone (home screen icon), open it once after redeploying — confirm it still drops you straight into sign-in/dashboard as always, not the new marketing page. You don't need to reinstall anything; this should just work.
