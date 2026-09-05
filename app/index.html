@@ -61,8 +61,17 @@
 
   /* "See it in action" tabbed device mockup ------------------------------- */
   .lp-tabs { display: flex; gap: 6px; background: var(--black-card); border: 1px solid var(--line); border-radius: 999px; padding: 4px; margin: 0 auto 22px; width: fit-content; }
-  .lp-tab { padding: 9px 18px; border-radius: 999px; font-size: 13px; font-weight: 700; color: var(--text-faint); cursor: pointer; user-select: none; border: none; background: none; font-family: var(--font); }
+  .lp-tab { position: relative; overflow: hidden; padding: 9px 18px; border-radius: 999px; font-size: 13px; font-weight: 700; color: var(--text-faint); cursor: pointer; user-select: none; border: none; background: none; font-family: var(--font); transition: color 0.2s ease; }
   .lp-tab.active { background: linear-gradient(135deg, var(--purple), #5c1fd1); color: #fff; }
+  /* Thin fill line under the active tab while it's auto-advancing — gives a
+     visual countdown to when the mockup will switch panes on its own, and
+     disappears the moment someone takes over by clicking a tab themselves. */
+  .lp-tab.active::after {
+    content: ""; position: absolute; left: 7px; right: 7px; bottom: 4px; height: 2px;
+    border-radius: 999px; background: rgba(255,255,255,0.55); transform: scaleX(0); transform-origin: left;
+  }
+  .lp-tab.active.lp-autoplay::after { animation: lp-tabfill 6s linear forwards; }
+  @keyframes lp-tabfill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
   .lp-device {
     max-width: 760px; margin: 0 auto; border-radius: var(--radius-lg);
     background: linear-gradient(180deg, var(--black-card), var(--black-card-2));
@@ -74,7 +83,8 @@
   .lp-device-bar .url { margin-left: 10px; font-size: 11.5px; color: var(--text-faint); }
   .lp-device-body { padding: 18px; min-height: 260px; }
   .lp-pane { display: none; }
-  .lp-pane.active { display: block; animation: fadein 0.2s ease; }
+  .lp-pane.active { display: block; }
+  .lp-pane.lp-pane-out { display: none; }
 
   .lp-kanban { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
   .lp-kcol { background: var(--black-raised); border: 1px solid var(--line); border-radius: var(--radius-md); padding: 10px; }
@@ -88,12 +98,58 @@
   .lp-chatline.out { justify-content: flex-end; }
   .lp-chatline.out .lp-bubble { background: linear-gradient(135deg, var(--purple), #5c1fd1); color: #fff; }
 
+  /* Brief "typing…" bubble that stands in for the outgoing reply for a
+     moment before the real message fades in — see the choreography in the
+     motion media query below for timing. */
+  .lp-typing-bubble { display: flex; align-items: center; gap: 4px; padding: 12px 14px; }
+  .lp-typing-bubble span { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.85); }
+
   .lp-docrow { display: flex; align-items: center; justify-content: space-between; padding: 11px 4px; border-bottom: 1px solid var(--line); font-size: 13px; }
   .lp-docrow:last-child { border-bottom: none; }
   .lp-docrow .status { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 999px; }
   .lp-docrow .status.sent { color: var(--info); background: var(--info-dim); }
   .lp-docrow .status.paid { color: var(--success); background: var(--success-dim); }
   .lp-docrow .status.overdue { color: var(--danger); background: var(--danger-dim); }
+
+  /* All of the "see it in action" motion lives behind this query — anyone
+     with reduced-motion turned on just sees each pane's content appear
+     instantly and complete, with no auto-advance, no stagger, no typing
+     bubbles. Everything above this point (colors, layout, spacing) applies
+     either way; only the choreography is conditional. */
+  @media (prefers-reduced-motion: no-preference) {
+    .lp-pane.active { animation: fadein 0.4s ease both; }
+    .lp-pane.lp-pane-out { display: block; animation: fadeout 0.18s ease both; }
+    @keyframes fadeout { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-4px); } }
+
+    .lp-pane.active .lp-kcol { animation: fadein 0.4s ease both; }
+    .lp-pane.active .lp-kcol:nth-child(1) { animation-delay: 0.05s; }
+    .lp-pane.active .lp-kcol:nth-child(2) { animation-delay: 0.16s; }
+    .lp-pane.active .lp-kcol:nth-child(3) { animation-delay: 0.27s; }
+
+    .lp-pane.active .lp-docrow { animation: fadein 0.35s ease both; }
+    .lp-pane.active .lp-docrow:nth-child(1) { animation-delay: 0.05s; }
+    .lp-pane.active .lp-docrow:nth-child(2) { animation-delay: 0.15s; }
+    .lp-pane.active .lp-docrow:nth-child(3) { animation-delay: 0.25s; }
+    .lp-pane.active .lp-docrow:nth-child(4) { animation-delay: 0.35s; }
+
+    /* WhatsApp pane: each line fades/slides in in turn, and the two replies
+       are preceded by a brief bouncing-dots "typing…" bubble instead of
+       just popping in, so it reads like a real conversation happening
+       rather than a static screenshot. */
+    .lp-pane.active .lp-chatline { animation: fadein 0.4s ease both; }
+    .lp-pane.active .lp-chatline:nth-child(1) { animation-delay: 0.1s; }
+    .lp-pane.active .lp-chatline:nth-child(2) { animation: lp-typingflash 1.3s ease both; animation-delay: 0.9s; }
+    .lp-pane.active .lp-chatline:nth-child(3) { animation-delay: 2.05s; }
+    .lp-pane.active .lp-chatline:nth-child(4) { animation-delay: 2.55s; }
+    .lp-pane.active .lp-chatline:nth-child(5) { animation: lp-typingflash 1.3s ease both; animation-delay: 3.35s; }
+    .lp-pane.active .lp-chatline:nth-child(6) { animation-delay: 4.5s; }
+    @keyframes lp-typingflash { 0% { opacity: 0; } 14% { opacity: 1; } 60% { opacity: 1; } 82% { opacity: 0; } 100% { opacity: 0; } }
+
+    .lp-typing-bubble span { animation: lp-typingdot 1s infinite ease-in-out; }
+    .lp-typing-bubble span:nth-child(2) { animation-delay: 0.15s; }
+    .lp-typing-bubble span:nth-child(3) { animation-delay: 0.3s; }
+    @keyframes lp-typingdot { 0%, 60%, 100% { transform: translateY(0); opacity: 0.4; } 30% { transform: translateY(-3px); opacity: 1; } }
+  }
 
   /* feature grids ----------------------------------------------------------*/
   .lp-section { padding: 54px 0; }
@@ -213,8 +269,10 @@
             </div>
             <div class="lp-pane" data-pane="whatsapp">
               <div class="lp-chatline in"><div class="lp-bubble">Hi, saw your message — what packages do you offer?</div></div>
+              <div class="lp-chatline out" aria-hidden="true"><div class="lp-bubble lp-typing-bubble"><span></span><span></span><span></span></div></div>
               <div class="lp-chatline out"><div class="lp-bubble">We do a starter site + social package from $250, happy to send details 🙂</div></div>
               <div class="lp-chatline in"><div class="lp-bubble">Sounds great, send it over</div></div>
+              <div class="lp-chatline out" aria-hidden="true"><div class="lp-bubble lp-typing-bubble"><span></span><span></span><span></span></div></div>
               <div class="lp-chatline out"><div class="lp-bubble">Sending the proposal now — check your inbox in a sec.</div></div>
             </div>
             <div class="lp-pane" data-pane="business">
@@ -384,16 +442,83 @@
   </div>
 
   <script>
-    // Pure presentational tab switcher for the hero device mockup — no
-    // dependency on the app's real JS modules, since this page must load
-    // and work standalone for a visitor who has never signed in.
-    document.querySelectorAll(".lp-tab").forEach((tab) => {
-      tab.addEventListener("click", () => {
-        const key = tab.dataset.pane;
-        document.querySelectorAll(".lp-tab").forEach((t) => t.classList.toggle("active", t === tab));
-        document.querySelectorAll(".lp-pane").forEach((p) => p.classList.toggle("active", p.dataset.pane === key));
+    // Pure presentational tab switcher + auto-play for the hero device
+    // mockup — no dependency on the app's real JS modules, since this page
+    // must load and work standalone for a visitor who has never signed in.
+    //
+    // Behavior: cycles through Pipeline → WhatsApp → Contracts & Invoices
+    // on its own (with a fill line under the active tab counting down to
+    // the next switch), so a visitor who never touches anything still sees
+    // the whole "see it in action" story. The moment someone clicks a tab
+    // themselves, auto-play stops for good — they're driving now, and
+    // yanking the mockup out from under them would just be annoying.
+    (function () {
+      const ROTATE_MS = 6000;
+      const tabs = Array.from(document.querySelectorAll(".lp-tab"));
+      const panes = Array.from(document.querySelectorAll(".lp-pane"));
+      if (!tabs.length || !panes.length) return;
+
+      const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      let auto = !reduceMotion;
+      let timer = null;
+
+      function activate(key) {
+        const current = panes.find((p) => p.classList.contains("active"));
+        const next = panes.find((p) => p.dataset.pane === key);
+        if (!next || next === current) return;
+        tabs.forEach((t) => t.classList.toggle("active", t.dataset.pane === key));
+        if (current) {
+          current.classList.remove("active");
+          current.classList.add("lp-pane-out");
+          setTimeout(() => current.classList.remove("lp-pane-out"), 200);
+        }
+        next.classList.add("active");
+      }
+
+      function restartProgress() {
+        tabs.forEach((t) => t.classList.remove("lp-autoplay"));
+        if (!auto) return;
+        const activeTab = tabs.find((t) => t.classList.contains("active"));
+        if (!activeTab) return;
+        // Force a reflow so re-adding the class restarts the fill animation
+        // instead of the browser assuming nothing changed.
+        void activeTab.offsetWidth;
+        activeTab.classList.add("lp-autoplay");
+      }
+
+      function advance() {
+        const activeIndex = tabs.findIndex((t) => t.classList.contains("active"));
+        const nextTab = tabs[(activeIndex + 1) % tabs.length];
+        activate(nextTab.dataset.pane);
+        restartProgress();
+      }
+
+      function startTimer() {
+        clearInterval(timer);
+        if (!auto) return;
+        timer = setInterval(advance, ROTATE_MS);
+        restartProgress();
+      }
+
+      tabs.forEach((tab) => {
+        tab.addEventListener("click", () => {
+          auto = false;
+          clearInterval(timer);
+          tabs.forEach((t) => t.classList.remove("lp-autoplay"));
+          activate(tab.dataset.pane);
+        });
       });
-    });
+
+      // Pause the countdown while someone's actually reading the mockup;
+      // resume it once they move on, as long as they haven't clicked a tab.
+      const device = document.querySelector(".lp-device");
+      if (device) {
+        device.addEventListener("mouseenter", () => clearInterval(timer));
+        device.addEventListener("mouseleave", () => { if (auto) startTimer(); });
+      }
+
+      startTimer();
+    })();
   </script>
 </body>
 </html>
