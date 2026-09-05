@@ -713,6 +713,24 @@ main {
 .toast.error { border-color: rgba(255,92,108,0.4); color: var(--danger); }
 @keyframes toastin { from { opacity:0; transform: translateY(-8px);} to {opacity:1; transform: translateY(0);} }
 
+/* Celebratory toast (badge unlocked / a big chunk of points earned) — a
+   card-shaped cousin of the plain pill toast above, with an icon-badge and
+   two lines of text, plus a brief gold glow so it actually reads as a
+   "moment" instead of just another status message. */
+.toast.celebrate {
+  display: flex; align-items: center; gap: 10px; text-align: left;
+  border-radius: 16px; padding: 8px 18px 8px 8px; pointer-events: none;
+  border-color: rgba(212,175,55,0.5);
+  animation: toastin 0.25s ease, celebrate-glow 1.6s ease-out 1;
+}
+.toast.celebrate .tc-title { font-weight: 800; font-size: 13.5px; }
+.toast.celebrate .tc-sub { font-size: 11px; font-weight: 500; color: var(--text-dim); margin-top: 1px; }
+@keyframes celebrate-glow {
+  0% { box-shadow: 0 10px 30px -10px rgba(0,0,0,0.6), 0 0 0 0 rgba(212,175,55,0.5); }
+  40% { box-shadow: 0 10px 30px -10px rgba(0,0,0,0.6), 0 0 22px 2px rgba(212,175,55,0.35); }
+  100% { box-shadow: 0 10px 30px -10px rgba(0,0,0,0.6), 0 0 0 0 rgba(212,175,55,0); }
+}
+
 /* ---- auth screen --------------------------------------------------------------*/
 .auth-wrap { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 24px; position: relative; z-index: 1; }
 .auth-logo { text-align: center; margin-bottom: 28px; }

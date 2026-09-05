@@ -1,4 +1,11 @@
 import { sb } from "./supabaseClient.js";
+import { celebrateToast } from "./utils.js";
+import { badgeByKey } from "./badges.js";
+
+// Generic "you just earned points" star, for the celebratory toast below —
+// same star path as the Prospector/Legend badge icons in badges.js, kept
+// as its own constant here since this one isn't tied to any specific badge.
+const POINTS_STAR_ICON = '<path d="M12 2l2.4 7.2H22l-6 4.6 2.3 7.2-6.3-4.5-6.3 4.5 2.3-7.2-6-4.6h7.6z"/>';
 
 // A tiny shared store. Views subscribe to the keys they care about and
 // re-render whenever that data changes (from our own actions or a
@@ -335,6 +342,20 @@ export function startRealtime() {
       }
       emit("pointsLog");
       emit("pointsTotals");
+      // Celebrate it in the moment — but only OUR OWN decent-sized wins
+      // (meeting booked, a deal/contract signed, an invoice paid, a project
+      // finished — 10+ points), not every little +2/+3 for a note or a
+      // daily task, or this would fire constantly and stop feeling special.
+      // Teammates' points don't toast for us; they see their own copy of
+      // this same event on their own device.
+      if (payload.new.profile_id === store.profile?.id && payload.new.points >= 10) {
+        celebrateToast({
+          icon: POINTS_STAR_ICON,
+          title: `+${payload.new.points} points`,
+          subtitle: payload.new.reason,
+          tier: "gold",
+        });
+      }
     })
     // badges_earned rows are also append-only (a badge, once unlocked, is
     // never revoked or edited) — INSERT only, same as points_log above.
@@ -342,6 +363,20 @@ export function startRealtime() {
       if (!store.badgesEarned.some((b) => b.id === payload.new.id)) {
         store.badgesEarned = [...store.badgesEarned, payload.new];
         emit("badgesEarned");
+        // Every badge unlock is inherently a big moment (there are only 14,
+        // ever) — so unlike points above, this always celebrates, no
+        // threshold needed. Only for the person who actually earned it.
+        if (payload.new.profile_id === store.profile?.id) {
+          const badge = badgeByKey(payload.new.badge_key);
+          if (badge) {
+            celebrateToast({
+              icon: badge.icon,
+              title: `🎖️ Badge Unlocked: ${badge.label}`,
+              subtitle: badge.desc,
+              tier: badge.tier,
+            });
+          }
+        }
       }
     })
     .on("postgres_changes", { event: "*", schema: "public", table: "community_reactions" }, (payload) => {

@@ -2133,3 +2133,21 @@ Same as points, this is entirely automatic and server-side — the moment someon
 5. Tap a locked badge — confirm a pop-up explains what it is and what you need to do to earn it.
 6. Add a prospect (or do anything else that earns points) and check back — the matching badge (e.g. "First Prospect") should light up in color, and a note should appear in the Activity Feed announcing it.
 7. Tap a teammate's name on the Points Leaderboard — confirm their badge wall shows there too, alongside their points breakdown.
+
+## Step 152 — Celebratory pop-ups for big wins and badges
+
+A small follow-up to points + badges above (no SQL to run this time — pure front-end, since it just reacts to things the last two steps already track). Two new pop-ups, bigger and longer-lasting than the app's normal little status toasts:
+
+- **Any badge you unlock** — always pops up, right when it happens, wherever you are in the app (not just if you happen to be on the Team page). Shows the badge's icon, name, and what it means.
+- **A decent chunk of points** — pops up for the bigger wins only (booking a meeting, signing a deal, a contract getting signed, an invoice getting paid, finishing a project — 10 points or more). Small everyday stuff (a note, a daily task, adding a prospect) stays quiet so this doesn't get annoying.
+
+These only pop up for YOUR OWN wins, on your own device — you won't see a pop-up every time a teammate does something, only when it's actually you.
+
+**Setup:** just redeploy the `app/` folder via Netlify Drop — nothing to run in Supabase.
+
+**Now test it:**
+
+1. Reload the app on your phone/browser (hard refresh if it still looks old).
+2. Do something worth 10+ points (e.g. mark a prospect as a signed client, or a contract as signed) and confirm a gold pop-up with a star appears near the top of the screen for a few seconds.
+3. If it also happens to unlock a badge you didn't have yet, confirm a second pop-up appears for that too.
+4. Do something small (like adding a note) and confirm nothing pops up — only the bigger wins do.

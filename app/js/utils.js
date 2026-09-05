@@ -198,6 +198,36 @@ export function toast(msg, type = "") {
   setTimeout(() => node.remove(), 2600);
 }
 
+// A bigger, richer cousin of toast() for genuinely celebratory moments (a
+// badge unlocked, a big chunk of points earned) — an icon-badge next to a
+// bold title and a faint subtitle, instead of a single line of plain text.
+// Stays up a little longer than a regular toast since there's more to read.
+// `icon` is raw SVG path markup (from our own badges.js catalog — never
+// user-supplied), so it's inserted as-is rather than escaped; title/subtitle
+// go through esc() same as every other toast.
+export function celebrateToast({ icon, title, subtitle, tier = "purple" } = {}) {
+  if (!toastWrap) {
+    toastWrap = document.querySelector(".toast-wrap");
+    if (!toastWrap) {
+      toastWrap = el('<div class="toast-wrap"></div>');
+      document.body.appendChild(toastWrap);
+    }
+  }
+  const node = el(`
+    <div class="toast celebrate">
+      <div class="icon-badge sm${tier === "gold" ? " gold" : ""}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${icon || ""}</svg>
+      </div>
+      <div class="tc-text">
+        <div class="tc-title">${esc(title || "")}</div>
+        ${subtitle ? `<div class="tc-sub">${esc(subtitle)}</div>` : ""}
+      </div>
+    </div>
+  `);
+  toastWrap.appendChild(node);
+  setTimeout(() => node.remove(), 4200);
+}
+
 // Turns [{col: val, ...}, ...] into an RFC-4180-ish CSV string. Any value
 // containing a comma, quote, or newline gets wrapped in quotes with inner
 // quotes doubled — the one escaping rule spreadsheets actually agree on.
