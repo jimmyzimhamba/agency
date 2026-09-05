@@ -2193,3 +2193,24 @@ More polish for the public marketing page (`index.html`) and the sign-up screen,
 4. Scroll to the new "What running your agency this way looks like" section and confirm it's clearly labeled "Illustrative examples" and reads as example scenarios, not real reviews.
 5. Go to sign-up (not sign-in) — confirm the three-item checklist appears above the form fields, and the responsible-use line appears under "Create Account". Switch back to sign-in — confirm both disappear.
 6. If your phone/computer has "reduce motion" turned on in its accessibility settings, confirm the landing page still looks and works fine, just without the fade/slide/drift effects.
+
+## Step 155 — A "Getting Started" checklist on the Dashboard
+
+Inspired by the same "another app's design" folder as Step 153/154 — this one had a gamified onboarding checklist on its dashboard. Built a version that fits how this app actually works. No SQL to run — pure front-end, just redeploy.
+
+**What it is:** a new "Getting Started" card at the very top of the Dashboard (above "Pipeline Overview") for any team that hasn't finished basic setup yet. It lists a handful of first actions — add a profile photo, add a prospect, reach out to a lead, create a contract, create an invoice, and (owners only) set a monthly revenue goal and invite a teammate — each with a checkbox that fills in automatically once you've actually done that thing elsewhere in the app. A progress bar at the top shows "X of Y done." Tapping any unfinished item jumps you straight to the right screen to go do it (or opens the "set a goal" pop-up for that one).
+
+Nothing new to track in the database for this — every checkbox is just reading data that's already there (do you have any prospects, any contracts, etc.), so there's nothing that can get out of sync.
+
+**"Hide"** in the top-right of the card dismisses it — useful for an established team that doesn't need the nudges. That choice is remembered on that phone/browser for that person, and the card disappears on its own anyway once every item on it is checked off, even without tapping Hide.
+
+**Setup:** just redeploy the `app/` folder via Netlify Drop.
+
+**Now test it:**
+
+1. Reload the app (hard refresh if it still looks old — the service worker's cache version was bumped).
+2. On the Dashboard, confirm the "Getting Started" card appears above "Pipeline Overview" if your team hasn't finished all the items yet.
+3. Confirm the items that are already true for your team (e.g. you already have prospects) show as checked off with a strikethrough, and the progress bar/count reflects that.
+4. Tap an unfinished item (e.g. "Create your first invoice") — confirm it takes you straight to that screen. Tap "Set your monthly revenue goal" (owners only) — confirm it opens the goal pop-up instead of navigating away.
+5. Tap "Hide" — confirm the card disappears, and reload the page to confirm it stays hidden.
+6. If you're testing as a non-owner team member, confirm you only see 5 items (no "set revenue goal" or "invite a teammate" — those stay owner-only, same as elsewhere in the app).

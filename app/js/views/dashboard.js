@@ -256,6 +256,41 @@ function buildRecapText(s) {
   return lines.join("\n");
 }
 
+// "Getting Started" checklist — nudges a brand-new team toward the handful
+// of actions that make every other Dashboard card meaningful (an empty
+// pipeline can't show stale leads, an org with no contracts can't show
+// Revenue at Risk, etc.). Every item is derived from data that already
+// exists in the store — nothing new to track in the database — and the
+// card disappears on its own once every relevant item is done, or
+// immediately if someone hides it. Two items (setting a revenue goal,
+// inviting a teammate) are owner-only actions elsewhere in the app, so
+// they're excluded entirely for a non-owner rather than shown as
+// permanently un-actionable.
+function getChecklistItems(isOwner) {
+  const items = [
+    { id: "profile", label: "Add a profile photo or avatar", done: !!store.profile?.avatar_url, view: "team" },
+    { id: "prospect", label: "Add your first prospect", done: store.prospects.length > 0, view: "pipeline" },
+    { id: "outreach", label: "Reach out to a lead", done: store.prospects.some((p) => p.status !== "not_contacted"), view: "pipeline" },
+    { id: "contract", label: "Create your first contract", done: store.contracts.length > 0, view: "contracts" },
+    { id: "invoice", label: "Create your first invoice", done: store.invoices.length > 0, view: "invoices" },
+  ];
+  if (isOwner) {
+    items.push(
+      { id: "goal", label: "Set your monthly revenue goal", done: !!store.monthlyGoal?.target_mrr, action: "goal" },
+      { id: "invite", label: "Invite a teammate", done: store.profiles.length > 1, view: "team" }
+    );
+  }
+  return items;
+}
+
+// Dismissal is a personal, cosmetic UI preference ("stop nudging me about
+// this"), not team data — so it's kept in localStorage rather than a new
+// database column. Keyed by org+user so switching accounts or organizations
+// doesn't inherit someone else's dismissal.
+function checklistDismissKey() {
+  return `sxc_checklist_dismissed_${store.organization?.id || "x"}_${store.profile?.id || "x"}`;
+}
+
 export function renderDashboard() {
   const root = document.getElementById("view-dashboard");
   root.innerHTML = "";
@@ -294,6 +329,12 @@ export function renderDashboard() {
   const anniversaries = hasBizData ? clientAnniversaries() : [];
   const gridAttention = store.gridPlans.length ? gridPlansNeedingChanges() : [];
 
+  const checklistItems = getChecklistItems(isOwner);
+  const checklistDone = checklistItems.filter((i) => i.done).length;
+  const checklistDismissed = localStorage.getItem(checklistDismissKey()) === "1";
+  const showChecklist = !checklistDismissed && checklistDone < checklistItems.length;
+  const checklistPct = Math.round((checklistDone / checklistItems.length) * 100);
+
   const wrap = el(`
     <div>
       <div class="flex-between">
@@ -302,7 +343,21 @@ export function renderDashboard() {
       </div>
       <div class="text-faint" style="font-size:13px;margin:-8px 2px 18px;">${firstName ? `Welcome back, ${esc(firstName)} — ` : ""}here's how the pipeline is doing.</div>
 
-      <div class="section-title mt-0">Pipeline Overview</div>
+      ${showChecklist ? `
+      <div id="db-checklist-wrap">
+        <div class="section-title mt-0">Getting Started</div>
+        <div class="card glow-card" id="db-checklist-card" style="margin-bottom:18px;">
+          <div class="flex-between" style="margin-bottom:10px;">
+            <div style="font-weight:800;font-size:14px;">${checklistDone} of ${checklistItems.length} done</div>
+            <span class="small-link" id="db-checklist-dismiss">Hide</span>
+          </div>
+          <div class="progress-track" style="margin-bottom:10px;"><div class="progress-fill" style="width:${checklistPct}%"></div></div>
+          <div id="db-checklist-items"></div>
+        </div>
+      </div>
+      ` : ""}
+
+      <div class="section-title ${showChecklist ? "" : "mt-0"}">Pipeline Overview</div>
       <div class="stat-grid cols-3" id="db-status-grid"></div>
 
       <div class="section-title">Monthly Revenue Goal</div>
@@ -526,6 +581,30 @@ export function renderDashboard() {
     </div>
   `);
   root.appendChild(wrap);
+
+  if (showChecklist) {
+    const checklistEl = wrap.querySelector("#db-checklist-items");
+    checklistItems.forEach((item) => {
+      const row = el(`
+        <div class="task-row ${item.done ? "done" : ""}" style="cursor:pointer;">
+          <div class="task-check ${item.done ? "done" : ""}">${item.done ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="m5 13 4 4L19 7"/></svg>' : ""}</div>
+          <div class="task-label">${esc(item.label)}</div>
+          ${!item.done ? '<span class="text-faint" style="font-size:13px;">→</span>' : ""}
+        </div>
+      `);
+      row.addEventListener("click", async () => {
+        if (item.action === "goal") { openGoalModal(goalTarget); return; }
+        const { switchView } = await import("../main.js");
+        switchView(item.view);
+      });
+      checklistEl.appendChild(row);
+    });
+    wrap.querySelector("#db-checklist-dismiss").addEventListener("click", (e) => {
+      e.stopPropagation();
+      localStorage.setItem(checklistDismissKey(), "1");
+      wrap.querySelector("#db-checklist-wrap")?.remove();
+    });
+  }
 
   wrap.querySelector("#db-share-recap").addEventListener("click", () => {
     const text = buildRecapText(weeklyRecapStats());
