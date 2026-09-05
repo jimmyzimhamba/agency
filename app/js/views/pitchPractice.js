@@ -47,36 +47,188 @@ const WEEKLY_AIM = 5;
 // the tidied-up way a training manual would. Every one can be edited or
 // deleted like any other card.
 //
-// The niche field here is only ever a label printed on the card, so it's safe
-// for it to say "Salons" even if this particular agency never set up a niche
-// by that name. Most cards leave it blank on purpose: a general objection
-// tagged to one niche reads as if it only applies there.
-const STARTER_CARDS = [
-  // Objections you'll hear from almost any small business.
-  { text: "We already have someone doing our social media." },
-  { text: "Send me an email with your prices and I'll get back to you." },
-  { text: "How much? Ah no, that's way too expensive for us." },
-  { text: "Business is slow right now. Maybe come back next year." },
-  { text: "I need to discuss it with my partner first." },
-  { text: "We tried a marketing company before and nothing came of it." },
-  { text: "Can you guarantee me how many customers I'll get?" },
-  { text: "My nephew does it for me for free." },
-  { text: "All our business comes from word of mouth. We don't need this." },
-  { text: "Just do one post first and let me see, then we can talk." },
-  { text: "Are you charging in USD? Most of our sales are in local currency." },
-  { text: "I'm busy right now, call me next week." },
+// The niche field is only ever a label printed on the card, so it's safe for
+// it to say "Salons" even if this agency never set up a niche by that name.
 
-  // Salon-specific. Salons object differently from most small businesses:
-  // they already post constantly themselves, they're chair-bound all day, and
-  // their competition is the shop twenty metres down the road. An answer that
-  // works on a hardware store falls flat here.
-  { text: "My clients just walk in from the road. I don't need Instagram.", niche: "Salons" },
-  { text: "I already post my own pictures. My phone takes good photos.", niche: "Salons" },
-  { text: "The salon next door is cheaper. My clients will just go there.", niche: "Salons" },
-  { text: "I don't have time to be taking pictures while I'm doing someone's hair.", niche: "Salons" },
-  { text: "My WhatsApp status already gets plenty of views.", niche: "Salons" },
-  { text: "Weekends are already full. Can you actually bring me people on a Tuesday?", niche: "Salons" },
+// Objections you'll hear from almost any small business. These are always
+// included, and stay untagged on purpose: a general objection tagged to one
+// niche reads as if it only applies there.
+const STARTER_GENERAL = [
+  "We already have someone doing our social media.",
+  "Send me an email with your prices and I'll get back to you.",
+  "How much? Ah no, that's way too expensive for us.",
+  "Business is slow right now. Maybe come back next year.",
+  "I need to discuss it with my partner first.",
+  "We tried a marketing company before and nothing came of it.",
+  "Can you guarantee me how many customers I'll get?",
+  "My nephew does it for me for free.",
+  "All our business comes from word of mouth. We don't need this.",
+  "Just do one post first and let me see, then we can talk.",
+  "Are you charging in USD? Most of our sales are in local currency.",
+  "I'm busy right now, call me next week.",
 ];
+
+// Niche-specific decks. Each niche pushes back in its own way, and the answer
+// that lands on a hardware store falls flat in a salon, so these are kept
+// apart rather than lumped into the general pile.
+//
+// `match` is a list of keywords checked against the niches this agency has
+// actually set up (Niches tab). Only matching decks get loaded, so a team that
+// never sells to hotels doesn't practise hotel objections. When a deck does
+// match, the card is tagged with the agency's OWN wording for that niche
+// ("Fitness & Gyms" rather than "Fitness") so the label matches the rest of
+// the app. `label` is only the fallback for an agency with no niches set up.
+const STARTER_BY_NICHE = [
+  {
+    label: "Salons",
+    match: ["salon", "hair", "beauty", "barber", "spa", "nail"],
+    cards: [
+      "My clients just walk in from the road. I don't need Instagram.",
+      "I already post my own pictures. My phone takes good photos.",
+      "The salon next door is cheaper. My clients will just go there.",
+      "I don't have time to be taking pictures while I'm doing someone's hair.",
+      "My WhatsApp status already gets plenty of views.",
+      "Weekends are already full. Can you actually bring me people on a Tuesday?",
+    ],
+  },
+  {
+    label: "Real Estate",
+    match: ["real estate", "property", "propert"],
+    cards: [
+      "Property sells itself. If the price is right, people will call.",
+      "We already list everything on the property websites.",
+      "Each of my agents posts on their own page already.",
+      "The market is dead right now. Nobody is buying.",
+    ],
+  },
+  {
+    label: "Car Dealerships",
+    match: ["car", "vehicle", "dealership", "motor", "auto"],
+    cards: [
+      "People come to the yard to see the car, not to look at pictures.",
+      "We boost our own posts on Facebook already.",
+      "Everyone selling cars is on Marketplace for free. Why would I pay you?",
+      "Buyers only care about the price and the mileage, nothing else.",
+    ],
+  },
+  {
+    label: "Solar Installers",
+    match: ["solar"],
+    cards: [
+      "Load shedding sells solar for us. We don't need marketing.",
+      "We're already booked solid for the next two months.",
+      "Our work comes from referrals from people we've already installed for.",
+      "Customers just want the cheapest price per kilowatt. Pictures won't change that.",
+    ],
+  },
+  {
+    label: "Restaurants & Cafes",
+    match: ["restaurant", "cafe", "café", "food", "takeaway", "catering"],
+    cards: [
+      "We're already full every weekend.",
+      "People find us on Google Maps. That's enough.",
+      "I take the food pictures myself with my phone.",
+      "Margins on food are too thin to pay someone every month.",
+    ],
+  },
+  {
+    label: "Fitness & Gyms",
+    match: ["gym", "fitness", "sport"],
+    cards: [
+      "January is when people join. There's no point marketing now.",
+      "My members bring their friends. That's how we grow.",
+      "The trainers already post the workout videos.",
+      "Everyone in this area knows where the gym is.",
+    ],
+  },
+  {
+    label: "Hotels & Lodges",
+    match: ["hotel", "lodge", "guest", "tourism", "safari"],
+    cards: [
+      "All our bookings come through the booking sites and travel agents.",
+      "It's low season. There's nothing to advertise right now.",
+      "Head office handles marketing. I can't decide that here.",
+      "Our guests are corporate. They don't book a lodge off Instagram.",
+    ],
+  },
+  {
+    label: "Private Healthcare",
+    match: ["health", "clinic", "medical", "dental", "doctor", "pharmac"],
+    cards: [
+      "Patients come by referral from other doctors, not from adverts.",
+      "There are rules about how a practice is allowed to advertise.",
+      "It doesn't look professional for a clinic to be posting on Instagram.",
+      "I'm with patients all day. I can't be dealing with content.",
+    ],
+  },
+  {
+    label: "Professional Services",
+    match: ["professional", "law", "legal", "account", "consult", "financ", "insur"],
+    cards: [
+      "Our clients come through referrals and relationships, not social media.",
+      "We're a serious firm. We don't need to be dancing on TikTok.",
+      "The partners would never approve spending on this.",
+      "What would we even post? Our work is confidential.",
+    ],
+  },
+  {
+    label: "Fashion & Boutiques",
+    match: ["fashion", "boutique", "cloth", "retail"],
+    cards: [
+      "I post every new stock arrival on my WhatsApp status already.",
+      "My customers just come to the shop and see what's new.",
+      "People will screenshot the outfit and go find it cheaper somewhere else.",
+      "My stock changes all the time. What would you even advertise?",
+    ],
+  },
+  {
+    label: "Events & Weddings",
+    match: ["event", "wedding", "decor", "photograph"],
+    cards: [
+      "It's all word of mouth. One wedding brings the next.",
+      "Wedding season is only a few months. The rest of the year is quiet.",
+      "I already have thousands of photos on my page.",
+      "Brides find me through the venues I work with.",
+    ],
+  },
+];
+
+// Builds the starter deck for THIS agency: the general cards, plus the niche
+// decks that match niches they actually work. An agent's practice time is
+// better spent on objections they'll really hear than on a hotel deck at an
+// agency that has never pitched a hotel.
+// Keywords match at the START of a word, never mid-word. A plain "contains"
+// check quietly does the wrong thing here: "car" is inside "healthCARE", and
+// "shop" is inside "barberSHOP", so a clinic would have been handed car-yard
+// objections and a salon would have been handed clothing-boutique ones.
+// Matching from a word boundary still allows deliberate prefixes, so
+// "propert" catches both "Property" and "Properties".
+function nicheMatches(nicheName, keywords) {
+  const n = nicheName.toLowerCase();
+  return keywords.some((k) => new RegExp("\\b" + k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).test(n));
+}
+
+function starterCardsForOrg() {
+  const orgNiches = (store.niches || []).map((n) => n.name).filter(Boolean);
+  const rows = STARTER_GENERAL.map((text) => ({ prompt_text: text, niche: null }));
+  // One niche gets one deck. A name like "Boutique Lodges" legitimately
+  // matches both the hotel and the fashion keywords, and stacking both would
+  // hand a lodge objections about stock arrivals. First match in the list
+  // above wins, so the more specific decks are listed first.
+  const claimed = new Set();
+
+  STARTER_BY_NICHE.forEach((group) => {
+    const own = orgNiches.find((n) => !claimed.has(n) && nicheMatches(n, group.match));
+    // Skip decks this agency has no matching niche for. The exception is an
+    // agency that hasn't set up niches at all, where filtering to nothing
+    // would be worse than giving them everything.
+    if (!own && orgNiches.length) return;
+    if (own) claimed.add(own);
+    group.cards.forEach((text) => rows.push({ prompt_text: text, niche: own || group.label }));
+  });
+
+  return rows;
+}
 
 let scenarios = [];
 let myAttempts = [];
@@ -202,7 +354,7 @@ function renderStage(stage) {
         <p>The deck is empty. The best first card is the last objection a prospect actually gave you, word for word.</p>
         <button class="btn btn-primary" id="pp-empty-add" style="width:auto;margin-top:12px;">Add the first card</button>
         <div style="margin-top:14px;">
-          <span class="small-link" id="pp-seed">Or load ${STARTER_CARDS.length} common ones to start</span>
+          <span class="small-link" id="pp-seed">Or load ${starterCardsForOrg().length} common ones to start</span>
         </div>
       </div>
     `));
@@ -290,7 +442,7 @@ async function seedStarterCards(link, stage) {
     return;
   }
 
-  const rows = STARTER_CARDS.map((c) => ({ prompt_text: c.text, niche: c.niche || null, created_by: null, is_starter: true }));
+  const rows = starterCardsForOrg().map((c) => ({ ...c, created_by: null, is_starter: true }));
   const { data, error } = await sb.from("pitch_scenarios").insert(rows).select();
 
   if (error) {
@@ -298,7 +450,7 @@ async function seedStarterCards(link, stage) {
     // The likeliest cause by far is an older copy of the migration without the
     // is_starter column, so point at the fix instead of showing a raw error.
     toast("Couldn't load the starter cards. Re-run the SQL in SETUP.md Step 158.", "error");
-    link.textContent = `Or load ${STARTER_CARDS.length} common ones to start`;
+    link.textContent = `Or load ${starterCardsForOrg().length} common ones to start`;
     link.style.pointerEvents = "";
     return;
   }
