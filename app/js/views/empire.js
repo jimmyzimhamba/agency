@@ -360,7 +360,9 @@ function showClient(host, id) {
       </div>
     </div>
   `);
-  card.querySelector("#emp-open").addEventListener("click", () => openProspectDetail(p.id));
+  // openProspectDetail takes the prospect object, not its id — it re-reads the
+  // live copy out of the store itself and only falls back to what it was given.
+  card.querySelector("#emp-open").addEventListener("click", () => openProspectDetail(p));
   host.appendChild(card);
   card.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
