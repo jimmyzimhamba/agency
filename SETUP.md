@@ -2328,7 +2328,7 @@ This adds three tables: `pitch_scenarios` (the deck), `pitch_attempts` (private 
 
 **If you already ran this file once before the starter cards were added**, run it again — it now also adds an `is_starter` column to `pitch_scenarios`. If you skip this, the "load 52 common ones" link will show a message telling you to re-run the SQL.
 
-> **Corrected in `sxc-v177`.** Until now this file could **not** actually be re-run, even though this page said it could. Running it a second time stopped with an error like `policy "pitch_scenarios: read org" already exists`, and because Supabase runs the whole script as one all-or-nothing batch, that one error **undid everything else in the file** — including the `is_starter` column it was supposed to be adding. So if you tried the fix the app told you to try, it silently did nothing and you got the same error next time.
+> **Corrected in `sxc-v178`.** Until now this file could **not** actually be re-run, even though this page said it could. Running it a second time stopped with an error like `policy "pitch_scenarios: read org" already exists`, and because Supabase runs the whole script as one all-or-nothing batch, that one error **undid everything else in the file** — including the `is_starter` column it was supposed to be adding. So if you tried the fix the app told you to try, it silently did nothing and you got the same error next time.
 >
 > The file has been corrected and is now genuinely safe to run as many times as you like. **If you hit that error before, please paste the file in and run it once more** — this time it will stick.
 
@@ -2343,7 +2343,7 @@ This adds three tables: `pitch_scenarios` (the deck), `pitch_attempts` (private 
 
 **If you skip this step**, everything else on the page still works — you can add cards, load the starter deck, draw cards and type answers. The only thing that won't work is the coaching note that comes back. Tapping **Get Coaching** will say *"The pitch-coach function isn't deployed yet — see SETUP.md Step 158.2."*
 
-> **Improved in `sxc-v177`.** That message used to read *"Failed to send a request to the Edge Function"*, which is what Supabase itself says and which tells you nothing you can act on — it reads like the app is broken rather than like a setup step is still outstanding. It now names the missing function and points here. Any other kind of failure still shows the real underlying message.
+> **Improved in `sxc-v178`.** That message used to read *"Failed to send a request to the Edge Function"*, which is what Supabase itself says and which tells you nothing you can act on — it reads like the app is broken rather than like a setup step is still outstanding. It now names the missing function and points here. Any other kind of failure still shows the real underlying message.
 
 ### 158.3 — No new API key needed
 
@@ -2434,15 +2434,15 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 7. Click into the search box. Confirm the `/` chip disappears, and type something long enough to fill the box to confirm the text never runs underneath it.
 8. Click out, then press the `/` key. Confirm your cursor jumps into the search box.
 9. Open the app on your phone. Confirm the top bar still shows the "Agency Command" logo and looks exactly as it did before.
-10. Check the Team page footer reads **build sxc-v177**, which confirms the redeploy actually took.
+10. Check the Team page footer reads **build sxc-v178**, which confirms the redeploy actually took.
 
-> **Note:** Steps 160 to 166 all ship together as `sxc-v177`. One redeploy covers all seven.
+> **Note:** Steps 160 to 166 all ship together as `sxc-v178`. One redeploy covers all seven.
 
 ---
 
 ## Step 161 — Detail panels open down the right-hand side on a laptop
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v177` together with Steps 160, 162, 163, 164, 165 and 166, so one redeploy covers all seven.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v178` together with Steps 160, 162, 163, 164, 165 and 166, so one redeploy covers all seven.
 
 **The problem.** When you tap a prospect, the details slide up from the bottom of the screen. On a phone that's exactly right: it's where your thumb is, and there's no spare width to put it anywhere else.
 
@@ -2470,13 +2470,13 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 8. Open a few other panels to confirm they all moved too: the "+" to add a prospect, a task, a contract, and an invoice.
 9. Make the browser window narrow (drag it under about 960 pixels wide). Confirm the panel goes back to sliding up from the bottom, with its drag handle back.
 10. Open the app on your phone. Confirm the panel still slides up from the bottom exactly as it always has.
-11. Check the Team page footer reads **build sxc-v177**.
+11. Check the Team page footer reads **build sxc-v178**.
 
 ---
 
 ## Step 162 — A "List view" for prospects, and softer green and gold buttons
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v177` together with Steps 160, 161, 163, 164, 165 and 166, so one redeploy covers all seven.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v178` together with Steps 160, 161, 163, 164, 165 and 166, so one redeploy covers all seven.
 
 ### Part 1 — the solid green and gold buttons are toned down
 
@@ -2533,13 +2533,13 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 12. Try the search box and a couple of filter chips while in List view. Confirm filtering still works normally.
 13. Open the app on your phone and check Prospects. Confirm the links across the top wrap onto two lines and that **Select** is no longer cut off at the right edge.
 14. On your phone, confirm List view works there too and that tapping a row still slides the details up from the bottom.
-15. Check the Team page footer reads **build sxc-v177**.
+15. Check the Team page footer reads **build sxc-v178**.
 
 ---
 
 ## Step 163 — Every niche gets its own colour
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v177` together with Steps 160, 161, 162, 164, 165 and 166, so one redeploy covers all seven.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v178` together with Steps 160, 161, 162, 164, 165 and 166, so one redeploy covers all seven.
 
 **The problem.** Niche was just grey text in the middle of a grey line — "Restaurants · Avondale · Harare". When you're running your eye down thirty prospects looking for the dentists, you have to actually read every row to find them. Nothing about a row tells you at a glance what kind of business it is.
 
@@ -2577,13 +2577,13 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 9. Switch back to Dark mode and confirm the same.
 10. Rename one of your niches on Niche Strategy. Confirm its colour does **not** change.
 11. Open the app on your phone and confirm the dots are there too.
-12. Check the Team page footer reads **build sxc-v177**.
+12. Check the Team page footer reads **build sxc-v178**.
 
 ---
 
 ## Step 164 — The Status Breakdown is now a colour-coded ring
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v177` together with Steps 160, 161, 162, 163, 165 and 166, so one redeploy covers all seven.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v178` together with Steps 160, 161, 162, 163, 165 and 166, so one redeploy covers all seven.
 
 **The problem.** "Status Breakdown" at the bottom of the Dashboard was six bars, and every single one was the same purple-and-gold. That's the same bar the app uses for your revenue goal filling up — which is right for a goal, because there it means "how full is this". But these six bars aren't one thing filling up. They're six different piles. Painting them identically told you nothing you couldn't already get from the numbers.
 
@@ -2627,13 +2627,13 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 11. Switch to Light mode with the sun/moon icon in the top bar. Confirm every slice of the ring is still clearly visible against the white — none should look washed out.
 12. Switch back to Dark mode and confirm the same.
 13. Open the Dashboard on your phone. Confirm the ring sits above the list rather than beside it, and that nothing is cut off.
-14. Check the Team page footer reads **build sxc-v177**.
+14. Check the Team page footer reads **build sxc-v178**.
 
 ---
 
 ## Step 165 — The pipeline ring and the revenue goal now sit side by side at the top
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v177` together with Steps 160, 161, 162, 163, 164 and 166, so one redeploy covers all seven.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v178` together with Steps 160, 161, 162, 163, 164 and 166, so one redeploy covers all seven.
 
 **The problem.** There are really only two questions you open the Dashboard to answer: *what shape is my pipeline* and *are we going to hit the number this month*. Until now those two answers were nowhere near each other. Monthly Revenue Goal was near the top, and the ring you just got in Step 164 was right at the bottom, past follow-ups, data health, the leaderboard and the team stats. You had to scroll past everything to get to one of the two things you actually came for.
 
@@ -2666,13 +2666,13 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 11. Open the Dashboard on your phone. Confirm the ring is at the top, the revenue goal is directly under it, and neither is cut off at the edges.
 12. Switch to Light mode with the sun/moon icon. Confirm both cards still read clearly and the ring's colours are still easy to tell apart.
 13. Switch back to Dark mode and confirm the same.
-14. Check the Team page footer reads **build sxc-v177**.
+14. Check the Team page footer reads **build sxc-v178**.
 
 ---
 
 ## Step 166 — Tasks are now Missions, and there's a new Empire page
 
-No SQL to run, no edge functions, no new secrets. Ships as `sxc-v177` together with Steps 160, 161, 162, 163, 164 and 165, so one redeploy covers all seven.
+No SQL to run, no edge functions, no new secrets. Ships as `sxc-v178` together with Steps 160, 161, 162, 163, 164 and 165, so one redeploy covers all seven.
 
 ### First, the honest part
 
@@ -2766,9 +2766,9 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 22. Tap **Empire**. Confirm it opens the street, and that the **Empire** button turns gold — not the **More** button.
 23. Confirm the street still fits on the phone screen, still scrolls sideways with your finger, and nothing is cut off.
 24. Tap **More**. Confirm **Empire** is **no longer** listed in that menu — it has its own button now, so it shouldn't be in both places.
-25. Check the Team page footer reads **build sxc-v177**.
+25. Check the Team page footer reads **build sxc-v178**.
 
-**Fixed since first writing this step:** *Open client* on the Empire page opened an empty panel instead of the client's details. The Empire page was handing over the client's ID number where the rest of the app hands over the whole client record, so the panel opened with nothing to show and failed quietly — no error message, just a blank. Every other place in the app that opens a client (Prospects, Dashboard, Search, Messages, Invoices) was already doing it the right way; Empire was the only one out of step. Now corrected in `sxc-v177`.
+**Fixed since first writing this step:** *Open client* on the Empire page opened an empty panel instead of the client's details. The Empire page was handing over the client's ID number where the rest of the app hands over the whole client record, so the panel opened with nothing to show and failed quietly — no error message, just a blank. Every other place in the app that opens a client (Prospects, Dashboard, Search, Messages, Invoices) was already doing it the right way; Empire was the only one out of step. Now corrected in `sxc-v178`.
 
 ---
 
@@ -2817,4 +2817,54 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 15. Still on the phone, watch a card for a few seconds and confirm it's **still gently drifting**.
 16. On an iPhone, go to **Settings → Accessibility → Motion** and switch **Reduce Motion** on. Reload the sales page. Confirm **everything is completely still** — no drifting, no fading in as you scroll. Then switch Reduce Motion back off.
 17. Sign in and use the app normally for a minute. Confirm **nothing inside the app changed** — this step only touched the public page.
-18. Check the Team page footer reads **build sxc-v177**.
+18. Check the Team page footer reads **build sxc-v178**.
+
+*(Step 168 below then brought a version of this inside the app too, so from `sxc-v178` on, item 17 no longer holds — the cards in the app catch the light as well.)*
+
+---
+
+## Step 168 — The cards inside the app catch the light too
+
+**What changed:** the glass treatment from the sales page is now in the app. Move your mouse over any card and a soft light follows your cursor across it, the edge nearest your cursor brightens, and prospect cards tip very slightly towards your hand.
+
+**This is a laptop-only thing.** On a phone nothing changed at all, and that's deliberate — see below.
+
+### What I did *not* bring across, and why
+
+You asked for the glass plates in the app, and you've got the part of them that belongs here. But three things stayed on the sales page on purpose, and I'd rather tell you why now than have you wonder later whether I forgot.
+
+**The cards are not see-through in the app.** On the sales page the glass is genuinely translucent — you can see the glow behind it. In here, the words on a card are a phone number, a price, a follow-up date. Anything that makes those even slightly harder to read is a bad trade for a prettier surface. So the cards in the app are **black glass**: completely solid, full contrast, but polished, so they catch the light. You get the look without paying for it in legibility.
+
+**There's no blur behind them.** Blurring whatever sits behind a card is the most expensive thing you can ask a phone to do. The sales page has ten cards; a busy screen in the app — the Prospects list with everyone's leads on it — can have forty. On the phones your team actually uses, that's the difference between a list that scrolls and one that stutters. Not worth it.
+
+**The cards don't drift.** This is the one I feel most strongly about. On the sales page they float because nobody is trying to hit them. In the app, cards are **things you tap**. A card that's drifting six pixels while someone is aiming at it — on a phone, one-handed, in a moving kombi — is measurably worse to use, no matter how good it looks standing still. Cards that move are cards you miss.
+
+### One more small decision
+
+**Only prospect cards tip.** A card that tilts under your cursor is saying "pick me up, I do something". Most cards in the app are read-outs — a total, a chart, a summary — and tipping those would promise a click that goes nowhere. So the tilt is on prospect cards, which really do open when you click them.
+
+And even then, **not in List view**. In List view those same cards are stacked into one continuous run of rows, and a single row lifting out of that at an angle doesn't look like glass, it looks like something broke.
+
+### Now test it
+
+Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R).
+
+1. On a **laptop**, open **Prospects**.
+2. Move your mouse slowly across one of the prospect cards. Confirm a **soft light follows your cursor** across the card.
+3. Keep moving. Confirm the **edge nearest your cursor brightens** into a thin line, and that the bright edge moves as you move.
+4. Confirm the card **tips very slightly** towards you as you move over it. It should be subtle — if you have to be told it's happening, that's the right amount.
+5. Move your mouse off the card. Confirm it **settles back flat smoothly** and the light fades out, rather than snapping.
+6. Read the text on a card while your cursor is on it. Confirm the name, the phone number and the status pill are **exactly as easy to read** as before. This is the important one — if any of it looks washed out, tell me.
+7. Click a card. Confirm it opens that prospect's detail panel exactly like it always did.
+8. Click **List view** at the top right. Hover over a row. Confirm the light still follows your cursor, but the row **does not tilt** and the list stays as one clean stack of rows.
+9. Go back to **Card view**.
+10. Visit **Dashboard**, **Missions**, **Empire** and **Invoices**. Confirm the cards on each catch the light as you move over them.
+11. On those pages, confirm the cards **do not tilt** — only prospect cards do.
+12. Confirm **nothing anywhere is drifting or floating on its own**. Inside the app, nothing should move unless your cursor is moving.
+13. Switch to **Light mode** with the sun/moon icon. Hover over a prospect card. Confirm the light shows up as a **soft purple wash** rather than disappearing into the white card.
+14. Still in Light mode, confirm the text on the cards is still perfectly crisp. Then switch back to Dark mode.
+15. Open a prospect, edit something, and save. Confirm the list redraws and that hovering the **newly redrawn** cards still lights them up. (This one matters — the app rebuilds these cards constantly.)
+16. Now pick up your **phone**. Open Prospects and scroll the list up and down a few times. Confirm it scrolls **exactly as smoothly as it did before** — no stutter, no lag.
+17. On the phone, confirm the cards look **completely normal** and nothing lights up or moves. There's no cursor on a phone, so there's nothing to track.
+18. On an iPhone, turn on **Settings → Accessibility → Motion → Reduce Motion**, then reopen the app on a laptop with that setting on. Confirm the cards are **completely still and unlit**. Then switch it back off.
+19. Check the Team page footer reads **build sxc-v178**.

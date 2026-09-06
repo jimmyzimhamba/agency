@@ -1,5 +1,7 @@
 // Shared bottom-sheet + modal controller used by every view.
 
+import { initGlass } from "./glass.js";
+
 const sheetBackdrop = () => document.getElementById("sheet-backdrop");
 const sheet = () => document.getElementById("sheet");
 const sheetTitle = () => document.getElementById("sheet-title");
@@ -61,4 +63,7 @@ export function initGlobalUI() {
   document.getElementById("modal-backdrop").addEventListener("click", (e) => {
     if (e.target.id === "modal-backdrop") closeModal();
   });
+  // Cards catch the light under the cursor. One delegated listener set up
+  // once here, so it keeps working for every card any view re-renders later.
+  initGlass();
 }

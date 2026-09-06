@@ -2,7 +2,7 @@
 // Makes the app open instantly and work (in read-only "last synced" mode)
 // even with a weak or dropped connection. Bump CACHE_VERSION any time you
 // want to force everyone's phone to fetch fresh files.
-const CACHE_VERSION = "sxc-v177";
+const CACHE_VERSION = "sxc-v178";
 
 // Plain fetch() has no timeout of its own — on a flaky/carrier-throttled
 // mobile-data connection a request can sit "pending" indefinitely instead
@@ -41,6 +41,7 @@ const APP_SHELL = [
   "js/ui.js",
   "js/utils.js",
   "js/theme.js",
+  "js/glass.js",
   "js/push.js",
   "js/whatsapp.js",
   "js/badges.js",
