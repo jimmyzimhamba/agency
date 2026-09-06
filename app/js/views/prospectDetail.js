@@ -1,5 +1,5 @@
 import { sb } from "../supabaseClient.js";
-import { store, on, profileById, nicheById, loadNotesFor, loadMessagesFor } from "../state.js";
+import { store, on, profileById, nicheById, nicheDotHTML, loadNotesFor, loadMessagesFor } from "../state.js";
 import { el, esc, avatarHTML, statusLabel, fmtDateTime, money, todayISO, buildWhatsAppLink, personalizeMessage, toast, downloadReminderICS, downloadVCard } from "../utils.js";
 import { openSheet, closeSheet, confirmModal, openModal, closeModal } from "../ui.js";
 import { buildProspectForm } from "./prospectForm.js";
@@ -78,7 +78,7 @@ function render(p0) {
       <span class="status-pill ${p.status}">${statusLabel(p.status)}</span>
     </div>
     <div style="font-size:19px;font-weight:800;margin-bottom:2px;">${esc(p.business_name)}</div>
-    <div class="text-faint" style="font-size:12.5px;margin-bottom:14px;">${esc(niche?.name || "No niche")}${p.area ? " · " + esc(p.area) : ""}${p.rating ? " · ★" + p.rating : ""}</div>
+    <div class="text-faint" style="font-size:12.5px;margin-bottom:14px;">${nicheDotHTML(niche)}${esc(niche?.name || "No niche")}${p.area ? " · " + esc(p.area) : ""}${p.rating ? " · ★" + p.rating : ""}</div>
 
     <div id="pd-ai-section"></div>
 

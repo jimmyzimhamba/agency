@@ -76,6 +76,82 @@ export function nicheById(id) {
   return store.niches.find((n) => n.id === id) || null;
 }
 
+// ---- niche colour swatches -------------------------------------------------
+// Every agency writes its own niche list, so there is no fixed set to hand-pick
+// colours for. Deriving the swatch instead means every niche has one the moment
+// it's created: no colour column to migrate, no picker for anyone to fill in,
+// and everyone on the team sees the same colour for the same niche without
+// anything being stored or synced.
+//
+// This deliberately does not reuse colorFor() in utils.js. That palette is for
+// people's avatars: it's only 7 long, and it's built from the app's own accent
+// colours — including the exact gold and purple that mean Tier A and Tier B on
+// the very same prospect row. A gold niche dot beside a gold TIER A pill would
+// be two unrelated things wearing the same signal.
+//
+// These are OKLCH hue angles, not HSL ones — the numbers are not
+// interchangeable between the two. OKLCH is worth the unfamiliarity here
+// because its lightness is perceptually even across hues, and HSL's is not:
+// the first cut of this used HSL at a single fixed lightness and the dots
+// measured anywhere from 2.5:1 to 9.4:1 against white, so the yellow and lime
+// niches were all but invisible in light mode while the blues were fine. In
+// OKLCH one lightness value holds its weight all the way round the wheel, so
+// every niche is equally easy to pick out. Even spacing works for the same
+// reason. Lightness and chroma live in CSS so light mode can adjust all twelve
+// in one rule.
+const NICHE_HUES = [25, 55, 90, 130, 155, 180, 205, 235, 265, 295, 325, 355];
+
+// Assigned by position rather than by hashing the id, which is the whole
+// reason this lives in state.js next to the niche list instead of in utils.js.
+// A hash looks fairer but loses to the birthday problem badly: measured over
+// 20,000 simulated orgs, ten niches hashed into these twelve hues produced only
+// ~7 distinct colours on average, and 99.6% of orgs had at least one pair of
+// niches wearing the same colour — which defeats the entire point of colouring
+// them. Indexing guarantees the first twelve niches are all different.
+//
+// Indexed over ids sorted lexically, not over the list's own display order.
+// Sorting by id is immutable, so dragging niches into a new order or renaming
+// one never repaints anything. It also means neighbouring rows don't get
+// neighbouring hues, which matters because adjacent entries in this palette are
+// the most similar to each other — exactly the pair you least want side by side.
+// Adding or deleting a niche does shift some colours, which is accepted: it's a
+// rare, deliberate act, and it happens on the Niche Matrix page where every
+// niche and its colour are on screen together, so nothing changes behind
+// someone's back.
+let hueCache = null;
+let hueCacheSource = null;
+
+function nicheHueMap() {
+  // store.niches is replaced wholesale on every load, so comparing identity is
+  // a sufficient (and cheap) way to know the cache is stale.
+  if (hueCache && hueCacheSource === store.niches) return hueCache;
+  const map = new Map();
+  store.niches
+    .map((n) => n.id)
+    .sort()
+    .forEach((id, i) => map.set(id, NICHE_HUES[i % NICHE_HUES.length]));
+  hueCache = map;
+  hueCacheSource = store.niches;
+  return map;
+}
+
+export function nicheHue(nicheOrId) {
+  const id = typeof nicheOrId === "string" ? nicheOrId : nicheOrId?.id;
+  if (!id) return null;
+  const hue = nicheHueMap().get(id);
+  return hue === undefined ? null : hue;
+}
+
+// The swatch is always rendered immediately before the niche's name and never
+// on its own, so the colour is a scanning shortcut rather than the label
+// itself. Someone who can't separate two hues loses nothing, and a prospect
+// with no niche set simply gets no dot rather than a misleading one.
+export function nicheDotHTML(niche) {
+  const hue = nicheHue(niche);
+  if (hue === null) return "";
+  return `<span class="niche-dot" style="--niche-hue:${hue};"></span>`;
+}
+
 export function prospectById(id) {
   return store.prospects.find((p) => p.id === id) || null;
 }

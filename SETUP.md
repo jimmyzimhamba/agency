@@ -2424,15 +2424,15 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 7. Click into the search box. Confirm the `/` chip disappears, and type something long enough to fill the box to confirm the text never runs underneath it.
 8. Click out, then press the `/` key. Confirm your cursor jumps into the search box.
 9. Open the app on your phone. Confirm the top bar still shows the "Agency Command" logo and looks exactly as it did before.
-10. Check the Team page footer reads **build sxc-v168**, which confirms the redeploy actually took.
+10. Check the Team page footer reads **build sxc-v169**, which confirms the redeploy actually took.
 
-> **Note:** Steps 160, 161 and 162 all ship together as `sxc-v168`. One redeploy covers all three.
+> **Note:** Steps 160 to 163 all ship together as `sxc-v169`. One redeploy covers all four.
 
 ---
 
 ## Step 161 — Detail panels open down the right-hand side on a laptop
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v168` together with Steps 160 and 162, so one redeploy covers all three.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v169` together with Steps 160, 162 and 163, so one redeploy covers all four.
 
 **The problem.** When you tap a prospect, the details slide up from the bottom of the screen. On a phone that's exactly right: it's where your thumb is, and there's no spare width to put it anywhere else.
 
@@ -2460,13 +2460,13 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 8. Open a few other panels to confirm they all moved too: the "+" to add a prospect, a task, a contract, and an invoice.
 9. Make the browser window narrow (drag it under about 960 pixels wide). Confirm the panel goes back to sliding up from the bottom, with its drag handle back.
 10. Open the app on your phone. Confirm the panel still slides up from the bottom exactly as it always has.
-11. Check the Team page footer reads **build sxc-v168**.
+11. Check the Team page footer reads **build sxc-v169**.
 
 ---
 
 ## Step 162 — A "List view" for prospects, and softer green and gold buttons
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v168` together with Steps 160 and 161, so one redeploy covers all three.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v169` together with Steps 160, 161 and 163, so one redeploy covers all four.
 
 ### Part 1 — the solid green and gold buttons are toned down
 
@@ -2523,4 +2523,48 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 12. Try the search box and a couple of filter chips while in List view. Confirm filtering still works normally.
 13. Open the app on your phone and check Prospects. Confirm the links across the top wrap onto two lines and that **Select** is no longer cut off at the right edge.
 14. On your phone, confirm List view works there too and that tapping a row still slides the details up from the bottom.
-15. Check the Team page footer reads **build sxc-v168**.
+15. Check the Team page footer reads **build sxc-v169**.
+
+---
+
+## Step 163 — Every niche gets its own colour
+
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v169` together with Steps 160, 161 and 162, so one redeploy covers all four.
+
+**The problem.** Niche was just grey text in the middle of a grey line — "Restaurants · Avondale · Harare". When you're running your eye down thirty prospects looking for the dentists, you have to actually read every row to find them. Nothing about a row tells you at a glance what kind of business it is.
+
+**What changed.** Every niche now has its own small coloured dot, shown just before its name. Once you've seen "Dentists" as blue a couple of times, you can pick the dentists out of a long list without reading a word.
+
+The dot appears in four places, and it's the same colour for the same niche in all of them:
+
+- On every prospect in Pipeline, in both Card view and List view
+- At the top of the prospect details panel when you open one
+- On **Niche Strategy**, next to each niche — this page is your colour key, since it lists every niche you have
+- On **Daily Plan**, on today's priority leads
+
+**The name is always right there next to the dot.** The colour is a shortcut for finding things faster, never the only way to tell what a row is. So nothing is lost if two colours look alike to you, and it works fine in a screenshot printed in black and white.
+
+**You don't have to set anything up.** There's no colour to pick and nothing to fill in. Each niche is given a colour automatically the moment you create it, and everyone on your team sees the same colour for the same niche.
+
+**How the colours are handed out.** There are twelve, so your first twelve niches are all guaranteed a different one. If you have more than twelve, the thirteenth starts reusing colours from the top of the list.
+
+**One thing worth knowing.** Renaming a niche, or dragging your niches into a different order, will **not** change any colours. But **adding or deleting** a niche can shift the colours of some of the others. That's a deliberate trade: it's the price of guaranteeing your first twelve niches never share a colour, which matters far more day to day. It's also not a silent change, because it happens on the Niche Strategy page where every niche and its colour are on screen together.
+
+**A note for Light mode.** The colours are slightly different in Light mode than in Dark mode. That's on purpose. Colours that look bright and clear on the dark background wash out to almost nothing on white, so the shades were tuned separately for each so that all twelve stay equally easy to see either way.
+
+### Now test it
+
+Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R).
+
+1. Go to Prospects. Confirm there's now a small coloured dot just before the niche name on each row.
+2. Confirm two prospects in the **same** niche have the **same** colour dot.
+3. Confirm two prospects in **different** niches have **different** colour dots.
+4. Switch between **Card view** and **List view**. Confirm the dots appear in both.
+5. Click a prospect. Confirm the same coloured dot appears at the top of the details panel, next to the niche name.
+6. Go to **Niche Strategy** (under Strategy in the sidebar). Confirm every niche has its dot, and that this reads as a key you can check colours against.
+7. Go to **Daily Plan** and look at "Today's Priority Leads". Confirm the dots appear there too.
+8. Switch to Light mode with the moon icon in the top bar. Confirm every dot is still clearly visible against the white background — none should look washed out or invisible.
+9. Switch back to Dark mode and confirm the same.
+10. Rename one of your niches on Niche Strategy. Confirm its colour does **not** change.
+11. Open the app on your phone and confirm the dots are there too.
+12. Check the Team page footer reads **build sxc-v169**.

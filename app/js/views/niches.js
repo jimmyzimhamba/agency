@@ -1,5 +1,5 @@
 import { sb } from "../supabaseClient.js";
-import { store, on } from "../state.js";
+import { store, on, nicheDotHTML } from "../state.js";
 import { el, esc, toast } from "../utils.js";
 import { openSheet, closeSheet, confirmModal, openModal, closeModal } from "../ui.js";
 
@@ -179,7 +179,7 @@ function nicheCard(n, isOwner) {
   const card = el(`
     <div class="card niche-card">
       <div class="niche-head">
-        <div class="n-name">${esc(n.name)}</div>
+        <div class="n-name">${nicheDotHTML(n)}${esc(n.name)}</div>
         <div class="niche-score">${score}</div>
       </div>
       <div class="niche-bars">
@@ -224,7 +224,7 @@ function openUntappedModal(untapped) {
     .forEach((n) => {
       const row = el(`
         <div class="card" style="margin-bottom:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
-          <div class="n-name">${esc(n.name)}</div>
+          <div class="n-name">${nicheDotHTML(n)}${esc(n.name)}</div>
           <div class="niche-score">${overallScore(n)}</div>
         </div>
       `);

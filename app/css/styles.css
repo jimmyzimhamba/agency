@@ -1083,6 +1083,25 @@ main {
 .mt-0 { margin-top: 0; }
 .flex-between { display: flex; justify-content: space-between; align-items: center; }
 .small-link { font-size: 12px; color: var(--purple-soft); font-weight: 700; cursor: pointer; }
+
+/* Niche colour swatch. The hue comes from nicheHue() in utils.js — see there
+   for why it's derived rather than stored, and why niches don't share the
+   avatar palette. Saturation and lightness are set here rather than baked into
+   the hash so light mode can darken all twelve at once: the shades that read
+   on crushed black wash out completely on white. */
+.niche-dot {
+  display: inline-block; flex: 0 0 auto;
+  width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; position: relative; top: -1px;
+  /* Two backgrounds on purpose. A browser too old for oklch() drops the second
+     line and every dot comes out the same neutral grey — the colour coding
+     quietly switches off, which is fine because the niche name is always
+     printed right next to it. Without the first line those browsers would draw
+     nothing and leave a 7px hole. */
+  background: var(--text-faint);
+  background: oklch(0.78 0.15 var(--niche-hue, 0));
+}
+:root[data-theme="light"] .niche-dot { background: oklch(0.58 0.16 var(--niche-hue, 0)); }
 /* The row of text actions that sits opposite a page title. It has to wrap:
    on a 375px phone five of these no longer fit on one line beside the title,
    and without wrapping the last one is silently clipped off the edge of the

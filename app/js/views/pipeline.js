@@ -1,5 +1,5 @@
 import { sb } from "../supabaseClient.js";
-import { store, on, profileById, nicheById, bestTemplateFor, knownCities } from "../state.js";
+import { store, on, profileById, nicheById, nicheDotHTML, bestTemplateFor, knownCities } from "../state.js";
 import { el, esc, avatarHTML, statusLabel, buildWhatsAppLink, personalizeMessage, toast, debounce, toCSV, downloadTextFile, findDuplicateProspect, fmtDate, todayISO } from "../utils.js";
 import { openSheet, closeSheet, openModal, closeModal, confirmModal } from "../ui.js";
 import { buildProspectForm } from "./prospectForm.js";
@@ -796,7 +796,7 @@ function prospectCard(p) {
       <div class="prospect-top">
         <div>
           <div class="prospect-name">${esc(p.business_name)}</div>
-          <div class="prospect-meta">${esc(niche?.name || "No niche")}${p.area ? " · " + esc(p.area) : ""}${p.city ? " · " + esc(p.city) : ""}</div>
+          <div class="prospect-meta">${nicheDotHTML(niche)}${esc(niche?.name || "No niche")}${p.area ? " · " + esc(p.area) : ""}${p.city ? " · " + esc(p.city) : ""}</div>
         </div>
         <span class="status-pill ${p.status}">${statusLabel(p.status)}</span>
       </div>

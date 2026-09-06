@@ -1,5 +1,5 @@
 import { sb } from "../supabaseClient.js";
-import { store, on, nicheById, prospectById, profileById } from "../state.js";
+import { store, on, nicheById, nicheDotHTML, prospectById, profileById } from "../state.js";
 import { el, esc, todayISO, toast, avatarHTML, timeAgo } from "../utils.js";
 import { openSheet, closeSheet, confirmModal, openModal } from "../ui.js";
 import { openProspectDetail } from "./prospectDetail.js";
@@ -124,7 +124,7 @@ function renderHotLeads(container, myId, isOwner) {
         <div class="flex-between">
           <div>
             <div style="font-weight:700;font-size:13.5px;">${esc(p.business_name)}</div>
-            <div class="text-faint" style="font-size:11.5px;">${esc(niche?.name || "")}</div>
+            <div class="text-faint" style="font-size:11.5px;">${niche ? nicheDotHTML(niche) : ""}${esc(niche?.name || "")}</div>
           </div>
           <span class="tier-pill ${p.tier}">TIER ${p.tier}</span>
         </div>
