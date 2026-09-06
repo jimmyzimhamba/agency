@@ -56,16 +56,20 @@ create index if not exists idx_grid_plans_share_token on public.grid_plans (shar
 
 alter table public.grid_plans enable row level security;
 
+drop policy if exists "grid_plans: read org" on public.grid_plans;
 create policy "grid_plans: read org" on public.grid_plans
   for select using (org_id = public.my_org_id());
 
+drop policy if exists "grid_plans: managers create" on public.grid_plans;
 create policy "grid_plans: managers create" on public.grid_plans
   for insert with check (org_id = public.my_org_id() and public.grid_can_manage());
 
+drop policy if exists "grid_plans: managers update" on public.grid_plans;
 create policy "grid_plans: managers update" on public.grid_plans
   for update using (org_id = public.my_org_id() and public.grid_can_manage())
   with check (org_id = public.my_org_id() and public.grid_can_manage());
 
+drop policy if exists "grid_plans: managers delete" on public.grid_plans;
 create policy "grid_plans: managers delete" on public.grid_plans
   for delete using (org_id = public.my_org_id() and public.grid_can_manage());
 
@@ -107,16 +111,20 @@ create index if not exists idx_grid_posts_org on public.grid_posts (org_id);
 
 alter table public.grid_posts enable row level security;
 
+drop policy if exists "grid_posts: read org" on public.grid_posts;
 create policy "grid_posts: read org" on public.grid_posts
   for select using (org_id = public.my_org_id());
 
+drop policy if exists "grid_posts: editors write" on public.grid_posts;
 create policy "grid_posts: editors write" on public.grid_posts
   for insert with check (org_id = public.my_org_id() and public.grid_can_edit());
 
+drop policy if exists "grid_posts: editors update" on public.grid_posts;
 create policy "grid_posts: editors update" on public.grid_posts
   for update using (org_id = public.my_org_id() and public.grid_can_edit())
   with check (org_id = public.my_org_id() and public.grid_can_edit());
 
+drop policy if exists "grid_posts: managers delete" on public.grid_posts;
 create policy "grid_posts: managers delete" on public.grid_posts
   for delete using (org_id = public.my_org_id() and public.grid_can_manage());
 
@@ -150,12 +158,15 @@ create index if not exists idx_grid_post_media_org on public.grid_post_media (or
 
 alter table public.grid_post_media enable row level security;
 
+drop policy if exists "grid_post_media: read org" on public.grid_post_media;
 create policy "grid_post_media: read org" on public.grid_post_media
   for select using (org_id = public.my_org_id());
 
+drop policy if exists "grid_post_media: editors write" on public.grid_post_media;
 create policy "grid_post_media: editors write" on public.grid_post_media
   for insert with check (org_id = public.my_org_id() and public.grid_can_edit());
 
+drop policy if exists "grid_post_media: editors delete" on public.grid_post_media;
 create policy "grid_post_media: editors delete" on public.grid_post_media
   for delete using (org_id = public.my_org_id() and public.grid_can_edit());
 
@@ -197,6 +208,7 @@ create index if not exists idx_grid_activity_org on public.grid_activity (org_id
 
 alter table public.grid_activity enable row level security;
 
+drop policy if exists "grid_activity: read org" on public.grid_activity;
 create policy "grid_activity: read org" on public.grid_activity
   for select using (org_id = public.my_org_id());
 
@@ -204,6 +216,7 @@ create policy "grid_activity: read org" on public.grid_activity
 -- edit the plan's content can also write an activity row. The Edge
 -- Functions use the service-role key, which bypasses RLS entirely, so
 -- client-originated inserts don't need (and don't get) a policy here.
+drop policy if exists "grid_activity: editors insert" on public.grid_activity;
 create policy "grid_activity: editors insert" on public.grid_activity
   for insert with check (org_id = public.my_org_id() and public.grid_can_edit());
 

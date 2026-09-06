@@ -1,8 +1,10 @@
 -- ============================================================================
 -- STUDIO X COMMAND — Migration: WhatsApp Integration (Twilio)
 -- ============================================================================
--- Run this once in the Supabase SQL Editor to add what the new two-way
+-- Run this in the Supabase SQL Editor to add what the new two-way
 -- WhatsApp feature needs. See SETUP.md Step 146.
+-- Safe to run again: the policy is dropped before it is recreated, so a
+-- second run repairs a half-finished install instead of failing partway.
 -- ============================================================================
 
 -- Tracks when a prospect last messaged you on WhatsApp. WhatsApp only lets a
@@ -53,6 +55,7 @@ alter table public.whatsapp_messages enable row level security;
 -- people who can see that prospect (owner, or the team member it's
 -- assigned to/added) — same subquery-through-prospects'-own-RLS trick as
 -- prospect_notes above.
+drop policy if exists "whatsapp_messages: read visible prospects" on public.whatsapp_messages;
 create policy "whatsapp_messages: read visible prospects" on public.whatsapp_messages
   for select using (
     exists (select 1 from public.prospects p where p.id = whatsapp_messages.prospect_id)
