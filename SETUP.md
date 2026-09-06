@@ -2424,4 +2424,40 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 7. Click into the search box. Confirm the `/` chip disappears, and type something long enough to fill the box to confirm the text never runs underneath it.
 8. Click out, then press the `/` key. Confirm your cursor jumps into the search box.
 9. Open the app on your phone. Confirm the top bar still shows the "Agency Command" logo and looks exactly as it did before.
-10. Check the Team page footer reads **build sxc-v166**, which confirms the redeploy actually took.
+10. Check the Team page footer reads **build sxc-v167**, which confirms the redeploy actually took.
+
+> **Note:** Step 160 and Step 161 below ship together as `sxc-v167`. One redeploy covers both.
+
+---
+
+## Step 161 — Detail panels open down the right-hand side on a laptop
+
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v167` together with Step 160, so one redeploy covers both.
+
+**The problem.** When you tap a prospect, the details slide up from the bottom of the screen. On a phone that's exactly right: it's where your thumb is, and there's no spare width to put it anywhere else.
+
+On a laptop it was the wrong shape. The panel came up from the bottom as a short, wide letterbox capped at 92% of the window height, sitting on top of the very list you'd just clicked in. You lost your place, and a tall thing (a prospect with notes, a status timeline and a follow-up date) got squeezed into a wide, shallow box.
+
+**What changed.** On laptops and desktops the panel now slides in from the **right-hand edge** instead, running the **full height** of the window at a fixed, comfortable reading width. The list stays where it is on the left, and the dimming behind the panel is lighter than it used to be, so you can still see the row you opened it from.
+
+This is the pattern from the Biiblo screenshots you sent, where leads, contracts and invoices all open in a panel down the right.
+
+**On phones, absolutely nothing changed.** It still slides up from the bottom, still has the little grey drag handle at the top, still rounded at the top corners. The new behaviour only switches on at laptop width, the same width the sidebar appears at. Below that it is the old panel exactly as before.
+
+**Why this was a safe change to make.** Every panel in the app — prospect details, add and edit forms, the "More" menu, Due Today, contracts, invoices, tasks, Pitch Practice and the rest, 26 places in total — is the *same one panel* being reused. So this was a styling change in one place rather than 26 separate edits. Nothing about how the panel opens, closes or saves was touched, which is why closing it by clicking outside, by the ✕, or with the Escape key all still work exactly as they did.
+
+### Now test it
+
+Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R).
+
+1. On a laptop, open Prospects and click any prospect. Confirm the details slide in from the **right**, not up from the bottom.
+2. Confirm the panel runs the **full height** of the window, top to bottom.
+3. Confirm you can still see and read the prospect list on the left behind it.
+4. Confirm there is **no** grey drag handle at the top of the panel (that's a phone thing, it would do nothing here).
+5. Scroll down inside the panel. Confirm it scrolls normally and nothing is cut off on the right.
+6. Close it three ways and confirm each works: click the ✕, click the dimmed area to the left, and press the Escape key.
+7. Click **Edit** on a prospect. Confirm the edit form opens in the same right-hand panel and that saving still works.
+8. Open a few other panels to confirm they all moved too: the "+" to add a prospect, a task, a contract, and an invoice.
+9. Make the browser window narrow (drag it under about 960 pixels wide). Confirm the panel goes back to sliding up from the bottom, with its drag handle back.
+10. Open the app on your phone. Confirm the panel still slides up from the bottom exactly as it always has.
+11. Check the Team page footer reads **build sxc-v167**.
