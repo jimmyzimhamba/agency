@@ -52,7 +52,7 @@ const VIEWS = {
   community: renderCommunity,
   pitch: renderPitchPractice,
 };
-const PRIMARY_TABS = ["dashboard", "pipeline", "tasks", "messages"];
+const PRIMARY_TABS = ["dashboard", "pipeline", "tasks", "empire", "messages"];
 let currentView = "dashboard";
 
 export function switchView(name) {
@@ -98,10 +98,6 @@ export function switchView(name) {
 function openMoreMenu() {
   const box = el(`
     <div>
-      <div class="task-row" data-go="empire" style="cursor:pointer;">
-        <div class="icon-badge sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"/><path d="M5 21V8l5-4v17"/><path d="M14 21V11l5 3v7"/></svg></div>
-        <div class="task-label">Empire</div>
-      </div>
       <div class="task-row" data-go="copilot" style="cursor:pointer;">
         <div class="icon-badge sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a7 7 0 0 0-7 7c0 2.4 1.2 4.5 3 5.7V17h8v-2.3c1.8-1.2 3-3.3 3-5.7a7 7 0 0 0-7-7Z"/><path d="M9 21h6M10 17v2M14 17v2"/></svg></div>
         <div class="task-label">Copilot</div>

@@ -458,6 +458,13 @@ main {
 .nav-btn svg { width: 21px; height: 21px; }
 .nav-btn.active { color: var(--gold-soft); }
 .nav-btn.active svg { filter: drop-shadow(0 0 6px var(--purple-glow)); }
+/* Six buttons need ~323px of label at the normal size, so the smallest phones
+   (iPhone SE 1st gen and similar, 320px) would clip "More" off the right edge.
+   Shrink the type a touch rather than dropping a button. */
+@media (max-width: 370px) {
+  .nav-btn { font-size: 9px; letter-spacing: 0; }
+  .nav-btn svg { width: 19px; height: 19px; }
+}
 
 /* ---- cards / surfaces ----------------------------------------------------*/
 .card {
