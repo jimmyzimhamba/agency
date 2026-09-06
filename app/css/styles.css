@@ -1015,6 +1015,109 @@ main {
   .dash-two-up > * > .section-title { margin-top: 0; }
 }
 
+/* ---- empire (the town) --------------------------------------------------------
+   Every colour here is a theme variable rather than a literal, because the sky
+   doubles as the day/night switch: light mode is midday over Harare, dark mode
+   is the same street at night with the windows lit. The buildings themselves
+   are drawn in hsl() from each niche's hue in JS, and sit at a mid lightness
+   that holds up against both skies. */
+:root {
+  --emp-sky-top: #1b2340;
+  --emp-sky-bot: #33305c;
+  --emp-sun: rgba(255, 249, 214, 0.5);
+  --emp-ground: #2a2f3d;
+  --emp-road: #23262f;
+  --emp-foliage: #2f6b4a;
+  --emp-trunk: #3e3327;
+  --emp-lamp: #4a4f5e;
+  --emp-lamp-glow: var(--gold-soft);
+  --emp-win: rgba(255, 255, 255, 0.16);
+  --emp-win-lit: rgba(255, 214, 122, 0.92);
+}
+:root[data-theme="light"] {
+  --emp-sky-top: #9fd6f5;
+  --emp-sky-bot: #d8eefb;
+  --emp-sun: rgba(255, 238, 160, 0.95);
+  --emp-ground: #8fc177;
+  --emp-road: #b9b4ad;
+  --emp-foliage: #4f9c5f;
+  --emp-trunk: #6b5439;
+  --emp-lamp: #7c7f88;
+  --emp-lamp-glow: #ffe9a8;
+  --emp-win: rgba(255, 255, 255, 0.62);
+  --emp-win-lit: rgba(255, 205, 92, 0.95);
+}
+
+.emp-card { margin-bottom: 14px; }
+/* The street is as wide as the town is long, so it scrolls sideways inside the
+   card rather than squashing. Buildings would become unreadable slivers at any
+   width if we tried to fit fifty of them on a phone. */
+.emp-scroll { overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; }
+.emp-scroll::-webkit-scrollbar { height: 8px; }
+.emp-scroll::-webkit-scrollbar-thumb { background: var(--chart-track); border-radius: 4px; }
+.emp-svg { display: block; }
+/* Gradient stops are set here rather than as stop-color="" attributes because
+   var() is only substituted in CSS declarations — as an SVG presentation
+   attribute it is invalid and the stop renders black. Same trap as the donut's
+   stroke on the dashboard. */
+.emp-sky-a { stop-color: var(--emp-sky-top); }
+.emp-sky-b { stop-color: var(--emp-sky-bot); }
+.emp-sky { fill: url(#emp-sky-grad); }
+.emp-ground { fill: var(--emp-ground); }
+.emp-road { fill: var(--emp-road); }
+.emp-sun { fill: var(--emp-sun); }
+.emp-road-line { stroke: rgba(255, 255, 255, 0.28); stroke-width: 2; stroke-dasharray: 12 12; }
+.emp-name { fill: var(--text-dim); font-size: 8.5px; font-weight: 600; letter-spacing: 0.1px; }
+.emp-win { fill: var(--emp-win); }
+.emp-win.lit { fill: var(--emp-win-lit); }
+.emp-tree circle { fill: var(--emp-foliage); }
+.emp-tree rect { fill: var(--emp-trunk); }
+.emp-lamp rect { fill: var(--emp-lamp); }
+.emp-lamp circle { fill: var(--emp-lamp-glow); }
+.emp-shadow { fill: rgba(0, 0, 0, 0.18); }
+
+/* Same oklch() ramp and the same two-line fallback as .niche-dot, so a
+   building is the exact colour of its niche's dot everywhere else in the app,
+   and a browser too old for oklch() gets a whole town of neutral houses
+   instead of a town of invisible ones. Buildings are mid-toned rather than
+   following the dots' light/dark split because they sit on our own sky, not
+   on the page background. */
+.emp-wall { fill: var(--text-faint); fill: oklch(0.74 0.13 var(--niche-hue, 0)); }
+.emp-roof { fill: var(--text-dim); fill: oklch(0.55 0.12 var(--niche-hue, 0)); }
+:root[data-theme="light"] .emp-wall { fill: oklch(0.72 0.15 var(--niche-hue, 0)); }
+:root[data-theme="light"] .emp-roof { fill: oklch(0.52 0.14 var(--niche-hue, 0)); }
+.emp-building.no-niche .emp-wall { fill: oklch(0.68 0.01 260); }
+.emp-building.no-niche .emp-roof { fill: oklch(0.5 0.01 260); }
+
+/* A building is a real client you can open, so it has to look touchable and
+   take keyboard focus like any other control. */
+.emp-building { cursor: pointer; }
+.emp-building:hover .emp-wall,
+.emp-building:focus-visible .emp-wall { filter: brightness(1.12); }
+.emp-building:focus { outline: none; }
+.emp-building:focus-visible { outline: 2px solid var(--purple); outline-offset: 2px; border-radius: 4px; }
+
+.emp-detail { margin-bottom: 14px; }
+.emp-detail-name { font-weight: 700; font-size: 14.5px; display: flex; align-items: center; gap: 7px; }
+.emp-detail-rows { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 12px; }
+.emp-detail-rows > div { display: flex; flex-direction: column; gap: 2px; }
+.emp-detail-rows b { font-size: 13px; }
+
+.emp-foot { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+.emp-foot-title { font-weight: 700; font-size: 13.5px; margin-bottom: 2px; }
+
+.emp-empty { padding: 0 0 24px; text-align: center; }
+.emp-empty-svg { width: 100%; height: auto; display: block; margin: 0 auto 16px; }
+/* Outlined in the app's own purple rather than in white: it has to sit on the
+   pale daytime sky as well as the night one, and it's the one thing on this
+   screen we actually want someone to look at. */
+.emp-plot path {
+  stroke: var(--purple); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
+  fill: none; stroke-dasharray: 7 6; opacity: 0.85;
+}
+.emp-empty-title { font-weight: 700; font-size: 14.5px; margin-bottom: 4px; }
+.emp-empty-sub { color: var(--text-dim); font-size: 12.5px; max-width: 330px; margin: 0 auto; }
+
 /* ---- due today banner --------------------------------------------------------*/
 .due-banner {
   display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: var(--radius-md);

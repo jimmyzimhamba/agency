@@ -2424,15 +2424,15 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 7. Click into the search box. Confirm the `/` chip disappears, and type something long enough to fill the box to confirm the text never runs underneath it.
 8. Click out, then press the `/` key. Confirm your cursor jumps into the search box.
 9. Open the app on your phone. Confirm the top bar still shows the "Agency Command" logo and looks exactly as it did before.
-10. Check the Team page footer reads **build sxc-v171**, which confirms the redeploy actually took.
+10. Check the Team page footer reads **build sxc-v172**, which confirms the redeploy actually took.
 
-> **Note:** Steps 160 to 165 all ship together as `sxc-v171`. One redeploy covers all six.
+> **Note:** Steps 160 to 166 all ship together as `sxc-v172`. One redeploy covers all seven.
 
 ---
 
 ## Step 161 — Detail panels open down the right-hand side on a laptop
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v171` together with Steps 160, 162, 163, 164 and 165, so one redeploy covers all six.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v172` together with Steps 160, 162, 163, 164, 165 and 166, so one redeploy covers all seven.
 
 **The problem.** When you tap a prospect, the details slide up from the bottom of the screen. On a phone that's exactly right: it's where your thumb is, and there's no spare width to put it anywhere else.
 
@@ -2460,13 +2460,13 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 8. Open a few other panels to confirm they all moved too: the "+" to add a prospect, a task, a contract, and an invoice.
 9. Make the browser window narrow (drag it under about 960 pixels wide). Confirm the panel goes back to sliding up from the bottom, with its drag handle back.
 10. Open the app on your phone. Confirm the panel still slides up from the bottom exactly as it always has.
-11. Check the Team page footer reads **build sxc-v171**.
+11. Check the Team page footer reads **build sxc-v172**.
 
 ---
 
 ## Step 162 — A "List view" for prospects, and softer green and gold buttons
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v171` together with Steps 160, 161, 163, 164 and 165, so one redeploy covers all six.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v172` together with Steps 160, 161, 163, 164, 165 and 166, so one redeploy covers all seven.
 
 ### Part 1 — the solid green and gold buttons are toned down
 
@@ -2523,13 +2523,13 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 12. Try the search box and a couple of filter chips while in List view. Confirm filtering still works normally.
 13. Open the app on your phone and check Prospects. Confirm the links across the top wrap onto two lines and that **Select** is no longer cut off at the right edge.
 14. On your phone, confirm List view works there too and that tapping a row still slides the details up from the bottom.
-15. Check the Team page footer reads **build sxc-v171**.
+15. Check the Team page footer reads **build sxc-v172**.
 
 ---
 
 ## Step 163 — Every niche gets its own colour
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v171` together with Steps 160, 161, 162, 164 and 165, so one redeploy covers all six.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v172` together with Steps 160, 161, 162, 164, 165 and 166, so one redeploy covers all seven.
 
 **The problem.** Niche was just grey text in the middle of a grey line — "Restaurants · Avondale · Harare". When you're running your eye down thirty prospects looking for the dentists, you have to actually read every row to find them. Nothing about a row tells you at a glance what kind of business it is.
 
@@ -2567,13 +2567,13 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 9. Switch back to Dark mode and confirm the same.
 10. Rename one of your niches on Niche Strategy. Confirm its colour does **not** change.
 11. Open the app on your phone and confirm the dots are there too.
-12. Check the Team page footer reads **build sxc-v171**.
+12. Check the Team page footer reads **build sxc-v172**.
 
 ---
 
 ## Step 164 — The Status Breakdown is now a colour-coded ring
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v171` together with Steps 160, 161, 162, 163 and 165, so one redeploy covers all six.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v172` together with Steps 160, 161, 162, 163, 165 and 166, so one redeploy covers all seven.
 
 **The problem.** "Status Breakdown" at the bottom of the Dashboard was six bars, and every single one was the same purple-and-gold. That's the same bar the app uses for your revenue goal filling up — which is right for a goal, because there it means "how full is this". But these six bars aren't one thing filling up. They're six different piles. Painting them identically told you nothing you couldn't already get from the numbers.
 
@@ -2617,13 +2617,13 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 11. Switch to Light mode with the sun/moon icon in the top bar. Confirm every slice of the ring is still clearly visible against the white — none should look washed out.
 12. Switch back to Dark mode and confirm the same.
 13. Open the Dashboard on your phone. Confirm the ring sits above the list rather than beside it, and that nothing is cut off.
-14. Check the Team page footer reads **build sxc-v171**.
+14. Check the Team page footer reads **build sxc-v172**.
 
 ---
 
 ## Step 165 — The pipeline ring and the revenue goal now sit side by side at the top
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v171` together with Steps 160, 161, 162, 163 and 164, so one redeploy covers all six.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v172` together with Steps 160, 161, 162, 163, 164 and 166, so one redeploy covers all seven.
 
 **The problem.** There are really only two questions you open the Dashboard to answer: *what shape is my pipeline* and *are we going to hit the number this month*. Until now those two answers were nowhere near each other. Monthly Revenue Goal was near the top, and the ring you just got in Step 164 was right at the bottom, past follow-ups, data health, the leaderboard and the team stats. You had to scroll past everything to get to one of the two things you actually came for.
 
@@ -2656,4 +2656,96 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 11. Open the Dashboard on your phone. Confirm the ring is at the top, the revenue goal is directly under it, and neither is cut off at the edges.
 12. Switch to Light mode with the sun/moon icon. Confirm both cards still read clearly and the ring's colours are still easy to tell apart.
 13. Switch back to Dark mode and confirm the same.
-14. Check the Team page footer reads **build sxc-v171**.
+14. Check the Team page footer reads **build sxc-v172**.
+
+---
+
+## Step 166 — Tasks are now Missions, and there's a new Empire page
+
+No SQL to run, no edge functions, no new secrets. Ships as `sxc-v172` together with Steps 160, 161, 162, 163, 164 and 165, so one redeploy covers all seven.
+
+### First, the honest part
+
+You asked for a small 2D game your team could play on a break — a character building an empire, with missions. What you're getting is not that game. It's worth explaining why before you look at it, so you can tell me if I've made the wrong call.
+
+Three reasons.
+
+**A game needs drawings, and drawings need downloading.** Every game in the screenshots you sent is built from hundreds of little hand-drawn images. The whole app right now is about 1.5 MB, and most of that is the code itself — there are nine small icons in it and not a single piece of artwork. A game with a walking character, buildings, trees and animations would be several times the size of the entire app. Your team opens this on phones, on Zimbabwean mobile data, sometimes on a connection bad enough that the app already has special code to survive a dropped signal. Making them download a game before they can log a call is the wrong trade.
+
+**There are already two reward systems in the app, and they're already fighting.** You have points, and you have fourteen badges. A third system — a game with its own progress that has nothing to do with real work — would be a third thing competing for your team's attention. The best case is they ignore it. The worst case is someone plays the game instead of making calls, and the game rewards them for it.
+
+**And plainly: I can't draw.** I write code, I don't make pixel art. Anything I built as a "game" would be coloured rectangles pretending to be a game, which is worse than not shipping one.
+
+**But the idea underneath it was good, and that's the part I kept.** "A character building an empire" is exactly the right feeling for a small agency in Harare that is genuinely building something. So instead of a pretend empire you play with, you now have a picture of the real one. Read on.
+
+### What "Missions" means
+
+Everywhere the app used to say **Task** or **Checklist**, it now says **Mission**. That's it — same feature, same items, same numbers, new word.
+
+- The page in the sidebar is now **Missions** instead of Daily Plan.
+- **Today's Outreach Rhythm** is now **Today's Missions**.
+- **Manage Checklist** is now **Manage Missions**, and **+ Add Task** is now **+ Add Mission**.
+- **Team Checklist Today** is now **Team Missions Today**.
+- **Task Type Completion** is now **Mission Type Completion**.
+
+Nothing was renamed in the database. Everything your team has already ticked off, and every number in every report, is untouched. If you decide in a week that "Missions" is silly and you want "Tasks" back, it's a fifteen-minute change with no risk to your data.
+
+### What the Empire page is
+
+There's a new page in the sidebar called **Empire**. It shows a street.
+
+**Every building on that street is a real client you've signed.** Not a made-up one, not one you earn by playing. If a client is in your Prospects list marked **Signed**, they have a building. If they're not signed, they don't.
+
+Each building is drawn from the real facts of that client:
+
+- **How tall it is** comes from how much they pay you per month. Your biggest client is your tallest building.
+- **What colour it is** comes from their niche — the same colours as the niche dots everywhere else in the app. Restaurants are all one colour, salons another. So if your street is mostly one colour, that's you looking at a real fact about your business.
+- **The name under it** is the client's name.
+- **The order along the street** is the order you signed them. Oldest on the left, newest on the right. The page opens scrolled to the right so you see the newest one first.
+- **Click any building** and a card appears underneath telling you what they pay, who on your team signed them, and when. There's a link to open the full client record.
+
+Down on the road there's a small figure for each person on your team. That's not scored, and nobody's figure is bigger than anyone else's. It's just there so the street isn't empty of people.
+
+Above the street: how many buildings, total money per month, and how many different niches you're in.
+
+**A client with no niche set** gets a plain grey building rather than being left out. It'll stand out against the coloured ones, which is a fine nudge to go and set the niche.
+
+**If you haven't signed anyone yet**, you get an empty plot with a dashed outline where the first building will go, and a line telling you the first client puts it up.
+
+### Whose empire is it?
+
+This is the part I want to flag, because it's a decision about your team and not about code.
+
+The obvious version of this feature is that everyone has their own street, or that it's the owner's empire and everyone else is helping build it. I'd advise against both. Separate streets turn it into a scoreboard between people who are supposed to be helping each other. And a page that says "look at the boss's empire growing" is a strange thing to show someone earning a salary.
+
+So it's **one street, shared**. Studio X's town. Everyone's clients on it, everyone's name under their own buildings. When Tariro signs someone, the town gets bigger for everybody. That's what an agency actually is.
+
+**You can't game it.** There is no button on this page that makes anything happen. The only way to add a building is to sign a real client, which is also the only thing you actually want anyone doing. That's on purpose — it's why this is a picture rather than a game.
+
+**It's drawn in code, not pictures.** Every building, tree, lamp post and person is made of shapes the browser draws itself. The whole page adds almost nothing to what your team downloads. It also means it looks sharp on any screen and works in both Dark and Light mode — at night there's a moon and the windows are lit, in the day there's a sun and grass.
+
+### Now test it
+
+Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R).
+
+1. Look at the sidebar. Confirm the old **Daily Plan** link now reads **Missions**.
+2. Click it. Confirm the page title reads **Missions** and the first section reads **Today's Missions**.
+3. Confirm the items in that list are exactly the same ones that were there before — nothing added, nothing missing.
+4. Tick one off, then untick it, and confirm it behaves the same as it always did.
+5. Scroll down and confirm you see **Manage Missions**, **Team Missions Today** and **Mission Type Completion**.
+6. As the owner, click **+ Add Mission**, add one called "Test", and confirm it appears. Then remove it and confirm the message asks about removing a *mission*.
+7. Now find the new **Empire** link in the sidebar, just under Overview. Click it.
+8. Count the buildings on the street. Confirm it matches your number of **Signed** prospects exactly — go to the Prospects page, filter to Signed, and count.
+9. Find your biggest-paying client. Confirm they are the **tallest** building on the street.
+10. Find two clients in the same niche. Confirm their buildings are the **same colour** as each other, and the same colour as that niche's dot on the Prospects page.
+11. Click a building. Confirm the card underneath shows that client's name, what they pay per month, who signed them, and the date.
+12. Click **Open client** on that card and confirm it takes you to the right client.
+13. Check the three numbers above the street — Buildings, Per Month, Districts — against what you'd expect.
+14. If you have a client with no niche set, find their building and confirm it's plain grey rather than missing.
+15. If you have enough clients that the street is wider than the screen, confirm you can **scroll it sideways** with your finger or trackpad, and that the newest building is the one you see first.
+16. Scroll to the bottom of the Empire page and click the button that takes you to Missions. Confirm it goes there.
+17. Switch to Light mode with the sun/moon icon. Confirm the street turns to daytime — blue sky, green grass, a sun — and that the building colours are still easy to tell apart.
+18. Switch back to Dark mode and confirm it's night again, with lit windows.
+19. Open the Empire page on your phone. Confirm the street still fits, still scrolls sideways, and nothing is cut off.
+20. Check the bottom nav bar on your phone now says **Missions** rather than Tasks.
+21. Check the Team page footer reads **build sxc-v172**.

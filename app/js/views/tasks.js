@@ -12,7 +12,7 @@ export function renderTasks() {
 
   const wrap = el(`
     <div>
-      <div class="page-title">Daily Plan<span class="accent">.</span></div>
+      <div class="page-title">Missions<span class="accent">.</span></div>
 
       <div class="stat-grid" style="margin-bottom:16px;grid-template-columns:1fr;" id="tb-streak-wrap"></div>
 
@@ -22,7 +22,7 @@ export function renderTasks() {
       <div class="section-title mt-0">Notes Catch-Up</div>
       <div id="tb-notes-catchup" style="margin-bottom:16px;"></div>
 
-      <div class="section-title mt-0">Today's Outreach Rhythm</div>
+      <div class="section-title mt-0">Today's Missions</div>
       <div class="card" id="tb-checklist" style="margin-bottom:16px;"></div>
 
       <div class="section-title">Your Targets Today</div>
@@ -36,15 +36,15 @@ export function renderTasks() {
         <div class="stat-grid" style="margin-bottom:16px;" id="tb-team-pace"></div>
 
         <div class="flex-between">
-          <div class="section-title mt-0">Manage Checklist</div>
-          <span class="small-link" id="tb-add-task">+ Add Task</span>
+          <div class="section-title mt-0">Manage Missions</div>
+          <span class="small-link" id="tb-add-task">+ Add Mission</span>
         </div>
         <div class="card" id="tb-manage-tasks" style="margin-bottom:16px;"></div>
 
-        <div class="section-title">Team Checklist Today</div>
+        <div class="section-title">Team Missions Today</div>
         <div id="tb-team-checklist" style="margin-bottom:16px;"></div>
 
-        <div class="section-title">Task Type Completion</div>
+        <div class="section-title">Mission Type Completion</div>
         <div id="tb-task-type-breakdown" style="margin-bottom:16px;"></div>
 
         <div class="section-title">Team Targets</div>
@@ -58,7 +58,7 @@ export function renderTasks() {
   const checklistEl = wrap.querySelector("#tb-checklist");
   const myTasks = store.dailyTasks.filter((t) => !t.assigned_to || t.assigned_to === myId);
   if (!myTasks.length) {
-    checklistEl.innerHTML = `<div class="text-faint" style="font-size:12.5px;">No checklist items yet.</div>`;
+    checklistEl.innerHTML = `<div class="text-faint" style="font-size:12.5px;">No missions yet.</div>`;
   } else {
     checklistEl.innerHTML = "";
     myTasks.forEach((task) => {
@@ -527,7 +527,7 @@ function renderWeekAhead(container, isOwner, myId) {
 function renderManageTasks(container) {
   container.innerHTML = "";
   if (!store.dailyTasks.length) {
-    container.innerHTML = `<div class="text-faint" style="font-size:12.5px;">No tasks yet.</div>`;
+    container.innerHTML = `<div class="text-faint" style="font-size:12.5px;">No missions yet.</div>`;
     return;
   }
   store.dailyTasks.forEach((task) => {
@@ -544,8 +544,8 @@ function renderManageTasks(container) {
     `);
     row.querySelector("[data-remove]").addEventListener("click", () => {
       confirmModal({
-        title: "Remove this task?",
-        body: `"${esc(task.title)}" will be removed from ${assignee ? "their" : "everyone's"} checklist.`,
+        title: "Remove this mission?",
+        body: `"${esc(task.title)}" will be removed from ${assignee ? "their" : "everyone's"} missions.`,
         confirmLabel: "Remove",
         danger: true,
         onConfirm: async () => {
@@ -565,7 +565,7 @@ function openTaskForm() {
   const box = el(`
     <div>
       <div class="field">
-        <label>Task</label>
+        <label>Mission</label>
         <input id="tk-title" type="text" placeholder="e.g. Send 15 new outreach messages" />
       </div>
       <div class="field">
@@ -581,12 +581,12 @@ function openTaskForm() {
       <div class="field">
         <label>Assign to</label>
         <select id="tk-assignee">
-          <option value="">Everyone (shared checklist)</option>
+          <option value="">Everyone (shared missions)</option>
           ${store.profiles.filter((p) => p.active !== false).map((p) => `<option value="${p.id}">${esc(p.full_name || p.email)}</option>`).join("")}
         </select>
-        <div class="hint">Pick a person to give them this task only, it won't show up on anyone else's checklist. This repeats daily until you remove it.</div>
+        <div class="hint">Pick a person to give them this mission only, it won't show up on anyone else's missions. This repeats daily until you remove it.</div>
       </div>
-      <button class="btn btn-primary" id="tk-save">Add Task</button>
+      <button class="btn btn-primary" id="tk-save">Add Mission</button>
     </div>
   `);
   box.querySelector("#tk-save").addEventListener("click", async () => {
