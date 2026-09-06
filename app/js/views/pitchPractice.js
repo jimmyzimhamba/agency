@@ -478,6 +478,22 @@ function pickCard() {
   return from[Math.floor(Math.random() * from.length)];
 }
 
+// supabase-js reports a function that isn't deployed and a function that is
+// deployed but unreachable with the same opaque sentence: "Failed to send a
+// request to the Edge Function". On its own that tells the reader nothing they
+// can act on — it looks like the app is broken rather than like a setup step
+// was skipped. By far the likeliest cause on a fresh install is simply that
+// pitch-coach was never deployed, so name that and point at the step. The
+// original wording is kept on the end so a genuinely different fault (a
+// function that IS deployed but is crashing, say) is still legible.
+function coachErrorMessage(error, data) {
+  const raw = (error?.message || data?.error || "").trim();
+  if (/failed to send a request/i.test(raw)) {
+    return "The pitch-coach function isn't deployed yet — see SETUP.md Step 158.2. Cards still work without it; only the coaching notes need it.";
+  }
+  return raw || "Couldn't get a coaching note";
+}
+
 async function submitAnswer(stage, card) {
   if (coaching) return;
   const input = card.querySelector("#pp-answer");
@@ -505,7 +521,8 @@ async function submitAnswer(stage, card) {
 
   if (error || data?.error) {
     out.innerHTML = "";
-    toast(error?.message || data?.error || "Couldn't get a coaching note", "error");
+    console.error("pitchPractice: coaching request failed", error || data?.error);
+    toast(coachErrorMessage(error, data), "error");
     return;
   }
 
