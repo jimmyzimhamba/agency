@@ -882,6 +882,23 @@ main {
 .heat-num { font-size: 11px; font-weight: 700; color: var(--gold-soft); min-width: 26px; text-align: right; }
 
 .conflict-flag { font-size: 10px; font-weight: 700; padding: 3px 7px; border-radius: 6px; background: var(--danger-dim); color: var(--danger); }
+
+/* "SENDING…" — a prospect written down on someone's phone that hasn't reached
+   the server yet, and the matching explanation card at the top of that
+   prospect's detail sheet.
+
+   The two purples are hardcoded rather than taken from --purple-soft because
+   both are a translucent purple tint sitting on a card, and that composite
+   lands differently in each theme: --purple-soft measures 4.15:1 on the dark
+   card and 3.18:1 on the light one, and this is small text needing 4.5:1.
+   These clear it in both themes and in both places without repainting every
+   other purple in the app to fix one badge. */
+.conflict-flag.pending-flag,
+.pending-card { background: var(--purple-dim); color: #a069f9; }
+.pending-card { border-color: var(--purple-soft); }
+:root[data-theme="light"] .conflict-flag.pending-flag,
+:root[data-theme="light"] .pending-card { color: #6a27d1; }
+
 .assigned-tag { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-dim); }
 .avatar {
   width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center;

@@ -1,4 +1,4 @@
-// Outbox — the three field actions keep working with no signal.
+// Outbox — the field actions keep working with no signal.
 //
 // THE PROBLEM THIS SOLVES
 //
@@ -21,10 +21,14 @@
 //
 // WHAT IS AND ISN'T IN HERE, AND WHY
 //
-// Four actions: change a status, set a follow-up date, post a note, and tick
-// off a daily mission. Those are the ones that happen with a phone in one hand
-// and no signal. They were also chosen because all four are SAFE to send late,
-// which most of this app's writes are not:
+// Five actions: add a prospect, change a status, set a follow-up date, post a
+// note, and tick off a daily mission. Those are the ones that happen with a
+// phone in one hand and no signal. They were also chosen because all five are
+// SAFE to send late, which most of this app's writes are not:
+//
+//   Adding a prospect is a brand-new row. There is nothing there yet for it to
+//   overwrite and nobody else editing it, so a late arrival changes nothing
+//   except when the row appears.
 //
 //   A status and a follow-up date are single fields on one prospect, so
 //   sending a stale one late is last-write-wins on that field only — the
@@ -36,6 +40,12 @@
 //   A mission tick is one person's own row for one mission on one date, and
 //   nobody else can write it — so nothing can be racing it, and arriving late
 //   is invisible.
+//
+// Adding a prospect is the one that makes the other four worth having. Walking
+// a street writing down shops is the actual job, and it happens exactly where
+// the signal is worst. Without it the app could tell you about businesses
+// somebody else had already typed in, but the moment you found a new one it
+// had nothing for you.
 //
 // Deliberately NOT queued, and these are the interesting ones:
 //
@@ -57,20 +67,34 @@
 // The nastiest case on bad mobile data isn't a request that fails — it's one
 // that reaches the server, is applied, and then the reply is lost on the way
 // back. The phone can't tell that apart from a request that never arrived, so
-// it will send again. Both job types are built so that a second delivery is
+// it will send again. Every job type is built so that a second delivery is
 // harmless:
 //
 //   A field patch re-sends the same value, so applying it twice is identical
 //   to applying it once.
 //
-//   A note carries an id generated HERE, on the phone, instead of letting the
-//   database make one up. A repeat delivery therefore collides with the row
-//   that already landed and is rejected as a duplicate key — which this file
-//   reads as "good, it's already there" rather than as an error.
+//   A note and a new prospect both carry an id generated HERE, on the phone,
+//   instead of letting the database make one up. A repeat delivery therefore
+//   collides with the row that already landed and is rejected as a duplicate
+//   key — which this file reads as "good, it's already there" rather than as
+//   an error. Without that, a shop added at the edge of a signal could end up
+//   in the pipeline twice, and the second copy would look like a genuine
+//   second business rather than an obvious mistake.
 //
 //   A mission tick is already written as an upsert keyed on (mission, person,
 //   date), so a second delivery lands on the same row and writes the same
 //   value. Nothing needed adding for that one; it was idempotent already.
+//
+// ORDER IS NOW LOAD-BEARING
+//
+// Adding a shop and then straight away setting its status, or writing a note
+// on it, is completely normal — that's one conversation outside one door. Those
+// later jobs refer to a row that does not exist on the server yet, so they can
+// only work if the insert goes first. It does: the queue drains oldest-first
+// and STOPS at the first job that couldn't get through rather than skipping
+// past it, so nothing can overtake the insert it depends on. That was already
+// true for a softer reason (a note shouldn't arrive before the status change
+// it explains); it is now a correctness requirement.
 
 import { sb } from "./supabaseClient.js";
 import {
@@ -82,6 +106,7 @@ import {
   refreshDailyCompletions,
   setOutboxDecorators,
 } from "./state.js";
+import { notify } from "./push.js";
 
 const KEY = "sxc-outbox-v1";
 
@@ -159,6 +184,97 @@ export function onOutboxChange(fn) {
 
 // ---- putting things in -----------------------------------------------------
 
+// Add a brand-new prospect. Returns the id it will have, which is generated
+// here so that the rest of the app can start using it — opening the prospect,
+// setting a status, writing a note — long before the server has heard of it.
+//
+// `payload` is the form's own field values. `wantsResearch` says the message
+// box was left blank, so the AI should write the outreach message once this
+// actually reaches the server.
+//
+// The row that goes on screen is assembled here rather than waiting for the
+// server's copy, which means the defaults below have to match the ones in
+// schema.sql. They are the columns the pipeline card and the detail sheet read
+// — get one wrong and a freshly added shop renders blank or, worse, in the
+// wrong status column. (org_id is deliberately absent: a database trigger
+// fills it in, and it isn't needed to draw anything.)
+export function addProspect(payload, wantsResearch) {
+  const id = newId();
+  const now = new Date().toISOString();
+
+  const row = {
+    id,
+    status: "not_contacted",
+    research_summary: "",
+    research_status: wantsResearch ? "researching" : "pending",
+    message_source: "manual",
+    researched_at: null,
+    google_place_id: null,
+    liora_conflict: false,
+    whatsapp_last_inbound_at: null,
+    created_at: now,
+    updated_at: now,
+    ...payload,
+  };
+
+  queue.push({ id: newId(), kind: "prospect-insert", prospectId: id, row, wantsResearch, at: Date.now() });
+  save();
+  emitProspects();
+  return id;
+}
+
+// Throw away a queued prospect that hasn't been sent yet.
+//
+// Deleting is normally a live write, and deliberately so — you should never be
+// told something irreversible happened without confirmation that it did. But a
+// prospect that is still only in this queue is a special case: nothing has
+// happened yet, so there is nothing to confirm. Cancelling the job is the whole
+// job. Without this, deleting a shop you'd just mistyped would fail with a
+// network error and then the mistake would turn up in everyone's pipeline an
+// hour later anyway.
+//
+// Returns true if there was one to cancel, so the caller knows whether it still
+// needs to ask the server.
+export function cancelPendingProspect(prospectId) {
+  const i = queue.findIndex((j) => j.kind === "prospect-insert" && j.prospectId === prospectId);
+  if (i < 0) return false;
+
+  // Anything queued behind it referred to a row that is now never going to
+  // exist, so it would only fail on arrival.
+  queue = queue.filter((j) => j.prospectId !== prospectId);
+  save();
+
+  const at = store.prospects.findIndex((p) => p.id === prospectId);
+  if (at >= 0) store.prospects.splice(at, 1);
+  // Any notes written on it go too. Nothing can open them again once the
+  // prospect is gone, but leaving them would keep un-sendable notes in memory
+  // for the rest of the session.
+  delete store.notesByProspect[prospectId];
+  emitProspects();
+  return true;
+}
+
+// Change fields on a prospect that is still sitting in this queue, unsent, by
+// editing the queued row itself instead of queueing a change to it.
+//
+// This exists because the obvious alternative is wrong. A prospect added ten
+// minutes ago has no row on the server, so an ordinary update aimed at it has
+// nothing to find — correcting a name you'd just mistyped would fail, and keep
+// failing, until the original insert happened to go out. Folding the correction
+// into the insert means only the corrected version is ever sent, which is also
+// what somebody fixing a typo thirty seconds later plainly meant.
+//
+// Returns true if it handled it, so callers know whether they still need the
+// server.
+export function patchPendingProspect(prospectId, patch) {
+  const job = queue.find((j) => j.kind === "prospect-insert" && j.prospectId === prospectId);
+  if (!job) return false;
+  Object.assign(job.row, patch);
+  save();
+  emitProspects();
+  return true;
+}
+
 // Change one or more fields on a prospect. Takes effect on screen straight
 // away and is sent as soon as there's a connection.
 //
@@ -168,6 +284,10 @@ export function onOutboxChange(fn) {
 // replaying a sequence that no longer means anything. Merging also means the
 // queue can't grow without bound while somebody fiddles with a dropdown.
 export function patchProspect(prospectId, patch) {
+  // Not sent yet, so fold the change into the row that's about to be sent
+  // rather than queueing a second job to change it a moment later.
+  if (patchPendingProspect(prospectId, patch)) return Promise.resolve();
+
   const existing = queue.find((j) => j.kind === "prospect-patch" && j.prospectId === prospectId);
   if (existing) {
     Object.assign(existing.patch, patch);
@@ -247,11 +367,33 @@ export function setTaskCompletion(taskId, completed) {
 // at the bottom of this file).
 
 function decorateProspects(list) {
-  if (!queue.length || !list) return;
+  if (!list) return;
+
+  // Throw away the placeholders this added last time and rebuild them from the
+  // queue below. Rebuilding rather than patching in place is what stops a shop
+  // being drawn twice the moment it lands for real: once the server's own copy
+  // is in the list, the insert job finds it there and adds nothing. It also
+  // runs when the queue is empty, which is exactly the case where the last one
+  // just went out and its placeholder needs clearing.
+  for (let i = list.length - 1; i >= 0; i--) {
+    if (list[i]._pending) list.splice(i, 1);
+  }
+  if (!queue.length) return;
+
+  // Walked in queue order so that a status set straight after adding a shop is
+  // applied to the placeholder the job before it just put back on screen.
   queue.forEach((job) => {
-    if (job.kind !== "prospect-patch") return;
-    const p = list.find((x) => x.id === job.prospectId);
-    if (p) Object.assign(p, job.patch);
+    if (job.kind === "prospect-insert") {
+      if (list.some((x) => x.id === job.prospectId)) return;
+      // Read by the pipeline card and the detail sheet to mark this as still
+      // on its way. Prefixed to make it obvious it isn't a column on prospects.
+      list.push({ ...job.row, _pending: true });
+      return;
+    }
+    if (job.kind === "prospect-patch") {
+      const p = list.find((x) => x.id === job.prospectId);
+      if (p) Object.assign(p, job.patch);
+    }
   });
 }
 
@@ -344,6 +486,33 @@ function isTransient(error) {
 }
 
 async function send(job) {
+  if (job.kind === "prospect-insert") {
+    // org_id is left out on purpose — the stamp_org_id trigger fills it in.
+    // _pending is a marker this file invented; it is not a column, and sending
+    // it would be rejected.
+    const { _pending, ...row } = job.row;
+    const { error } = await sb.from("prospects").insert(row);
+    // Already there from an attempt whose reply got lost. Not an error, and
+    // importantly not a reason to skip the follow-up work below.
+    if (error && error.code !== "23505") return error;
+
+    // Both of these need a connection, which is why they wait until now rather
+    // than firing when the form was submitted. Neither is allowed to fail the
+    // job: the prospect is saved, and losing a push notification or an AI
+    // message is not worth re-sending a row that is already in the table.
+    //
+    // They run on the duplicate-key path too, and that is not an oversight. A
+    // lost reply means this file returned a transient error last time and never
+    // got here — so the row landed but the team was never told about it. This
+    // attempt is the first chance to do that.
+    notify("new_prospect", job.prospectId);
+    if (job.wantsResearch) {
+      sb.functions
+        .invoke("research-prospect", { body: { prospect_id: job.prospectId } })
+        .catch((err) => console.error("research-prospect invoke failed", err));
+    }
+    return null;
+  }
   if (job.kind === "prospect-patch") {
     const { error } = await sb.from("prospects").update(job.patch).eq("id", job.prospectId);
     return error;
@@ -386,8 +555,8 @@ async function send(job) {
 // Stopping rather than skipping ahead is deliberate. If the connection died on
 // job 1 it has almost certainly died for job 2 as well, so carrying on would
 // just be a burst of doomed requests. More importantly, order is meaning here:
-// a note explaining a status change should not arrive before the status change
-// it explains.
+// a status change must not arrive before the prospect it applies to exists, and
+// a note explaining that status change should not arrive before it either.
 export async function flushOutbox() {
   if (flushing) return;
   if (!queue.length) return;
@@ -400,6 +569,7 @@ export async function flushOutbox() {
   const touchedProspects = new Set();
   const touchedNotes = new Set();
   let touchedCompletions = false;
+  let inserted = false;
   const rejected = new Set();
 
   try {
@@ -429,9 +599,25 @@ export async function flushOutbox() {
         console.error("outbox: dropping a job the server rejected", job.kind, error);
         rejected.add(job.kind);
         const { toast } = await import("./utils.js");
+
+        if (job.kind === "prospect-insert") {
+          // Everything queued behind this one hangs off a prospect that is now
+          // never going to exist, so each would fail on arrival and fire its
+          // own error. Drop them together and say it once, naming the business
+          // — "couldn't save one change" is no use when what was actually lost
+          // is a shop you wrote down an hour ago and can no longer remember.
+          const name = job.row.business_name || "that prospect";
+          queue = queue.filter((j) => j.prospectId !== job.prospectId);
+          save();
+          toast(`Couldn't add ${name}: ${error.message}`, "error");
+          touchedProspects.add(job.prospectId);
+          continue;
+        }
+
         toast(`Couldn't save one change: ${error.message}`, "error");
       }
 
+      if (job.kind === "prospect-insert") inserted = true;
       if (job.kind === "prospect-patch") touchedProspects.add(job.prospectId);
       if (job.kind === "note") touchedNotes.add(job.prospectId);
       if (job.kind === "task-completion") touchedCompletions = true;
@@ -445,7 +631,16 @@ export async function flushOutbox() {
   // Re-render whatever the queue was propping up. Without this, a note that
   // has now genuinely been saved would keep its "Sending…" mark until the
   // next unrelated refresh happened to come along.
-  if (touchedProspects.size) emitProspects();
+  //
+  // A prospect that has just been added needs a refetch rather than a re-render,
+  // and this is the one place where the difference is visible. Its placeholder
+  // was the ONLY copy on this phone — so simply re-rendering would prune it and
+  // leave nothing behind, and the shop somebody added ten minutes ago would
+  // disappear off the pipeline at the exact moment it was successfully saved.
+  // Fetching first and rendering once means the placeholder is quietly replaced
+  // by the real row instead of blinking out and back.
+  if (inserted) await refreshProspects();
+  else if (touchedProspects.size) emitProspects();
   touchedNotes.forEach((pid) => emitNotes(pid));
   if (touchedCompletions) emitDailyCompletions();
 
@@ -453,9 +648,10 @@ export async function flushOutbox() {
   // that this device believes and the server never accepted, and nothing else
   // is going to correct it — the job is gone from the queue, so the decorators
   // won't be re-applying it either. Pull the truth back down so the screen
-  // stops claiming a change that didn't happen. (Notes need no equivalent: a
-  // refused note simply disappears when its placeholder is pruned, which is
-  // the honest outcome.)
+  // stops claiming a change that didn't happen. (Notes and refused new
+  // prospects need no equivalent: there was never a server row behind either
+  // of them, so pruning the placeholder — which the re-render above already
+  // did — leaves the screen honest with nothing to fetch.)
   if (rejected.has("prospect-patch")) refreshProspects();
   if (rejected.has("task-completion")) refreshDailyCompletions();
 

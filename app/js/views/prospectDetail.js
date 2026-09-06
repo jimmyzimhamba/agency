@@ -6,7 +6,7 @@ import { buildProspectForm } from "./prospectForm.js";
 import { openDealPricingCalculator } from "./dealPricing.js";
 import { notify } from "../push.js";
 import { canSendFreeform, sendWhatsAppMessage } from "../whatsapp.js";
-import { patchProspect, postNote } from "../outbox.js";
+import { patchProspect, postNote, cancelPendingProspect } from "../outbox.js";
 
 const STATUSES = ["not_contacted", "sent", "replied", "meeting_booked", "signed", "dead"];
 
@@ -80,6 +80,15 @@ function render(p0) {
     </div>
     <div style="font-size:19px;font-weight:800;margin-bottom:2px;">${esc(p.business_name)}</div>
     <div class="text-faint" style="font-size:12.5px;margin-bottom:14px;">${nicheDotHTML(niche)}${esc(niche?.name || "No niche")}${p.area ? " · " + esc(p.area) : ""}${p.rating ? " · ★" + p.rating : ""}</div>
+    ${p._pending ? `
+      <div class="card pending-card" style="margin-bottom:14px;">
+        <div style="font-size:12.5px;">
+          <b>Saved on this phone, not sent yet.</b> Everything here works normally — you
+          can set a status, pick a follow-up date and write notes, and it all goes out
+          together as soon as you have signal.
+        </div>
+      </div>
+    ` : ""}
 
     <div id="pd-ai-section"></div>
 
@@ -316,6 +325,13 @@ function render(p0) {
   if (assignSel) {
     assignSel.addEventListener("change", async () => {
       const newAgentId = assignSel.value || null;
+      // Not sent yet: fold the choice into the row on its way out. The "you've
+      // been assigned" alert waits until there's a connection to send it over,
+      // which is also the first moment the other person could act on it.
+      if (p._pending) {
+        patchProspect(p.id, { assigned_to: newAgentId });
+        return;
+      }
       const { error } = await sb.from("prospects").update({ assigned_to: newAgentId }).eq("id", p.id);
       if (error) return toast(error.message, "error");
       if (newAgentId) notify("assigned", p.id, newAgentId);
@@ -323,6 +339,13 @@ function render(p0) {
   }
   const claimBtn = box.querySelector("#pd-claim");
   if (claimBtn) claimBtn.addEventListener("click", async () => {
+    // Nobody can be racing you for a prospect that only exists on this phone,
+    // and the server has no row to hand over — so take it here. See the same
+    // reasoning in sendWhatsApp() in pipeline.js.
+    if (p._pending) {
+      patchProspect(p.id, { assigned_to: store.profile.id });
+      return toast("Prospect assigned to you", "success");
+    }
     const { data: ok, error } = await sb.rpc("claim_prospect", { p_id: p.id });
     if (error) return toast(error.message, "error");
     if (!ok) return toast("Someone already claimed this prospect", "error");
@@ -330,6 +353,7 @@ function render(p0) {
   });
   const releaseBtn = box.querySelector("#pd-release");
   if (releaseBtn) releaseBtn.addEventListener("click", async () => {
+    if (p._pending) return patchProspect(p.id, { assigned_to: null });
     const { error } = await sb.from("prospects").update({ assigned_to: null }).eq("id", p.id);
     if (error) toast(error.message, "error");
   });
@@ -353,6 +377,16 @@ function render(p0) {
       confirmLabel: "Delete",
       danger: true,
       onConfirm: async () => {
+        // Still only in the outbox — nothing has reached the server, so there
+        // is nothing to ask it to delete. Dropping the queued job is the whole
+        // operation, and it works with no signal, which matters because the
+        // usual reason to delete a just-added prospect is a typo you spotted
+        // while still standing outside the shop.
+        if (cancelPendingProspect(p.id)) {
+          toast("Prospect deleted", "success");
+          closeSheet();
+          return;
+        }
         const { error } = await sb.from("prospects").delete().eq("id", p.id);
         if (error) toast(error.message, "error");
         else { toast("Prospect deleted", "success"); closeSheet(); }
@@ -408,7 +442,14 @@ function renderAISection(box, p) {
       </div>
     ` : ""}
 
-    ${researching ? `
+    ${p._pending ? `
+      <div class="card" style="margin-bottom:14px;">
+        <div class="section-title mt-0">AI Research</div>
+        <div class="text-faint" style="font-size:12.5px;">${p.research_status === "researching"
+          ? "The AI reads the business's website and social pages, so it needs a connection. It will start on its own as soon as this prospect sends."
+          : "Researching needs a connection. Reopen this card once this prospect has sent."}</div>
+      </div>
+    ` : researching ? `
       <div class="card" style="margin-bottom:14px;">
         <div class="section-title mt-0">AI Research</div>
         <div class="text-faint" style="font-size:12.5px;">Researching this business online. This usually takes under a minute. Reopen this card shortly.</div>

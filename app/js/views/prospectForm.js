@@ -2,7 +2,7 @@ import { sb } from "../supabaseClient.js";
 import { store, knownCities } from "../state.js";
 import { el, esc, toast, personalizeMessage, titleCase, statusLabel, findDuplicateProspect } from "../utils.js";
 import { closeSheet, confirmModal } from "../ui.js";
-import { notify } from "../push.js";
+import { addProspect, patchPendingProspect } from "../outbox.js";
 
 const TEMPLATE_CAT_LABELS = { opener: "Opener", follow_up: "Follow-up", objection: "Objection Handler", close: "Close" };
 
@@ -178,10 +178,21 @@ export function buildProspectForm(existing, onSaved) {
       btn.disabled = true;
 
       if (existing) {
-        const { error } = await sb.from("prospects").update(payload).eq("id", existing.id);
-        btn.disabled = false;
-        if (error) return toast(error.message, "error");
-        toast("Saved", "success");
+        // Correcting a prospect that is still waiting to be sent is handled
+        // entirely on the phone — there is no server row to update yet, so an
+        // ordinary save would just fail. Editing a prospect that IS on the
+        // server stays a live write: it's a whole form of fields, usually done
+        // sitting down, and queueing it could quietly overwrite a colleague's
+        // correction with an old copy an hour later.
+        if (patchPendingProspect(existing.id, payload)) {
+          btn.disabled = false;
+          toast("Saved", "success");
+        } else {
+          const { error } = await sb.from("prospects").update(payload).eq("id", existing.id);
+          btn.disabled = false;
+          if (error) return toast(error.message, "error");
+          toast("Saved", "success");
+        }
       } else {
         payload.created_by = store.profile.id;
         const assignSel = wrap.querySelector("#pf-assign");
@@ -191,19 +202,21 @@ export function buildProspectForm(existing, onSaved) {
         // A teammate typing their own message means "skip auto-research" —
         // only kick off AI research when the message box was left blank.
         const wantsResearch = !payload.outreach_message;
-        if (wantsResearch) payload.research_status = "researching";
 
-        const { data, error } = await sb.from("prospects").insert(payload).select().single();
+        // Goes through the outbox rather than straight to Supabase, so that
+        // writing down a shop works with no signal — see outbox.js. Online this
+        // sends immediately and behaves as it always did; the difference only
+        // shows on a bad connection, where the prospect appears now and is sent
+        // when there is one. The push notification and the AI research are
+        // fired by the outbox once the row actually lands, since neither can do
+        // anything from a phone with no data.
+        addProspect(payload, wantsResearch);
         btn.disabled = false;
-        if (error) return toast(error.message, "error");
 
-        if (data?.id) notify("new_prospect", data.id);
-
-        if (wantsResearch && data?.id) {
+        if (!navigator.onLine) {
+          toast("Prospect saved on this phone, will send when you're back online", "success");
+        } else if (wantsResearch) {
           toast("Prospect added, researching this business online...", "success");
-          sb.functions.invoke("research-prospect", { body: { prospect_id: data.id } }).catch((err) => {
-            console.error("research-prospect invoke failed", err);
-          });
         } else {
           toast("Prospect added", "success");
         }

@@ -5,6 +5,7 @@ import { openSheet, closeSheet, openModal, closeModal, confirmModal } from "../u
 import { buildProspectForm } from "./prospectForm.js";
 import { openProspectDetail } from "./prospectDetail.js";
 import { openBulkImportSheet } from "./bulkImport.js";
+import { patchProspect } from "../outbox.js";
 
 const filters = {
   search: "",
@@ -811,7 +812,8 @@ function prospectCard(p) {
         ${hasNoContactMethod(p) ? `<span class="status-pill stale">No contact info</span>` : ""}
         ${hasNoWebsite(p) ? `<span class="status-pill stale">No Site</span>` : ""}
         ${isTopRatedUncontacted(p) ? `<span class="status-pill stale">★ Top Rated</span>` : ""}
-        ${p.research_status === "researching" ? `<span class="conflict-flag" style="background:rgba(212,175,55,0.15);color:#d4af37;">RESEARCHING…</span>` : ""}
+        ${p._pending ? `<span class="conflict-flag pending-flag">SENDING…</span>` : ""}
+        ${!p._pending && p.research_status === "researching" ? `<span class="conflict-flag" style="background:rgba(212,175,55,0.15);color:#d4af37;">RESEARCHING…</span>` : ""}
         ${p.research_status === "failed" ? `<span class="conflict-flag" style="background:rgba(220,53,69,0.15);color:#dc3545;">RESEARCH FAILED</span>` : ""}
         ${p.research_status !== "researching" && p.message_source === "auto_template" ? `<span class="conflict-flag" style="background:rgba(212,175,55,0.15);color:#d4af37;">REVIEW MESSAGE</span>` : ""}
         ${assignee ? `<span class="assigned-tag">${avatarHTML(assignee.full_name, assignee.avatar_url, 18, 9)}${esc(assignee.full_name?.split(" ")[0] || "")}</span>` : `<span class="assigned-tag text-faint">Unassigned</span>`}
@@ -864,9 +866,19 @@ export async function sendWhatsApp(p) {
     return toast(`${owner?.full_name || "A teammate"} is already working this prospect`, "error");
   }
 
-  const { data: claimed, error: claimErr } = await sb.rpc("claim_prospect", { p_id: p.id });
-  if (claimErr) return toast(claimErr.message, "error");
-  if (!claimed) return toast("Someone just claimed this prospect, pick another", "error");
+  // A prospect still sitting in the outbox has no row on the server to claim,
+  // so asking to claim it can only fail. It also doesn't need claiming: this
+  // phone created it moments ago and nobody else has ever seen it, and
+  // claim_prospect grants an unassigned prospect to whoever added it anyway.
+  // Claiming is for deciding who gets a lead two people can both see, which by
+  // definition this isn't. So take it directly and carry on.
+  if (p._pending) {
+    if (!p.assigned_to) patchProspect(p.id, { assigned_to: store.profile.id });
+  } else {
+    const { data: claimed, error: claimErr } = await sb.rpc("claim_prospect", { p_id: p.id });
+    if (claimErr) return toast(claimErr.message, "error");
+    if (!claimed) return toast("Someone just claimed this prospect, pick another", "error");
+  }
 
   // No message written yet? Auto-personalize one from this prospect's niche
   // template (business name, area, gap note filled in) so nobody has to
@@ -877,7 +889,10 @@ export async function sendWhatsApp(p) {
     const template = bestTemplateFor(p, "opener");
     if (template) {
       message = personalizeMessage(template.body, p, store.profile?.full_name?.split(" ")[0]);
-      await sb.from("prospects").update({ outreach_message: message }).eq("id", p.id);
+      // Through the outbox: for a prospect that hasn't been sent yet this folds
+      // into the row on its way out, rather than trying to update a row the
+      // server doesn't have.
+      patchProspect(p.id, { outreach_message: message });
     }
   } else {
     // Already has a message (manually written, or AI-generated with an
@@ -890,7 +905,7 @@ export async function sendWhatsApp(p) {
   window.open(buildWhatsAppLink(p.whatsapp_number, message), "_blank");
 
   if (p.status === "not_contacted") {
-    await sb.from("prospects").update({ status: "sent" }).eq("id", p.id);
+    patchProspect(p.id, { status: "sent" });
   }
 }
 
