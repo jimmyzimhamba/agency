@@ -358,6 +358,26 @@ export function renderPipeline() {
   const hadSearchFocus = document.activeElement?.id === "pl-search";
   root.innerHTML = "";
 
+  // Everything below search and the status chips lives behind one fold. On a
+  // phone this screen was spending 380 of 812 pixels on filter controls before
+  // the first lead, so an agent opening the app to make calls saw two leads
+  // and a wall of chips.
+  //
+  // The count is what makes folding safe: a filter that is quietly on while
+  // hidden would look like missing prospects, which is far worse than clutter.
+  // So an active filter is always named on the closed header, and the panel
+  // starts open whenever anything in it is on. Nothing is removed and nothing
+  // is disabled: every control keeps its id and its handler.
+  const advancedCount =
+    (filters.tier !== "all" ? 1 : 0) +
+    (filters.niche !== "all" ? 1 : 0) +
+    (filters.city !== "all" ? 1 : 0) +
+    (filters.sortHeat ? 1 : 0) +
+    [
+      filters.onlyMine, filters.onlyStale, filters.onlyNoFollowUp, filters.onlyOverdueFollowUp,
+      filters.onlyUnreachable, filters.onlyNoWebsite, filters.onlyTopRated, filters.onlyResearchFailed,
+    ].filter(Boolean).length;
+
   const wrap = el(`
     <div>
       <div class="flex-between">
@@ -373,26 +393,41 @@ export function renderPipeline() {
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
         <input id="pl-search" type="text" placeholder="Search business, area, niche..." value="${esc(filters.search)}" />
       </div>
-      <div class="chip-row" id="pl-view-chips"></div>
       <div class="chip-row" id="pl-status-chips"></div>
-      <div class="chip-row" id="pl-tier-chips"></div>
-      <div class="chip-row" id="pl-city-chips"></div>
-      <div class="field-row" style="margin-bottom:10px;">
-        <div class="field" style="margin-bottom:0;">
-          <select id="pl-niche-filter"></select>
+
+      <div class="card db-collapse-head ${advancedCount ? "open" : ""}" id="pl-filters-toggle" role="button" tabindex="0" aria-expanded="${advancedCount ? "true" : "false"}" aria-controls="pl-filters-body" style="margin-bottom:8px;padding:10px 12px;cursor:pointer;">
+        <div class="flex-between">
+          <div style="font-size:13px;font-weight:700;">${
+            advancedCount
+              ? `Filters: ${advancedCount} on`
+              : "More filters"
+          }</div>
+          <span class="db-collapse-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></span>
         </div>
-        <button class="btn btn-ghost btn-sm" id="pl-sort-heat" style="flex:0 0 auto;width:auto;">Sort: <span id="pl-sort-label">Recent</span></button>
       </div>
-      <div class="chip-row">
-        <span class="chip ${filters.onlyMine ? "active" : ""}" id="pl-mine-chip">Assigned to me</span>
-        <span class="chip ${filters.onlyStale ? "active" : ""}" id="pl-stale-chip">Going Cold</span>
-        <span class="chip ${filters.onlyNoFollowUp ? "active" : ""}" id="pl-nofollowup-chip">No Follow-up</span>
-        <span class="chip ${filters.onlyOverdueFollowUp ? "active" : ""}" id="pl-overdue-chip">Follow-up Overdue</span>
-        <span class="chip ${filters.onlyUnreachable ? "active" : ""}" id="pl-unreachable-chip">Unreachable</span>
-        <span class="chip ${filters.onlyNoWebsite ? "active" : ""}" id="pl-nowebsite-chip">No Website</span>
-        <span class="chip ${filters.onlyTopRated ? "active" : ""}" id="pl-toprated-chip">Top Rated</span>
-        <span class="chip ${filters.onlyResearchFailed ? "active" : ""}" id="pl-researchfailed-chip">Research Failed</span>
+
+      <div id="pl-filters-body" ${advancedCount ? "" : "hidden"}>
+        <div class="chip-row" id="pl-view-chips"></div>
+        <div class="chip-row" id="pl-tier-chips"></div>
+        <div class="chip-row" id="pl-city-chips"></div>
+        <div class="field-row" style="margin-bottom:10px;">
+          <div class="field" style="margin-bottom:0;">
+            <select id="pl-niche-filter"></select>
+          </div>
+          <button class="btn btn-ghost btn-sm" id="pl-sort-heat" style="flex:0 0 auto;width:auto;">Sort: <span id="pl-sort-label">Recent</span></button>
+        </div>
+        <div class="chip-row">
+          <span class="chip ${filters.onlyMine ? "active" : ""}" id="pl-mine-chip">Assigned to me</span>
+          <span class="chip ${filters.onlyStale ? "active" : ""}" id="pl-stale-chip">Going Cold</span>
+          <span class="chip ${filters.onlyNoFollowUp ? "active" : ""}" id="pl-nofollowup-chip">No Follow-up</span>
+          <span class="chip ${filters.onlyOverdueFollowUp ? "active" : ""}" id="pl-overdue-chip">Follow-up Overdue</span>
+          <span class="chip ${filters.onlyUnreachable ? "active" : ""}" id="pl-unreachable-chip">Unreachable</span>
+          <span class="chip ${filters.onlyNoWebsite ? "active" : ""}" id="pl-nowebsite-chip">No Website</span>
+          <span class="chip ${filters.onlyTopRated ? "active" : ""}" id="pl-toprated-chip">Top Rated</span>
+          <span class="chip ${filters.onlyResearchFailed ? "active" : ""}" id="pl-researchfailed-chip">Research Failed</span>
+        </div>
       </div>
+
       <div id="pl-list" class="prospect-list"></div>
       <div class="bulk-action-bar" id="pl-bulk-bar" style="display:none;">
         <span class="bulk-count" id="pl-bulk-count">0 selected</span>
@@ -523,6 +558,24 @@ export function renderPipeline() {
   wrap.querySelector("#pl-researchfailed-chip").addEventListener("click", () => {
     filters.onlyResearchFailed = !filters.onlyResearchFailed;
     renderPipeline();
+  });
+
+  // The fold. Every chip tap inside it calls renderPipeline(), which rebuilds
+  // this whole screen, so the open/closed state is deliberately NOT stored in
+  // a variable here: the panel re-opens on rebuild because advancedCount is
+  // then non-zero. Closed with nothing on, open the moment something is on.
+  const filtersToggle = wrap.querySelector("#pl-filters-toggle");
+  const filtersBody = wrap.querySelector("#pl-filters-body");
+  const toggleFilters = () => {
+    const open = filtersBody.hasAttribute("hidden");
+    if (open) filtersBody.removeAttribute("hidden");
+    else filtersBody.setAttribute("hidden", "");
+    filtersToggle.setAttribute("aria-expanded", open ? "true" : "false");
+    filtersToggle.classList.toggle("open", open);
+  };
+  filtersToggle.addEventListener("click", toggleFilters);
+  filtersToggle.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleFilters(); }
   });
 
   const searchInput = wrap.querySelector("#pl-search");

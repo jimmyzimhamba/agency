@@ -2364,3 +2364,31 @@ Redeploy the `app/` folder via Netlify Drop as usual. The service worker cache v
 10. Go to the **Dashboard**. Confirm you now see a **Data Health** section, closed, with a number on it. Tap it — confirm it opens to reveal the Win-Back / unassigned / at-risk / overdue cards you're used to, and that tapping any of those still takes you to the right screen. Tap the header again to close it.
 11. Confirm your monthly **Business Snapshot** is still visible above Data Health without needing to expand anything.
 12. Do steps 10 and 11 again on your phone to confirm the section opens and closes properly on a narrow screen.
+
+## Step 159 — A calmer Pipeline screen on the phone
+
+Follow-on to the Dashboard tidy-up in Step 158, applied to the screen the team actually lives in all day. No SQL to run, no edge functions, no new secrets. Ships with the same `sxc-v165` version bump as Step 158, so if you haven't redeployed since then, one redeploy covers both.
+
+**The problem, measured.** On a phone (375 pixels wide), the Pipeline screen was spending **380 of the first 812 pixels on filter controls** before the first prospect: a search box, then five separate rows of filter chips, a niche dropdown, a sort button, and eight more toggle chips. Twenty-three chips in total. An agent opening the app to make calls saw **two leads and a wall of buttons**.
+
+**What changed.** The search box and the status chips (All / Not Contacted / Sent / Replied / Meeting / Signed / Dead) stay exactly where they were, because those are the ones used constantly. Everything else — saved views, tier, city, niche, sort, and the eight extras like "Going Cold" and "No Website" — now sits behind a single **"More filters"** row that you tap to open.
+
+That drops it to **184 pixels before the first lead**, so you see more leads and less furniture the moment the screen opens.
+
+**Nothing was removed, and nothing can hide from you.** Two safeguards, both worth knowing about because they're the difference between "tidier" and "confusing":
+
+1. **A filter that's switched on always announces itself.** The closed row changes from "More filters" to **"Filters: 2 on"**, so a short list is never a mystery.
+2. **The panel refuses to close while a filter is on.** Turn on "Going Cold" and the panel stays open. Turn everything off and it collapses again on its own. You can't end up staring at an empty prospect list wondering where everyone went, because the filter doing it is always on screen.
+
+**Setup:** just redeploy the `app/` folder via Netlify Drop.
+
+**Now test it:**
+
+1. Reload the app on your phone (hard refresh if it still looks old).
+2. Go to **Prospects**. Confirm you see the search box, the status chips, then a **"More filters"** row, then your leads — and that you can see more leads without scrolling than before.
+3. Tap **"More filters"** — confirm it opens to reveal saved views, tier, city, niche, sort, and the eight extra chips, all exactly as they were.
+4. With the panel open, tap **"Going Cold"**. Confirm the list filters, the header now reads **"Filters: 1 on"**, and the panel stays open.
+5. Tap **"Top Rated"** as well — confirm it now reads **"Filters: 2 on"**.
+6. Turn both off. Confirm the header goes back to "More filters" and the panel collapses on its own.
+7. Confirm the search box still works and still filters as you type, and that tapping into the Prospects tab from the bottom nav still does **not** pop the keyboard up (the Step 157 fix).
+8. Check the same screen on a desktop browser to confirm it looks right there too.
