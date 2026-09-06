@@ -158,10 +158,170 @@
   .lp-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
   .lp-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
   .lp-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
-  .lp-feature-card { padding: 20px; transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease; }
-  .lp-feature-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -22px rgba(0,0,0,0.55); border-color: var(--line-strong); }
   .lp-feature-card h3 { font-size: 15px; margin: 14px 0 6px; }
   .lp-feature-card p { font-size: 13.5px; color: var(--text-dim); line-height: 1.55; margin: 0; }
+
+  /* ==========================================================================
+     GLASS PLATES
+     --------------------------------------------------------------------------
+     The feature/testimonial cards are treated as panes of glass floating above
+     the page rather than flat filled boxes.
+
+     Glass is only legible if there is something BEHIND it worth refracting. On
+     a near-black page a blurred backdrop is indistinguishable from a flat grey
+     fill, so .lp-field below lays coloured light behind each grid — without it
+     this whole section is an expensive no-op. The shared .ambient-glow pair is
+     position:fixed in the page corners and can't do that job here.
+
+     Three layers make up a plate:
+       the element  — translucent tint + backdrop blur (the glass body)
+       ::before     — a specular highlight that tracks the pointer (the sheen)
+       ::after      — a bright rim on the edge nearest the pointer
+     ========================================================================== */
+  .lp-feature-card {
+    position: relative;
+    padding: 20px;
+    isolation: isolate;
+    background: linear-gradient(160deg, rgba(255,255,255,0.075), rgba(255,255,255,0.022) 46%, rgba(255,255,255,0.045));
+    border: 1px solid rgba(255,255,255,0.10);
+    -webkit-backdrop-filter: blur(18px) saturate(155%);
+    backdrop-filter: blur(18px) saturate(155%);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.14),
+      inset 0 -1px 0 rgba(255,255,255,0.04),
+      0 18px 38px -26px rgba(0,0,0,0.85);
+    transition: transform 0.3s cubic-bezier(0.22,1,0.36,1), box-shadow 0.3s ease, border-color 0.3s ease;
+  }
+  /* The sheen. Sits under the text (z-index below) so it lights the glass
+     rather than washing out the words on it. */
+  .lp-feature-card::before {
+    content: ""; position: absolute; inset: 0; border-radius: inherit;
+    z-index: -1; opacity: 0; transition: opacity 0.35s ease;
+    background: radial-gradient(
+      340px circle at var(--mx, 50%) var(--my, 0%),
+      rgba(255,255,255,0.16), rgba(168,120,255,0.10) 38%, transparent 68%);
+  }
+  /* The rim. A hairline that brightens on the side the pointer is on, which
+     is what actually sells a flat rectangle as a thick pane with an edge. */
+  .lp-feature-card::after {
+    content: ""; position: absolute; inset: 0; border-radius: inherit;
+    z-index: -1; opacity: 0; transition: opacity 0.35s ease;
+    padding: 1px;
+    background: radial-gradient(
+      220px circle at var(--mx, 50%) var(--my, 0%),
+      rgba(255,255,255,0.55), rgba(255,255,255,0) 70%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask-composite: exclude;
+  }
+  /* .lp-tilting is in here as well as :hover so the light and the tilt are
+     driven by the same signal — the JS class — rather than drifting apart. */
+  .lp-feature-card:hover::before, .lp-feature-card:hover::after,
+  .lp-feature-card.lp-tilting::before, .lp-feature-card.lp-tilting::after,
+  .lp-feature-card:focus-within::before, .lp-feature-card:focus-within::after { opacity: 1; }
+
+  /* The coloured light the glass has to work with. One soft blob per grid,
+     behind the plates, so a blurred backdrop actually resolves to something.
+     pointer-events:none so it can never eat a click on the cards above it. */
+  /* isolate + z-index:-1 puts the blob behind everything in the section but
+     still in front of the page background, so it can never tint the heading
+     text sitting above the cards. */
+  .lp-field { position: relative; isolation: isolate; }
+  .lp-field::before {
+    content: ""; position: absolute; z-index: -1; pointer-events: none;
+    left: 4%; right: 4%; top: 14%; bottom: 2%;
+    background:
+      radial-gradient(ellipse 42% 60% at 22% 40%, rgba(123,47,247,0.30), transparent 70%),
+      radial-gradient(ellipse 38% 55% at 78% 60%, rgba(214,166,58,0.16), transparent 70%);
+    filter: blur(46px);
+  }
+
+  /* No light-mode variants here on purpose. This page never loads js/theme.js,
+     so data-theme is never set on it and the landing page is dark-only by
+     design — light-mode glass rules would be untestable code for a state that
+     cannot happen. If a theme toggle is ever added here, the tint and the rim
+     both need inverting: a white pane on a white page is invisible. */
+
+  /* Backdrop blur is the single most expensive thing on this page and there
+     may be ten plates on screen at once. Phones are where that hurts and also
+     where the effect is least visible, so below 760px the plates fall back to
+     an opaque fill. They still look like cards; they just stop costing a
+     composite pass each. */
+  @media (max-width: 760px) {
+    .lp-feature-card {
+      -webkit-backdrop-filter: none; backdrop-filter: none;
+      background: linear-gradient(180deg, var(--black-card), var(--black-card-2));
+    }
+    .lp-field::before { display: none; }
+  }
+
+  /* Motion: the float and the tilt. Everything here is transform/opacity only
+     and every bit of it is inside the same reduced-motion gate the rest of the
+     page uses. .lp-tilt is added by JS only on real hover-capable pointers. */
+  @media (prefers-reduced-motion: no-preference) {
+    /* Idle drift, so the plates read as suspended rather than pinned.
+       .lp-afloat is added by JS, never in the markup, and only once two
+       conditions hold: the plate has finished its scroll-reveal slide, and it
+       is currently on screen. Both matter.
+         - The reveal slides the card up by animating `transform`, and a
+           running CSS animation always beats a transition. Start the float
+           first and the slide silently never happens.
+         - A drifting plate with a backdrop blur makes the browser re-blur
+           everything behind it every frame. Worth paying for the two or three
+           someone is looking at; not for the seven scrolled out of sight. */
+    .lp-feature-card.lp-afloat { animation: lp-float 7s ease-in-out 0.9s infinite; }
+    /* Staggered starts, so the grid drifts like several separate panes rather
+       than pulsing in unison like one object. These are positive delays on
+       purpose: during the delay an animation doesn't touch `transform` at all,
+       which is what leaves the reveal slide and the settle-back below free to
+       run. A negative delay would seize the property immediately. */
+    .lp-grid-3 > .lp-feature-card:nth-child(2), .lp-grid-4 > .lp-feature-card:nth-child(2) { animation-delay: 2.0s; }
+    .lp-grid-3 > .lp-feature-card:nth-child(3), .lp-grid-4 > .lp-feature-card:nth-child(3) { animation-delay: 3.1s; }
+    .lp-grid-4 > .lp-feature-card:nth-child(4) { animation-delay: 4.2s; }
+    @keyframes lp-float {
+      0%, 100% { transform: translate3d(0, 0, 0); }
+      50%      { transform: translate3d(0, -6px, 0); }
+    }
+    /* Once a plate is floating it also needs a snappier spring than the 0.6s
+       scroll-reveal transition it inherits, so that letting go of a tilted
+       plate settles it level inside the 0.9s animation delay above instead of
+       being cut off mid-settle when the float restarts. */
+    .lp-feature-card.lp-afloat {
+      transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+
+    /* While the pointer is over a plate the float hands over to the tilt,
+       which is driven from JS. Two animations can't both own `transform`, so
+       the float is switched off rather than fought with.
+       .lp-revealed is in the selector purely to win a specificity fight: the
+       scroll-reveal utility further down this file ends with
+       `.lp-reveal.lp-revealed { transform: none; }`, which is two classes and
+       comes later, so a two-class tilt selector loses to it and the tilt
+       silently does nothing at all. A plate can't be hovered before it has
+       been revealed, so requiring the class here costs nothing. */
+    .lp-feature-card.lp-revealed.lp-tilting {
+      animation: none;
+      transform:
+        perspective(900px)
+        rotateX(var(--rx, 0deg))
+        rotateY(var(--ry, 0deg))
+        translate3d(0, -6px, 0)
+        scale(1.018);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.20),
+        0 30px 55px -28px rgba(0,0,0,0.9);
+      border-color: rgba(255,255,255,0.18);
+      /* No transform transition while tilting: the tilt tracks the cursor
+         live and must not lag a third of a second behind it. */
+      transition: box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+  }
+
+  /* Nothing extra for touch on purpose. There's no hover to track, and a
+     press-down state on a card that isn't a link or a button just promises a
+     tap that does nothing. Phones already get the idle drift, which is the
+     part of this that reads at arm's length anyway. */
 
   /* testimonials (illustrative examples only — Studio X has no verified
      customer quotes yet, so these are explicitly labeled as such rather
@@ -319,7 +479,10 @@
     </header>
 
     <!-- ============ FEATURE TRIO ============ -->
-    <section class="lp-section">
+    <!-- lp-field lays soft coloured light behind the grid. The cards are glass,
+         and glass over a flat near-black page just looks like grey plastic —
+         the blur needs something worth refracting. -->
+    <section class="lp-section lp-field">
       <div class="lp-grid-3">
         <div class="card lp-feature-card lp-reveal">
           <div class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></div>
@@ -340,7 +503,7 @@
     </section>
 
     <!-- ============ CONNECTED FEATURES ============ -->
-    <section class="lp-section">
+    <section class="lp-section lp-field">
       <div class="lp-center"><span class="lp-badge-tag">One connected workflow</span></div>
       <h2>Every part of your agency, in one place</h2>
       <p class="sub">Not five different tools stitched together. Pipeline, conversations, business documents and team coordination all live in the same command center.</p>
@@ -402,7 +565,7 @@
     </section>
 
     <!-- ============ TESTIMONIALS (illustrative examples, not real customer quotes) ============ -->
-    <section class="lp-section">
+    <section class="lp-section lp-field">
       <div class="lp-center"><span class="lp-badge-tag">Illustrative examples</span></div>
       <h2>What running your agency this way looks like</h2>
       <p class="sub">Studio X Marketing is still onboarding its first teams on Agency Command. These are illustrative scenarios of how a small agency team could use it day to day, not verified customer quotes.</p>
@@ -582,11 +745,19 @@
       startTimer();
     })();
 
-    // Scroll-reveal: fade/slide each .lp-reveal element up into place the
-    // first time it enters the viewport. Skipped entirely for
-    // prefers-reduced-motion — those elements have no hidden state in CSS
-    // to begin with (see the media-query-gated .lp-reveal rules above), so
-    // there's nothing for this to do and no class needs adding.
+    // Scroll-reveal, plus the idle drift of the glass plates.
+    //
+    // These two live together because they fight over one CSS property. The
+    // reveal slides an element up by animating `transform`; the plate float
+    // animates `transform` too, and a running CSS animation always beats a
+    // transition. Start the float first and the slide silently never happens —
+    // the card just fades in. So a plate is only handed the float class once
+    // its reveal has finished, and only while it's actually on screen.
+    //
+    // Both are skipped entirely for prefers-reduced-motion: those elements
+    // have no hidden state in CSS to begin with (see the media-query-gated
+    // .lp-reveal rules above), and .lp-afloat is inert behind the same gate,
+    // so there is nothing for any of this to do.
     (function () {
       const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       if (reduceMotion) return;
@@ -596,14 +767,103 @@
         targets.forEach((el) => el.classList.add("lp-revealed"));
         return;
       }
+
+      // Which plates are on screen right now. A plate with a backdrop blur
+      // costs the browser a fresh blur of everything behind it on every frame
+      // it moves, so the seven that are scrolled out of sight stop drifting.
+      const onScreen = new Set();
+      const plates = Array.from(document.querySelectorAll(".lp-feature-card"));
+      const floatIO = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          const el = entry.target;
+          if (entry.isIntersecting) {
+            onScreen.add(el);
+            if (el.classList.contains("lp-revealed")) el.classList.add("lp-afloat");
+          } else {
+            onScreen.delete(el);
+            el.classList.remove("lp-afloat");
+          }
+        });
+      }, { rootMargin: "80px" });
+      plates.forEach((el) => floatIO.observe(el));
+
+      // 0.6s reveal transition + up to 0.24s of row stagger, rounded up.
+      const REVEAL_MS = 900;
       const io = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
           if (!entry.isIntersecting) return;
-          entry.target.classList.add("lp-revealed");
-          io.unobserve(entry.target);
+          const el = entry.target;
+          el.classList.add("lp-revealed");
+          io.unobserve(el);
+          if (el.classList.contains("lp-feature-card")) {
+            // Re-check on screen: someone can scroll straight past a card
+            // between the reveal firing and this landing, and a plate nobody
+            // can see shouldn't be left drifting.
+            window.setTimeout(() => { if (onScreen.has(el)) el.classList.add("lp-afloat"); }, REVEAL_MS);
+          }
         });
       }, { threshold: 0.15, rootMargin: "0px 0px -40px 0px" });
       targets.forEach((el) => io.observe(el));
+    })();
+
+    // Pointer-reactive glass. Moving the cursor over a plate slides the sheen
+    // and the bright rim to meet it and tips the plate slightly toward it,
+    // which is what sells a flat rectangle as a thick pane with an edge.
+    //
+    // All of it is four CSS custom properties — no layout, no reflow. Skipped
+    // on reduced motion, and skipped on touch, where there is no hovering
+    // pointer to track and the CSS falls back to a plain press-down instead.
+    (function () {
+      const mq = window.matchMedia;
+      if (!mq) return;
+      if (mq("(prefers-reduced-motion: reduce)").matches) return;
+      if (!mq("(hover: hover) and (pointer: fine)").matches) return;
+      const plates = Array.from(document.querySelectorAll(".lp-feature-card"));
+      if (!plates.length) return;
+
+      // Degrees. Past about six it stops reading as a pane of glass catching
+      // the light and starts reading as a card being knocked over.
+      const MAX_TILT = 5;
+      let frame = 0;
+      let pending = null;
+
+      function apply() {
+        frame = 0;
+        const p = pending;
+        pending = null;
+        if (!p) return;
+        const fx = p.x / p.w;
+        const fy = p.y / p.h;
+        p.el.style.setProperty("--mx", (fx * 100).toFixed(1) + "%");
+        p.el.style.setProperty("--my", (fy * 100).toFixed(1) + "%");
+        // Tip away from the cursor: pointer on the right raises the left edge,
+        // the way a real pane would pivot around the point you press.
+        p.el.style.setProperty("--ry", ((fx - 0.5) * 2 * MAX_TILT).toFixed(2) + "deg");
+        p.el.style.setProperty("--rx", ((0.5 - fy) * 2 * MAX_TILT).toFixed(2) + "deg");
+      }
+
+      plates.forEach((el) => {
+        el.addEventListener("pointerenter", (e) => {
+          if (e.pointerType === "touch") return;
+          el.classList.add("lp-tilting");
+        });
+        el.addEventListener("pointermove", (e) => {
+          if (e.pointerType === "touch") return;
+          const r = el.getBoundingClientRect();
+          if (!r.width || !r.height) return;
+          // At most one update per painted frame. pointermove fires far more
+          // often than the screen refreshes and every extra one is thrown away.
+          pending = { el: el, x: e.clientX - r.left, y: e.clientY - r.top, w: r.width, h: r.height };
+          if (!frame) frame = requestAnimationFrame(apply);
+        });
+        el.addEventListener("pointerleave", () => {
+          el.classList.remove("lp-tilting");
+          // Return the angles to level so the plate settles rather than snaps.
+          // The sheen and rim fade out on their own via the CSS :hover opacity.
+          el.style.setProperty("--rx", "0deg");
+          el.style.setProperty("--ry", "0deg");
+        });
+      });
     })();
   </script>
 </body>
