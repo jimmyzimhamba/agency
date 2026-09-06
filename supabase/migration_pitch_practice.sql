@@ -1,9 +1,14 @@
 -- ============================================================================
 -- STUDIO X COMMAND — Migration: Pitch Practice (the team practice game)
 -- ============================================================================
--- Run this once in the Supabase SQL Editor to add what the new Pitch Practice
+-- Run this in the Supabase SQL Editor to add what the new Pitch Practice
 -- feature needs. Safe to run on a live database: it only ADDS new tables and
 -- never touches your existing prospects, contracts, invoices or anything else.
+--
+-- Also safe to run AGAIN, as many times as you like. Every table, column,
+-- index, policy and trigger below is guarded, so running it a second time
+-- repairs a half-finished install rather than failing. If the app ever tells
+-- you to re-run this, just paste the whole file in again.
 -- See SETUP.md Step 158.
 -- ============================================================================
 
@@ -40,16 +45,31 @@ alter table public.pitch_scenarios enable row level security;
 -- Everyone on the team can read the deck and add cards to it. Deliberately
 -- not owner-only: the whole point is that the people taking real calls are
 -- the ones who know which objections actually come up.
+--
+-- Every policy and trigger below is dropped first. Postgres has no
+-- "create policy if not exists", so on a database that already has these the
+-- bare create fails with "policy already exists" — and because the Supabase
+-- SQL Editor runs the whole script in one transaction, that single error
+-- rolls back EVERYTHING above it, including the is_starter column. Re-running
+-- the migration could therefore never repair a half-applied install, which is
+-- exactly what the app tells people to do when the deck won't load.
+drop policy if exists "pitch_scenarios: read org" on public.pitch_scenarios;
 create policy "pitch_scenarios: read org" on public.pitch_scenarios
   for select using (org_id = public.my_org_id());
+drop policy if exists "pitch_scenarios: team inserts" on public.pitch_scenarios;
 create policy "pitch_scenarios: team inserts" on public.pitch_scenarios
   for insert with check (org_id = public.my_org_id());
 -- You can edit or retire your own card; owners can tidy up anyone's.
+drop policy if exists "pitch_scenarios: author or owner updates" on public.pitch_scenarios;
 create policy "pitch_scenarios: author or owner updates" on public.pitch_scenarios
   for update using (org_id = public.my_org_id() and (created_by = auth.uid() or public.is_owner()));
+drop policy if exists "pitch_scenarios: author or owner deletes" on public.pitch_scenarios;
 create policy "pitch_scenarios: author or owner deletes" on public.pitch_scenarios
   for delete using (org_id = public.my_org_id() and (created_by = auth.uid() or public.is_owner()));
 
+-- Without this trigger org_id is never filled in and every insert fails the
+-- not-null constraint, which is one of the two ways the starter deck breaks.
+drop trigger if exists trg_pitch_scenarios_org on public.pitch_scenarios;
 create trigger trg_pitch_scenarios_org before insert on public.pitch_scenarios
   for each row execute function public.stamp_org_id();
 
@@ -82,13 +102,17 @@ alter table public.pitch_attempts enable row level security;
 -- not even the owner. Practising badly in private is the entire point of
 -- practice, and people won't try the hard cards if the boss can read every
 -- fumbled answer.
+drop policy if exists "pitch_attempts: read own" on public.pitch_attempts;
 create policy "pitch_attempts: read own" on public.pitch_attempts
   for select using (org_id = public.my_org_id() and agent_id = auth.uid());
+drop policy if exists "pitch_attempts: insert own" on public.pitch_attempts;
 create policy "pitch_attempts: insert own" on public.pitch_attempts
   for insert with check (org_id = public.my_org_id() and agent_id = auth.uid());
+drop policy if exists "pitch_attempts: delete own" on public.pitch_attempts;
 create policy "pitch_attempts: delete own" on public.pitch_attempts
   for delete using (org_id = public.my_org_id() and agent_id = auth.uid());
 
+drop trigger if exists trg_pitch_attempts_org on public.pitch_attempts;
 create trigger trg_pitch_attempts_org before insert on public.pitch_attempts
   for each row execute function public.stamp_org_id();
 

@@ -447,9 +447,17 @@ async function seedStarterCards(link, stage) {
 
   if (error) {
     console.error("pitchPractice: could not load starter cards", error);
-    // The likeliest cause by far is an older copy of the migration without the
-    // is_starter column, so point at the fix instead of showing a raw error.
-    toast("Couldn't load the starter cards. Re-run the SQL in SETUP.md Step 158.", "error");
+    // Re-running the migration is still the fix, but say WHY it failed rather
+    // than only guessing at the cause. The two real causes look identical from
+    // here — a missing is_starter column and a missing stamp_org_id trigger
+    // (which leaves org_id null and trips the not-null constraint) — and
+    // without the database's own words there is no way to tell them apart, so
+    // a wrong guess sends someone re-running SQL that was never the problem.
+    const why = (error.message || "").trim();
+    toast(
+      `Couldn't load the starter cards. Re-run the SQL in SETUP.md Step 158.${why ? " Database said: " + why : ""}`,
+      "error"
+    );
     link.textContent = `Or load ${starterCardsForOrg().length} common ones to start`;
     link.style.pointerEvents = "";
     return;
