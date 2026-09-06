@@ -2392,3 +2392,36 @@ That drops it to **184 pixels before the first lead**, so you see more leads and
 6. Turn both off. Confirm the header goes back to "More filters" and the panel collapses on its own.
 7. Confirm the search box still works and still filters as you type, and that tapping into the Prospects tab from the bottom nav still does **not** pop the keyboard up (the Step 157 fix).
 8. Check the same screen on a desktop browser to confirm it looks right there too.
+
+---
+
+## Step 160 — The desktop top bar now tells you which page you're on
+
+No SQL to run, no edge functions, no new secrets. This is a look-and-feel change only, taken from the Biiblo screenshots you sent. Version bump `sxc-v166`.
+
+**The problem.** On a laptop, the strip across the top of the app was showing the "Agency Command" logo — which is already sitting right there in the sidebar, three centimetres to the left. So the bar was saying something you could already see, and the rest of it was empty space.
+
+That got worse the moment you used the minimize button. With the sidebar shrunk down to its icon rail, the page names disappear with it, and the only clue about where you were was which little icon was highlighted purple. If you'd been reading a long list for a minute, there was genuinely nothing on screen that said the word "Invoices".
+
+**What changed.** The duplicated logo is gone from the top bar on laptops, and the name of the page you're on sits there instead. Open Invoices and the bar says **Invoices**. Open Pitch Practice and it says **Pitch Practice**. It stays there when the sidebar is minimized, which is the whole point.
+
+The page name is read directly off the sidebar button it belongs to. That means if you ever rename something in the sidebar, the top bar renames itself to match automatically. They can't drift apart and start calling the same page two different things.
+
+**Also: the search box now shows its shortcut.** There's a small `/` chip on the right-hand edge of the sidebar search box. That's not new behaviour, it's advertising something the app could already do: press the `/` key anywhere and your cursor jumps into search. Plenty of people never found that. The chip disappears the instant you click into the box, so it can't sit on top of what you're typing.
+
+**Nothing changed on phones.** The phone layout has no sidebar, so the top bar there still shows the logo exactly as before, and the bottom nav still shows you which tab you're on. This whole step only switches on at laptop and desktop widths.
+
+### Now test it
+
+Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R).
+
+1. On a laptop, open the app. Confirm the top bar shows **Dashboard** on the left, not the logo.
+2. Click through Prospects, Contracts, Invoices and Projects. Confirm the name in the top bar changes each time and always matches the highlighted sidebar button.
+3. Click the small round arrow on the sidebar's right edge to minimize it. Confirm the page name **stays** in the top bar.
+4. With the sidebar still minimized, click a few different icons. Confirm the top bar keeps naming each page correctly.
+5. Expand the sidebar again. Confirm nothing shifted or overlapped.
+6. Look at the sidebar search box. Confirm there's a small `/` chip on its right edge.
+7. Click into the search box. Confirm the `/` chip disappears, and type something long enough to fill the box to confirm the text never runs underneath it.
+8. Click out, then press the `/` key. Confirm your cursor jumps into the search box.
+9. Open the app on your phone. Confirm the top bar still shows the "Agency Command" logo and looks exactly as it did before.
+10. Check the Team page footer reads **build sxc-v166**, which confirms the redeploy actually took.

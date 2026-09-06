@@ -492,7 +492,7 @@ export function renderTeam() {
         <div class="divider"></div>
         <button class="btn btn-ghost" id="tm-signout">Sign Out</button>
         <p class="text-faint" style="font-size:11px;text-align:center;margin-top:20px;">Agency Command · ${esc(store.organization?.name || "Sales & Team Sync")}</p>
-        <p class="text-faint" style="font-size:10px;text-align:center;margin-top:4px;opacity:0.6;">build sxc-v165</p>
+        <p class="text-faint" style="font-size:10px;text-align:center;margin-top:4px;opacity:0.6;">build sxc-v166</p>
       </div>
     </div>
   `);

@@ -173,6 +173,11 @@
             <div class="search-bar">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
               <input id="global-search-input" type="text" placeholder="Search everything..." autocomplete="off" />
+              <!-- Advertises the keyboard shortcut that already exists (press
+                   "/" anywhere to jump here). Purely a hint: it hides itself
+                   the moment the box is focused so it can never sit on top of
+                   what you're typing. -->
+              <kbd class="search-kbd" aria-hidden="true">/</kbd>
             </div>
             <div id="global-search-results" class="gsearch-dropdown"></div>
           </div>
@@ -281,6 +286,15 @@
               <div class="brand-mark"><img src="icons/mark.png" alt="" /></div>
               <div class="brand-name"><span class="text-purple-grad">Agency</span> Command<small id="topbar-org-name">HARARE OUTREACH</small></div>
             </div>
+
+            <!-- Desktop only. On phone widths the brand block above fills this
+                 bar and the bottom nav shows which tab you're on, so this stays
+                 hidden. On desktop the brand moves into the sidebar and this
+                 takes its place, naming the page you're looking at — which is
+                 the only page label left on screen once the sidebar has been
+                 minimized down to its icon rail. Filled in by switchView(). -->
+            <div class="topbar-page" id="topbar-page"></div>
+
             <div class="topbar-actions">
               <button class="icon-btn" id="btn-search" title="Search">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>

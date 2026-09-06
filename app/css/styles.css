@@ -237,6 +237,14 @@ button { font-family: inherit; }
   padding-left: 12px; border-left: 3px solid var(--purple);
 }
 
+/* Hidden by default — only the desktop breakpoint below turns it on, where
+   the brand has moved into the sidebar and left this bar otherwise empty. */
+.topbar-page {
+  display: none;
+  font-size: 17px; font-weight: 700; letter-spacing: -0.2px; color: var(--text);
+  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
 .topbar-actions { display: flex; align-items: center; gap: 10px; }
 .icon-btn {
   width: 36px; height: 36px; border-radius: 50%;
@@ -377,10 +385,12 @@ button { font-family: inherit; }
   .app-main-col { flex: 1; min-width: 0; max-width: calc(100% - var(--sidebar-w)); transition: max-width 0.2s ease; }
   .sidebar-toggle { display: flex; }
 
-  /* the sidebar now owns the brand + primary nav, so the topbar narrows
-     down to just page-level actions (due today, quick menu). */
+  /* the sidebar now owns the brand + primary nav, so the topbar swaps the
+     brand block for the name of the page you're on, with the page-level
+     actions (due today, quick menu) staying over on the right. */
   .app-main-col .topbar .brand { display: none; }
-  .app-main-col .topbar { justify-content: flex-end; padding-left: 22px; padding-right: 22px; }
+  .app-main-col .topbar .topbar-page { display: block; }
+  .app-main-col .topbar { justify-content: space-between; gap: 16px; padding-left: 22px; padding-right: 22px; }
   .app-main-col .bottom-nav { display: none; }
   .app-main-col main { padding-bottom: 30px; }
   .app-main-col .fab { bottom: 24px; max-width: none; }
@@ -543,10 +553,26 @@ main {
 .search-bar input:focus { border-color: var(--purple); }
 .search-bar svg { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--text-faint); }
 
+/* Keyboard-shortcut hint pinned inside the right edge of a search box.
+   Non-interactive (pointer-events:none) so clicking it still lands in the
+   input underneath, and it disappears on focus so it never overlaps text. */
+.search-kbd {
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  pointer-events: none;
+  min-width: 20px; padding: 2px 6px; border-radius: 6px;
+  background: var(--black-raised); border: 1px solid var(--line);
+  color: var(--text-faint); font-family: var(--font);
+  font-size: 11px; font-weight: 700; line-height: 1.5; text-align: center;
+}
+.search-bar input:focus ~ .search-kbd { display: none; }
+
 /* ---- global search (sidebar dropdown + mobile sheet share these row/label
    classes; the dropdown wrapper only applies to the sidebar version) ------*/
 .sidebar-search { position: relative; padding: 0 10px 12px; }
 .sidebar-search .search-bar { margin-bottom: 0; }
+/* room on the right for the "/" shortcut hint chip so long queries scroll
+   under the padding rather than under the chip itself. */
+.sidebar-search .search-bar input { padding-right: 42px; }
 .gsearch-dropdown {
   display: none; position: absolute; left: 10px; right: 10px; top: calc(100% + 4px);
   max-height: 65vh; overflow-y: auto; z-index: 50;

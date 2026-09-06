@@ -73,6 +73,15 @@ export function switchView(name) {
   document.querySelectorAll(".sidebar-link[data-view]").forEach((btn) => {
     btn.classList.toggle("active", btn.dataset.view === name);
   });
+  // Name the page in the desktop top bar. The text is read straight off the
+  // matching sidebar link rather than kept in a second list here, so renaming
+  // a nav item in app.html renames it in both places at once and the two can
+  // never quietly disagree about what a page is called.
+  const pageEl = document.getElementById("topbar-page");
+  if (pageEl) {
+    const link = document.querySelector(`.sidebar-link[data-view="${name}"] .sidebar-label`);
+    pageEl.textContent = link ? link.textContent.trim() : "";
+  }
   // The floating "+" only makes sense where it's unambiguous what it adds.
   // It used to float over every single view (Dashboard, Messages, Team,
   // Settings, ...) which made it feel like a stray button rather than a
