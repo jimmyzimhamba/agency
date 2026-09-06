@@ -1254,7 +1254,7 @@ function openGoalModal(current) {
         <label>Target MRR (USD)</label>
         <input id="goal-input" type="number" min="0" value="${current || ""}" placeholder="e.g. 3000" />
       </div>
-      <button class="btn btn-gold" id="goal-save">Save Goal</button>
+      <button class="btn btn-primary" id="goal-save">Save Goal</button>
     </div>
   `);
   box.querySelector("#goal-save").addEventListener("click", async () => {

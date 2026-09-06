@@ -43,7 +43,7 @@ export function openOnboardingWizard() {
       <div id="ob-step-body"></div>
       <div style="display:flex;gap:10px;margin-top:20px;">
         <button class="btn btn-ghost" id="ob-back" style="display:none;">Back</button>
-        <button class="btn btn-gold" id="ob-next">Next</button>
+        <button class="btn btn-primary" id="ob-next">Next</button>
       </div>
     </div>
   `);

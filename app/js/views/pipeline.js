@@ -154,6 +154,46 @@ function persistSavedViews(views) {
   }
 }
 
+// ---- list density (Card view / List view) ----------------------------------
+// Two ways to look at the same prospects. Card view is the original: every
+// lead gets its heat bar and its WhatsApp/Details buttons, which is right when
+// you are working one lead at a time. List view strips a row down to name,
+// where they are, and status so roughly three times as many fit on a screen —
+// which is what you want when you are scanning for a particular business or
+// getting a feel for the whole pipeline. Tapping a row still opens the full
+// detail panel, so nothing is actually lost by scanning in List view.
+//
+// This is markup-identical on purpose: both views render exactly the same
+// card, and a class on the container hides the extra parts in List view. That
+// means there is only one card to maintain, and a change to what a prospect
+// shows can never land in one view and go missing from the other.
+//
+// Same reasoning as saved views for storing it per-device in localStorage:
+// how you like to look at a list is a personal habit, not shared pipeline
+// data, so it needs no table and no sync — just to survive a reload.
+function densityStorageKey() {
+  return `sxc-pipeline-density:${store.organization?.id || "default"}:${store.profile?.id || "anon"}`;
+}
+
+let compactList = false;
+
+function loadDensity() {
+  try {
+    compactList = localStorage.getItem(densityStorageKey()) === "compact";
+  } catch {
+    compactList = false;
+  }
+}
+
+function persistDensity() {
+  try {
+    localStorage.setItem(densityStorageKey(), compactList ? "compact" : "cards");
+  } catch {
+    // Private-browsing / storage-full edge case — the choice just won't
+    // persist past this session. The list itself still works.
+  }
+}
+
 // The free-text search box is deliberately left out of a saved view — a
 // view is a reusable preset of structural filters, not a one-off search
 // term someone happened to be typing when they hit Save.
@@ -181,7 +221,7 @@ function openSaveViewModal() {
         <label>View name</label>
         <input id="view-name-input" type="text" placeholder="e.g. Harare, Tier A, cold" maxlength="40" />
       </div>
-      <button class="btn btn-gold" id="view-save-btn">Save View</button>
+      <button class="btn btn-primary" id="view-save-btn">Save View</button>
     </div>
   `);
   box.querySelector("#view-save-btn").addEventListener("click", () => {
@@ -345,6 +385,10 @@ function renderBulkBar() {
 
 export function renderPipeline() {
   const root = document.getElementById("view-pipeline");
+  // Read the saved Card/List choice here rather than when this file first
+  // loads: the storage key is scoped by org and profile, and neither of those
+  // is known until sign-in has finished.
+  loadDensity();
   // Every filter chip/sort/select-mode click above calls renderPipeline()
   // again, which wipes and rebuilds the whole view — including a brand new
   // #pl-search element. Unconditionally focusing that new element afterward
@@ -382,10 +426,11 @@ export function renderPipeline() {
     <div>
       <div class="flex-between">
         <div class="page-title mt-0">Pipeline<span class="accent">.</span></div>
-        <div style="display:flex;gap:14px;">
+        <div class="page-actions">
           <span class="small-link" id="pl-find-dupes">Find Duplicates</span>
           <span class="small-link" id="pl-export-csv">Export CSV</span>
           <span class="small-link" id="pl-bulk-import">Bulk Import</span>
+          <span class="small-link" id="pl-density-toggle">${compactList ? "Card view" : "List view"}</span>
           <span class="small-link" id="pl-select-toggle">${selectMode ? "Cancel" : "Select"}</span>
         </div>
       </div>
@@ -428,7 +473,7 @@ export function renderPipeline() {
         </div>
       </div>
 
-      <div id="pl-list" class="prospect-list"></div>
+      <div id="pl-list" class="prospect-list ${compactList ? "compact" : ""}"></div>
       <div class="bulk-action-bar" id="pl-bulk-bar" style="display:none;">
         <span class="bulk-count" id="pl-bulk-count">0 selected</span>
         <div class="btn-block-row">
@@ -443,6 +488,17 @@ export function renderPipeline() {
   wrap.querySelector("#pl-find-dupes").addEventListener("click", openDuplicateAuditSheet);
   wrap.querySelector("#pl-bulk-import").addEventListener("click", openBulkImportSheet);
   wrap.querySelector("#pl-export-csv").addEventListener("click", exportFilteredCSV);
+  // Switching density is deliberately not a full re-render: the cards are
+  // already identical in both views, so flipping one class on the container
+  // is the whole change. That also means the switch never loses your scroll
+  // position, your filters, or a part-finished multi-select.
+  const densityToggle = wrap.querySelector("#pl-density-toggle");
+  densityToggle.addEventListener("click", () => {
+    compactList = !compactList;
+    persistDensity();
+    wrap.querySelector("#pl-list").classList.toggle("compact", compactList);
+    densityToggle.textContent = compactList ? "Card view" : "List view";
+  });
   wrap.querySelector("#pl-select-toggle").addEventListener("click", () => {
     if (selectMode) exitSelectMode();
     else { selectMode = true; renderPipeline(); }

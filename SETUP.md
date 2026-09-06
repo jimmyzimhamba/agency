@@ -2424,15 +2424,15 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 7. Click into the search box. Confirm the `/` chip disappears, and type something long enough to fill the box to confirm the text never runs underneath it.
 8. Click out, then press the `/` key. Confirm your cursor jumps into the search box.
 9. Open the app on your phone. Confirm the top bar still shows the "Agency Command" logo and looks exactly as it did before.
-10. Check the Team page footer reads **build sxc-v167**, which confirms the redeploy actually took.
+10. Check the Team page footer reads **build sxc-v168**, which confirms the redeploy actually took.
 
-> **Note:** Step 160 and Step 161 below ship together as `sxc-v167`. One redeploy covers both.
+> **Note:** Steps 160, 161 and 162 all ship together as `sxc-v168`. One redeploy covers all three.
 
 ---
 
 ## Step 161 — Detail panels open down the right-hand side on a laptop
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v167` together with Step 160, so one redeploy covers both.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v168` together with Steps 160 and 162, so one redeploy covers all three.
 
 **The problem.** When you tap a prospect, the details slide up from the bottom of the screen. On a phone that's exactly right: it's where your thumb is, and there's no spare width to put it anywhere else.
 
@@ -2460,4 +2460,67 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 8. Open a few other panels to confirm they all moved too: the "+" to add a prospect, a task, a contract, and an invoice.
 9. Make the browser window narrow (drag it under about 960 pixels wide). Confirm the panel goes back to sliding up from the bottom, with its drag handle back.
 10. Open the app on your phone. Confirm the panel still slides up from the bottom exactly as it always has.
-11. Check the Team page footer reads **build sxc-v167**.
+11. Check the Team page footer reads **build sxc-v168**.
+
+---
+
+## Step 162 — A "List view" for prospects, and softer green and gold buttons
+
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v168` together with Steps 160 and 161, so one redeploy covers all three.
+
+### Part 1 — the solid green and gold buttons are toned down
+
+**The problem.** The "Send WhatsApp" and "Price This Deal" buttons were filled in with solid bright green and solid bright gold. On a screen where everything else is dark and quiet, two blocks of pure colour shout louder than anything else on the page — including the actual thing you came to do. Two buttons both shouting also means neither one wins, so nothing on the screen tells you where to look first.
+
+**What changed.** They now use the same style the app already uses for its other secondary buttons, like "Mark Dead": a faint tint of the colour behind the text, the text itself in that colour, and a thin outline. Still obviously green, still obviously gold, still obviously buttons — just no longer the loudest thing on screen.
+
+**One important knock-on.** In six places the gold button was quietly doing a different job: it was the *main* Save button, and the only filled button in that form. Toning gold down everywhere would have left those six forms looking like they had no Save button at all. So those six are now the purple button the app uses everywhere else for "this is the main action":
+
+- **Next** on the first-time setup screens
+- **Import Prospects** on Bulk Import
+- **Save Changes** on the edit-team-member panel
+- **Save Changes** on the Grid Plan panel
+- **Save Goal** on the Dashboard
+- **Save View** on Pipeline
+
+Nothing about what those buttons *do* changed. Only their colour.
+
+The green and gold text was also darkened for **Light mode**. The shades that looked right on the dark background were too pale to read comfortably on white.
+
+### Part 2 — prospects can now be a list instead of cards
+
+**The problem.** Every prospect was a full card: name, area, a heat bar, its flags, and a WhatsApp and Details button. That's the right amount of detail when you're working one lead at a time. It's the wrong amount when you're scanning — hunting for one particular business, or just getting a feel for how many are sitting in "Not Contacted". Cards are tall, so you could only see about six at a time and did a lot of scrolling.
+
+**What changed.** There's a new **List view** link at the top of the Pipeline page, next to "Bulk Import" and "Select". Click it and every prospect shrinks to a single tight row. Click **Card view** to switch back.
+
+**A row still shows you everything you need to pick it out of a list:** the coloured tier stripe down its left edge, the business name, its niche and area, its status, who it's assigned to, and every warning flag ("Cold", "No contact info", "Follow-up overdue" and so on). What a row leaves out is the heat bar and the two buttons. **Click any row and the full details open in the panel on the right**, exactly as clicking a card does — so nothing is actually out of reach, it's one click away.
+
+About **three times as many** prospects fit on a screen in List view.
+
+**Your choice is remembered.** Whichever view you last used is the one you'll get next time you open Pipeline, on that device. It's a personal preference, not a team setting, so switching to List view on your laptop won't change what anyone else sees, and it won't change what you see on your phone.
+
+**Everything else on the Pipeline page still works in List view** — the search box, all the filter chips, saved views, and Select mode for ticking several prospects at once.
+
+**Why this was safe.** Both views are the exact same prospect card underneath; List view just hides the two bulky parts. That means there's only one card in the code to look after, and it's not possible for a change to show up in one view and go missing from the other.
+
+**One small tidy-up that came with it.** Adding the "List view" link made five links across the top of the Pipeline page, which was one too many to fit on a phone — "Select" was being cut off at the edge of the screen. Those links now wrap neatly onto a second line instead.
+
+### Now test it
+
+Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R).
+
+1. Open a prospect. Confirm **Send WhatsApp** and **Price This Deal** are now softly tinted rather than solid blocks of colour, and that both are still clearly readable.
+2. Confirm **Send WhatsApp** still opens WhatsApp with the message ready to go.
+3. Switch to Light mode using the moon icon in the top bar. Confirm both buttons are still comfortable to read on the white background, then switch back.
+4. Check all six changed Save buttons are still there and still purple, and that each still saves: **Save View** on Pipeline, **Save Goal** on the Dashboard, **Save Changes** on a team member, **Save Changes** on a Grid Plan, **Import Prospects** on Bulk Import, and **Next** on the setup screens.
+5. Go to Prospects. Confirm you see a new **List view** link along the top.
+6. Click it. Confirm the prospects collapse into tight rows and that far more of them fit on the screen.
+7. Check a row still shows the business name, the niche and area, the status, and its coloured flags.
+8. Click a row. Confirm the full prospect details open, the same as clicking a card did.
+9. Close the details and confirm the link now reads **Card view**. Click it and confirm the cards come back with their heat bars and buttons.
+10. Switch to List view, then go to Dashboard and back to Prospects. Confirm it's still in List view — it should remember.
+11. In List view, click **Select** and tick two prospects. Confirm the tick boxes sit neatly to the left of the names without covering them, and that the bulk action bar appears at the bottom.
+12. Try the search box and a couple of filter chips while in List view. Confirm filtering still works normally.
+13. Open the app on your phone and check Prospects. Confirm the links across the top wrap onto two lines and that **Select** is no longer cut off at the right edge.
+14. On your phone, confirm List view works there too and that tapping a row still slides the details up from the bottom.
+15. Check the Team page footer reads **build sxc-v168**.

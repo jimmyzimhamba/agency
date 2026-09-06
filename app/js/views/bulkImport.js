@@ -178,7 +178,7 @@ function runPreview(box) {
         `).join("")}
       </div>
     ` : ""}
-    ${rows.length ? `<button class="btn btn-gold" id="bi-confirm">Import Prospect${rows.length === 1 ? "" : "s"}</button>` : ""}
+    ${rows.length ? `<button class="btn btn-primary" id="bi-confirm">Import Prospect${rows.length === 1 ? "" : "s"}</button>` : ""}
   `;
 
   const confirmBtn = resultsEl.querySelector("#bi-confirm");

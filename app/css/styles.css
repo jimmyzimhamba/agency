@@ -494,7 +494,13 @@ main {
 .btn:hover { filter: brightness(1.08); }
 .btn:active { transform: scale(0.98); }
 .btn-primary { background: linear-gradient(135deg, var(--purple), #5c1fd1); color: white; box-shadow: 0 8px 20px -8px var(--purple-glow); }
-.btn-gold { background: linear-gradient(135deg, var(--gold-soft), var(--gold)); color: #1a1405; }
+/* Tinted rather than a solid gold slab. Purple is the app's one "this is
+   THE action" fill; when gold competed with it as a second solid block the
+   eye had two things shouting at once and neither won. Same tint + colored
+   text + hairline border shape as .btn-danger/.btn-success below, so the
+   secondary buttons all read as one family. */
+.btn-gold { background: var(--gold-dim); color: var(--gold-soft); border: 1px solid rgba(212, 175, 55, 0.35); }
+.btn-gold:hover { background: rgba(212, 175, 55, 0.24); filter: none; }
 .btn-ghost { background: var(--black-card); color: var(--text); border: 1px solid var(--line-strong); }
 .btn-ghost:hover { background: var(--black-card-2); filter: none; }
 .btn-danger { background: var(--danger-dim); color: var(--danger); border: 1px solid rgba(255,92,108,0.35); }
@@ -505,10 +511,26 @@ main {
 .btn[disabled] { opacity: 0.45; pointer-events: none; }
 
 /* ---- WhatsApp button ------------------------------------------------------*/
+/* Was a solid green gradient with a green glow under it. On a dark purple
+   app that fill was the loudest thing on the screen, which made every
+   prospect panel look like its main job was to be a WhatsApp button.
+   Now tinted to match the other secondary buttons, keeping WhatsApp's green
+   so it's still instantly recognisable, just no longer shouting. */
 .btn-whatsapp {
-  background: linear-gradient(135deg, #25d366, #128c4a); color: white;
-  box-shadow: 0 8px 20px -8px rgba(37, 211, 102, 0.5);
+  background: rgba(37, 211, 102, 0.15); color: #3ddc7f;
+  border: 1px solid rgba(37, 211, 102, 0.38);
 }
+.btn-whatsapp:hover { background: rgba(37, 211, 102, 0.23); filter: none; }
+
+/* On white, #3ddc7f and --gold-soft are both too pale to read as text, so
+   these two swap to the deeper end of the same hue rather than being left
+   as washed-out labels. The tinted backgrounds carry over unchanged: they
+   are translucent overlays and already sit correctly on either surface.
+   Both shades are picked to clear WCAG AA (4.5:1) against the tint-over-white
+   these labels actually sit on — measured 4.86:1 and 5.35:1. The obvious
+   lighter picks looked fine on screen but only reached ~4.0:1 and ~4.4:1. */
+:root[data-theme="light"] .btn-whatsapp { color: #0b7a3b; }
+:root[data-theme="light"] .btn-gold { color: #7a6011; }
 
 /* ---- forms ----------------------------------------------------------------*/
 .field { margin-bottom: 13px; }
@@ -627,6 +649,58 @@ main {
 .prospect-name { font-weight: 700; font-size: 15px; }
 .prospect-meta { font-size: 12px; color: var(--text-faint); margin-top: 2px; }
 .prospect-flags { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+
+/* ---- Pipeline "List view" (compact density) --------------------------------
+   The same prospect cards, reflowed into scannable rows. Deliberately a
+   container class and nothing else: the card markup is identical in both
+   views, so there is exactly one card to maintain and no way for the two to
+   drift apart. Tapping a row opens the full detail panel, so List view is a
+   way of *finding* a lead, and the card/detail is where you work it.
+
+   What a row drops: the heat bar and the WhatsApp/Details buttons. What it
+   keeps: the tier stripe, the name, where they are, the status pill and every
+   warning flag — i.e. everything that would change whether you pick this row
+   out of the list at all. */
+/* Card view flows into 2-3 columns on a wide screen (see the responsive block
+   at the bottom of this file). List view deliberately does not: a list you
+   scan top-to-bottom stops being scannable the moment it snakes across
+   columns, and one full-width row per prospect is what pairs with the detail
+   panel sliding in on the right. Higher specificity than the media-query
+   rule, so it wins at every width without needing its own breakpoint.
+   align-items must be restated too: the wide-screen grid rule sets it to
+   `start`, which in a flex column shrinks each row to its text width instead
+   of running it the full width of the list. */
+.prospect-list.compact {
+  display: flex; flex-direction: column; align-items: stretch; gap: 0;
+}
+.prospect-list.compact .prospect-card {
+  padding: 9px 12px 9px 14px;
+  border-radius: 0;
+}
+/* Overlap the 1px borders so the rows read as one continuous list rather than
+   a stack of separate boxes with doubled-up lines between them. */
+.prospect-list.compact .prospect-card + .prospect-card { margin-top: -1px; }
+.prospect-list.compact .prospect-card:first-child {
+  border-top-left-radius: var(--radius-md); border-top-right-radius: var(--radius-md);
+}
+.prospect-list.compact .prospect-card:last-child {
+  border-bottom-left-radius: var(--radius-md); border-bottom-right-radius: var(--radius-md);
+}
+/* A hovered row needs to look pickable — in card view the card itself is the
+   affordance, in list view the highlight is. Raised above its neighbours so
+   the overlapped borders don't clip the highlight edge. */
+.prospect-list.compact .prospect-card:hover { background: var(--black-raised); z-index: 1; }
+.prospect-list.compact .prospect-name { font-size: 14px; }
+.prospect-list.compact .prospect-meta { font-size: 11.5px; }
+.prospect-list.compact .heat-bar-wrap { display: none; }
+.prospect-list.compact .btn-block-row { display: none; }
+.prospect-list.compact .prospect-flags { margin-top: 5px; gap: 5px; }
+/* Select mode still needs room for the checkbox on the left. The generic
+   `.prospect-card.select-mode` rule below can't do it on its own here: the
+   compact padding shorthand above is a more specific selector, so it would
+   win and the checkbox would sit on top of the business name. */
+.prospect-list.compact .prospect-card.select-mode { padding-left: 38px; }
+.prospect-list.compact .select-check { top: 10px; }
 
 /* Pipeline bulk-select mode — a checkbox overlay on each card, plus a fixed
    action bar above the bottom nav so status/assign/mark-dead changes can be
@@ -1009,6 +1083,15 @@ main {
 .mt-0 { margin-top: 0; }
 .flex-between { display: flex; justify-content: space-between; align-items: center; }
 .small-link { font-size: 12px; color: var(--purple-soft); font-weight: 700; cursor: pointer; }
+/* The row of text actions that sits opposite a page title. It has to wrap:
+   on a 375px phone five of these no longer fit on one line beside the title,
+   and without wrapping the last one is silently clipped off the edge of the
+   screen. Wrapping right-aligned keeps them tucked under each other against
+   the right margin instead of drifting into the title. */
+.page-actions {
+  display: flex; flex-wrap: wrap; justify-content: flex-end;
+  gap: 6px 14px; min-width: 0;
+}
 
 /* ---- pipeline value calculator ------------------------------------------------*/
 .pv-badge {

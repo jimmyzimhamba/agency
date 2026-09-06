@@ -775,7 +775,7 @@ function openPostModal(post0) {
         </div>
       </div>
 
-      ${editable ? `<button class="btn btn-gold" id="gpm-save" style="margin-top:16px;">Save Changes</button>` : ""}
+      ${editable ? `<button class="btn btn-primary" id="gpm-save" style="margin-top:16px;">Save Changes</button>` : ""}
       ${manageable ? `<button class="btn btn-danger" id="gpm-delete" style="margin-top:10px;">Delete Post</button>` : ""}
     </div>
   `);
