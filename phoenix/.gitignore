@@ -1,7 +1,0 @@
-.env
-memory/*.md
-!memory/.gitkeep
-__pycache__/
-*.pyc
-.DS_Store
-data/vault_demo/
