@@ -81,14 +81,17 @@ export function emit(key) {
 // works exactly as it did before, and neither file imports the other.
 let prospectDecorator = null;
 let notesDecorator = null;
+let completionsDecorator = null;
 
-export function setOutboxDecorators({ prospects, notes }) {
+export function setOutboxDecorators({ prospects, notes, completions }) {
   prospectDecorator = prospects || null;
   notesDecorator = notes || null;
+  completionsDecorator = completions || null;
 }
 
-// Use these two instead of emit("prospects") / emit("notes:" + id) everywhere,
-// so there is no way to refresh either one and forget the un-sent edits.
+// Use these three instead of emit("prospects") / emit("notes:" + id) /
+// emit("dailyCompletions") everywhere, so there is no way to refresh any of
+// them and forget the un-sent edits.
 export function emitProspects() {
   if (prospectDecorator) prospectDecorator(store.prospects);
   emit("prospects");
@@ -98,6 +101,11 @@ export function emitNotes(prospectId) {
   const list = (store.notesByProspect[prospectId] ||= []);
   if (notesDecorator) notesDecorator(prospectId, list);
   emit("notes:" + prospectId);
+}
+
+export function emitDailyCompletions() {
+  if (completionsDecorator) completionsDecorator(store.dailyCompletions);
+  emit("dailyCompletions");
 }
 
 export function profileById(id) {
@@ -277,7 +285,7 @@ export async function loadAll() {
   store.badgesEarned = badgesEarned.data || [];
 
   emit("organization"); emit("profiles"); emit("niches"); emitProspects(); emit("templates");
-  emit("dailyTasks"); emit("dailyCompletions"); emit("agentTargets");
+  emit("dailyTasks"); emitDailyCompletions(); emit("agentTargets");
   emit("activityLog"); emit("monthlyGoal");
   emit("contracts"); emit("invoices"); emit("projects"); emit("projectTasks");
   emit("gridPlans"); emit("gridPosts"); emit("gridPostMedia");
@@ -327,6 +335,20 @@ export async function refreshProspects() {
   if (error) return;
   store.prospects = data || [];
   emitProspects();
+}
+
+// Same idea, for today's mission ticks. Used when the outbox has had a queued
+// tick refused by the server: the tick is already showing on this device, so
+// something has to pull the truth back down, or the screen would keep claiming
+// a mission was done when the server never accepted it.
+export async function refreshDailyCompletions() {
+  const { data, error } = await sb
+    .from("daily_task_completions")
+    .select("*")
+    .eq("work_date", new Date().toISOString().slice(0, 10));
+  if (error) return;
+  store.dailyCompletions = data || [];
+  emitDailyCompletions();
 }
 
 let channel;
@@ -381,7 +403,7 @@ export function startRealtime() {
     })
     .on("postgres_changes", { event: "*", schema: "public", table: "daily_task_completions" }, (payload) => {
       upsertLocal("dailyCompletions", payload);
-      emit("dailyCompletions");
+      emitDailyCompletions();
     })
     .on("postgres_changes", { event: "*", schema: "public", table: "contracts" }, (payload) => {
       upsertLocal("contracts", payload);

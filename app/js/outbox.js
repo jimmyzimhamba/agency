@@ -21,10 +21,10 @@
 //
 // WHAT IS AND ISN'T IN HERE, AND WHY
 //
-// Only three actions: change a status, set a follow-up date, post a note.
-// Those are the ones that happen with a phone in one hand and no signal. They
-// were also chosen because all three are SAFE to send late, which most of this
-// app's writes are not:
+// Four actions: change a status, set a follow-up date, post a note, and tick
+// off a daily mission. Those are the ones that happen with a phone in one hand
+// and no signal. They were also chosen because all four are SAFE to send late,
+// which most of this app's writes are not:
 //
 //   A status and a follow-up date are single fields on one prospect, so
 //   sending a stale one late is last-write-wins on that field only — the
@@ -32,6 +32,10 @@
 //
 //   A note is append-only. It can't clobber anything, and arriving late just
 //   means it arrives late.
+//
+//   A mission tick is one person's own row for one mission on one date, and
+//   nobody else can write it — so nothing can be racing it, and arriving late
+//   is invisible.
 //
 // Deliberately NOT queued, and these are the interesting ones:
 //
@@ -63,9 +67,21 @@
 //   database make one up. A repeat delivery therefore collides with the row
 //   that already landed and is rejected as a duplicate key — which this file
 //   reads as "good, it's already there" rather than as an error.
+//
+//   A mission tick is already written as an upsert keyed on (mission, person,
+//   date), so a second delivery lands on the same row and writes the same
+//   value. Nothing needed adding for that one; it was idempotent already.
 
 import { sb } from "./supabaseClient.js";
-import { store, emitProspects, emitNotes, setOutboxDecorators } from "./state.js";
+import {
+  store,
+  emitProspects,
+  emitNotes,
+  emitDailyCompletions,
+  refreshProspects,
+  refreshDailyCompletions,
+  setOutboxDecorators,
+} from "./state.js";
 
 const KEY = "sxc-outbox-v1";
 
@@ -185,6 +201,38 @@ export function postNote(prospectId, body) {
   return flushOutbox();
 }
 
+// Tick a daily mission on or off.
+//
+// completedAt is stamped now, when the box was tapped, rather than left for
+// the server to fill in when the message finally gets out. A mission finished
+// at three in the afternoon in Mbare should not be recorded as six in the
+// evening just because that's when the phone found a signal. workDate is
+// captured here for the same reason: something ticked late on Monday belongs
+// to Monday even if it sends on Tuesday.
+//
+// Merged per mission per day, like the prospect patches — somebody tapping a
+// box on and off while they decide should send one final answer, not a replay
+// of them changing their mind.
+export function setTaskCompletion(taskId, completed) {
+  const agentId = store.profile?.id || null;
+  const workDate = new Date().toISOString().slice(0, 10);
+  const completedAt = completed ? new Date().toISOString() : null;
+
+  const existing = queue.find(
+    (j) => j.kind === "task-completion" && j.taskId === taskId && j.workDate === workDate && j.agentId === agentId
+  );
+  if (existing) {
+    existing.completed = completed;
+    existing.completedAt = completedAt;
+    existing.at = Date.now();
+  } else {
+    queue.push({ id: newId(), kind: "task-completion", taskId, agentId, workDate, completed, completedAt, at: Date.now() });
+  }
+  save();
+  emitDailyCompletions();
+  return flushOutbox();
+}
+
 // ---- keeping un-sent edits on screen ---------------------------------------
 //
 // Every few seconds something replaces store.prospects or a prospect's notes
@@ -240,6 +288,42 @@ function decorateNotes(prospectId, list) {
   list.sort((a, b) => (a.created_at < b.created_at ? -1 : 1));
 }
 
+// Simpler than the notes one, because a completion row has a natural key —
+// (mission, person, date) — so a queued tick can always find the row it
+// belongs to instead of needing an id matched up. Every placeholder this
+// added last time is thrown away first and rebuilt from the queue, which is
+// what keeps it correct once the real row arrives: at that point the queued
+// tick patches the real row and no placeholder gets re-added, so the mission
+// never appears twice.
+function decorateCompletions(list) {
+  if (!list) return;
+  for (let i = list.length - 1; i >= 0; i--) {
+    if (list[i]._pending) list.splice(i, 1);
+  }
+  if (!queue.length) return;
+
+  queue.forEach((job) => {
+    if (job.kind !== "task-completion") return;
+    const row = list.find(
+      (c) => c.task_id === job.taskId && c.agent_id === job.agentId && c.work_date === job.workDate
+    );
+    if (row) {
+      row.completed = job.completed;
+      row.completed_at = job.completedAt;
+      return;
+    }
+    list.push({
+      id: "pending-" + job.id,
+      task_id: job.taskId,
+      agent_id: job.agentId,
+      work_date: job.workDate,
+      completed: job.completed,
+      completed_at: job.completedAt,
+      _pending: true,
+    });
+  });
+}
+
 // ---- getting things out ----------------------------------------------------
 
 // Did this fail because the network is bad, or because the server looked at it
@@ -277,6 +361,22 @@ async function send(job) {
     if (error && error.code === "23505") return null;
     return error;
   }
+  if (job.kind === "task-completion") {
+    // The same upsert tasks.js has always used. org_id is left out on purpose
+    // — a database trigger (stamp_org_id) fills it in, so sending one from
+    // here would be duplicating a decision the server already makes.
+    const { error } = await sb.from("daily_task_completions").upsert(
+      {
+        task_id: job.taskId,
+        agent_id: job.agentId,
+        work_date: job.workDate,
+        completed: job.completed,
+        completed_at: job.completedAt,
+      },
+      { onConflict: "task_id,agent_id,work_date" }
+    );
+    return error;
+  }
   return null; // Unknown kind (an older/newer version of this file wrote it) — drop it.
 }
 
@@ -299,6 +399,8 @@ export async function flushOutbox() {
 
   const touchedProspects = new Set();
   const touchedNotes = new Set();
+  let touchedCompletions = false;
+  const rejected = new Set();
 
   try {
     while (queue.length) {
@@ -325,12 +427,14 @@ export async function flushOutbox() {
         // The server answered and refused. Retrying is pointless, and leaving
         // it at the head of the queue would block every later job forever.
         console.error("outbox: dropping a job the server rejected", job.kind, error);
+        rejected.add(job.kind);
         const { toast } = await import("./utils.js");
         toast(`Couldn't save one change: ${error.message}`, "error");
       }
 
       if (job.kind === "prospect-patch") touchedProspects.add(job.prospectId);
       if (job.kind === "note") touchedNotes.add(job.prospectId);
+      if (job.kind === "task-completion") touchedCompletions = true;
       queue.shift();
       save();
     }
@@ -343,6 +447,17 @@ export async function flushOutbox() {
   // next unrelated refresh happened to come along.
   if (touchedProspects.size) emitProspects();
   touchedNotes.forEach((pid) => emitNotes(pid));
+  if (touchedCompletions) emitDailyCompletions();
+
+  // Something was refused outright. The screen is currently showing a value
+  // that this device believes and the server never accepted, and nothing else
+  // is going to correct it — the job is gone from the queue, so the decorators
+  // won't be re-applying it either. Pull the truth back down so the screen
+  // stops claiming a change that didn't happen. (Notes need no equivalent: a
+  // refused note simply disappears when its placeholder is pruned, which is
+  // the honest outcome.)
+  if (rejected.has("prospect-patch")) refreshProspects();
+  if (rejected.has("task-completion")) refreshDailyCompletions();
 
   if (queue.length) schedule();
 }
@@ -356,7 +471,7 @@ function schedule() {
 }
 
 export function initOutbox() {
-  setOutboxDecorators({ prospects: decorateProspects, notes: decorateNotes });
+  setOutboxDecorators({ prospects: decorateProspects, notes: decorateNotes, completions: decorateCompletions });
 
   window.addEventListener("online", () => flushOutbox());
 

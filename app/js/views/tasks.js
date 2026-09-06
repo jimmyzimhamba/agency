@@ -3,6 +3,7 @@ import { store, on, nicheById, nicheDotHTML, prospectById, profileById } from ".
 import { el, esc, todayISO, toast, avatarHTML, timeAgo } from "../utils.js";
 import { openSheet, closeSheet, confirmModal, openModal } from "../ui.js";
 import { openProspectDetail } from "./prospectDetail.js";
+import { setTaskCompletion } from "../outbox.js";
 
 export function renderTasks() {
   const root = document.getElementById("view-tasks");
@@ -285,16 +286,14 @@ function renderTaskTypeBreakdown(container) {
   });
 }
 
-async function toggleTask(taskId, completed) {
-  const myId = store.profile.id;
-  const work_date = todayISO();
-  const { error } = await sb
-    .from("daily_task_completions")
-    .upsert(
-      { task_id: taskId, agent_id: myId, work_date, completed, completed_at: completed ? new Date().toISOString() : null },
-      { onConflict: "task_id,agent_id,work_date" }
-    );
-  if (error) toast(error.message, "error");
+// Through the outbox rather than straight to Supabase — this is a field
+// action like a status change, tapped by someone standing in the street who
+// has just finished the thing. See js/outbox.js for why only a handful of
+// writes get this treatment. Nothing else changes: the tick appears exactly
+// as instantly as it always did, it just no longer needs a connection to be
+// remembered.
+function toggleTask(taskId, completed) {
+  setTaskCompletion(taskId, completed);
 }
 
 async function loadTargetsProgress(container) {
