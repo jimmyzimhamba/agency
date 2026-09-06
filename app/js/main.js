@@ -6,6 +6,7 @@ import { el, esc, fmtDate, withTimeout, avatarHTML } from "./utils.js";
 import { initGlobalSearch } from "./globalSearch.js";
 import { initTheme, toggleTheme } from "./theme.js";
 import { initSidebarCollapse, toggleSidebarCollapsed, isSidebarCollapsed } from "./sidebar.js";
+import { initOutbox, outboxCount, onOutboxChange, flushOutbox } from "./outbox.js";
 
 import { renderPipeline, initPipelineView, openAddProspectSheet } from "./views/pipeline.js";
 import { renderDiscovery, initDiscoveryView } from "./views/discovery.js";
@@ -392,10 +393,40 @@ function refreshSidebarDueBadge() {
   else badge.style.display = "none";
 }
 
+// The strip under the top bar. It has two separate jobs now, and which one it
+// does depends on whether there is anything waiting in the outbox:
+//
+//   Nothing waiting, no connection — the original message. You can look, and
+//   what you're looking at is as fresh as the last time there was signal.
+//
+//   Something waiting — say so, and keep saying so even after the connection
+//   comes back, until it has actually gone. That second part is the important
+//   one: the gap between "the phone thinks it has data again" and "the edits
+//   have genuinely reached the server" is where the doubt lives, and it is
+//   exactly the moment someone would otherwise close the app believing their
+//   work was saved.
+//
+// Tapping it while something is queued tries again straight away, so a rep
+// who can see a number sitting there is not stuck waiting on the retry timer.
 function setOfflineBanner() {
   const banner = document.getElementById("offline-banner");
   if (!banner) return;
-  banner.classList.toggle("show", !navigator.onLine);
+  const waiting = outboxCount();
+
+  if (waiting > 0) {
+    const thing = waiting === 1 ? "change" : "changes";
+    banner.textContent = navigator.onLine
+      ? `Sending ${waiting} ${thing}…`
+      : `Offline — ${waiting} ${thing} saved on this phone, will send when you're back online`;
+    banner.classList.add("show");
+    // "Sending…" is progress, not a problem, so it drops the warning amber
+    // and goes purple. Still offline with work queued keeps the amber.
+    banner.classList.toggle("sending", navigator.onLine);
+  } else {
+    banner.textContent = "You're offline, showing the last synced data";
+    banner.classList.remove("sending");
+    banner.classList.toggle("show", !navigator.onLine);
+  }
 }
 
 // Safety net for missed Realtime events. Phones suspend the websocket
@@ -446,6 +477,10 @@ async function bootApp() {
 
   window.addEventListener("online", () => { setOfflineBanner(); resync(); });
   window.addEventListener("offline", setOfflineBanner);
+  onOutboxChange(setOfflineBanner);
+  const banner = document.getElementById("offline-banner");
+  if (banner) banner.addEventListener("click", () => { if (outboxCount()) flushOutbox(); });
+  initOutbox();
   setOfflineBanner();
 
   try {

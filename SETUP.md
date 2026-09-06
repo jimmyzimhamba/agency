@@ -2328,7 +2328,7 @@ This adds three tables: `pitch_scenarios` (the deck), `pitch_attempts` (private 
 
 **If you already ran this file once before the starter cards were added**, run it again — it now also adds an `is_starter` column to `pitch_scenarios`. If you skip this, the "load 52 common ones" link will show a message telling you to re-run the SQL.
 
-> **Corrected in `sxc-v178`.** Until now this file could **not** actually be re-run, even though this page said it could. Running it a second time stopped with an error like `policy "pitch_scenarios: read org" already exists`, and because Supabase runs the whole script as one all-or-nothing batch, that one error **undid everything else in the file** — including the `is_starter` column it was supposed to be adding. So if you tried the fix the app told you to try, it silently did nothing and you got the same error next time.
+> **Corrected in `sxc-v179`.** Until now this file could **not** actually be re-run, even though this page said it could. Running it a second time stopped with an error like `policy "pitch_scenarios: read org" already exists`, and because Supabase runs the whole script as one all-or-nothing batch, that one error **undid everything else in the file** — including the `is_starter` column it was supposed to be adding. So if you tried the fix the app told you to try, it silently did nothing and you got the same error next time.
 >
 > The file has been corrected and is now genuinely safe to run as many times as you like. **If you hit that error before, please paste the file in and run it once more** — this time it will stick.
 
@@ -2343,7 +2343,7 @@ This adds three tables: `pitch_scenarios` (the deck), `pitch_attempts` (private 
 
 **If you skip this step**, everything else on the page still works — you can add cards, load the starter deck, draw cards and type answers. The only thing that won't work is the coaching note that comes back. Tapping **Get Coaching** will say *"The pitch-coach function isn't deployed yet — see SETUP.md Step 158.2."*
 
-> **Improved in `sxc-v178`.** That message used to read *"Failed to send a request to the Edge Function"*, which is what Supabase itself says and which tells you nothing you can act on — it reads like the app is broken rather than like a setup step is still outstanding. It now names the missing function and points here. Any other kind of failure still shows the real underlying message.
+> **Improved in `sxc-v179`.** That message used to read *"Failed to send a request to the Edge Function"*, which is what Supabase itself says and which tells you nothing you can act on — it reads like the app is broken rather than like a setup step is still outstanding. It now names the missing function and points here. Any other kind of failure still shows the real underlying message.
 
 ### 158.3 — No new API key needed
 
@@ -2434,15 +2434,15 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 7. Click into the search box. Confirm the `/` chip disappears, and type something long enough to fill the box to confirm the text never runs underneath it.
 8. Click out, then press the `/` key. Confirm your cursor jumps into the search box.
 9. Open the app on your phone. Confirm the top bar still shows the "Agency Command" logo and looks exactly as it did before.
-10. Check the Team page footer reads **build sxc-v178**, which confirms the redeploy actually took.
+10. Check the Team page footer reads **build sxc-v179**, which confirms the redeploy actually took.
 
-> **Note:** Steps 160 to 166 all ship together as `sxc-v178`. One redeploy covers all seven.
+> **Note:** Steps 160 to 166 all ship together as `sxc-v179`. One redeploy covers all seven.
 
 ---
 
 ## Step 161 — Detail panels open down the right-hand side on a laptop
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v178` together with Steps 160, 162, 163, 164, 165 and 166, so one redeploy covers all seven.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v179` together with Steps 160, 162, 163, 164, 165 and 166, so one redeploy covers all seven.
 
 **The problem.** When you tap a prospect, the details slide up from the bottom of the screen. On a phone that's exactly right: it's where your thumb is, and there's no spare width to put it anywhere else.
 
@@ -2470,13 +2470,13 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 8. Open a few other panels to confirm they all moved too: the "+" to add a prospect, a task, a contract, and an invoice.
 9. Make the browser window narrow (drag it under about 960 pixels wide). Confirm the panel goes back to sliding up from the bottom, with its drag handle back.
 10. Open the app on your phone. Confirm the panel still slides up from the bottom exactly as it always has.
-11. Check the Team page footer reads **build sxc-v178**.
+11. Check the Team page footer reads **build sxc-v179**.
 
 ---
 
 ## Step 162 — A "List view" for prospects, and softer green and gold buttons
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v178` together with Steps 160, 161, 163, 164, 165 and 166, so one redeploy covers all seven.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v179` together with Steps 160, 161, 163, 164, 165 and 166, so one redeploy covers all seven.
 
 ### Part 1 — the solid green and gold buttons are toned down
 
@@ -2533,13 +2533,13 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 12. Try the search box and a couple of filter chips while in List view. Confirm filtering still works normally.
 13. Open the app on your phone and check Prospects. Confirm the links across the top wrap onto two lines and that **Select** is no longer cut off at the right edge.
 14. On your phone, confirm List view works there too and that tapping a row still slides the details up from the bottom.
-15. Check the Team page footer reads **build sxc-v178**.
+15. Check the Team page footer reads **build sxc-v179**.
 
 ---
 
 ## Step 163 — Every niche gets its own colour
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v178` together with Steps 160, 161, 162, 164, 165 and 166, so one redeploy covers all seven.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v179` together with Steps 160, 161, 162, 164, 165 and 166, so one redeploy covers all seven.
 
 **The problem.** Niche was just grey text in the middle of a grey line — "Restaurants · Avondale · Harare". When you're running your eye down thirty prospects looking for the dentists, you have to actually read every row to find them. Nothing about a row tells you at a glance what kind of business it is.
 
@@ -2577,13 +2577,13 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 9. Switch back to Dark mode and confirm the same.
 10. Rename one of your niches on Niche Strategy. Confirm its colour does **not** change.
 11. Open the app on your phone and confirm the dots are there too.
-12. Check the Team page footer reads **build sxc-v178**.
+12. Check the Team page footer reads **build sxc-v179**.
 
 ---
 
 ## Step 164 — The Status Breakdown is now a colour-coded ring
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v178` together with Steps 160, 161, 162, 163, 165 and 166, so one redeploy covers all seven.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v179` together with Steps 160, 161, 162, 163, 165 and 166, so one redeploy covers all seven.
 
 **The problem.** "Status Breakdown" at the bottom of the Dashboard was six bars, and every single one was the same purple-and-gold. That's the same bar the app uses for your revenue goal filling up — which is right for a goal, because there it means "how full is this". But these six bars aren't one thing filling up. They're six different piles. Painting them identically told you nothing you couldn't already get from the numbers.
 
@@ -2627,13 +2627,13 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 11. Switch to Light mode with the sun/moon icon in the top bar. Confirm every slice of the ring is still clearly visible against the white — none should look washed out.
 12. Switch back to Dark mode and confirm the same.
 13. Open the Dashboard on your phone. Confirm the ring sits above the list rather than beside it, and that nothing is cut off.
-14. Check the Team page footer reads **build sxc-v178**.
+14. Check the Team page footer reads **build sxc-v179**.
 
 ---
 
 ## Step 165 — The pipeline ring and the revenue goal now sit side by side at the top
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v178` together with Steps 160, 161, 162, 163, 164 and 166, so one redeploy covers all seven.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v179` together with Steps 160, 161, 162, 163, 164 and 166, so one redeploy covers all seven.
 
 **The problem.** There are really only two questions you open the Dashboard to answer: *what shape is my pipeline* and *are we going to hit the number this month*. Until now those two answers were nowhere near each other. Monthly Revenue Goal was near the top, and the ring you just got in Step 164 was right at the bottom, past follow-ups, data health, the leaderboard and the team stats. You had to scroll past everything to get to one of the two things you actually came for.
 
@@ -2666,13 +2666,13 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 11. Open the Dashboard on your phone. Confirm the ring is at the top, the revenue goal is directly under it, and neither is cut off at the edges.
 12. Switch to Light mode with the sun/moon icon. Confirm both cards still read clearly and the ring's colours are still easy to tell apart.
 13. Switch back to Dark mode and confirm the same.
-14. Check the Team page footer reads **build sxc-v178**.
+14. Check the Team page footer reads **build sxc-v179**.
 
 ---
 
 ## Step 166 — Tasks are now Missions, and there's a new Empire page
 
-No SQL to run, no edge functions, no new secrets. Ships as `sxc-v178` together with Steps 160, 161, 162, 163, 164 and 165, so one redeploy covers all seven.
+No SQL to run, no edge functions, no new secrets. Ships as `sxc-v179` together with Steps 160, 161, 162, 163, 164 and 165, so one redeploy covers all seven.
 
 ### First, the honest part
 
@@ -2766,9 +2766,9 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 22. Tap **Empire**. Confirm it opens the street, and that the **Empire** button turns gold — not the **More** button.
 23. Confirm the street still fits on the phone screen, still scrolls sideways with your finger, and nothing is cut off.
 24. Tap **More**. Confirm **Empire** is **no longer** listed in that menu — it has its own button now, so it shouldn't be in both places.
-25. Check the Team page footer reads **build sxc-v178**.
+25. Check the Team page footer reads **build sxc-v179**.
 
-**Fixed since first writing this step:** *Open client* on the Empire page opened an empty panel instead of the client's details. The Empire page was handing over the client's ID number where the rest of the app hands over the whole client record, so the panel opened with nothing to show and failed quietly — no error message, just a blank. Every other place in the app that opens a client (Prospects, Dashboard, Search, Messages, Invoices) was already doing it the right way; Empire was the only one out of step. Now corrected in `sxc-v178`.
+**Fixed since first writing this step:** *Open client* on the Empire page opened an empty panel instead of the client's details. The Empire page was handing over the client's ID number where the rest of the app hands over the whole client record, so the panel opened with nothing to show and failed quietly — no error message, just a blank. Every other place in the app that opens a client (Prospects, Dashboard, Search, Messages, Invoices) was already doing it the right way; Empire was the only one out of step. Now corrected in `sxc-v179`.
 
 ---
 
@@ -2817,9 +2817,9 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 15. Still on the phone, watch a card for a few seconds and confirm it's **still gently drifting**.
 16. On an iPhone, go to **Settings → Accessibility → Motion** and switch **Reduce Motion** on. Reload the sales page. Confirm **everything is completely still** — no drifting, no fading in as you scroll. Then switch Reduce Motion back off.
 17. Sign in and use the app normally for a minute. Confirm **nothing inside the app changed** — this step only touched the public page.
-18. Check the Team page footer reads **build sxc-v178**.
+18. Check the Team page footer reads **build sxc-v179**.
 
-*(Step 168 below then brought a version of this inside the app too, so from `sxc-v178` on, item 17 no longer holds — the cards in the app catch the light as well.)*
+*(Step 168 below then brought a version of this inside the app too, so from `sxc-v179` on, item 17 no longer holds — the cards in the app catch the light as well.)*
 
 ---
 
@@ -2867,4 +2867,77 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 16. Now pick up your **phone**. Open Prospects and scroll the list up and down a few times. Confirm it scrolls **exactly as smoothly as it did before** — no stutter, no lag.
 17. On the phone, confirm the cards look **completely normal** and nothing lights up or moves. There's no cursor on a phone, so there's nothing to track.
 18. On an iPhone, turn on **Settings → Accessibility → Motion → Reduce Motion**, then reopen the app on a laptop with that setting on. Confirm the cards are **completely still and unlit**. Then switch it back off.
-19. Check the Team page footer reads **build sxc-v178**.
+19. Check the Team page footer reads **build sxc-v179**.
+
+---
+
+## Step 169 — Your team can now work with no signal, and nothing gets lost
+
+**What changed:** three things you do standing outside a shop — **change a status**, **set a follow-up date**, and **post a note** — now work with no signal at all. They save on the phone, show on screen immediately, and send themselves the moment there's a connection again.
+
+### The problem this fixes
+
+Up to now the app was half-useful without signal. It would **open** (that's the offline caching we did earlier), and it would **show** you the prospect you were about to walk in on. But the second you tried to actually record what happened — moved them to Replied, set a follow-up for Thursday, typed a note — you got a red error and nothing was saved.
+
+That's the worst possible half. It means the app works right up until the exact moment it matters, and the update ends up written on the back of a hand and typed in hours later, if at all.
+
+Now: you tap it, it's saved. The app takes care of the rest.
+
+### What your team will actually see
+
+They tap the status dropdown with no signal. The status changes on screen straight away, and instead of "Status updated" the message says **"Status saved — will send when you're back online."**
+
+A strip appears under the top bar: **"Offline — 2 changes saved on this phone, will send when you're back online."** That number counts up as they keep working.
+
+A note they've posted sits in the list with **"Sending…"** where the time would normally be, greyed slightly, so there's no confusion about which notes are safely on the server and which are still on the phone.
+
+The moment signal comes back, the strip turns purple and says **"Sending 2 changes…"**, then disappears once everything is through. **They can tap that strip to make it try again right now** instead of waiting.
+
+**The queue survives everything.** Closing the app, force-quitting the browser, the phone running out of battery. It's written to the phone's own storage, not just held in memory. Someone can do a whole afternoon in Mbare with no signal, put the phone in their pocket, and it all goes up when they walk into the office WiFi.
+
+### What is *not* covered, and why
+
+I only did three actions. That's deliberate, and here's the reasoning, because the ones I left out are the interesting part.
+
+**Claiming or assigning a prospect still needs signal.** Whether you get a prospect depends on whether somebody else already took it — that's a race, and only the server can settle it. If I queued it, the app would tell someone "this is yours", they'd plan their day around it, and an hour later it would be taken away because a teammate got there first. Far better to say "you need signal for this one" up front than to make a promise the app can't keep.
+
+**Deleting a prospect still needs signal.** You should never be told something is permanently gone until it actually is.
+
+**Contracts, invoices, projects, grid plans and bulk edits still need signal.** These are desk work — done sitting down, on WiFi, usually on a laptop. Queueing them would add real risk (a queued invoice total quietly overwriting a corrected one a day later) to solve a problem nobody has.
+
+The three I picked are the three that are **safe to arrive late**. A status and a follow-up date are single boxes on one prospect, so a late one just overwrites that box — the same thing that happens any time two people edit the same lead. A note can't overwrite anything at all; it only ever gets added.
+
+### One thing to be aware of
+
+If somebody changes a status offline on Monday and doesn't open the app again until Wednesday, that Monday change lands on Wednesday and will win over anything a teammate did in between. That's the honest trade for the feature existing. In practice it's rare, and the app sends within seconds of getting signal.
+
+Anything that's been sitting unsent for **more than a week** is thrown away rather than sent. A week-old status isn't information any more, it's misinformation — whoever set the current one could see more recent facts than a phone that's been in a drawer.
+
+### Also fixed while I was in there
+
+**The offline strip was nearly invisible in Light mode.** The amber text on that strip measured 1.5-to-1 against its own background — readable text needs 4.5-to-1. It's been like that since the strip was added and never mattered much, because "you're offline" is a message you can safely ignore. "2 changes still haven't sent" is not, so both the old and the new version of the strip now pass properly in Light mode.
+
+**One app file wasn't in the offline list.** `js/sidebar.js` was being used by the app but was never in the list of files saved for offline use. In practice it got saved anyway on first visit, so nobody ever hit it — but it was a real gap in the guarantee, and it's closed now.
+
+### Now test it
+
+1. Redeploy the `app` folder to Netlify Drop as usual.
+2. On your **phone**, open the app and pull down to refresh once or twice so it picks up the new version.
+3. Check the Team page footer reads **build sxc-v179**.
+4. Open any prospect. Confirm everything looks exactly as it did before — no new buttons, nothing moved.
+5. Now put the phone into **Aeroplane mode**.
+6. Confirm the amber strip appears under the top bar reading **"You're offline, showing the last synced data"**.
+7. Open a prospect and change its **Status**. Confirm it changes on screen, and the green message says **"Status saved — will send when you're back online."**
+8. Confirm the strip now reads **"Offline — 1 change saved on this phone, will send when you're back online."**
+9. Set a **Follow-up date** on the same prospect. Confirm the date sticks and the strip still says **1 change** (not 2 — both edits to the same prospect travel together, on purpose).
+10. Type a **note** and tap Post Note. Confirm the note appears in the list immediately, slightly faded, with **"Sending…"** where the time would be.
+11. Confirm the strip now says **2 changes**.
+12. **Close the app completely** — swipe it away from your recent apps. Reopen it. Still in Aeroplane mode.
+13. Confirm the strip **still says 2 changes** and the note is **still there** with "Sending…". This is the important test: it means nothing was lost.
+14. Turn Aeroplane mode **off**.
+15. Within a few seconds, confirm the strip turns **purple** saying "Sending 2 changes…", then **disappears entirely**.
+16. Confirm the note now shows a real **time** instead of "Sending…", and is no longer faded.
+17. Open the same prospect on a **different device** (your laptop, or a teammate's phone). Confirm the status, the follow-up date and the note are all there.
+18. Still online, change a status normally. Confirm it says **"Status updated"** (not the offline wording) and no strip appears — nothing about the everyday online experience should have changed.
+19. Switch the app to **Light mode** (the moon icon), go into Aeroplane mode again, and confirm you can **comfortably read** the amber strip. Then turn Aeroplane mode off and switch back.
+20. Have a teammate change a prospect's status while you're watching that prospect. Confirm it still updates live on your screen — the live-update behaviour is unchanged.

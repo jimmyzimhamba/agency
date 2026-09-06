@@ -6,6 +6,7 @@ import { buildProspectForm } from "./prospectForm.js";
 import { openDealPricingCalculator } from "./dealPricing.js";
 import { notify } from "../push.js";
 import { canSendFreeform, sendWhatsAppMessage } from "../whatsapp.js";
+import { patchProspect, postNote } from "../outbox.js";
 
 const STATUSES = ["not_contacted", "sent", "replied", "meeting_booked", "signed", "dead"];
 
@@ -263,9 +264,11 @@ function render(p0) {
   box.querySelector("#pd-status").addEventListener("change", async (e) => {
     const newStatus = e.target.value;
     const wasSigned = p.status === "signed";
-    const { error } = await sb.from("prospects").update({ status: newStatus }).eq("id", p.id);
-    if (error) return toast(error.message, "error");
-    toast("Status updated", "success");
+    // Through the outbox, not straight to Supabase: this is the single thing
+    // most likely to be tapped standing outside a shop with one bar, and it
+    // has to stick whether or not the message gets out. See js/outbox.js.
+    await patchProspect(p.id, { status: newStatus });
+    toast(navigator.onLine ? "Status updated" : "Status saved — will send when you're back online", "success");
 
     if (newStatus === "signed" && !wasSigned) {
       const already = store.contracts?.some((c) => c.prospect_id === p.id);
@@ -289,9 +292,8 @@ function render(p0) {
   });
 
   box.querySelector("#pd-followup").addEventListener("change", async (e) => {
-    const { error } = await sb.from("prospects").update({ follow_up_date: e.target.value || null }).eq("id", p.id);
-    if (error) return toast(error.message, "error");
-    toast("Follow-up date set", "success");
+    await patchProspect(p.id, { follow_up_date: e.target.value || null });
+    toast(navigator.onLine ? "Follow-up date set" : "Follow-up saved — will send when you're back online", "success");
     const icsBtn = box.querySelector("#pd-followup-ics");
     if (icsBtn) icsBtn.style.display = e.target.value ? "" : "none";
   });
@@ -336,10 +338,11 @@ function render(p0) {
     const input = box.querySelector("#pd-note-input");
     const body = input.value.trim();
     if (!body) return;
-    const { error } = await sb.from("prospect_notes").insert({ prospect_id: p.id, author_id: store.profile.id, body });
-    if (error) return toast(error.message, "error");
+    // Cleared before the send, not after. The note is already on screen (the
+    // outbox shows it immediately), so leaving the text in the box as well
+    // would read as "that didn't work, try again" and get posted twice.
     input.value = "";
-    loadNotesFor(p.id);
+    postNote(p.id, body);
   });
 
   const delBtn = box.querySelector("#pd-delete");
@@ -564,8 +567,16 @@ function renderNotes(prospectId) {
   notesEl.innerHTML = notes
     .map((n) => {
       const author = profileById(n.author_id);
-      return `<div class="note-item">
-        <div class="n-head"><b>${esc(author?.full_name || "Someone")}</b><span>${fmtDateTime(n.created_at)}</span></div>
+      // _pending is set by the outbox on a note that is on this phone but has
+      // not reached the server yet (see js/outbox.js). Saying so is the whole
+      // point: a note that looks identical to a saved one, but isn't, is worse
+      // than no note at all. The time is replaced rather than sat beside,
+      // since "14:32" on something that hasn't been sent is a half-truth.
+      const when = n._pending
+        ? `<span style="color:var(--warn);">Sending…</span>`
+        : `<span>${fmtDateTime(n.created_at)}</span>`;
+      return `<div class="note-item"${n._pending ? ' style="opacity:0.72;"' : ""}>
+        <div class="n-head"><b>${esc(author?.full_name || "Someone")}</b>${when}</div>
         <div class="n-body">${esc(n.body)}</div>
       </div>`;
     })
@@ -577,12 +588,12 @@ function renderNotes(prospectId) {
 // prospect_notes row (see LOST_REASON_MARKER above) so it shows up in this
 // prospect's own Notes tab too, not just the Pipeline Value rollup.
 async function saveLostReason(prospectId, reasonText) {
-  const { error } = await sb
-    .from("prospect_notes")
-    .insert({ prospect_id: prospectId, author_id: store.profile.id, body: `${LOST_REASON_MARKER} ${reasonText}` });
-  if (error) return toast(error.message, "error");
+  // Through the outbox like every other note. This one especially: it is
+  // asked for immediately after a status change to Dead, so if that change
+  // was made out of signal then this will be too, and losing the "why" is
+  // exactly what this prompt exists to prevent.
+  postNote(prospectId, `${LOST_REASON_MARKER} ${reasonText}`);
   toast("Reason saved", "success");
-  loadNotesFor(prospectId);
   closeModal();
 }
 

@@ -1376,6 +1376,26 @@ main {
   font-weight: 700; padding: 7px; position: sticky; top: calc(var(--topbar-h) + var(--safe-top)); z-index: 29;
 }
 .offline-banner.show { display: block; }
+/* Work is queued and the connection is back — this is progress, not a fault,
+   so it loses the warning amber. It also becomes tappable ("try again now"),
+   hence the cursor and the padding for a finger. */
+.offline-banner.sending {
+  background: var(--purple-dim); color: var(--purple-soft); cursor: pointer;
+  padding-top: 9px; padding-bottom: 9px;
+}
+/* Light mode overrides both colours, because both accents are tuned to be
+   read off a near-black page and neither survives being put on a near-white
+   one: measured against this banner's own composited background, the amber
+   comes out at 1.5:1 and the purple at 2.9:1, where readable body text needs
+   4.5:1. The amber one has been that faint since long before the queue
+   existed — it just never mattered much, because "you're offline" is a
+   statement you can ignore. "2 changes still haven't sent" is not, so both
+   are fixed here rather than only the new one. These land at 5.0:1 and
+   6.6:1. Hardcoded rather than added to the light --warn/--purple-soft
+   variables, since darkening those globally would repaint pills, chips and
+   tier badges all over the app to fix one strip. */
+:root[data-theme="light"] .offline-banner { color: #8a5a00; }
+:root[data-theme="light"] .offline-banner.sending { color: #5b21b6; }
 
 /* ---- misc ------------------------------------------------------------------------*/
 /* Hidden by default now — only the Pipeline ("Prospects") view turns this

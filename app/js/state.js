@@ -68,6 +68,38 @@ export function emit(key) {
   (listeners["*"] || []).forEach((fn) => fn(key));
 }
 
+// ---- un-sent edits ---------------------------------------------------------
+//
+// Anything sitting in the outbox (see js/outbox.js) has been applied on this
+// device but not yet accepted by the server. Every path below that replaces
+// the prospect list, or one prospect's notes, with a fresh server copy would
+// wipe those un-sent edits off the screen — so the freshly loaded rows are run
+// back through the outbox first, and only then handed to the views.
+//
+// Registered by initOutbox() rather than imported, so state.js keeps knowing
+// nothing about the outbox: with no outbox loaded these stay null, emitting
+// works exactly as it did before, and neither file imports the other.
+let prospectDecorator = null;
+let notesDecorator = null;
+
+export function setOutboxDecorators({ prospects, notes }) {
+  prospectDecorator = prospects || null;
+  notesDecorator = notes || null;
+}
+
+// Use these two instead of emit("prospects") / emit("notes:" + id) everywhere,
+// so there is no way to refresh either one and forget the un-sent edits.
+export function emitProspects() {
+  if (prospectDecorator) prospectDecorator(store.prospects);
+  emit("prospects");
+}
+
+export function emitNotes(prospectId) {
+  const list = (store.notesByProspect[prospectId] ||= []);
+  if (notesDecorator) notesDecorator(prospectId, list);
+  emit("notes:" + prospectId);
+}
+
 export function profileById(id) {
   return store.profiles.find((p) => p.id === id) || null;
 }
@@ -244,7 +276,7 @@ export async function loadAll() {
   store.pointsTotals = pointsTotals.data || [];
   store.badgesEarned = badgesEarned.data || [];
 
-  emit("organization"); emit("profiles"); emit("niches"); emit("prospects"); emit("templates");
+  emit("organization"); emit("profiles"); emit("niches"); emitProspects(); emit("templates");
   emit("dailyTasks"); emit("dailyCompletions"); emit("agentTargets");
   emit("activityLog"); emit("monthlyGoal");
   emit("contracts"); emit("invoices"); emit("projects"); emit("projectTasks");
@@ -267,7 +299,7 @@ export async function loadNotesFor(prospectId) {
     .eq("prospect_id", prospectId)
     .order("created_at", { ascending: true });
   store.notesByProspect[prospectId] = data || [];
-  emit("notes:" + prospectId);
+  emitNotes(prospectId);
   return store.notesByProspect[prospectId];
 }
 
@@ -294,7 +326,7 @@ export async function refreshProspects() {
   const { data, error } = await sb.from("prospects").select("*").order("updated_at", { ascending: false });
   if (error) return;
   store.prospects = data || [];
-  emit("prospects");
+  emitProspects();
 }
 
 let channel;
@@ -305,7 +337,7 @@ export function startRealtime() {
     .channel("studio-x-command")
     .on("postgres_changes", { event: "*", schema: "public", table: "prospects" }, (payload) => {
       upsertLocal("prospects", payload);
-      emit("prospects");
+      emitProspects();
     })
     .on("postgres_changes", { event: "INSERT", schema: "public", table: "activity_log" }, (payload) => {
       store.activityLog = [payload.new, ...store.activityLog].slice(0, 60);
@@ -314,8 +346,18 @@ export function startRealtime() {
     .on("postgres_changes", { event: "INSERT", schema: "public", table: "prospect_notes" }, (payload) => {
       const pid = payload.new.prospect_id;
       if (store.notesByProspect[pid]) {
-        store.notesByProspect[pid] = [...store.notesByProspect[pid], payload.new];
-        emit("notes:" + pid);
+        // Replace rather than append when the id is already here. A note you
+        // posted yourself is on screen the instant you tap Post — from the
+        // outbox, carrying an id this device generated — so the server's own
+        // copy of that same note arrives moments later wearing the same id.
+        // Appending it would show the note twice; swapping it in puts the
+        // real, saved row in place of the still-sending one.
+        const list = store.notesByProspect[pid];
+        const i = list.findIndex((n) => n.id === payload.new.id);
+        store.notesByProspect[pid] = i >= 0
+          ? [...list.slice(0, i), payload.new, ...list.slice(i + 1)]
+          : [...list, payload.new];
+        emitNotes(pid);
       }
     })
     // Same "only touch it if that prospect's thread is already loaded" rule
