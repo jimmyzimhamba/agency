@@ -385,26 +385,39 @@ export function renderDashboard() {
       </div>
       ` : ""}
 
-      <div class="section-title ${showChecklist ? "" : "mt-0"}">Pipeline Overview</div>
-      <div class="stat-grid cols-3" id="db-status-grid"></div>
+      <!-- The two questions you open this page to answer — what shape is the
+           pipeline, and are we going to hit the number — now sit together at
+           the top, side by side on a laptop and stacked on a phone.
 
-      <div class="section-title">Monthly Revenue Goal</div>
-      <div class="card glow-card" id="db-goal-card" style="margin-bottom:4px;cursor:pointer;">
-        <div class="flex-between">
-          <div>
-            <div style="font-size:22px;font-weight:800;">${money(projectedMRR)}<span class="text-faint" style="font-size:13px;font-weight:600;"> / ${money(goalTarget)}</span></div>
-            <div class="text-faint" style="font-size:11.5px;">Projected MRR from signed clients this month</div>
+           The six status stat-cards that used to be Pipeline Overview are gone,
+           absorbed into the donut's legend. They listed the same six counts and
+           went to the same six filtered views; side by side with the legend
+           they'd have printed every number on this screen twice. -->
+      <div class="dash-two-up">
+        <div>
+          <div class="section-title ${showChecklist ? "" : "mt-0"}">Pipeline Overview</div>
+          <div class="card" id="db-status-chart"></div>
+        </div>
+        <div>
+          <div class="section-title">Monthly Revenue Goal</div>
+          <div class="card glow-card" id="db-goal-card" style="margin-bottom:4px;cursor:pointer;">
+            <div class="flex-between">
+              <div>
+                <div style="font-size:22px;font-weight:800;">${money(projectedMRR)}<span class="text-faint" style="font-size:13px;font-weight:600;"> / ${money(goalTarget)}</span></div>
+                <div class="text-faint" style="font-size:11.5px;">Projected MRR from signed clients this month</div>
+              </div>
+              ${isOwner ? `<span class="small-link" id="db-set-goal">Set Goal</span>` : ""}
+            </div>
+            <div class="progress-track"><div class="progress-fill" style="width:${goalPct}%"></div></div>
+            <div class="text-faint" style="font-size:11px;margin-top:6px;">${goalPct}% of target, tap for the client list</div>
+            ${goalPace ? `
+            <div style="margin-top:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+              <span class="status-pill ${goalPace.onPace ? "paid" : "stale"}">${goalPace.onPace ? "On pace" : "Behind pace"}</span>
+              ${!goalPace.onPace ? `<span class="text-faint" style="font-size:11px;">${money(Math.round(goalPace.perDayNeeded))}/day needed to catch up</span>` : ""}
+            </div>
+            ` : ""}
           </div>
-          ${isOwner ? `<span class="small-link" id="db-set-goal">Set Goal</span>` : ""}
         </div>
-        <div class="progress-track"><div class="progress-fill" style="width:${goalPct}%"></div></div>
-        <div class="text-faint" style="font-size:11px;margin-top:6px;">${goalPct}% of target, tap for the client list</div>
-        ${goalPace ? `
-        <div style="margin-top:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-          <span class="status-pill ${goalPace.onPace ? "paid" : "stale"}">${goalPace.onPace ? "On pace" : "Behind pace"}</span>
-          ${!goalPace.onPace ? `<span class="text-faint" style="font-size:11px;">${money(Math.round(goalPace.perDayNeeded))}/day needed to catch up</span>` : ""}
-        </div>
-        ` : ""}
       </div>
 
       <div class="section-title">Needs Follow-up</div>
@@ -624,9 +637,6 @@ export function renderDashboard() {
       <div class="section-title">This Week: Team</div>
       <div id="db-week-total" class="stat-grid" style="margin-bottom:12px;"></div>
       <div id="db-week-team"></div>
-
-      <div class="section-title">Status Breakdown</div>
-      <div class="card" id="db-status-chart"></div>
     </div>
   `);
   root.appendChild(wrap);
@@ -675,24 +685,6 @@ export function renderDashboard() {
   wrap.querySelector("#db-share-recap").addEventListener("click", () => {
     const text = buildRecapText(weeklyRecapStats());
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
-  });
-
-  // status grid
-  //
-  // Carries the same dot as the donut's legend. The six numbers themselves are
-  // left plain: six big numerals in six colors is a lot of shouting for cards
-  // that are mostly read as "how many", and coloring the label dot is enough
-  // to let someone match a card to its slice of the ring further down.
-  const grid = wrap.querySelector("#db-status-grid");
-  STATUS_ORDER.forEach((s) => {
-    const card = el(`
-      <div class="stat-card" style="cursor:pointer;--legend-color:${STATUS_COLOR[s]};" data-status="${s}">
-        <div class="num">${byStatus[s]}</div>
-        <div class="label"><span class="legend-dot"></span>${statusLabel(s)}</div>
-      </div>
-    `);
-    card.addEventListener("click", () => goToPipelineStatus(s));
-    grid.appendChild(card);
   });
 
   if (isOwner) {

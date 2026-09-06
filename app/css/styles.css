@@ -980,20 +980,40 @@ main {
 .legend-row { cursor: pointer; }
 .legend-row + .legend-row { margin-top: 11px; }
 .legend-head { display: flex; align-items: center; gap: 8px; font-size: 12.5px; margin-bottom: 5px; }
-/* inline-block, not the flex default, because this dot is also reused outside
-   a flex row on the Pipeline Overview stat cards, where an inline span would
-   drop the width/height entirely and render nothing. */
+/* inline-block rather than relying on the flex parent to blockify it, so the
+   dot keeps its dimensions if it's ever reused outside .legend-head. */
 .legend-dot {
   display: inline-block; flex: 0 0 auto; width: 8px; height: 8px; border-radius: 50%;
   background: var(--legend-color, var(--text-faint));
 }
-/* .legend-head spaces its children with gap; a plain block label can't, so the
-   stat-card copy brings its own. */
-.stat-card .label .legend-dot { margin-right: 5px; vertical-align: middle; position: relative; top: -1px; }
 .legend-name { color: var(--text-dim); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .legend-count { margin-left: auto; font-weight: 700; font-variant-numeric: tabular-nums; }
 .legend-track { height: 4px; border-radius: 3px; background: var(--chart-track); overflow: hidden; }
 .legend-fill { height: 100%; border-radius: 3px; background: var(--legend-color, var(--purple)); transition: width 0.3s ease; }
+
+/* ---- two cards abreast --------------------------------------------------------
+   Pipeline Overview + Monthly Revenue Goal at the top of the dashboard. Each
+   child is a [section-title + card] pair so both keep their own heading.
+
+   The breakpoint was measured, not guessed. .chart-split flips to a row at
+   560px of *viewport*, but inside this grid the donut has to share a column,
+   and a media query can't see the column. Once the 960px+ sidebar is showing,
+   the content area is viewport minus 306px (246px sidebar + 60px of main
+   padding), so each column here is (vw - 306 - 18) / 2 and the legend gets
+   that minus 28px of card padding, the 148px donut and the 24px gap. At
+   1100px that leaves the legend about 188px, which fits every status label
+   with room for its bar. Going lower squeezes the bars to the point where
+   comparing two of them stops working. Below the breakpoint the cards stack
+   full width, which is still "at the top, together" and hands the legend the
+   entire content width. */
+.dash-two-up { display: grid; grid-template-columns: 1fr; row-gap: 18px; }
+@media (min-width: 1100px) {
+  .dash-two-up { grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
+  /* Both headings sit on the same line. Without this the left one can carry
+     .mt-0 (0px) while the right falls back to .section-title:first-child (4px),
+     which reads as a wobble across a very visible pair of cards. */
+  .dash-two-up > * > .section-title { margin-top: 0; }
+}
 
 /* ---- due today banner --------------------------------------------------------*/
 .due-banner {
