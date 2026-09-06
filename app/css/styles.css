@@ -915,6 +915,86 @@ main {
 .progress-track { height: 8px; border-radius: 5px; background: rgba(255,255,255,0.07); overflow: hidden; margin-top: 8px; }
 .progress-fill { height: 100%; background: linear-gradient(90deg, var(--purple), var(--gold)); border-radius: 5px; transition: width 0.3s ease; }
 
+/* ---- donut chart + color-coded legend ---------------------------------------
+   Used by the dashboard's Status Breakdown. Every other bar in the app is the
+   same purple->gold .progress-fill gradient, which is right for a *quantity*
+   (a goal filling up, a project completing) but wrong here: these six bars are
+   six different categories, not six samples of one thing. The app already
+   assigns each status its own color on .status-pill, so a status read as blue
+   on a pill and purple on a bar in the same screen. These rules let the caller
+   pass the pill's color straight through as --legend-color so the two agree.
+
+   The track deliberately does NOT reuse .progress-track. That rule hardcodes
+   rgba(255,255,255,0.07), which is invisible on light mode's white cards; it
+   has 12 callers so fixing it globally is its own job, and inheriting the bug
+   into new markup would just deepen it. */
+:root { --chart-track: rgba(255, 255, 255, 0.07); }
+:root[data-theme="light"] { --chart-track: rgba(23, 21, 33, 0.09); }
+
+/* The status palette, as filled shapes rather than text. Light mode can't just
+   reuse --info/--warn/--success the way .status-pill does: a pill puts the
+   color on *text* over a dim tint, but a donut arc is a solid block on a near
+   white card, and measured against #f4f3f7 the stock colors come out at
+   1.62:1 (warn), 1.74:1 (success) and 2.08:1 (info) — well under the 3:1 WCAG
+   asks of a graphical object. That matters here because the arcs are the one
+   place color is NOT redundant: a legend row says "Sent" next to its dot, but
+   a slice of ring is only identifiable by its color.
+
+   The light values are darkened versions of the same hues, tuned to land in a
+   tight 3.90-4.51 band so no one arc reads as louder than its neighbours. */
+:root {
+  --status-not-contacted: var(--text-dim);
+  --status-sent: var(--info);
+  --status-replied: var(--warn);
+  --status-meeting-booked: var(--purple-soft);
+  --status-signed: var(--success);
+  --status-dead: var(--danger);
+}
+:root[data-theme="light"] {
+  --status-not-contacted: #7d7789;  /* 3.90:1 */
+  --status-sent: #2a72c9;           /* 4.37:1 */
+  --status-replied: #96690f;        /* 4.40:1 */
+  --status-meeting-booked: #8f4df0; /* 4.24:1 */
+  --status-signed: #11804d;         /* 4.51:1 */
+  --status-dead: #d92d43;           /* 4.31:1 */
+}
+
+/* Stacks under the donut on phones, sits beside it once there's room. */
+.chart-split { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+@media (min-width: 560px) {
+  .chart-split { flex-direction: row; align-items: center; gap: 24px; }
+}
+
+.donut { position: relative; flex: 0 0 auto; width: 148px; height: 148px; }
+/* -90deg puts the first segment at 12 o'clock instead of 3 o'clock. */
+.donut svg { display: block; width: 100%; height: 100%; transform: rotate(-90deg); }
+.donut-seg { transition: stroke-dasharray 0.35s ease; }
+.donut-center {
+  position: absolute; inset: 0; pointer-events: none;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+}
+.donut-num { font-size: 27px; font-weight: 800; letter-spacing: -0.5px; line-height: 1; }
+.donut-label { font-size: 11px; font-weight: 600; color: var(--text-faint); margin-top: 4px; }
+
+.chart-legend { flex: 1; min-width: 0; width: 100%; }
+.legend-row { cursor: pointer; }
+.legend-row + .legend-row { margin-top: 11px; }
+.legend-head { display: flex; align-items: center; gap: 8px; font-size: 12.5px; margin-bottom: 5px; }
+/* inline-block, not the flex default, because this dot is also reused outside
+   a flex row on the Pipeline Overview stat cards, where an inline span would
+   drop the width/height entirely and render nothing. */
+.legend-dot {
+  display: inline-block; flex: 0 0 auto; width: 8px; height: 8px; border-radius: 50%;
+  background: var(--legend-color, var(--text-faint));
+}
+/* .legend-head spaces its children with gap; a plain block label can't, so the
+   stat-card copy brings its own. */
+.stat-card .label .legend-dot { margin-right: 5px; vertical-align: middle; position: relative; top: -1px; }
+.legend-name { color: var(--text-dim); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.legend-count { margin-left: auto; font-weight: 700; font-variant-numeric: tabular-nums; }
+.legend-track { height: 4px; border-radius: 3px; background: var(--chart-track); overflow: hidden; }
+.legend-fill { height: 100%; border-radius: 3px; background: var(--legend-color, var(--purple)); transition: width 0.3s ease; }
+
 /* ---- due today banner --------------------------------------------------------*/
 .due-banner {
   display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: var(--radius-md);

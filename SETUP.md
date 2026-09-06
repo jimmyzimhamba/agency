@@ -2424,15 +2424,15 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 7. Click into the search box. Confirm the `/` chip disappears, and type something long enough to fill the box to confirm the text never runs underneath it.
 8. Click out, then press the `/` key. Confirm your cursor jumps into the search box.
 9. Open the app on your phone. Confirm the top bar still shows the "Agency Command" logo and looks exactly as it did before.
-10. Check the Team page footer reads **build sxc-v169**, which confirms the redeploy actually took.
+10. Check the Team page footer reads **build sxc-v170**, which confirms the redeploy actually took.
 
-> **Note:** Steps 160 to 163 all ship together as `sxc-v169`. One redeploy covers all four.
+> **Note:** Steps 160 to 164 all ship together as `sxc-v170`. One redeploy covers all five.
 
 ---
 
 ## Step 161 — Detail panels open down the right-hand side on a laptop
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v169` together with Steps 160, 162 and 163, so one redeploy covers all four.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v170` together with Steps 160, 162, 163 and 164, so one redeploy covers all five.
 
 **The problem.** When you tap a prospect, the details slide up from the bottom of the screen. On a phone that's exactly right: it's where your thumb is, and there's no spare width to put it anywhere else.
 
@@ -2460,13 +2460,13 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 8. Open a few other panels to confirm they all moved too: the "+" to add a prospect, a task, a contract, and an invoice.
 9. Make the browser window narrow (drag it under about 960 pixels wide). Confirm the panel goes back to sliding up from the bottom, with its drag handle back.
 10. Open the app on your phone. Confirm the panel still slides up from the bottom exactly as it always has.
-11. Check the Team page footer reads **build sxc-v169**.
+11. Check the Team page footer reads **build sxc-v170**.
 
 ---
 
 ## Step 162 — A "List view" for prospects, and softer green and gold buttons
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v169` together with Steps 160, 161 and 163, so one redeploy covers all four.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v170` together with Steps 160, 161, 163 and 164, so one redeploy covers all five.
 
 ### Part 1 — the solid green and gold buttons are toned down
 
@@ -2523,13 +2523,13 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 12. Try the search box and a couple of filter chips while in List view. Confirm filtering still works normally.
 13. Open the app on your phone and check Prospects. Confirm the links across the top wrap onto two lines and that **Select** is no longer cut off at the right edge.
 14. On your phone, confirm List view works there too and that tapping a row still slides the details up from the bottom.
-15. Check the Team page footer reads **build sxc-v169**.
+15. Check the Team page footer reads **build sxc-v170**.
 
 ---
 
 ## Step 163 — Every niche gets its own colour
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v169` together with Steps 160, 161 and 162, so one redeploy covers all four.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v170` together with Steps 160, 161, 162 and 164, so one redeploy covers all five.
 
 **The problem.** Niche was just grey text in the middle of a grey line — "Restaurants · Avondale · Harare". When you're running your eye down thirty prospects looking for the dentists, you have to actually read every row to find them. Nothing about a row tells you at a glance what kind of business it is.
 
@@ -2567,4 +2567,56 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 9. Switch back to Dark mode and confirm the same.
 10. Rename one of your niches on Niche Strategy. Confirm its colour does **not** change.
 11. Open the app on your phone and confirm the dots are there too.
-12. Check the Team page footer reads **build sxc-v169**.
+12. Check the Team page footer reads **build sxc-v170**.
+
+---
+
+## Step 164 — The Status Breakdown is now a colour-coded ring
+
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v170` together with Steps 160, 161, 162 and 163, so one redeploy covers all five.
+
+**The problem.** "Status Breakdown" at the bottom of the Dashboard was six bars, and every single one was the same purple-and-gold. That's the same bar the app uses for your revenue goal filling up — which is right for a goal, because there it means "how full is this". But these six bars aren't one thing filling up. They're six different piles. Painting them identically told you nothing you couldn't already get from the numbers.
+
+It was also inconsistent with the rest of the app. A prospect marked **Sent** already shows a **blue** tag on the Prospects page, but the Sent bar on the Dashboard was purple. Same status, two different colours, on the same screen.
+
+**What changed.** Status Breakdown is now a ring, with each status as its own coloured slice, and a list beside it showing the colour, the name and the count.
+
+- **Not Contacted** is grey
+- **Sent** is blue
+- **Replied** is amber
+- **Meeting Booked** is purple
+- **Signed** is green
+- **Dead** is red
+
+These are the same colours those statuses already had as tags elsewhere in the app, so they finally agree.
+
+**The number in the middle of the ring** is your total prospect count. Each slice is that status's share of the total, so the ring answers "what shape is my pipeline" at a glance — a ring that's nearly all grey means you have a big list you haven't worked yet.
+
+**The small bars in the list** are the same information in a straight line, so a small slice is still easy to compare against a large one.
+
+**The Pipeline Overview cards at the top of the Dashboard** now carry a matching coloured dot next to each label. That's so you can connect a card up top to its slice of the ring further down. The big numbers themselves are left plain white — six large numerals in six colours would have been a lot of noise on cards you mostly read for the count.
+
+**Everything still clicks the same way.** Tapping a status in the list, or a card at the top, still takes you to Prospects filtered to that status. Nothing about how you use it has changed.
+
+**A note for Light mode.** Just like the niche dots in Step 163, these colours are slightly darker in Light mode. The bright blue and green that look sharp on the dark background nearly disappear on white, so each was darkened until all six are equally easy to see. The ring is the one place colour is doing real work on its own — a slice has no label on it, only its colour — so it has to hold up in both modes.
+
+### Now test it
+
+Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R).
+
+1. Go to the Dashboard and scroll to the bottom, to **Status Breakdown**.
+2. Confirm you now see a ring, not six flat bars.
+3. Confirm the number in the middle matches your total number of prospects.
+4. Confirm each status in the list beside the ring has its own colour dot, and its own colour bar underneath.
+5. Check the colours are what you'd expect: Sent blue, Replied amber, Signed green, Dead red.
+6. Go to the Prospects page and find a prospect marked **Sent**. Confirm its blue tag is the **same blue** as the Sent slice on the Dashboard.
+7. Back on the Dashboard, scroll up to **Pipeline Overview**. Confirm each of the six cards now has a small coloured dot next to its label.
+8. Confirm a card's dot colour matches that status's slice in the ring below.
+9. Click the **Sent** row in the list next to the ring. Confirm it takes you to Prospects filtered to Sent, the same as before.
+10. Go back to the Dashboard and click the **Sent** card in Pipeline Overview. Confirm it does the same thing.
+11. If a status has **zero** prospects, confirm it still appears in the list with a 0 and an empty bar, and that it has no slice in the ring.
+12. Check the **Monthly Revenue Goal** bar further up the Dashboard is still purple-and-gold. That one was left alone on purpose.
+13. Switch to Light mode with the sun/moon icon in the top bar. Confirm every slice of the ring is still clearly visible against the white — none should look washed out.
+14. Switch back to Dark mode and confirm the same.
+15. Open the Dashboard on your phone. Confirm the ring sits above the list rather than beside it, and that nothing is cut off.
+16. Check the Team page footer reads **build sxc-v170**.

@@ -27,6 +27,21 @@ function goalPaceInfo(actualMRR, target) {
 }
 
 const STATUS_ORDER = ["not_contacted", "sent", "replied", "meeting_booked", "signed", "dead"];
+
+// The one place a status's color is named in JS. These point at the
+// --status-* variables rather than at --info/--warn/--success directly, so
+// that light mode can swap in darkened versions of the same hues without this
+// file knowing about it — a solid arc on a white card needs far more contrast
+// than the same color does as pill text. See the palette block in styles.css.
+const STATUS_COLOR = {
+  not_contacted: "var(--status-not-contacted)",
+  sent: "var(--status-sent)",
+  replied: "var(--status-replied)",
+  meeting_booked: "var(--status-meeting-booked)",
+  signed: "var(--status-signed)",
+  dead: "var(--status-dead)",
+};
+
 let weeklyHistory = [];
 
 // A prospect is "stale" once it's sat in an active (not signed/dead) status
@@ -663,12 +678,17 @@ export function renderDashboard() {
   });
 
   // status grid
+  //
+  // Carries the same dot as the donut's legend. The six numbers themselves are
+  // left plain: six big numerals in six colors is a lot of shouting for cards
+  // that are mostly read as "how many", and coloring the label dot is enough
+  // to let someone match a card to its slice of the ring further down.
   const grid = wrap.querySelector("#db-status-grid");
   STATUS_ORDER.forEach((s) => {
     const card = el(`
-      <div class="stat-card" style="cursor:pointer;" data-status="${s}">
+      <div class="stat-card" style="cursor:pointer;--legend-color:${STATUS_COLOR[s]};" data-status="${s}">
         <div class="num">${byStatus[s]}</div>
-        <div class="label">${statusLabel(s)}</div>
+        <div class="label"><span class="legend-dot"></span>${statusLabel(s)}</div>
       </div>
     `);
     card.addEventListener("click", () => goToPipelineStatus(s));
@@ -775,21 +795,78 @@ export function renderDashboard() {
     });
   });
 
-  // status bar chart
+  // status donut + color-coded legend
+  //
+  // Bar widths are share-of-total, not share-of-largest as they used to be.
+  // Paired with a donut the old scaling would contradict it: the biggest
+  // status always drew a full-width bar while its arc covered a third of the
+  // ring. Same number, two different-looking answers on one card.
   const chartEl = wrap.querySelector("#db-status-chart");
-  const maxCount = Math.max(1, ...STATUS_ORDER.map((s) => byStatus[s]));
+  const totalProspects = STATUS_ORDER.reduce((n, s) => n + byStatus[s], 0);
+  const R = 42;
+  const CIRC = 2 * Math.PI * R;
+
+  // Each segment is a single dash on a full circle: dasharray "<len> <rest>"
+  // paints len of stroke then leaves the rest bare, and a negative dashoffset
+  // slides that dash around to start where the previous one ended. Zero-count
+  // statuses are skipped so they can't leave a hairline artifact on the ring.
+  //
+  // stroke goes in a style attribute rather than the stroke="" presentation
+  // attribute because var() is only substituted in CSS declarations — as a
+  // presentation attribute it is invalid and the segment renders black.
+  let offset = 0;
+  const segs = STATUS_ORDER.filter((s) => byStatus[s] > 0)
+    .map((s) => {
+      const len = totalProspects ? (byStatus[s] / totalProspects) * CIRC : 0;
+      const seg = `<circle class="donut-seg" cx="50" cy="50" r="${R}" fill="none" stroke-width="12"
+        style="stroke:${STATUS_COLOR[s]};"
+        stroke-dasharray="${len.toFixed(2)} ${(CIRC - len).toFixed(2)}"
+        stroke-dashoffset="${(-offset).toFixed(2)}"></circle>`;
+      offset += len;
+      return seg;
+    })
+    .join("");
+
   chartEl.innerHTML = "";
-  STATUS_ORDER.forEach((s) => {
-    const row = el(`
-      <div style="margin-bottom:9px;cursor:pointer;" data-status="${s}">
-        <div class="flex-between" style="font-size:11.5px;margin-bottom:3px;">
-          <span class="text-dim">${statusLabel(s)}</span><span class="text-faint">${byStatus[s]}</span>
+  chartEl.appendChild(
+    el(`
+      <div class="chart-split">
+        <div class="donut">
+          <svg viewBox="0 0 100 100" aria-hidden="true">
+            <circle cx="50" cy="50" r="${R}" fill="none" stroke-width="12" style="stroke:var(--chart-track);"></circle>
+            ${segs}
+          </svg>
+          <div class="donut-center">
+            <div class="donut-num">${totalProspects}</div>
+            <div class="donut-label">${totalProspects === 1 ? "prospect" : "prospects"}</div>
+          </div>
         </div>
-        <div class="progress-track"><div class="progress-fill" style="width:${(byStatus[s] / maxCount) * 100}%"></div></div>
+        <div class="chart-legend" id="db-status-legend"></div>
+      </div>
+    `)
+  );
+
+  const legendEl = chartEl.querySelector("#db-status-legend");
+  STATUS_ORDER.forEach((s) => {
+    const count = byStatus[s];
+    const pct = totalProspects ? (count / totalProspects) * 100 : 0;
+    // min-width keeps a 1-of-400 status from rounding away to an empty track,
+    // but only when the count is actually non-zero — a stray sliver on a zero
+    // row would read as "there's one in here somewhere".
+    const row = el(`
+      <div class="legend-row" data-status="${s}" style="--legend-color:${STATUS_COLOR[s]};">
+        <div class="legend-head">
+          <span class="legend-dot"></span>
+          <span class="legend-name">${statusLabel(s)}</span>
+          <span class="legend-count">${count}</span>
+        </div>
+        <div class="legend-track">
+          <div class="legend-fill" style="width:${pct.toFixed(1)}%;${count ? "min-width:3px;" : ""}"></div>
+        </div>
       </div>
     `);
     row.addEventListener("click", () => goToPipelineStatus(s));
-    chartEl.appendChild(row);
+    legendEl.appendChild(row);
   });
 
   loadWeeklyStats(wrap);
