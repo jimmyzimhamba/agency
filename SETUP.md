@@ -3360,3 +3360,43 @@ people, because that build hasn't gone live yet. One deploy covers both.
 8. Switch back to light and check it returns to the solid purple.
 9. Check the smaller grey line underneath, **"Here's how the pipeline is
    doing."**, looks the same as it always did in both modes.
+
+---
+
+## Step 175: Empire sits next to Dashboard on the phone
+
+You asked for Empire to be next to Dashboard on mobile. The bottom row of
+buttons now reads:
+
+**Dashboard · Empire · Pipeline · Missions · Messages · More**
+
+It used to be Dashboard, Pipeline, Missions, Empire, Messages, More — Empire
+was fourth along.
+
+**Worth knowing:** on a computer, the sidebar already had Empire directly under
+Dashboard. So the phone was the odd one out, and this brings the two into line.
+Anyone who works on a laptop and a phone now finds Empire in the same place in
+their head on both.
+
+Nothing else moved and nothing was dropped — it's the same six buttons, just
+reordered. The buttons work off their own names rather than their positions, so
+the highlighting still follows you correctly: tap Empire and Empire lights up,
+open something from the More menu and More lights up.
+
+**No new build number.** Still **sxc-v184** — that build hasn't gone live yet,
+so this goes out with the walking people and the greeting fix in one deploy.
+
+**Now test it**
+
+1. Open the app **on your phone**.
+2. Look at the row of buttons along the **bottom**.
+3. Check the order reads **Dashboard, Empire, Pipeline, Missions, Messages,
+   More** from left to right.
+4. Check all six labels still fit on **one line each** and none are cut off.
+5. Tap **Empire**. Check the street opens and the **Empire button lights up**.
+6. Tap **Dashboard**, then **Pipeline**, then **Missions**, then **Messages**.
+   Check each one opens and lights up the button you tapped.
+7. Tap **More**, then open something from the menu — Contracts, say. Check the
+   **More button** is the one lit up.
+8. Now open the app **on a computer**. Check the sidebar down the left still
+   has **Empire directly under Dashboard**, the same as the phone.
