@@ -1160,44 +1160,70 @@ main {
 /* ---- empire (the town) --------------------------------------------------------
    Every colour here is a theme variable rather than a literal, because the sky
    doubles as the day/night switch: light mode is midday over Harare, dark mode
-   is the same street at night with the windows lit. The buildings themselves
-   are drawn in hsl() from each niche's hue in JS, and sit at a mid lightness
-   that holds up against both skies. */
+   is the same street after dark with the windows and the streetlamps lit. Both
+   skies are always in the SVG and one is hidden here, so flipping the theme
+   re-skins the town instantly without a re-render — and the town can never be
+   caught showing stars at midday because it happened to be drawn first.
+
+   The buildings are filled from each niche's hue in oklch(), one shade for the
+   lit side wall and a darker one for the shaded front, which is what stops a
+   building looking like a flat swatch of niche colour. */
 :root {
-  --emp-sky-top: #1b2340;
-  --emp-sky-bot: #33305c;
-  --emp-sun: rgba(255, 249, 214, 0.5);
-  --emp-ground: #2a2f3d;
-  --emp-road: #23262f;
-  --emp-foliage: #2f6b4a;
-  --emp-trunk: #3e3327;
-  --emp-lamp: #4a4f5e;
-  --emp-lamp-glow: var(--gold-soft);
-  --emp-win: rgba(255, 255, 255, 0.16);
-  --emp-win-lit: rgba(255, 214, 122, 0.92);
+  --emp-sky-top: #101833;
+  --emp-sky-bot: #2b3160;
+  --emp-slab-top: #4a5473;
+  --emp-slab-face: #353d5c;
+  --emp-leaf-a: #2f6b4a;
+  --emp-leaf-b: #3f8c5e;
+  --emp-trunk: #3b3125;
+  --emp-post: #4e5468;
+  --emp-lantern: #ffd98a;
+  --emp-glow: rgba(255, 206, 120, 0.32);
+  --emp-win: rgba(150, 178, 220, 0.26);
+  --emp-win-lit: #ffd77e;
+  --emp-wood: #6f5a42;
+  --emp-wood-dark: #4e4030;
+  --emp-metal: #737b90;
+  --emp-star: rgba(255, 255, 255, 0.85);
+  --emp-bird: rgba(255, 255, 255, 0.65);
+  --emp-cast: rgba(0, 0, 0, 0.22);
 }
 :root[data-theme="light"] {
-  --emp-sky-top: #9fd6f5;
-  --emp-sky-bot: #d8eefb;
-  --emp-sun: rgba(255, 238, 160, 0.95);
-  --emp-ground: #8fc177;
-  --emp-road: #b9b4ad;
-  --emp-foliage: #4f9c5f;
+  --emp-sky-top: #b0d8f5;
+  --emp-sky-bot: #e8f3fd;
+  --emp-slab-top: #d5d3cc;
+  --emp-slab-face: #b7b4ab;
+  --emp-leaf-a: #4f9c5f;
+  --emp-leaf-b: #6dbb6f;
   --emp-trunk: #6b5439;
-  --emp-lamp: #7c7f88;
-  --emp-lamp-glow: #ffe9a8;
-  --emp-win: rgba(255, 255, 255, 0.62);
-  --emp-win-lit: rgba(255, 205, 92, 0.95);
+  --emp-post: #7c8290;
+  --emp-lantern: #ffe9a8;
+  --emp-glow: rgba(255, 214, 130, 0);
+  --emp-win: rgba(222, 238, 252, 0.74);
+  --emp-win-lit: rgba(255, 255, 255, 0.9);
+  --emp-wood: #b08a5e;
+  --emp-wood-dark: #8a6a45;
+  --emp-metal: #8d95a3;
+  --emp-star: rgba(255, 255, 255, 0.85);
+  --emp-bird: rgba(70, 95, 130, 0.55);
+  --emp-cast: rgba(40, 50, 70, 0.13);
 }
 
 .emp-card { margin-bottom: 14px; }
-/* The street is as wide as the town is long, so it scrolls sideways inside the
-   card rather than squashing. Buildings would become unreadable slivers at any
+/* The street is as long as the town, so it scrolls sideways inside the card
+   rather than squashing. Buildings would become unreadable slivers at any
    width if we tried to fit fifty of them on a phone. */
 .emp-scroll { overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; }
 .emp-scroll::-webkit-scrollbar { height: 8px; }
 .emp-scroll::-webkit-scrollbar-thumb { background: var(--chart-track); border-radius: 4px; }
 .emp-svg { display: block; }
+
+/* Day and night. SVG elements default to display:inline, not block — using
+   "block" here would work in Chrome and quietly break the layout elsewhere. */
+.emp-day { display: none; }
+:root[data-theme="light"] .emp-day { display: inline; }
+:root[data-theme="light"] .emp-night { display: none; }
+
 /* Gradient stops are set here rather than as stop-color="" attributes because
    var() is only substituted in CSS declarations — as an SVG presentation
    attribute it is invalid and the stop renders black. Same trap as the donut's
@@ -1205,37 +1231,87 @@ main {
 .emp-sky-a { stop-color: var(--emp-sky-top); }
 .emp-sky-b { stop-color: var(--emp-sky-bot); }
 .emp-sky { fill: url(#emp-sky-grad); }
-.emp-ground { fill: var(--emp-ground); }
-.emp-road { fill: var(--emp-road); }
-.emp-sun { fill: var(--emp-sun); }
-.emp-road-line { stroke: rgba(255, 255, 255, 0.28); stroke-width: 2; stroke-dasharray: 12 12; }
-.emp-name { fill: var(--text-dim); font-size: 8.5px; font-weight: 600; letter-spacing: 0.1px; }
-.emp-win { fill: var(--emp-win); }
-.emp-win.lit { fill: var(--emp-win-lit); }
-.emp-tree circle { fill: var(--emp-foliage); }
-.emp-tree rect { fill: var(--emp-trunk); }
-.emp-lamp rect { fill: var(--emp-lamp); }
-.emp-lamp circle { fill: var(--emp-lamp-glow); }
-.emp-shadow { fill: rgba(0, 0, 0, 0.18); }
+.emp-glow-a { stop-color: var(--emp-glow); }
+.emp-glow-b { stop-color: rgba(255, 206, 120, 0); }
+.emp-glow { fill: url(#emp-glow-grad); }
+
+.emp-stars circle { fill: var(--emp-star); }
+.emp-moon-body { fill: #eef3ff; }
+.emp-moon-halo { fill: url(#emp-moon-grad); }
+.emp-moonglow-a { stop-color: rgba(196, 214, 255, 0.16); }
+.emp-moonglow-b { stop-color: rgba(196, 214, 255, 0); }
+.emp-birds path { fill: none; stroke: var(--emp-bird); stroke-width: 1.6; stroke-linecap: round; }
+
+.emp-slab-top { fill: var(--emp-slab-top); }
+.emp-slab-face { fill: var(--emp-slab-face); }
+.emp-cast { fill: var(--emp-cast); }
 
 /* Same oklch() ramp and the same two-line fallback as .niche-dot, so a
    building is the exact colour of its niche's dot everywhere else in the app,
    and a browser too old for oklch() gets a whole town of neutral houses
-   instead of a town of invisible ones. Buildings are mid-toned rather than
-   following the dots' light/dark split because they sit on our own sky, not
-   on the page background. */
-.emp-wall { fill: var(--text-faint); fill: oklch(0.74 0.13 var(--niche-hue, 0)); }
-.emp-roof { fill: var(--text-dim); fill: oklch(0.55 0.12 var(--niche-hue, 0)); }
-:root[data-theme="light"] .emp-wall { fill: oklch(0.72 0.15 var(--niche-hue, 0)); }
-:root[data-theme="light"] .emp-roof { fill: oklch(0.52 0.14 var(--niche-hue, 0)); }
-.emp-building.no-niche .emp-wall { fill: oklch(0.68 0.01 260); }
-.emp-building.no-niche .emp-roof { fill: oklch(0.5 0.01 260); }
+   instead of a town of invisible ones. The light comes from the upper left in
+   both themes: side wall lit, front wall shaded, parapet rim brightest, roof
+   deck darkest because a flat tar roof is the one surface facing straight up
+   with nothing above it. */
+.emp-face-side { fill: var(--text-faint); fill: oklch(0.68 0.115 var(--niche-hue, 0)); }
+.emp-face-front { fill: var(--text-dim); fill: oklch(0.56 0.105 var(--niche-hue, 0)); }
+.emp-rim { fill: var(--text-faint); fill: oklch(0.74 0.1 var(--niche-hue, 0)); }
+.emp-deck { fill: var(--text-dim); fill: oklch(0.53 0.075 var(--niche-hue, 0)); }
+.emp-door { fill: oklch(0.33 0.05 var(--niche-hue, 0)); }
+.emp-shop { fill: var(--emp-win); }
+:root[data-theme="light"] .emp-face-side { fill: oklch(0.75 0.145 var(--niche-hue, 0)); }
+:root[data-theme="light"] .emp-face-front { fill: oklch(0.64 0.135 var(--niche-hue, 0)); }
+:root[data-theme="light"] .emp-rim { fill: oklch(0.81 0.12 var(--niche-hue, 0)); }
+:root[data-theme="light"] .emp-deck { fill: oklch(0.6 0.095 var(--niche-hue, 0)); }
+:root[data-theme="light"] .emp-door { fill: oklch(0.4 0.06 var(--niche-hue, 0)); }
+.emp-building.no-niche .emp-face-side { fill: oklch(0.68 0.012 260); }
+.emp-building.no-niche .emp-face-front { fill: oklch(0.56 0.012 260); }
+.emp-building.no-niche .emp-rim { fill: oklch(0.74 0.012 260); }
+.emp-building.no-niche .emp-deck { fill: oklch(0.53 0.008 260); }
+.emp-building.no-niche .emp-door { fill: oklch(0.33 0.008 260); }
+/* The parapet is a plain white wash over the top band of both walls rather
+   than a fifth niche-derived shade: it has to read as the same lip on every
+   building whatever colour that building is. */
+.emp-parapet { fill: rgba(255, 255, 255, 0.13); }
+.emp-handle { fill: rgba(255, 255, 255, 0.7); }
+.emp-win { fill: var(--emp-win); }
+.emp-win.lit { fill: var(--emp-win-lit); }
+
+.emp-trunk { fill: var(--emp-trunk); }
+.emp-leaf-a { fill: var(--emp-leaf-a); }
+.emp-leaf-b { fill: var(--emp-leaf-b); }
+.emp-box-pot { fill: var(--emp-wood-dark); }
+.emp-post { fill: var(--emp-post); }
+.emp-lantern { fill: var(--emp-lantern); }
+.emp-bench-wood { fill: var(--emp-wood); }
+.emp-bench-leg { fill: var(--emp-wood-dark); }
+.emp-pb-body { fill: #c0392b; }
+.emp-pb-slot { fill: rgba(0, 0, 0, 0.45); }
+.emp-pb-band { fill: rgba(0, 0, 0, 0.18); }
+.emp-wheel { fill: none; stroke: var(--emp-metal); stroke-width: 2; }
+.emp-frame { fill: none; stroke: #c0392b; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.emp-cart-post { fill: var(--emp-wood-dark); }
+.emp-cart-body { fill: var(--emp-wood); }
+.emp-awn-0 { fill: #e8503f; }
+.emp-awn-1 { fill: #f6efe0; }
+.emp-produce-0 { fill: #e8a33d; }
+.emp-produce-1 { fill: #cf5b46; }
+
+/* The name plate stays white in both themes. It is the only element on this
+   drawing that has to be readable against a midday sky and a midnight one, and
+   dark text on white is 15:1 either way — restyling it per theme would be
+   three more things to get wrong for no gain. */
+.emp-label rect { fill: #fff; stroke: rgba(20, 26, 40, 0.1); stroke-width: 1; }
+.emp-label text { fill: #1b2333; font-size: 9.5px; font-weight: 700; letter-spacing: 0.1px; }
 
 /* A building is a real client you can open, so it has to look touchable and
-   take keyboard focus like any other control. */
+   take keyboard focus like any other control. The brightness filter goes on
+   the body group rather than on each wall: one filter per hovered building
+   instead of five, and it deliberately excludes the white name plate, which
+   has nowhere brighter to go. */
 .emp-building { cursor: pointer; }
-.emp-building:hover .emp-wall,
-.emp-building:focus-visible .emp-wall { filter: brightness(1.12); }
+.emp-building:hover .emp-body,
+.emp-building:focus-visible .emp-body { filter: brightness(1.1); }
 .emp-building:focus { outline: none; }
 .emp-building:focus-visible { outline: 2px solid var(--purple); outline-offset: 2px; border-radius: 4px; }
 
@@ -1253,9 +1329,10 @@ main {
 /* Outlined in the app's own purple rather than in white: it has to sit on the
    pale daytime sky as well as the night one, and it's the one thing on this
    screen we actually want someone to look at. */
+.emp-plot polygon,
 .emp-plot path {
   stroke: var(--purple); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
-  fill: none; stroke-dasharray: 7 6; opacity: 0.85;
+  fill: none; stroke-dasharray: 7 6; opacity: 0.9;
 }
 .emp-empty-title { font-weight: 700; font-size: 14.5px; margin-bottom: 4px; }
 .emp-empty-sub { color: var(--text-dim); font-size: 12.5px; max-width: 330px; margin: 0 auto; }
