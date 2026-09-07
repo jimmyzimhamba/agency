@@ -2328,7 +2328,7 @@ This adds three tables: `pitch_scenarios` (the deck), `pitch_attempts` (private 
 
 **If you already ran this file once before the starter cards were added**, run it again — it now also adds an `is_starter` column to `pitch_scenarios`. If you skip this, the "load 52 common ones" link will show a message telling you to re-run the SQL.
 
-> **Corrected in `sxc-v182`.** Until now this file could **not** actually be re-run, even though this page said it could. Running it a second time stopped with an error like `policy "pitch_scenarios: read org" already exists`, and because Supabase runs the whole script as one all-or-nothing batch, that one error **undid everything else in the file** — including the `is_starter` column it was supposed to be adding. So if you tried the fix the app told you to try, it silently did nothing and you got the same error next time.
+> **Corrected in `sxc-v183`.** Until now this file could **not** actually be re-run, even though this page said it could. Running it a second time stopped with an error like `policy "pitch_scenarios: read org" already exists`, and because Supabase runs the whole script as one all-or-nothing batch, that one error **undid everything else in the file** — including the `is_starter` column it was supposed to be adding. So if you tried the fix the app told you to try, it silently did nothing and you got the same error next time.
 >
 > The file has been corrected and is now genuinely safe to run as many times as you like. **If you hit that error before, please paste the file in and run it once more** — this time it will stick.
 
@@ -2343,7 +2343,7 @@ This adds three tables: `pitch_scenarios` (the deck), `pitch_attempts` (private 
 
 **If you skip this step**, everything else on the page still works — you can add cards, load the starter deck, draw cards and type answers. The only thing that won't work is the coaching note that comes back. Tapping **Get Coaching** will say *"The pitch-coach function isn't deployed yet — see SETUP.md Step 158.2."*
 
-> **Improved in `sxc-v182`.** That message used to read *"Failed to send a request to the Edge Function"*, which is what Supabase itself says and which tells you nothing you can act on — it reads like the app is broken rather than like a setup step is still outstanding. It now names the missing function and points here. Any other kind of failure still shows the real underlying message.
+> **Improved in `sxc-v183`.** That message used to read *"Failed to send a request to the Edge Function"*, which is what Supabase itself says and which tells you nothing you can act on — it reads like the app is broken rather than like a setup step is still outstanding. It now names the missing function and points here. Any other kind of failure still shows the real underlying message.
 
 ### 158.3 — No new API key needed
 
@@ -2434,15 +2434,15 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 7. Click into the search box. Confirm the `/` chip disappears, and type something long enough to fill the box to confirm the text never runs underneath it.
 8. Click out, then press the `/` key. Confirm your cursor jumps into the search box.
 9. Open the app on your phone. Confirm the top bar still shows the "Agency Command" logo and looks exactly as it did before.
-10. Check the Team page footer reads **build sxc-v182**, which confirms the redeploy actually took.
+10. Check the Team page footer reads **build sxc-v183**, which confirms the redeploy actually took.
 
-> **Note:** Steps 160 to 166 all ship together as `sxc-v182`. One redeploy covers all seven.
+> **Note:** Steps 160 to 166 all ship together as `sxc-v183`. One redeploy covers all seven.
 
 ---
 
 ## Step 161 — Detail panels open down the right-hand side on a laptop
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v182` together with Steps 160, 162, 163, 164, 165 and 166, so one redeploy covers all seven.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v183` together with Steps 160, 162, 163, 164, 165 and 166, so one redeploy covers all seven.
 
 **The problem.** When you tap a prospect, the details slide up from the bottom of the screen. On a phone that's exactly right: it's where your thumb is, and there's no spare width to put it anywhere else.
 
@@ -2470,13 +2470,13 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 8. Open a few other panels to confirm they all moved too: the "+" to add a prospect, a task, a contract, and an invoice.
 9. Make the browser window narrow (drag it under about 960 pixels wide). Confirm the panel goes back to sliding up from the bottom, with its drag handle back.
 10. Open the app on your phone. Confirm the panel still slides up from the bottom exactly as it always has.
-11. Check the Team page footer reads **build sxc-v182**.
+11. Check the Team page footer reads **build sxc-v183**.
 
 ---
 
 ## Step 162 — A "List view" for prospects, and softer green and gold buttons
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v182` together with Steps 160, 161, 163, 164, 165 and 166, so one redeploy covers all seven.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v183` together with Steps 160, 161, 163, 164, 165 and 166, so one redeploy covers all seven.
 
 ### Part 1 — the solid green and gold buttons are toned down
 
@@ -2533,13 +2533,13 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 12. Try the search box and a couple of filter chips while in List view. Confirm filtering still works normally.
 13. Open the app on your phone and check Prospects. Confirm the links across the top wrap onto two lines and that **Select** is no longer cut off at the right edge.
 14. On your phone, confirm List view works there too and that tapping a row still slides the details up from the bottom.
-15. Check the Team page footer reads **build sxc-v182**.
+15. Check the Team page footer reads **build sxc-v183**.
 
 ---
 
 ## Step 163 — Every niche gets its own colour
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v182` together with Steps 160, 161, 162, 164, 165 and 166, so one redeploy covers all seven.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v183` together with Steps 160, 161, 162, 164, 165 and 166, so one redeploy covers all seven.
 
 **The problem.** Niche was just grey text in the middle of a grey line — "Restaurants · Avondale · Harare". When you're running your eye down thirty prospects looking for the dentists, you have to actually read every row to find them. Nothing about a row tells you at a glance what kind of business it is.
 
@@ -2577,13 +2577,13 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 9. Switch back to Dark mode and confirm the same.
 10. Rename one of your niches on Niche Strategy. Confirm its colour does **not** change.
 11. Open the app on your phone and confirm the dots are there too.
-12. Check the Team page footer reads **build sxc-v182**.
+12. Check the Team page footer reads **build sxc-v183**.
 
 ---
 
 ## Step 164 — The Status Breakdown is now a colour-coded ring
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v182` together with Steps 160, 161, 162, 163, 165 and 166, so one redeploy covers all seven.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v183` together with Steps 160, 161, 162, 163, 165 and 166, so one redeploy covers all seven.
 
 **The problem.** "Status Breakdown" at the bottom of the Dashboard was six bars, and every single one was the same purple-and-gold. That's the same bar the app uses for your revenue goal filling up — which is right for a goal, because there it means "how full is this". But these six bars aren't one thing filling up. They're six different piles. Painting them identically told you nothing you couldn't already get from the numbers.
 
@@ -2627,13 +2627,13 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 11. Switch to Light mode with the sun/moon icon in the top bar. Confirm every slice of the ring is still clearly visible against the white — none should look washed out.
 12. Switch back to Dark mode and confirm the same.
 13. Open the Dashboard on your phone. Confirm the ring sits above the list rather than beside it, and that nothing is cut off.
-14. Check the Team page footer reads **build sxc-v182**.
+14. Check the Team page footer reads **build sxc-v183**.
 
 ---
 
 ## Step 165 — The pipeline ring and the revenue goal now sit side by side at the top
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v182` together with Steps 160, 161, 162, 163, 164 and 166, so one redeploy covers all seven.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v183` together with Steps 160, 161, 162, 163, 164 and 166, so one redeploy covers all seven.
 
 **The problem.** There are really only two questions you open the Dashboard to answer: *what shape is my pipeline* and *are we going to hit the number this month*. Until now those two answers were nowhere near each other. Monthly Revenue Goal was near the top, and the ring you just got in Step 164 was right at the bottom, past follow-ups, data health, the leaderboard and the team stats. You had to scroll past everything to get to one of the two things you actually came for.
 
@@ -2666,13 +2666,13 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 11. Open the Dashboard on your phone. Confirm the ring is at the top, the revenue goal is directly under it, and neither is cut off at the edges.
 12. Switch to Light mode with the sun/moon icon. Confirm both cards still read clearly and the ring's colours are still easy to tell apart.
 13. Switch back to Dark mode and confirm the same.
-14. Check the Team page footer reads **build sxc-v182**.
+14. Check the Team page footer reads **build sxc-v183**.
 
 ---
 
 ## Step 166 — Tasks are now Missions, and there's a new Empire page
 
-No SQL to run, no edge functions, no new secrets. Ships as `sxc-v182` together with Steps 160, 161, 162, 163, 164 and 165, so one redeploy covers all seven.
+No SQL to run, no edge functions, no new secrets. Ships as `sxc-v183` together with Steps 160, 161, 162, 163, 164 and 165, so one redeploy covers all seven.
 
 ### First, the honest part
 
@@ -2766,9 +2766,9 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 22. Tap **Empire**. Confirm it opens the street, and that the **Empire** button turns gold — not the **More** button.
 23. Confirm the street still fits on the phone screen, still scrolls sideways with your finger, and nothing is cut off.
 24. Tap **More**. Confirm **Empire** is **no longer** listed in that menu — it has its own button now, so it shouldn't be in both places.
-25. Check the Team page footer reads **build sxc-v182**.
+25. Check the Team page footer reads **build sxc-v183**.
 
-**Fixed since first writing this step:** *Open client* on the Empire page opened an empty panel instead of the client's details. The Empire page was handing over the client's ID number where the rest of the app hands over the whole client record, so the panel opened with nothing to show and failed quietly — no error message, just a blank. Every other place in the app that opens a client (Prospects, Dashboard, Search, Messages, Invoices) was already doing it the right way; Empire was the only one out of step. Now corrected in `sxc-v182`.
+**Fixed since first writing this step:** *Open client* on the Empire page opened an empty panel instead of the client's details. The Empire page was handing over the client's ID number where the rest of the app hands over the whole client record, so the panel opened with nothing to show and failed quietly — no error message, just a blank. Every other place in the app that opens a client (Prospects, Dashboard, Search, Messages, Invoices) was already doing it the right way; Empire was the only one out of step. Now corrected in `sxc-v183`.
 
 ---
 
@@ -2817,9 +2817,9 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 15. Still on the phone, watch a card for a few seconds and confirm it's **still gently drifting**.
 16. On an iPhone, go to **Settings → Accessibility → Motion** and switch **Reduce Motion** on. Reload the sales page. Confirm **everything is completely still** — no drifting, no fading in as you scroll. Then switch Reduce Motion back off.
 17. Sign in and use the app normally for a minute. Confirm **nothing inside the app changed** — this step only touched the public page.
-18. Check the Team page footer reads **build sxc-v182**.
+18. Check the Team page footer reads **build sxc-v183**.
 
-*(Step 168 below then brought a version of this inside the app too, so from `sxc-v182` on, item 17 no longer holds — the cards in the app catch the light as well.)*
+*(Step 168 below then brought a version of this inside the app too, so from `sxc-v183` on, item 17 no longer holds — the cards in the app catch the light as well.)*
 
 ---
 
@@ -2867,7 +2867,7 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 16. Now pick up your **phone**. Open Prospects and scroll the list up and down a few times. Confirm it scrolls **exactly as smoothly as it did before** — no stutter, no lag.
 17. On the phone, confirm the cards look **completely normal** and nothing lights up or moves. There's no cursor on a phone, so there's nothing to track.
 18. On an iPhone, turn on **Settings → Accessibility → Motion → Reduce Motion**, then reopen the app on a laptop with that setting on. Confirm the cards are **completely still and unlit**. Then switch it back off.
-19. Check the Team page footer reads **build sxc-v182**.
+19. Check the Team page footer reads **build sxc-v183**.
 
 ---
 
@@ -2929,7 +2929,7 @@ Anything that's been sitting unsent for **more than a week** is thrown away rath
 
 1. Redeploy the `app` folder to Netlify Drop as usual.
 2. On your **phone**, open the app and pull down to refresh once or twice so it picks up the new version.
-3. Check the Team page footer reads **build sxc-v182**.
+3. Check the Team page footer reads **build sxc-v183**.
 4. Open any prospect. Confirm everything looks exactly as it did before — no new buttons, nothing moved.
 5. Now put the phone into **Aeroplane mode**.
 6. Confirm the amber strip appears under the top bar reading **"You're offline, showing the last synced data"**.
@@ -3002,7 +3002,7 @@ Everything from Step 169's list is unchanged. Two additions worth knowing:
 
 1. Redeploy the `app` folder to Netlify Drop as usual.
 2. On your **phone**, open the app and pull down to refresh once or twice.
-3. Check the Team page footer reads **build sxc-v182**.
+3. Check the Team page footer reads **build sxc-v183**.
 4. Still online, add a prospect normally. Confirm it behaves exactly as it always has — **"Prospect added"**, no purple tag, and if you left the message blank it starts researching. Nothing about the online experience should have changed.
 5. Now put the phone into **Aeroplane mode**.
 6. Tap the **+** button and add a business — name, area, WhatsApp number. Leave the message box **blank**.
@@ -3067,7 +3067,7 @@ nothing extra in data.
 
 1. Redeploy the `app` folder to Netlify Drop as usual, then open the app and
    pull down to refresh.
-2. Go to **Team** and check the very bottom of the page says **build sxc-v182**.
+2. Go to **Team** and check the very bottom of the page says **build sxc-v183**.
    If it still says v181, close the app completely and reopen it.
 3. Tap **Empire** in the bottom bar.
 4. Check the three boxes at the top still read **Buildings**, **Per Month** and
@@ -3107,3 +3107,118 @@ nothing extra in data.
     outline of a building** on an empty slab with "Empty land, for now".
 23. Finally, go through **Dashboard, Pipeline, Missions and Messages** and check
     nothing else changed.
+
+---
+
+## Step 172: The town is alive, and the app now follows the sun
+
+**What changed and why**
+
+You asked for five things. Four of them are in exactly as you described, and
+one I've done slightly differently — I'll explain that one honestly below
+rather than quietly change it on you.
+
+**The stars twinkle.** Every star fades up and down at its own speed, so the
+sky shifts gently instead of blinking all at once. They all start part-way
+through, so the first thing you see when you open the page is a sky that's
+already alive rather than one that switches on.
+
+**The sun and the moon now move with the real time of day.** This is the part
+I think is genuinely worth having, because it's the only bit of the town
+that's *new information* rather than decoration. At six in the morning the sun
+sits low on the left. By midday it's directly overhead. By half past five it's
+low on the right and about to go. Then the moon rises on the left and does the
+same thing across the night. Glance at the page and you know roughly how much
+of the working day is left, which is the sort of thing an outreach team
+actually thinks about. There was no sun before — the daytime sky was empty —
+so that's new.
+
+The town is Harare, and Harare doesn't really have seasons the way colder
+places do: the sun comes up around six and goes down around six, all year,
+give or take half an hour. So the app uses six and six. It doesn't need your
+location, doesn't ask permission, and works with no signal.
+
+**The birds fly.** Each one glides across its own patch of sky and turns
+around at the end rather than jumping back, and their wings beat — each bird
+on its own rhythm, so they're not flapping in formation like a machine.
+
+**Dark mode now comes on by itself at night.** This is app-wide, not just
+Empire. From six in the evening the whole app goes dark; from six in the
+morning it goes light. If you're sitting in the app when six o'clock passes,
+it changes over while you watch — you don't have to reload.
+
+Tapping the moon/sun button still works and still wins. But it only holds
+until the sun next moves. So if you force light mode at eight at night because
+you're in a bright room, you get light mode for that evening — and by the next
+night the app is back to doing it automatically. That way your choice is
+always respected, but one tap doesn't permanently switch the automatic
+behaviour off and leave you wondering why it stopped working.
+
+**The one I did differently: the people.** You asked for the people to move. I
+haven't made them walk, and here's why. Every figure in that street is a real
+person on your team — press and hold one and their name comes up. Making named
+teammates wander up and down the road raises a question I can't answer well:
+where is Tendai going? They'd also walk straight through the buildings unless
+I built a whole system to stop them, which is a lot of work for something
+nobody asked to look at closely.
+
+So instead they **shift their weight** — a slow, small sway, each person at
+their own pace. They read as alive and standing there, rather than as
+cardboard cutouts, without pretending to be going somewhere. Their shadows
+stay put on the ground, because a shadow that rocks along with the body looks
+wrong straight away.
+
+If you'd rather they actually walked, say so and I'll do it — I just didn't
+want to be the one who decided that on your behalf.
+
+**One thing for anyone on your team who needs it:** if a phone is set to
+"reduce motion" (a setting some people use for motion sickness, and some use
+just to save battery), none of this animates. They get the same town, correct
+and still, with the sun and moon in the right places. Nothing that carries
+meaning is hidden from them.
+
+**Now test it**
+
+1. Open the app during the **daytime** — any time between 6am and 6pm.
+2. Check the app is in **light mode** on its own, without you touching
+   anything.
+3. Go to **Empire**. Scroll the street to the far left if you need to.
+4. Check there's a **sun** in the sky with a soft warm glow around it.
+5. Check the sun is roughly where the real sun is: **left in the morning,
+   overhead around midday, right in the late afternoon**.
+6. Watch the **birds** for a few seconds. Check they drift across the sky and
+   their wings beat, and that they don't jump suddenly from one place to
+   another.
+7. Look at the little **people** in the street. Watch one for about five
+   seconds — it should sway very slightly, like someone standing and waiting.
+8. Check their **shadows on the ground stay still** while they sway.
+9. Press and hold a person. Check a **teammate's name** still pops up.
+10. Tap the **sun icon** at the top to force dark mode.
+11. Check the whole app goes dark and the town turns to **night** — stars,
+    moon, lamp glow, no sun.
+12. Watch the **stars** for about ten seconds. Check they fade in and out
+    gently and at different times, not all together and not flashing.
+13. Check the **moon** still has its crescent shape and a soft halo.
+14. Tap the **moon icon** to go back to light. Check it returns to daytime.
+15. Now open the app again **after 6pm**.
+16. Check it is in **dark mode on its own**, without you touching anything.
+17. Go to **Empire** and check there's a **moon** — and that it's low on the
+    left early in the evening and higher later at night.
+18. Tap the **sun icon** to force light mode for the evening. Check it stays
+    light while you use the app.
+19. Close the app fully and open it again, still the same evening. Check it is
+    **still light** — your choice was remembered.
+20. Now open the app again **the next evening**. Check it has gone back to
+    **dark on its own** — your one tap didn't switch the automatic behaviour
+    off forever.
+21. Open the app and **leave it sitting on the Empire page just before 6pm or
+    6am**. Wait for the hour to pass. Check the app changes over by itself
+    without you reloading.
+22. Go to **Team → Settings**. Check the **light/dark switch** there matches
+    what the app is actually showing.
+23. On the same page, flip that switch both ways and check the app follows.
+24. Go through **Dashboard, Pipeline, Missions and Messages** in both light
+    and dark and check nothing else changed.
+25. If anyone on the team has **"reduce motion"** turned on in their phone
+    settings, open Empire on that phone. Check the town looks completely
+    normal and still — sun or moon in the right place, nothing moving.

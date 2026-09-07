@@ -492,7 +492,7 @@ export function renderTeam() {
         <div class="divider"></div>
         <button class="btn btn-ghost" id="tm-signout">Sign Out</button>
         <p class="text-faint" style="font-size:11px;text-align:center;margin-top:20px;">Agency Command · ${esc(store.organization?.name || "Sales & Team Sync")}</p>
-        <p class="text-faint" style="font-size:10px;text-align:center;margin-top:4px;opacity:0.6;">build sxc-v182</p>
+        <p class="text-faint" style="font-size:10px;text-align:center;margin-top:4px;opacity:0.6;">build sxc-v183</p>
       </div>
     </div>
   `);
@@ -522,6 +522,20 @@ export function renderTeam() {
   const themeSwitch = wrap.querySelector("#tm-theme-switch");
   themeSwitch.checked = getTheme() === "light";
   themeSwitch.addEventListener("change", () => setTheme(themeSwitch.checked ? "light" : "dark"));
+
+  // The theme now changes on its own at sunrise and sunset, so this switch has
+  // to be told — otherwise someone sitting on this page at six in the evening
+  // watches the app go dark while the switch next to them still says light.
+  // The listener takes itself off once this copy of the page is gone, so
+  // re-rendering the Team view doesn't stack up a new one every time.
+  const syncSwitch = () => {
+    if (!themeSwitch.isConnected) {
+      document.removeEventListener("sxc:themechange", syncSwitch);
+      return;
+    }
+    themeSwitch.checked = getTheme() === "light";
+  };
+  document.addEventListener("sxc:themechange", syncSwitch);
 
   const perf = myPerformanceStats();
   const myPoints = totalPointsFor(store.profile.id);

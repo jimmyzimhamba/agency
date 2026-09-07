@@ -6,13 +6,34 @@
 <title>Agency Command</title>
 <meta name="description" content="Agency Command: sales outreach and team-sync command center" />
 
-<!-- Applies the saved light/dark preference (js/theme.js) to <html> before
-     the stylesheet below is even requested, so a returning user in light
-     mode never sees a flash of the default dark theme on load. -->
+<!-- Works out the light/dark theme and applies it to <html> before the
+     stylesheet below is even requested, so nobody ever sees a flash of the
+     wrong theme on load.
+
+     This has to duplicate the logic in js/theme.js rather than import it,
+     because a module import would not run until after first paint, which is
+     the entire thing we are avoiding. The two must be changed together:
+     light between 06:00 and 18:00, unless a manual choice was made on this
+     same side of the clock and less than 12 hours ago. -->
 <script>
   (function () {
+    function clockTheme(ms) {
+      var h = new Date(ms).getHours();
+      return h >= 6 && h < 18 ? "light" : "dark";
+    }
     try {
-      if (localStorage.getItem("sxc-theme") === "light") {
+      var now = Date.now();
+      var theme = clockTheme(now);
+      var raw = localStorage.getItem("sxc-theme") || "";
+      var at = raw.indexOf("@");
+      if (at > 0) {
+        var when = Number(raw.slice(at + 1));
+        var gap = now - when;
+        if (when && gap >= 0 && gap <= 43200000 && clockTheme(when) === theme) {
+          theme = raw.slice(0, at) === "light" ? "light" : "dark";
+        }
+      }
+      if (theme === "light") {
         document.documentElement.setAttribute("data-theme", "light");
       }
     } catch (e) {}

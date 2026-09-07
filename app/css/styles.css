@@ -1240,7 +1240,77 @@ main {
 .emp-moon-halo { fill: url(#emp-moon-grad); }
 .emp-moonglow-a { stop-color: rgba(196, 214, 255, 0.16); }
 .emp-moonglow-b { stop-color: rgba(196, 214, 255, 0); }
+.emp-sun-body { fill: #ffe9a0; }
+.emp-sun-halo { fill: url(#emp-sun-grad); }
+.emp-sunglow-a { stop-color: rgba(255, 224, 140, 0.42); }
+.emp-sunglow-b { stop-color: rgba(255, 224, 140, 0); }
 .emp-birds path { fill: none; stroke: var(--emp-bird); stroke-width: 1.6; stroke-linecap: round; }
+
+/* Motion. Everything below is inside a no-preference gate: a phone set to
+   reduce motion gets exactly the town as it was, still and correct, rather
+   than a degraded version of the animated one. Nothing here carries meaning
+   that is only visible while it moves — the sun's position says what time it
+   is whether or not it is animating there.
+
+   transform-box: fill-box makes percentage transform-origins resolve against
+   the element's own bounding box instead of the whole SVG viewport, which is
+   the difference between a bird flapping its wings and a bird cartwheeling
+   around the corner of the card. */
+@media (prefers-reduced-motion: no-preference) {
+  .emp-stars circle {
+    animation: emp-twinkle var(--twk, 3s) ease-in-out var(--twd, 0s) infinite alternate;
+  }
+  @keyframes emp-twinkle {
+    from { opacity: 0.28; }
+    to   { opacity: 1; }
+  }
+
+  /* Alternating rather than looping one way: a bird that glides right and
+     then jumps back to the left is a glitch, one that turns around is a bird. */
+  .emp-bird {
+    animation: emp-glide var(--glide, 18s) ease-in-out var(--gdel, 0s) infinite alternate;
+  }
+  @keyframes emp-glide {
+    from { transform: translate(-26px, 5px); }
+    to   { transform: translate(26px, -5px); }
+  }
+
+  .emp-bird path {
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+    animation: emp-flap var(--flap, 0.6s) ease-in-out var(--fdel, 0s) infinite alternate;
+  }
+  @keyframes emp-flap {
+    from { transform: scaleY(0.45); }
+    to   { transform: scaleY(1.15); }
+  }
+
+  /* The origin is the feet, so this is a shift of weight from one leg to the
+     other rather than the whole person sliding sideways across the pavement. */
+  .emp-person-idle {
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+    animation: emp-idle var(--sway, 4s) ease-in-out var(--swd, 0s) infinite alternate;
+  }
+  @keyframes emp-idle {
+    from { transform: rotate(-1.1deg) translateY(0.35px); }
+    to   { transform: rotate(1.1deg) translateY(-0.35px); }
+  }
+
+  /* Slower and shallower than the streetlamps would really flicker, because
+     this sits behind text. A lamp that pulses hard turns the name plate next
+     to it into something your eye keeps being dragged away from. */
+  .emp-moon-halo,
+  .emp-sun-halo {
+    transform-box: fill-box;
+    transform-origin: 50% 50%;
+    animation: emp-breathe 7s ease-in-out infinite alternate;
+  }
+  @keyframes emp-breathe {
+    from { transform: scale(0.94); opacity: 0.8; }
+    to   { transform: scale(1.06); opacity: 1; }
+  }
+}
 
 .emp-slab-top { fill: var(--emp-slab-top); }
 .emp-slab-face { fill: var(--emp-slab-face); }

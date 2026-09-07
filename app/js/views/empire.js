@@ -307,6 +307,11 @@ function cart(x, y) {
 // class of bug where the town is left showing stars at midday because it was
 // drawn before the theme was applied.
 
+// Each star carries its own fade duration and a negative delay, so the whole
+// sky is already mid-twinkle on the first frame instead of every star starting
+// bright together and pulsing in unison like a warning light. The values come
+// off the same hash as the position, so a given star always twinkles at its
+// own particular rate.
 function starsSVG(w) {
   const n = Math.max(20, Math.round(w / 32));
   let s = "";
@@ -315,43 +320,102 @@ function starsSVG(w) {
     const sx = ((h % 1000) / 1000) * w;
     const sy = 8 + (((h >> 10) % 1000) / 1000) * 200;
     const r = 0.7 + ((h >> 4) % 3) * 0.45;
-    s += `<circle cx="${n1(sx)}" cy="${n1(sy)}" r="${n1(r)}"/>`;
+    const dur = 2.6 + ((h >> 14) % 40) / 10;
+    const del = -(((h >> 20) % 60) / 10);
+    s += `<circle cx="${n1(sx)}" cy="${n1(sy)}" r="${n1(r)}" style="--twk:${n1(dur)}s;--twd:${n1(del)}s"/>`;
   }
   return `<g class="emp-stars emp-night">${s}</g>`;
+}
+
+// ---- sun and moon --------------------------------------------------------
+// Both are placed from the device clock, on the same arc: low at the left at
+// sunrise, highest at midday, low at the right at sunset, and the moon does
+// the same across the night. That means the sky is not decoration — a glance
+// at where the sun is sitting tells you roughly how much of the working day
+// is left, which is the sort of thing an outreach team actually thinks about.
+//
+// The day boundaries match js/theme.js exactly, and that is what stops the
+// two from ever disagreeing: the app cannot be sitting in light mode while
+// the town draws a moon, because both answers come from the same two numbers.
+const DAY_START = 6;
+const DAY_END = 18;
+const ARC_BASE_Y = 118;   // where a body sits at sunrise and at sunset
+const ARC_RISE = 88;      // how much higher it climbs at the peak
+
+function arcPos(w, t) {
+  const c = Math.min(1, Math.max(0, t));
+  return {
+    cx: w * (0.12 + 0.76 * c),
+    // A sine, not a parabola. The body then slows near the top and moves
+    // fastest near the horizon, which is what the real thing does.
+    cy: ARC_BASE_Y - ARC_RISE * Math.sin(Math.PI * c),
+  };
+}
+
+// Computed once per render and handed to both the defs and the sky, so the
+// moon mask cannot end up a minute behind the moon it is supposed to be
+// cutting into — which is exactly what would happen if each of them called
+// the clock separately either side of a minute boundary.
+function celestial(w, now) {
+  const d = now || new Date();
+  const hr = d.getHours() + d.getMinutes() / 60;
+  const dayLen = DAY_END - DAY_START;
+  // Night wraps midnight, so the small hours have to count as the tail end of
+  // the previous night rather than as a negative position on the arc.
+  const nightHr = hr >= DAY_END ? hr - DAY_END : hr + (24 - DAY_END);
+  return {
+    sun: arcPos(w, (hr - DAY_START) / dayLen),
+    moon: arcPos(w, nightHr / (24 - dayLen)),
+  };
+}
+
+function sunSVG(sky) {
+  const { cx, cy } = sky.sun;
+  const r = 16;
+  return `<g class="emp-sun emp-day">
+    <circle class="emp-sun-halo" cx="${n1(cx)}" cy="${n1(cy)}" r="${n1(r * 3.4)}"/>
+    <circle class="emp-sun-body" cx="${n1(cx)}" cy="${n1(cy)}" r="${r}"/>
+  </g>`;
 }
 
 // Drawn as a full disc with a second disc masked out of it, rather than as a
 // hand-built arc path. Two circles are impossible to get wrong; a crescent
 // written as two elliptical arcs depends on the sweep flags and silently
 // renders as a lens or a full moon if either is off by one.
-function moonSVG(w) {
-  const cx = Math.min(w * 0.3, 160);
-  const cy = 54;
+function moonSVG(sky) {
+  const { cx, cy } = sky.moon;
   const r = 15;
   // The halo has to be a radial gradient, not a translucent disc. A flat
   // circle at low alpha still has a hard edge, and on a dark sky that edge is
   // the only thing you see — it reads as a grey plate with a moon on it.
   return `<g class="emp-moon emp-night">
-    <circle class="emp-moon-halo" cx="${n1(cx)}" cy="${cy}" r="${n1(r * 3)}"/>
-    <circle class="emp-moon-body" cx="${n1(cx)}" cy="${cy}" r="${r}" mask="url(#emp-moon-mask)"/>
+    <circle class="emp-moon-halo" cx="${n1(cx)}" cy="${n1(cy)}" r="${n1(r * 3)}"/>
+    <circle class="emp-moon-body" cx="${n1(cx)}" cy="${n1(cy)}" r="${r}" mask="url(#emp-moon-mask)"/>
   </g>`;
 }
 
-function moonMask(w) {
-  const cx = Math.min(w * 0.3, 160);
+function moonMask(sky) {
+  const { cx, cy } = sky.moon;
   return `<mask id="emp-moon-mask">
-    <circle cx="${n1(cx)}" cy="54" r="15" fill="#fff"/>
-    <circle cx="${n1(cx + 8.5)}" cy="48.5" r="13.6" fill="#000"/>
+    <circle cx="${n1(cx)}" cy="${n1(cy)}" r="15" fill="#fff"/>
+    <circle cx="${n1(cx + 8.5)}" cy="${n1(cy - 5.5)}" r="13.6" fill="#000"/>
   </mask>`;
 }
 
+// Each bird gets its own group so it can glide on its own timing, and the
+// wings are a scaleY squash on the one path rather than two paths swapped in
+// and out — a single shape flexing reads as a wingbeat, two shapes alternating
+// reads as a flicker. The negative delays stop the flock beating in formation.
 function birdsSVG(w) {
   const spots = [[0.2, 62], [0.26, 46], [0.31, 70], [0.66, 54]];
   return `<g class="emp-birds emp-day">${spots
     .map(([f, by], i) => {
       const bx = Math.max(30, Math.min(w * f, w - 40));
       const s = 1 - i * 0.13;
-      return `<path d="M${n1(bx - 7 * s)} ${n1(by)} q${n1(3.5 * s)} ${n1(-4 * s)} ${n1(7 * s)} 0 q${n1(3.5 * s)} ${n1(-4 * s)} ${n1(7 * s)} 0"/>`;
+      const d = `M${n1(bx - 7 * s)} ${n1(by)} q${n1(3.5 * s)} ${n1(-4 * s)} ${n1(7 * s)} 0 q${n1(3.5 * s)} ${n1(-4 * s)} ${n1(7 * s)} 0`;
+      return `<g class="emp-bird" style="--glide:${17 + i * 4}s;--gdel:${n1(-i * 3.5)}s">
+        <path d="${d}" style="--flap:${n1(0.5 + i * 0.09)}s;--fdel:${n1(-i * 0.21)}s"/>
+      </g>`;
     })
     .join("")}</g>`;
 }
@@ -369,27 +433,45 @@ function personSVG(prof, x) {
   const skin = SKIN[(s >> 3) % SKIN.length];
   const flip = (s >> 6) % 2 ? -1 : 1;
   const k = 0.82 + ((s >> 9) % 4) * 0.06;
+  // The placing transform stays an attribute and the movement goes on an inner
+  // group. A CSS transform on this element would replace the attribute
+  // outright, not add to it, and every teammate would pile up at the origin.
+  //
+  // The shadow deliberately sits outside the moving group: a shadow that
+  // rocks with the body has nothing casting it and looks wrong immediately.
   return `<g class="emp-person" transform="translate(${n1(x)} ${PERSON_Y}) scale(${n1(flip * k)} ${n1(k)})">
     <ellipse class="emp-cast" cx="0" cy="0.5" rx="7.5" ry="2.4"/>
-    <rect x="-3.4" y="-9" width="2.9" height="9" rx="1.4" fill="hsl(${hue} 30% 25%)"/>
-    <rect x="0.5" y="-9" width="2.9" height="9" rx="1.4" fill="hsl(${hue} 30% 25%)"/>
-    <rect x="-6.6" y="-21" width="2.6" height="10.5" rx="1.3" fill="hsl(${hue} 46% 45%)"/>
-    <rect x="4" y="-21" width="2.6" height="10.5" rx="1.3" fill="hsl(${hue} 46% 45%)"/>
-    <rect x="-5" y="-22" width="10" height="13.6" rx="4" fill="hsl(${hue} 50% 53%)"/>
-    <circle cx="0" cy="-26.6" r="5" fill="${skin}"/>
-    <path d="M-5 -28.4a5 5 0 0 1 10 0c-1.7-1.6-8.3-1.6-10 0Z" fill="#231a13"/>
+    <g class="emp-person-idle" style="--sway:${n1(3.4 + ((s >> 12) % 22) / 10)}s;--swd:${n1(-((s >> 16) % 30) / 10)}s">
+      <rect x="-3.4" y="-9" width="2.9" height="9" rx="1.4" fill="hsl(${hue} 30% 25%)"/>
+      <rect x="0.5" y="-9" width="2.9" height="9" rx="1.4" fill="hsl(${hue} 30% 25%)"/>
+      <rect x="-6.6" y="-21" width="2.6" height="10.5" rx="1.3" fill="hsl(${hue} 46% 45%)"/>
+      <rect x="4" y="-21" width="2.6" height="10.5" rx="1.3" fill="hsl(${hue} 46% 45%)"/>
+      <rect x="-5" y="-22" width="10" height="13.6" rx="4" fill="hsl(${hue} 50% 53%)"/>
+      <circle cx="0" cy="-26.6" r="5" fill="${skin}"/>
+      <path d="M-5 -28.4a5 5 0 0 1 10 0c-1.7-1.6-8.3-1.6-10 0Z" fill="#231a13"/>
+    </g>
     <title>${esc(prof.full_name || "Teammate")}</title>
   </g>`;
 }
 
 // ---- assembly ------------------------------------------------------------
 
+// The observer and the timer are held here rather than on the scroll element,
+// which looks like the obvious place but is wrong: the view rebuilds its own
+// markup on every visit, so the element carrying the previous timer is thrown
+// away and a fresh one arrives with nothing attached. The old timer then never
+// gets cleared, and bouncing between Empire and Dashboard a few times leaves a
+// pile of them running. There is only ever one street on screen, so one
+// module-level handle each is both correct and simpler.
+let streetRO = null;
+let skyTimer = 0;
+
 const BACK_ITEMS = [tree, lamp, tree, tree, lamp, tree];
 const FRONT_ITEMS = [bench, planter, bike, bench, postbox, planter];
 const BACK_Y = BASE_Y - 6;    // trees and lamps stand behind the building line
 const FRONT_Y = BASE_Y + 14;  // benches and bikes stand in front of it
 
-function skyDefs(w) {
+function skyDefs(sky) {
   return `<defs>
     <linearGradient id="emp-sky-grad" x1="0" y1="0" x2="0" y2="1">
       <stop class="emp-sky-a" offset="0"/>
@@ -403,13 +485,17 @@ function skyDefs(w) {
       <stop class="emp-moonglow-a" offset="0.34"/>
       <stop class="emp-moonglow-b" offset="1"/>
     </radialGradient>
-    ${moonMask(w)}
+    <radialGradient id="emp-sun-grad">
+      <stop class="emp-sunglow-a" offset="0.28"/>
+      <stop class="emp-sunglow-b" offset="1"/>
+    </radialGradient>
+    ${moonMask(sky)}
   </defs>`;
 }
 
-function skySVG(w, h) {
+function skySVG(w, h, sky) {
   return `<rect class="emp-sky" x="0" y="0" width="${w}" height="${h}"/>
-    ${starsSVG(w)}${moonSVG(w)}${birdsSVG(w)}`;
+    ${starsSVG(w)}${moonSVG(sky)}${sunSVG(sky)}${birdsSVG(w)}`;
 }
 
 function slabSVG(x0, w, backY, frontY, botY, bev) {
@@ -495,12 +581,14 @@ function emptyStreet(host) {
     .map(([x1, y1, x2, y2]) => `<path d="M${n1(x1)} ${n1(y1)} L${n1(x2)} ${n1(y2)}"/>`)
     .join("");
 
+  const emptySky = celestial(W);
+
   host.innerHTML = `
     <div class="emp-empty">
       <svg viewBox="0 0 ${W} 230" class="emp-empty-svg" role="img"
            aria-label="An empty plot of land where your first client's building will go">
-        ${skyDefs(W)}
-        ${skySVG(W, 230)}
+        ${skyDefs(emptySky)}
+        ${skySVG(W, 230, emptySky)}
         ${slabSVG(44, 332, 138, 186, 198, 44)}
         ${tree(110, 178, 1)}
         ${lamp(346, 172)}
@@ -564,12 +652,14 @@ function renderStreet(host, clients, detailHost) {
     .map((prof, i) => personSVG(prof, ox + PAD_X + 20 + (span / people.length) * (i + 0.5)))
     .join("");
 
+  const sky = celestial(streetW);
+
   host.innerHTML = `
     <svg class="emp-svg" width="${streetW}" height="${TOTAL_H}"
          viewBox="0 0 ${streetW} ${TOTAL_H}" role="img"
          aria-label="A street with one building for each of your ${clients.length} signed clients">
-      ${skyDefs(streetW)}
-      ${skySVG(streetW, TOTAL_H)}
+      ${skyDefs(sky)}
+      ${skySVG(streetW, TOTAL_H, sky)}
       ${slabSVG(ox, naturalW, SLAB_BACK_Y, SLAB_FRONT_Y, SLAB_BOT_Y, SLAB_BEV)}
       ${backScenery}
       ${buildings}
@@ -599,13 +689,42 @@ function renderStreet(host, clients, detailHost) {
   // to be redrawn when the card changes size — collapsing the sidebar or
   // rotating a phone would otherwise leave the island off-centre. Only redraws
   // when the width actually changed, so this can't loop.
-  if (host._empRO) host._empRO.disconnect();
+  if (streetRO) streetRO.disconnect();
   let lastW = Math.floor(host.clientWidth);
-  host._empRO = new ResizeObserver(() => {
+  streetRO = new ResizeObserver(() => {
     const w = Math.floor(host.clientWidth);
     if (w !== lastW && w > 0) { lastW = w; renderStreet(host, clients, detailHost); }
   });
-  host._empRO.observe(host);
+  streetRO.observe(host);
+
+  // The sun and moon are positioned at draw time, so on a page left open all
+  // afternoon they would sit frozen where they were when it loaded. This nudges
+  // the four circles along instead of redrawing the street: a full redraw every
+  // minute would throw away the scroll position and cancel any hover.
+  //
+  // A minute is far finer than the eye needs — the sun moves about half a
+  // pixel in that time — but it costs one arithmetic pass and it means the
+  // sky is never visibly wrong after waking a phone from sleep.
+  clearInterval(skyTimer);
+  skyTimer = setInterval(() => {
+    if (!host.isConnected) { clearInterval(skyTimer); return; }
+    const now = celestial(streetW);
+    const put = (sel, p) => {
+      const c = svg.querySelector(sel);
+      if (c) { c.setAttribute("cx", n1(p.cx)); c.setAttribute("cy", n1(p.cy)); }
+    };
+    put(".emp-sun-halo", now.sun);
+    put(".emp-sun-body", now.sun);
+    put(".emp-moon-halo", now.moon);
+    put(".emp-moon-body", now.moon);
+    const mask = svg.querySelectorAll("#emp-moon-mask circle");
+    if (mask.length === 2) {
+      mask[0].setAttribute("cx", n1(now.moon.cx));
+      mask[0].setAttribute("cy", n1(now.moon.cy));
+      mask[1].setAttribute("cx", n1(now.moon.cx + 8.5));
+      mask[1].setAttribute("cy", n1(now.moon.cy - 5.5));
+    }
+  }, 60000);
 }
 
 function showClient(host, id) {
