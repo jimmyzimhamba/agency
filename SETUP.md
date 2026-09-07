@@ -3308,3 +3308,55 @@ streets they were standing in a heap on top of each other.
 16. Go through **Dashboard, Pipeline, Missions and Messages** and check nothing
     else changed.
 17. Check the bottom of **Team → Settings** now reads **build sxc-v184**.
+
+---
+
+## Step 174: "Welcome back, Jimmy." is readable in light mode
+
+You sent me a screenshot of the Dashboard greeting looking like a purple smudge
+in light mode, and asked for it to be a solid deep purple instead. Done — it's
+now **#6a27d1**, plain and sharp.
+
+**Why it looked like that.** The greeting was never really blurry. It was
+painted with two tricks that both assume a dark page behind it:
+
+The letters have **no colour of their own** — they're cut-out shapes with a
+gradient showing through them. That gradient starts at **white**. On the dark
+app that opening white is the brightest, most eye-catching part of the word. On
+the light app it's the page colour, so the first word, "Welcome", simply
+disappeared.
+
+Behind the letters there's a **purple glow**. Because the letters are cut-outs
+with nothing filling them, that glow shows straight through the middle of every
+character. On dark, that's the whole effect. On light, with the letters already
+washed out, all you're left looking at is the haze.
+
+So in light mode I've turned off all three — the cut-out, the gradient and the
+glow — and just painted the words purple. **Dark mode is untouched** and keeps
+the gradient exactly as it was.
+
+**On the colour.** I used the same purple your "pending" badges already use in
+light mode, rather than picking a new one, so there's only ever one light-mode
+purple in the app to keep in step. It's also dark enough to read comfortably —
+about six and a half times the contrast of the background, where the guideline
+asks for four and a half.
+
+**No new build number.** This ships inside **sxc-v184** along with the walking
+people, because that build hasn't gone live yet. One deploy covers both.
+
+**Now test it**
+
+1. Open the app in **light mode** (tap the moon/sun button at the top if you
+   need to, or just open it during the day).
+2. Go to the **Dashboard**.
+3. Check **"Welcome back, Jimmy."** is a **solid deep purple**, all one colour
+   from the first letter to the last.
+4. Check the word **"Welcome" is as easy to read as your name** — it used to
+   fade out.
+5. Check there's **no purple haze or smudge** around or behind the words.
+6. Now switch to **dark mode**.
+7. Check the greeting still has its **original white-to-purple-to-gold
+   gradient and soft glow** — nothing should have changed there.
+8. Switch back to light and check it returns to the solid purple.
+9. Check the smaller grey line underneath, **"Here's how the pipeline is
+   doing."**, looks the same as it always did in both modes.

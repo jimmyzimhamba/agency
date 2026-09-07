@@ -186,7 +186,8 @@ button { font-family: inherit; }
 /* Dashboard's "Welcome back" greeting — bold gradient text with a soft
    glow behind it. text-shadow still renders around the glyph outlines even
    though the fill itself is transparent (background-clip:text), so the two
-   combine into a "glowing gradient" look without needing an extra element. */
+   combine into a "glowing gradient" look without needing an extra element.
+   Dark mode only; the light-mode override sits directly below. */
 .db-welcome {
   font-size: 21px; font-weight: 800; letter-spacing: -0.3px; line-height: 1.3;
   margin: 2px 2px 3px;
@@ -194,6 +195,29 @@ button { font-family: inherit; }
   -webkit-background-clip: text; background-clip: text; color: transparent;
   text-shadow: 0 0 22px var(--purple-glow), 0 0 42px var(--purple-glow);
 }
+/* Light mode gets a plain deep purple instead. The gradient above is built for
+   a dark page and falls apart on a light one: it opens at #fff, so the first
+   word — "Welcome" — fades out against a near white background, and the glow
+   then bleeds through letters that are transparent by design, which reads as a
+   blurry smear rather than as a greeting.
+
+   All three properties have to be undone, not just the gradient. The glyphs
+   are painted with color: transparent above, so removing the background alone
+   would leave the line invisible; and background-clip must go back to
+   border-box, because "clip the background to the text" with no background is
+   still a rule about a fill this text no longer wants.
+
+   #6a27d1 is the same purple the pending badge already uses in light mode, so
+   this doesn't introduce a second light-mode purple to keep in step. It sits
+   at 6.7:1 on the page background, and this is 21px bold. */
+:root[data-theme="light"] .db-welcome {
+  background: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  color: #6a27d1;
+  text-shadow: none;
+}
+
 .db-welcome-sub { font-size: 13px; color: var(--text-faint); margin: 0 2px 18px; }
 
 /* The Dashboard's collapsible "Data Health" header. The little chevron points
