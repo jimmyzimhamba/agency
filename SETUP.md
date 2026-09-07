@@ -2328,7 +2328,7 @@ This adds three tables: `pitch_scenarios` (the deck), `pitch_attempts` (private 
 
 **If you already ran this file once before the starter cards were added**, run it again — it now also adds an `is_starter` column to `pitch_scenarios`. If you skip this, the "load 52 common ones" link will show a message telling you to re-run the SQL.
 
-> **Corrected in `sxc-v183`.** Until now this file could **not** actually be re-run, even though this page said it could. Running it a second time stopped with an error like `policy "pitch_scenarios: read org" already exists`, and because Supabase runs the whole script as one all-or-nothing batch, that one error **undid everything else in the file** — including the `is_starter` column it was supposed to be adding. So if you tried the fix the app told you to try, it silently did nothing and you got the same error next time.
+> **Corrected in `sxc-v184`.** Until now this file could **not** actually be re-run, even though this page said it could. Running it a second time stopped with an error like `policy "pitch_scenarios: read org" already exists`, and because Supabase runs the whole script as one all-or-nothing batch, that one error **undid everything else in the file** — including the `is_starter` column it was supposed to be adding. So if you tried the fix the app told you to try, it silently did nothing and you got the same error next time.
 >
 > The file has been corrected and is now genuinely safe to run as many times as you like. **If you hit that error before, please paste the file in and run it once more** — this time it will stick.
 
@@ -2343,7 +2343,7 @@ This adds three tables: `pitch_scenarios` (the deck), `pitch_attempts` (private 
 
 **If you skip this step**, everything else on the page still works — you can add cards, load the starter deck, draw cards and type answers. The only thing that won't work is the coaching note that comes back. Tapping **Get Coaching** will say *"The pitch-coach function isn't deployed yet — see SETUP.md Step 158.2."*
 
-> **Improved in `sxc-v183`.** That message used to read *"Failed to send a request to the Edge Function"*, which is what Supabase itself says and which tells you nothing you can act on — it reads like the app is broken rather than like a setup step is still outstanding. It now names the missing function and points here. Any other kind of failure still shows the real underlying message.
+> **Improved in `sxc-v184`.** That message used to read *"Failed to send a request to the Edge Function"*, which is what Supabase itself says and which tells you nothing you can act on — it reads like the app is broken rather than like a setup step is still outstanding. It now names the missing function and points here. Any other kind of failure still shows the real underlying message.
 
 ### 158.3 — No new API key needed
 
@@ -2434,15 +2434,15 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 7. Click into the search box. Confirm the `/` chip disappears, and type something long enough to fill the box to confirm the text never runs underneath it.
 8. Click out, then press the `/` key. Confirm your cursor jumps into the search box.
 9. Open the app on your phone. Confirm the top bar still shows the "Agency Command" logo and looks exactly as it did before.
-10. Check the Team page footer reads **build sxc-v183**, which confirms the redeploy actually took.
+10. Check the Team page footer reads **build sxc-v184**, which confirms the redeploy actually took.
 
-> **Note:** Steps 160 to 166 all ship together as `sxc-v183`. One redeploy covers all seven.
+> **Note:** Steps 160 to 166 all ship together as `sxc-v184`. One redeploy covers all seven.
 
 ---
 
 ## Step 161 — Detail panels open down the right-hand side on a laptop
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v183` together with Steps 160, 162, 163, 164, 165 and 166, so one redeploy covers all seven.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v184` together with Steps 160, 162, 163, 164, 165 and 166, so one redeploy covers all seven.
 
 **The problem.** When you tap a prospect, the details slide up from the bottom of the screen. On a phone that's exactly right: it's where your thumb is, and there's no spare width to put it anywhere else.
 
@@ -2470,13 +2470,13 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 8. Open a few other panels to confirm they all moved too: the "+" to add a prospect, a task, a contract, and an invoice.
 9. Make the browser window narrow (drag it under about 960 pixels wide). Confirm the panel goes back to sliding up from the bottom, with its drag handle back.
 10. Open the app on your phone. Confirm the panel still slides up from the bottom exactly as it always has.
-11. Check the Team page footer reads **build sxc-v183**.
+11. Check the Team page footer reads **build sxc-v184**.
 
 ---
 
 ## Step 162 — A "List view" for prospects, and softer green and gold buttons
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v183` together with Steps 160, 161, 163, 164, 165 and 166, so one redeploy covers all seven.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v184` together with Steps 160, 161, 163, 164, 165 and 166, so one redeploy covers all seven.
 
 ### Part 1 — the solid green and gold buttons are toned down
 
@@ -2533,13 +2533,13 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 12. Try the search box and a couple of filter chips while in List view. Confirm filtering still works normally.
 13. Open the app on your phone and check Prospects. Confirm the links across the top wrap onto two lines and that **Select** is no longer cut off at the right edge.
 14. On your phone, confirm List view works there too and that tapping a row still slides the details up from the bottom.
-15. Check the Team page footer reads **build sxc-v183**.
+15. Check the Team page footer reads **build sxc-v184**.
 
 ---
 
 ## Step 163 — Every niche gets its own colour
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v183` together with Steps 160, 161, 162, 164, 165 and 166, so one redeploy covers all seven.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v184` together with Steps 160, 161, 162, 164, 165 and 166, so one redeploy covers all seven.
 
 **The problem.** Niche was just grey text in the middle of a grey line — "Restaurants · Avondale · Harare". When you're running your eye down thirty prospects looking for the dentists, you have to actually read every row to find them. Nothing about a row tells you at a glance what kind of business it is.
 
@@ -2577,13 +2577,13 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 9. Switch back to Dark mode and confirm the same.
 10. Rename one of your niches on Niche Strategy. Confirm its colour does **not** change.
 11. Open the app on your phone and confirm the dots are there too.
-12. Check the Team page footer reads **build sxc-v183**.
+12. Check the Team page footer reads **build sxc-v184**.
 
 ---
 
 ## Step 164 — The Status Breakdown is now a colour-coded ring
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v183` together with Steps 160, 161, 162, 163, 165 and 166, so one redeploy covers all seven.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v184` together with Steps 160, 161, 162, 163, 165 and 166, so one redeploy covers all seven.
 
 **The problem.** "Status Breakdown" at the bottom of the Dashboard was six bars, and every single one was the same purple-and-gold. That's the same bar the app uses for your revenue goal filling up — which is right for a goal, because there it means "how full is this". But these six bars aren't one thing filling up. They're six different piles. Painting them identically told you nothing you couldn't already get from the numbers.
 
@@ -2627,13 +2627,13 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 11. Switch to Light mode with the sun/moon icon in the top bar. Confirm every slice of the ring is still clearly visible against the white — none should look washed out.
 12. Switch back to Dark mode and confirm the same.
 13. Open the Dashboard on your phone. Confirm the ring sits above the list rather than beside it, and that nothing is cut off.
-14. Check the Team page footer reads **build sxc-v183**.
+14. Check the Team page footer reads **build sxc-v184**.
 
 ---
 
 ## Step 165 — The pipeline ring and the revenue goal now sit side by side at the top
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v183` together with Steps 160, 161, 162, 163, 164 and 166, so one redeploy covers all seven.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v184` together with Steps 160, 161, 162, 163, 164 and 166, so one redeploy covers all seven.
 
 **The problem.** There are really only two questions you open the Dashboard to answer: *what shape is my pipeline* and *are we going to hit the number this month*. Until now those two answers were nowhere near each other. Monthly Revenue Goal was near the top, and the ring you just got in Step 164 was right at the bottom, past follow-ups, data health, the leaderboard and the team stats. You had to scroll past everything to get to one of the two things you actually came for.
 
@@ -2666,13 +2666,13 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 11. Open the Dashboard on your phone. Confirm the ring is at the top, the revenue goal is directly under it, and neither is cut off at the edges.
 12. Switch to Light mode with the sun/moon icon. Confirm both cards still read clearly and the ring's colours are still easy to tell apart.
 13. Switch back to Dark mode and confirm the same.
-14. Check the Team page footer reads **build sxc-v183**.
+14. Check the Team page footer reads **build sxc-v184**.
 
 ---
 
 ## Step 166 — Tasks are now Missions, and there's a new Empire page
 
-No SQL to run, no edge functions, no new secrets. Ships as `sxc-v183` together with Steps 160, 161, 162, 163, 164 and 165, so one redeploy covers all seven.
+No SQL to run, no edge functions, no new secrets. Ships as `sxc-v184` together with Steps 160, 161, 162, 163, 164 and 165, so one redeploy covers all seven.
 
 ### First, the honest part
 
@@ -2766,9 +2766,9 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 22. Tap **Empire**. Confirm it opens the street, and that the **Empire** button turns gold — not the **More** button.
 23. Confirm the street still fits on the phone screen, still scrolls sideways with your finger, and nothing is cut off.
 24. Tap **More**. Confirm **Empire** is **no longer** listed in that menu — it has its own button now, so it shouldn't be in both places.
-25. Check the Team page footer reads **build sxc-v183**.
+25. Check the Team page footer reads **build sxc-v184**.
 
-**Fixed since first writing this step:** *Open client* on the Empire page opened an empty panel instead of the client's details. The Empire page was handing over the client's ID number where the rest of the app hands over the whole client record, so the panel opened with nothing to show and failed quietly — no error message, just a blank. Every other place in the app that opens a client (Prospects, Dashboard, Search, Messages, Invoices) was already doing it the right way; Empire was the only one out of step. Now corrected in `sxc-v183`.
+**Fixed since first writing this step:** *Open client* on the Empire page opened an empty panel instead of the client's details. The Empire page was handing over the client's ID number where the rest of the app hands over the whole client record, so the panel opened with nothing to show and failed quietly — no error message, just a blank. Every other place in the app that opens a client (Prospects, Dashboard, Search, Messages, Invoices) was already doing it the right way; Empire was the only one out of step. Now corrected in `sxc-v184`.
 
 ---
 
@@ -2817,9 +2817,9 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 15. Still on the phone, watch a card for a few seconds and confirm it's **still gently drifting**.
 16. On an iPhone, go to **Settings → Accessibility → Motion** and switch **Reduce Motion** on. Reload the sales page. Confirm **everything is completely still** — no drifting, no fading in as you scroll. Then switch Reduce Motion back off.
 17. Sign in and use the app normally for a minute. Confirm **nothing inside the app changed** — this step only touched the public page.
-18. Check the Team page footer reads **build sxc-v183**.
+18. Check the Team page footer reads **build sxc-v184**.
 
-*(Step 168 below then brought a version of this inside the app too, so from `sxc-v183` on, item 17 no longer holds — the cards in the app catch the light as well.)*
+*(Step 168 below then brought a version of this inside the app too, so from `sxc-v184` on, item 17 no longer holds — the cards in the app catch the light as well.)*
 
 ---
 
@@ -2867,7 +2867,7 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 16. Now pick up your **phone**. Open Prospects and scroll the list up and down a few times. Confirm it scrolls **exactly as smoothly as it did before** — no stutter, no lag.
 17. On the phone, confirm the cards look **completely normal** and nothing lights up or moves. There's no cursor on a phone, so there's nothing to track.
 18. On an iPhone, turn on **Settings → Accessibility → Motion → Reduce Motion**, then reopen the app on a laptop with that setting on. Confirm the cards are **completely still and unlit**. Then switch it back off.
-19. Check the Team page footer reads **build sxc-v183**.
+19. Check the Team page footer reads **build sxc-v184**.
 
 ---
 
@@ -2929,7 +2929,7 @@ Anything that's been sitting unsent for **more than a week** is thrown away rath
 
 1. Redeploy the `app` folder to Netlify Drop as usual.
 2. On your **phone**, open the app and pull down to refresh once or twice so it picks up the new version.
-3. Check the Team page footer reads **build sxc-v183**.
+3. Check the Team page footer reads **build sxc-v184**.
 4. Open any prospect. Confirm everything looks exactly as it did before — no new buttons, nothing moved.
 5. Now put the phone into **Aeroplane mode**.
 6. Confirm the amber strip appears under the top bar reading **"You're offline, showing the last synced data"**.
@@ -3002,7 +3002,7 @@ Everything from Step 169's list is unchanged. Two additions worth knowing:
 
 1. Redeploy the `app` folder to Netlify Drop as usual.
 2. On your **phone**, open the app and pull down to refresh once or twice.
-3. Check the Team page footer reads **build sxc-v183**.
+3. Check the Team page footer reads **build sxc-v184**.
 4. Still online, add a prospect normally. Confirm it behaves exactly as it always has — **"Prospect added"**, no purple tag, and if you left the message blank it starts researching. Nothing about the online experience should have changed.
 5. Now put the phone into **Aeroplane mode**.
 6. Tap the **+** button and add a business — name, area, WhatsApp number. Leave the message box **blank**.
@@ -3067,7 +3067,7 @@ nothing extra in data.
 
 1. Redeploy the `app` folder to Netlify Drop as usual, then open the app and
    pull down to refresh.
-2. Go to **Team** and check the very bottom of the page says **build sxc-v183**.
+2. Go to **Team** and check the very bottom of the page says **build sxc-v184**.
    If it still says v181, close the app completely and reopen it.
 3. Tap **Empire** in the bottom bar.
 4. Check the three boxes at the top still read **Buildings**, **Per Month** and
@@ -3154,22 +3154,15 @@ night the app is back to doing it automatically. That way your choice is
 always respected, but one tap doesn't permanently switch the automatic
 behaviour off and leave you wondering why it stopped working.
 
-**The one I did differently: the people.** You asked for the people to move. I
-haven't made them walk, and here's why. Every figure in that street is a real
-person on your team — press and hold one and their name comes up. Making named
-teammates wander up and down the road raises a question I can't answer well:
-where is Tendai going? They'd also walk straight through the buildings unless
-I built a whole system to stop them, which is a lot of work for something
-nobody asked to look at closely.
+**The one I did differently: the people.** You asked for the people to move.
+At this step I gave them a small **sway** — shifting their weight where they
+stood — rather than making them walk, because named teammates wandering up and
+down the road raises a question I can't answer ("where is Tendai going?") and
+because they'd walk through the benches unless I built something to stop them.
 
-So instead they **shift their weight** — a slow, small sway, each person at
-their own pace. They read as alive and standing there, rather than as
-cardboard cutouts, without pretending to be going somewhere. Their shadows
-stay put on the ground, because a shadow that rocks along with the body looks
-wrong straight away.
-
-If you'd rather they actually walked, say so and I'll do it — I just didn't
-want to be the one who decided that on your behalf.
+You told me to make them walk anyway, so **Step 173 below replaces the sway
+with real walking.** If you're testing today, use Step 173's checklist for the
+people and this one for everything else.
 
 **One thing for anyone on your team who needs it:** if a phone is set to
 "reduce motion" (a setting some people use for motion sickness, and some use
@@ -3189,9 +3182,9 @@ meaning is hidden from them.
 6. Watch the **birds** for a few seconds. Check they drift across the sky and
    their wings beat, and that they don't jump suddenly from one place to
    another.
-7. Look at the little **people** in the street. Watch one for about five
-   seconds — it should sway very slightly, like someone standing and waiting.
-8. Check their **shadows on the ground stay still** while they sway.
+7. Look at the little **people** in the street. Check they're moving rather
+   than frozen. (What exactly they should be doing is covered in Step 173.)
+8. Check nobody is standing **half inside a bench, a bin or a market stall**.
 9. Press and hold a person. Check a **teammate's name** still pops up.
 10. Tap the **sun icon** at the top to force dark mode.
 11. Check the whole app goes dark and the town turns to **night** — stars,
@@ -3222,3 +3215,96 @@ meaning is hidden from them.
 25. If anyone on the team has **"reduce motion"** turned on in their phone
     settings, open Empire on that phone. Check the town looks completely
     normal and still — sun or moon in the right place, nothing moving.
+
+---
+
+## Step 173: The people in the street actually walk now
+
+You said: *"can the little animated people move around."* Fair enough — you
+overruled me, and you were right to, so they walk.
+
+**What you'll see.** Each little person now strolls a short stretch of
+pavement, reaches the end of it, turns, and strolls back. Their legs swing,
+their arms swing the opposite way to their legs (which is how people actually
+walk — right arm forward with left leg), and their body bobs very slightly with
+each step. Everyone walks at their own speed and starts at a different point in
+their own little journey, so the street doesn't look like a marching band.
+
+**The problem I had to solve first: walking into things.** This was the reason
+I didn't do it the first time. The people share the front edge of the pavement
+with the benches, the planters, the bike, the postbox and the market stall.
+Someone strolling along would sail straight through a bench.
+
+My first attempt was the obvious one: spread everyone out evenly, then work out
+how much clear room each person happened to end up with. That worked — nobody
+walked through anything — but it produced a street where almost nobody moved.
+Even spacing keeps dropping somebody right beside a bench, and beside a bench
+there is no room to walk. On a seven-client street with four teammates, **not
+one person moved.** Which is a strange way to answer "can the people move."
+
+So I turned it around. The app now finds the **clear stretches of pavement
+first** — the gaps between the furniture — hands those stretches out to the
+team, and stands each person in the middle of their own stretch. Nobody can
+walk into a bench because nobody is ever given ground with a bench on it, and
+nobody can walk into a colleague because everyone has their own patch.
+
+**How far they walk.** Everyone walks at the same steady speed; what changes is
+how far. Someone with a long clear stretch takes a proper stroll, someone in a
+short gap takes a few steps. That's deliberate — if I'd fixed the *time*
+instead of the speed, a person in a small gap would shuffle along in slow
+motion while their legs pumped away, and it would look like moonwalking.
+
+**When they don't walk.** If your street is genuinely too short for the size of
+your team — one client and eight teammates, say — there isn't enough clear
+pavement to give everyone room. In that case everybody stands still, packed in
+together. That's honest: a crowded pavement is what a one-client street with
+eight staff actually is, and it's much better than eight people walking through
+each other. Sign one more client and they'll start moving.
+
+**Still true from before:** press and hold a person and their name comes up,
+and if a phone is set to "reduce motion" nobody moves at all — the street is
+correct and still.
+
+**How I checked this.** I didn't just look at it. I had the browser freeze the
+animation and step through **41 points across every person's full walk cycle**,
+in **45 different combinations** of team size and client count, measuring
+whether any person overlapped any piece of street furniture or any colleague at
+any point. Result: **zero collisions with furniture, and zero overlaps
+involving anybody who was walking**, in all 45. That test is also what caught
+two bugs you'd never have found by eye — people were grazing planters by half a
+pixel because their swinging arms are wider than their shoulders, and on short
+streets they were standing in a heap on top of each other.
+
+**Now test it**
+
+1. Go to **Empire**.
+2. Watch the little **people** in the street for about ten seconds.
+3. Check they **walk along the pavement** rather than just standing there.
+4. Check that when one reaches the end of its stretch it **turns and walks
+   back**, rather than jumping back to where it started.
+5. Watch one person's **legs**. Check they swing back and forth in step with
+   the walking, not sliding along like they're on ice.
+6. Check the **arms swing opposite to the legs** — when the left leg goes
+   forward the right arm should come forward.
+7. Watch several people at once. Check they are **not all in step with each
+   other** — they should look like separate people, not a parade.
+8. Now the important one. Watch for a full minute and check **nobody ever walks
+   through a bench, a planter, a bicycle, a postbox or the market stall.**
+9. Check **nobody ever walks through another teammate.**
+10. Check the little **shadow under each person moves along with them** — it
+    should stay under their feet, not get left behind.
+11. **Press and hold** a person. Check their **name still pops up** while
+    they're moving.
+12. Scroll the street **all the way left and all the way right**. Check people
+    are spread along it, not all bunched in one place.
+13. If you have **only one or two signed clients**, check the street still
+    looks right — the people may be standing still and packed together, which
+    is expected on a short street.
+14. Now check it in **dark mode** too — tap the sun/moon button. Check the
+    people still walk and are still visible against the night street.
+15. If anyone on the team has **"reduce motion"** turned on in their phone
+    settings, open Empire on that phone. Check **nobody moves at all** and the
+    street still looks correct.
+16. Go through **Dashboard, Pipeline, Missions and Messages** and check nothing
+    else changed.
+17. Check the bottom of **Team → Settings** now reads **build sxc-v184**.

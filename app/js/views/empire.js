@@ -427,31 +427,140 @@ function birdsSVG(w) {
 // person is recognisably the same person every time the street is drawn.
 const SKIN = ["#4a2f1f", "#6b4227", "#8f5f36", "#b98450", "#dcae7e"];
 
-function personSVG(prof, x) {
+const PERSON_HALF = 7.5;  // half the body, used for the shadow
+// What a figure needs kept clear either side, which is deliberately wider than
+// the body: the arms swing out past the shoulders, so measuring the standing
+// silhouette leaves them clipping the edge of a planter at the end of the
+// swing. Found by sampling the animation rather than by reading the numbers —
+// the drawn width is 15, the swept width is nearly 17.
+const PERSON_CLEAR = 9.5;
+const MIN_WALK = 13;      // below this there is no room to walk, so they stand
+const MAX_WALK = 48;      // nobody marches the entire length of the street
+const STRIDE = 5.5;       // ground covered per step, used to match feet to speed
+const PERSON_SLOT = 17;   // the least pavement one person can be given
+
+// How the walk is put together, since it is easy to get subtly wrong:
+//
+//   .emp-person   placed by a transform ATTRIBUTE, never touched by CSS
+//     .emp-walk   translateX, in true screen units because nothing above it
+//                 scales — this is why the scaling moved down a level
+//       shadow    travels with them but does not bob or swing
+//       .emp-figure  the constant scale/facing
+//         .emp-person-idle  bob while walking, sway while standing
+//           legs and arms, each swinging about its own hip or shoulder
+//
+// The shadow used to sit outside all the movement, because a shadow that rocks
+// with a standing body has nothing casting it. Now that they walk it has to
+// travel with them — but it still sits above the bob and the limb swings, so
+// it slides along the ground instead of bouncing off it.
+function personSVG(prof, x, range) {
   const s = hashOf(prof.id);
   const hue = (s % 12) * 30;
   const skin = SKIN[(s >> 3) % SKIN.length];
   const flip = (s >> 6) % 2 ? -1 : 1;
   const k = 0.82 + ((s >> 9) % 4) * 0.06;
-  // The placing transform stays an attribute and the movement goes on an inner
-  // group. A CSS transform on this element would replace the attribute
-  // outright, not add to it, and every teammate would pile up at the origin.
-  //
-  // The shadow deliberately sits outside the moving group: a shadow that
-  // rocks with the body has nothing casting it and looks wrong immediately.
-  return `<g class="emp-person" transform="translate(${n1(x)} ${PERSON_Y}) scale(${n1(flip * k)} ${n1(k)})">
-    <ellipse class="emp-cast" cx="0" cy="0.5" rx="7.5" ry="2.4"/>
-    <g class="emp-person-idle" style="--sway:${n1(3.4 + ((s >> 12) % 22) / 10)}s;--swd:${n1(-((s >> 16) % 30) / 10)}s">
-      <rect x="-3.4" y="-9" width="2.9" height="9" rx="1.4" fill="hsl(${hue} 30% 25%)"/>
-      <rect x="0.5" y="-9" width="2.9" height="9" rx="1.4" fill="hsl(${hue} 30% 25%)"/>
-      <rect x="-6.6" y="-21" width="2.6" height="10.5" rx="1.3" fill="hsl(${hue} 46% 45%)"/>
-      <rect x="4" y="-21" width="2.6" height="10.5" rx="1.3" fill="hsl(${hue} 46% 45%)"/>
-      <rect x="-5" y="-22" width="10" height="13.6" rx="4" fill="hsl(${hue} 50% 53%)"/>
-      <circle cx="0" cy="-26.6" r="5" fill="${skin}"/>
-      <path d="M-5 -28.4a5 5 0 0 1 10 0c-1.7-1.6-8.3-1.6-10 0Z" fill="#231a13"/>
+  const walks = range >= MIN_WALK;
+
+  // Speed is picked first and the durations derive from it, rather than the
+  // other way round. Give everyone the same duration instead and whoever has
+  // the longest clear stretch of pavement sprints down it while the hemmed-in
+  // one creeps — and worse, the feet stop matching the ground. Fixing speed
+  // means one stride always covers one stride's worth of pavement, so nobody
+  // moonwalks no matter how much room they were given.
+  const speed = 8.5 + ((s >> 14) % 7) * 0.5;   // user units per second
+  const stroll = (2 * range) / speed;
+  const step = STRIDE / speed;
+  const vars = walks
+    ? `--range:${n1(range)}px;--stroll:${n1(stroll)}s;--wd:${n1(-((s >> 18) % 90) / 10)}s;` +
+      `--step:${n1(step)}s;--stepd:${n1(-((s >> 22) % 20) / 10)}s`
+    : `--sway:${n1(3.4 + ((s >> 12) % 22) / 10)}s;--swd:${n1(-((s >> 16) % 30) / 10)}s`;
+
+  const leg = (cls, lx) =>
+    `<rect class="emp-leg ${cls}" x="${lx}" y="-9" width="2.9" height="9" rx="1.4" fill="hsl(${hue} 30% 25%)"/>`;
+  const arm = (cls, ax) =>
+    `<rect class="emp-arm ${cls}" x="${ax}" y="-21" width="2.6" height="10.5" rx="1.3" fill="hsl(${hue} 46% 45%)"/>`;
+
+  return `<g class="emp-person${walks ? " walking" : ""}" transform="translate(${n1(x)} ${PERSON_Y})" style="${vars}">
+    <g class="emp-walk">
+      <ellipse class="emp-cast" cx="0" cy="${n1(0.5 * k)}" rx="${n1(PERSON_HALF * k)}" ry="${n1(2.4 * k)}"/>
+      <g class="emp-figure" transform="scale(${n1(flip * k)} ${n1(k)})">
+        <g class="emp-person-idle">
+          ${leg("emp-leg-a", "-3.4")}
+          ${leg("emp-leg-b", "0.5")}
+          ${arm("emp-arm-a", "-6.6")}
+          ${arm("emp-arm-b", "4")}
+          <rect x="-5" y="-22" width="10" height="13.6" rx="4" fill="hsl(${hue} 50% 53%)"/>
+          <circle cx="0" cy="-26.6" r="5" fill="${skin}"/>
+          <path d="M-5 -28.4a5 5 0 0 1 10 0c-1.7-1.6-8.3-1.6-10 0Z" fill="#231a13"/>
+        </g>
+      </g>
     </g>
     <title>${esc(prof.full_name || "Teammate")}</title>
   </g>`;
+}
+
+// Where each teammate stands, and how far they can wander from there.
+//
+// The obvious approach — spread everyone evenly, then measure how much room
+// each one happens to have — was the first attempt, and it mostly produced
+// people standing still. Even spacing keeps dropping someone right next to a
+// bench, and next to a bench there is no room to walk, so on a seven-client
+// street with four teammates nobody moved at all. Which is a strange way to
+// answer "can the people move".
+//
+// So it works the other way round: find the clear stretches of pavement first,
+// hand them out, and give everyone the middle of a stretch. Nobody can walk
+// into the furniture because nobody is ever given ground that contains any,
+// and nobody can walk into a colleague because each gets their own slice.
+function freeRuns(lo, hi, obstacles) {
+  const blocked = obstacles
+    .map((o) => [o.x - o.half - PERSON_CLEAR, o.x + o.half + PERSON_CLEAR])
+    .sort((a, b) => a[0] - b[0]);
+  const runs = [];
+  let cur = lo;
+  for (const [a, b] of blocked) {
+    if (b <= cur) continue;          // wholly behind us
+    if (a > cur) runs.push([cur, Math.min(a, hi)]);
+    cur = Math.max(cur, b);
+    if (cur >= hi) break;
+  }
+  if (cur < hi) runs.push([cur, hi]);
+  return runs.filter(([a, b]) => b - a >= PERSON_SLOT);
+}
+
+function placePeople(count, lo, hi, obstacles) {
+  const runs = freeRuns(lo, hi, obstacles).map(([a, b]) => ({ lo: a, hi: b, n: 0 }));
+
+  // Hand out places one at a time to whichever run would give the most elbow
+  // room, which spreads the team over the street rather than queueing them all
+  // into the single longest gap.
+  for (let i = 0; i < count && runs.length; i++) {
+    let best = runs[0];
+    for (const r of runs) {
+      if ((r.hi - r.lo) / (r.n + 1) > (best.hi - best.lo) / (best.n + 1)) best = r;
+    }
+    best.n++;
+  }
+
+  const spots = [];
+  for (const r of runs) {
+    if (!r.n) continue;
+    const slice = (r.hi - r.lo) / r.n;
+    for (let j = 0; j < r.n; j++) {
+      spots.push({ x: r.lo + slice * (j + 0.5), range: Math.min(MAX_WALK, slice / 2 - PERSON_CLEAR) });
+    }
+  }
+  spots.sort((a, b) => a.x - b.x);
+
+  // Not enough clear pavement to give everyone a real place — a big team with
+  // one client, say. Fall back to the old even spread and let everyone stand
+  // still: crowded and static is honest, whereas walking in that little space
+  // would mean walking through the furniture.
+  if (spots.length < count) {
+    const step = (hi - lo) / count;
+    return Array.from({ length: count }, (_, i) => ({ x: lo + step * (i + 0.5), range: 0 }));
+  }
+  return spots;
 }
 
 // ---- assembly ------------------------------------------------------------
@@ -468,6 +577,17 @@ let skyTimer = 0;
 
 const BACK_ITEMS = [tree, lamp, tree, tree, lamp, tree];
 const FRONT_ITEMS = [bench, planter, bike, bench, postbox, planter];
+
+// How much pavement each piece of street furniture actually occupies, measured
+// off the widest shape in its drawing function rather than its shadow — the
+// bike's shadow is narrower than its wheels, and a person clipping through a
+// wheel is just as obvious as one clipping through the frame.
+const FRONT_HALF = new Map([
+  [bench, 14],
+  [planter, 8],
+  [bike, 15],
+  [postbox, 8],
+]);
 const BACK_Y = BASE_Y - 6;    // trees and lamps stand behind the building line
 const FRONT_Y = BASE_Y + 14;  // benches and bikes stand in front of it
 
@@ -626,6 +746,11 @@ function renderStreet(host, clients, detailHost) {
   let buildings = "";
   let backScenery = "";
   let frontScenery = "";
+  // Everything on the pavement that a walking teammate has to get around.
+  // Only the front row matters: the trees and lamps are behind the building
+  // line, and the buildings themselves are further back still, so nobody can
+  // reach them by walking sideways along the kerb.
+  const obstacles = [];
 
   clients.forEach((p, i) => {
     buildings += buildingSVG(p, nearX(i), heightFor(p), nicheHue(p.niche_id));
@@ -634,9 +759,12 @@ function renderStreet(host, clients, detailHost) {
     if (i % 4 === 2) {
       // the market stall takes a whole gap to itself
       frontScenery += cart(gapCx, FRONT_Y);
+      obstacles.push({ x: gapCx, half: 26 });
     } else {
       backScenery += BACK_ITEMS[i % BACK_ITEMS.length](gapCx - 9, BACK_Y, hashOf(p.id));
-      frontScenery += FRONT_ITEMS[i % FRONT_ITEMS.length](gapCx + 12, FRONT_Y);
+      const item = FRONT_ITEMS[i % FRONT_ITEMS.length];
+      frontScenery += item(gapCx + 12, FRONT_Y);
+      obstacles.push({ x: gapCx + 12, half: FRONT_HALF.get(item) || 12 });
     }
   });
 
@@ -645,11 +773,19 @@ function renderStreet(host, clients, detailHost) {
   backScenery += lamp(ox + PAD_X - 28, BACK_Y);
   backScenery += tree(ox + naturalW - PAD_X + 26, BACK_Y, 2);
   frontScenery += postbox(ox + naturalW - PAD_X + 6, FRONT_Y);
+  obstacles.push({ x: ox + naturalW - PAD_X + 6, half: 8 });
 
   const people = store.profiles.slice(0, 8);
-  const span = Math.max(1, naturalW - PAD_X * 2 - 40);
+  // The inset used to be a flat 76 each side, which is right on a long street
+  // and badly wrong on a short one: a five-person team with a single client
+  // got 56 pixels to share and stood in a heap on top of each other. It now
+  // gives way as the street gets shorter, down to the pavement's own edge, so
+  // the figures spread out instead of piling up. On any street long enough for
+  // the old value it still uses the old value, so nothing familiar moves.
+  const inset = Math.max(12, Math.min(PAD_X + 20, (naturalW - people.length * PERSON_SLOT) / 2));
+  const spots = placePeople(people.length, ox + inset, ox + naturalW - inset, obstacles);
   const peopleSVG = people
-    .map((prof, i) => personSVG(prof, ox + PAD_X + 20 + (span / people.length) * (i + 0.5)))
+    .map((prof, i) => personSVG(prof, spots[i].x, spots[i].range))
     .join("");
 
   const sky = celestial(streetW);

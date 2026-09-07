@@ -1285,8 +1285,9 @@ main {
     to   { transform: scaleY(1.15); }
   }
 
-  /* The origin is the feet, so this is a shift of weight from one leg to the
-     other rather than the whole person sliding sideways across the pavement. */
+  /* Someone with no room to walk stands and shifts their weight instead. The
+     origin is the feet, so it's a shift of weight from one leg to the other
+     rather than the whole person sliding sideways across the pavement. */
   .emp-person-idle {
     transform-box: fill-box;
     transform-origin: 50% 100%;
@@ -1295,6 +1296,59 @@ main {
   @keyframes emp-idle {
     from { transform: rotate(-1.1deg) translateY(0.35px); }
     to   { transform: rotate(1.1deg) translateY(-0.35px); }
+  }
+
+  /* Walking. "alternate" is doing the important work here: they reach the end
+     of their stretch of pavement and turn back, rather than reaching the edge
+     and snapping to the start, which reads as a rendering fault rather than as
+     someone walking. Linear, because the legs beat at a constant rate and any
+     easing would have them sliding at the ends. */
+  .emp-person.walking .emp-walk {
+    animation: emp-stroll var(--stroll, 8s) linear var(--wd, 0s) infinite alternate;
+  }
+  @keyframes emp-stroll {
+    from { transform: translateX(calc(var(--range, 20px) * -1)); }
+    to   { transform: translateX(var(--range, 20px)); }
+  }
+
+  .emp-person.walking .emp-person-idle {
+    animation: emp-bob var(--step, 0.6s) ease-in-out var(--stepd, 0s) infinite alternate;
+  }
+  @keyframes emp-bob {
+    from { transform: translateY(0.45px); }
+    to   { transform: translateY(-0.45px); }
+  }
+
+  /* Each limb pivots about its own hip or shoulder, which is the top edge of
+     its rectangle — hence fill-box with the origin at 50% 0%. Without fill-box
+     the origin would resolve against the whole SVG and the legs would swing
+     from somewhere out in the sky. */
+  .emp-person.walking .emp-leg,
+  .emp-person.walking .emp-arm {
+    transform-box: fill-box;
+    transform-origin: 50% 0%;
+  }
+  .emp-person.walking .emp-leg {
+    animation: emp-step var(--step, 0.6s) ease-in-out var(--stepd, 0s) infinite alternate;
+  }
+  .emp-person.walking .emp-arm {
+    animation: emp-swing var(--step, 0.6s) ease-in-out var(--stepd, 0s) infinite alternate;
+  }
+  /* The opposite half of the cycle. An arm swings with the leg on the OTHER
+     side — same-side arm and leg moving together is the walk of someone who
+     has been told to march, and the eye picks it up immediately even at this
+     size. So each arm is paired with the diagonal leg. */
+  .emp-person.walking .emp-leg-b,
+  .emp-person.walking .emp-arm-a {
+    animation-delay: calc(var(--stepd, 0s) - var(--step, 0.6s));
+  }
+  @keyframes emp-step {
+    from { transform: rotate(15deg); }
+    to   { transform: rotate(-15deg); }
+  }
+  @keyframes emp-swing {
+    from { transform: rotate(-10deg); }
+    to   { transform: rotate(10deg); }
   }
 
   /* Slower and shallower than the streetlamps would really flicker, because
