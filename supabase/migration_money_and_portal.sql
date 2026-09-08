@@ -274,6 +274,24 @@ declare
   made integer := 0;
   next_num text;
 begin
+  -- Defence in depth, and it is not theoretical: the first version of this
+  -- file relied solely on the revoke at the bottom to keep web callers out,
+  -- and that revoke did not work. Postgres grants EXECUTE on a new function
+  -- to PUBLIC automatically, and revoking from 'anon' does not remove a grant
+  -- held by PUBLIC — so this function stayed callable by anyone holding the
+  -- publishable key, which is everyone, since it ships inside the app's
+  -- JavaScript. Called with no argument it drafts invoices for every
+  -- organisation in the database.
+  --
+  -- The revoke below is now written correctly. This check is here anyway,
+  -- because a grant is a fact stored in the database that a later migration
+  -- or a hand-run statement can quietly undo, whereas this travels with the
+  -- function itself. pg_cron runs as the database owner, not as one of the
+  -- two web roles, so the scheduled job is unaffected.
+  if current_user in ('anon', 'authenticated') and not public.is_owner() then
+    raise exception 'Only the owner can draft retainer invoices';
+  end if;
+
   for r in
     select p.id as prospect_id, p.org_id, p.mrr, p.assigned_to
     from public.prospects p
@@ -347,7 +365,15 @@ begin
 end;
 $$;
 
-revoke execute on function public.draft_retainer_invoices(uuid) from anon, authenticated;
+-- These revokes name PUBLIC, not anon/authenticated, and that distinction is
+-- the whole point. Creating a function automatically grants EXECUTE to
+-- PUBLIC — a group both web roles belong to — and "revoke from anon" only
+-- removes a grant made directly to anon. It leaves the inherited PUBLIC grant
+-- untouched, so the function stays callable. Revoking from PUBLIC first and
+-- then granting back to exactly the role that should have it is the only
+-- version of this that actually closes the door.
+revoke execute on function public.draft_retainer_invoices(uuid) from public, anon, authenticated;
+revoke execute on function public.draft_my_retainer_invoices() from public, anon;
 grant execute on function public.draft_my_retainer_invoices() to authenticated;
 
 -- Run it on the 1st of every month at 06:00 UTC (08:00 in Harare), so the

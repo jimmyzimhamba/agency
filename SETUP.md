@@ -3771,6 +3771,35 @@ SQL is written so it **carries on regardless** — you'd just tap the button on
 the Invoices page instead. Same function either way, so it's a convenience, not
 the mechanism.
 
+### One correction, if you ran this SQL before 8 September
+
+I got a lock wrong the first time and want to be upfront about it rather than
+quietly patching it.
+
+The drafting function was meant to be callable only by you. I wrote the line
+that locks it, but I wrote it the wrong way round — I told the database "don't
+let logged-out visitors run this", when the database had *already* handed that
+permission to everybody by default the moment the function was created.
+Removing it from one group doesn't remove it from everybody. So the door I
+thought I'd shut was still open.
+
+**What it meant in practice:** somebody who knew the function's name could have
+made the app draft retainer invoices. Nothing could be *read* by doing it — no
+client details, no money figures, no names, it only ever returns a count — and
+nothing could be sent, since everything it makes is a draft. The realistic
+damage was draft invoices turning up in your list that you didn't ask for.
+Annoying, not dangerous. But it's an outsider writing into your books, and
+that's not something to leave sitting there.
+
+**It's fixed two ways.** The permission line is now written correctly, *and*
+the function now checks who's calling it before doing anything — so even if
+that permission is ever undone by accident later, it still refuses.
+
+**You need to run the SQL again.** Same file, same steps below. It's built to
+be re-run safely and it won't duplicate anything. I checked the rest of the
+app's functions while I was in there and none of them have this problem —
+they all check who's calling before they act.
+
 **Run the SQL — this covers Steps 177, 178 and 179 all at once**
 
 1. In Supabase, click **SQL Editor** → **New query**.
