@@ -1,23 +1,22 @@
 // ============================================================================
-// STUDIO X COMMAND — Edge Function: copilot-chat
+// STUDIO X COMMAND, Edge Function: copilot-chat
 // ============================================================================
 // What this does, in plain language:
 //   The "Copilot" tab lets a teammate type a question like "who hasn't been
-//   followed up with this week?" or "what's our signed MRR right now?" —
-//   this function:
+//   followed up with this week?" or "what's our signed MRR right now?", //   this function:
 //     1. Checks the teammate is signed in and hasn't sent too many messages
 //        in the last hour (cost/rate-limit safety net).
 //     2. Sends the question to Claude (Anthropic's AI) along with a set of
 //        "tools" it can call to look up real pipeline/task/activity/finance
-//        data — Claude decides which tools it actually needs, this function
+//        data, Claude decides which tools it actually needs, this function
 //        runs them against the real database (respecting the same visibility
-//        rules as the rest of the app — an agent only sees their own
+//        rules as the rest of the app, an agent only sees their own
 //        prospects, an owner sees everything), and feeds the results back to
 //        Claude until it has a final answer.
 //     3. Returns that final answer as plain text.
-//   Runs entirely server-side — the Anthropic API key never touches the app
+//   Runs entirely server-side, the Anthropic API key never touches the app
 //   or the browser. Reuses the same ANTHROPIC_API_KEY secret as AI Research
-//   (see SETUP.md Step 8) — no separate key needed. Conversation history is
+//   (see SETUP.md Step 8), no separate key needed. Conversation history is
 //   NOT saved anywhere; the frontend keeps it in memory for the current
 //   session only and resends it each turn.
 // ============================================================================
@@ -31,7 +30,7 @@ const CORS_HEADERS = {
 
 // How many chat messages a single teammate can send per hour. Interactive
 // chat naturally sends more requests than the one-shot AI features, so this
-// is higher than research/discovery's limits — see SETUP.md for the cost
+// is higher than research/discovery's limits, see SETUP.md for the cost
 // this maps to.
 const RATE_LIMIT_PER_HOUR = 30;
 
@@ -96,14 +95,27 @@ const TOOLS = [
   },
 ];
 
+// House rule across this whole app: the em dash never reaches a human. It is
+// the most recognisable fingerprint of AI-written text, and the credibility of
+// everything this tool produces depends on not reading like a machine wrote
+// it. The system prompt below says so too; this is the version that cannot be
+// ignored, because a prompt rule is followed almost always and "almost" is not
+// good enough when the output goes straight onto someone's screen unread.
+function noDash(s: string) {
+  return (s || "")
+    .replace(/(\d)\s*[\u2013\u2014]\s*(\d)/g, "$1 to $2")
+    .replace(/\s*[\u2014\u2013]\s*/g, ", ");
+}
+
 function buildSystemPrompt(callerName: string, callerRole: string) {
   const today = new Date().toISOString().slice(0, 10);
-  return `You are Copilot, an AI assistant built into Studio X Command — the internal sales tool for Studio X Marketing, a digital marketing agency in Harare, Zimbabwe. You're talking to ${callerName} (role: ${callerRole}). Today's date is ${today}.
+  return `You are Copilot, an AI assistant built into Studio X Command, the internal sales tool for Studio X Marketing, a digital marketing agency in Harare, Zimbabwe. You're talking to ${callerName} (role: ${callerRole}). Today's date is ${today}.
 
 Answer questions about the team's sales pipeline, tasks, activity, and finances using the tools provided. Rules:
 - Only state facts that came from a tool result. Never guess or invent numbers, names, or dates.
 - If a tool returns nothing relevant, say so plainly instead of making something up.
-- Money is in USD. Keep answers short and conversational — plain language, no corporate tone, no markdown headers or tables unless the data genuinely needs a list.
+- Money is in USD. Keep answers short and conversational. Plain language, no corporate tone, no markdown headers or tables unless the data genuinely needs a list.
+- NEVER use an em dash or an en dash. Use a full stop, a comma, or "and"/"but". It reads as machine-written and this team does not write that way.
 - If asked something outside what your tools can look up (e.g. general marketing advice, not this org's data), you can still answer helpfully using your own knowledge, but say clearly when you're doing that instead of quoting data.`;
 }
 
@@ -118,7 +130,7 @@ Deno.serve(async (req: Request) => {
   const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
 
   if (!ANTHROPIC_API_KEY) {
-    return json({ error: "Copilot isn't set up yet — ask the owner to add an Anthropic API key in Supabase (same one used for AI Research)." }, 501);
+    return json({ error: "Copilot isn't set up yet. Ask the owner to add an Anthropic API key in Supabase (same one used for AI Research)." }, 501);
   }
 
   const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
@@ -156,7 +168,7 @@ Deno.serve(async (req: Request) => {
       .gte("created_at", oneHourAgo);
     if ((count || 0) >= RATE_LIMIT_PER_HOUR) {
       return json(
-        { error: `Copilot limit reached (${RATE_LIMIT_PER_HOUR} messages/hour) — this keeps API costs in check. Try again shortly.` },
+        { error: `Copilot limit reached (${RATE_LIMIT_PER_HOUR} messages/hour). This keeps API costs in check. Try again shortly.` },
         429
       );
     }
@@ -207,7 +219,7 @@ async function runCopilotLoop(apiKey: string, system: string, messages: any[], c
 
     if (data.stop_reason !== "tool_use") {
       const textBlock = content.find((b: any) => b.type === "text");
-      return textBlock?.text || "I couldn't come up with an answer to that — try rephrasing?";
+      return noDash(textBlock?.text || "") || "I couldn't come up with an answer to that. Try rephrasing?";
     }
 
     messages.push({ role: "assistant", content });
@@ -220,18 +232,18 @@ async function runCopilotLoop(apiKey: string, system: string, messages: any[], c
         result = await executeTool(block.name, block.input || {}, ctx);
       } catch (toolErr) {
         console.error(`copilot-chat: tool ${block.name} failed`, toolErr);
-        result = { error: "That lookup failed — try a different question." };
+        result = { error: "That lookup failed. Try a different question." };
       }
       toolResults.push({ type: "tool_result", tool_use_id: block.id, content: JSON.stringify(result) });
     }
     messages.push({ role: "user", content: toolResults });
   }
 
-  return "That took more digging than I could finish — try asking a more specific question.";
+  return "That took more digging than I could finish. Try asking a more specific question.";
 }
 
 // ----------------------------------------------------------------------------
-// Tool executors — each one re-implements the same visibility rule the rest
+// Tool executors, each one re-implements the same visibility rule the rest
 // of the app enforces via RLS (owner sees everything in the org; an agent
 // only sees prospects assigned to them or that they created), since the
 // admin client bypasses RLS entirely.

@@ -1,4 +1,4 @@
-// "Get the App" — lets a team member install Agency Command as a real app
+// "Get the App", lets a team member install Agency Command as a real app
 // (home-screen icon, full-screen, works offline) instead of using it as a
 // bookmarked browser tab. Captures Chrome/Android/Desktop's native install
 // prompt when available, and falls back to plain-English steps for iOS

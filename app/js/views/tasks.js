@@ -55,7 +55,7 @@ export function renderTasks() {
   `);
   root.appendChild(wrap);
 
-  // checklist — shared tasks (assigned_to is empty) plus anything assigned to me specifically
+  // checklist, shared tasks (assigned_to is empty) plus anything assigned to me specifically
   const checklistEl = wrap.querySelector("#tb-checklist");
   const myTasks = store.dailyTasks.filter((t) => !t.assigned_to || t.assigned_to === myId);
   if (!myTasks.length) {
@@ -97,7 +97,7 @@ export function renderTasks() {
 }
 
 // Daily Plan's checklist/targets tell an agent *how much* to do today, but
-// nothing tells them *which specific leads* to do it on — they'd otherwise
+// nothing tells them *which specific leads* to do it on, they'd otherwise
 // have to go sort/scan the whole Pipeline themselves. This surfaces their
 // own top 5 untouched-but-hottest prospects right on the page they already
 // open every morning. Owners see the org's top 5 unassigned hot leads
@@ -142,10 +142,10 @@ function renderHotLeads(container, myId, isOwner) {
 
 // A rep's actual context on a lead ("asked for a discount", "wants samples
 // first") lives in prospect_notes, but the only way to see it was opening
-// one prospect at a time — Activity logs *that* a note was left, never the
+// one prospect at a time, Activity logs *that* a note was left, never the
 // content, and scrolls fast since it mixes in every status change too.
 // Fetched on demand (not cached in the main store) since it's a small,
-// rarely-changing cross-prospect slice — same "query prospect_notes
+// rarely-changing cross-prospect slice, same "query prospect_notes
 // directly, rely on its own RLS" pattern dealPricing.js's Recent Quotes
 // panel already uses. RLS already scopes this to prospects the viewer can
 // see (their own leads, or the whole org for an owner), so no client-side
@@ -188,10 +188,10 @@ async function loadNotesCatchUp(container) {
 }
 
 // Owner-only view of who on the team has actually worked through today's
-// checklist — without this, an owner has to DM each agent individually or
+// checklist, without this, an owner has to DM each agent individually or
 // dig through Activity to find out. Worst-progress-first so lagging agents
 // surface immediately. Purely derived from data already in the store
-// (dailyTasks/dailyCompletions/profiles) — no extra query.
+// (dailyTasks/dailyCompletions/profiles), no extra query.
 function renderTeamChecklist(container) {
   if (!container) return;
   const agents = store.profiles.filter((p) => p.active !== false);
@@ -235,10 +235,10 @@ const DAY_TYPE_LABELS = { send: "Send", reply: "Reply", follow_up: "Follow-up", 
 // of task the team as a whole tends to skip. A checklist mixes send/reply/
 // follow-up/deposit/general items together, so a low overall completion %
 // hides whether it's everyone skipping the same type of task (e.g. nobody
-// ever ticks off "Follow-up") vs. just scattered misses — that distinction
+// ever ticks off "Follow-up") vs. just scattered misses, that distinction
 // is what an owner needs to know to fix the checklist itself, not just chase
 // individuals. Purely derived from store.dailyTasks/dailyCompletions/
-// profiles (already loaded, already today-scoped per state.js) — no extra
+// profiles (already loaded, already today-scoped per state.js), no extra
 // query. Worst-completion-type first, same ordering convention as
 // renderTeamChecklist.
 function renderTaskTypeBreakdown(container) {
@@ -286,7 +286,7 @@ function renderTaskTypeBreakdown(container) {
   });
 }
 
-// Through the outbox rather than straight to Supabase — this is a field
+// Through the outbox rather than straight to Supabase, this is a field
 // action like a status change, tapped by someone standing in the street who
 // has just finished the thing. See js/outbox.js for why only a handful of
 // writes get this treatment. Nothing else changes: the tick appears exactly
@@ -336,7 +336,7 @@ const LOW_PACE_PCT = 50;
 // "Team Checklist Today" answers whether tasks got ticked off; nothing
 // aggregates the *numeric* output targets (sends/meetings) the way
 // loadTargetsProgress already does for the logged-in agent alone. This is
-// the team-wide version — how much output are we actually producing today
+// the team-wide version, how much output are we actually producing today
 // vs. what everyone's target adds up to, and who's furthest behind.
 async function loadTeamPace(container) {
   if (!container) return;
@@ -412,12 +412,12 @@ function openTeamPaceModal(rows, metric) {
   openModal(box);
 }
 
-// Rewards showing up day after day, not just today's completion % — nothing
+// Rewards showing up day after day, not just today's completion %, nothing
 // else in the app tracks consistency over time. Queries completions history
 // directly (same "reach past the store's today-only slice" pattern
 // loadTargetsProgress already uses for status_history) since a streak needs
 // more than just today's data. Today doesn't break the streak if it's not
-// finished yet — it just doesn't count until it is.
+// finished yet, it just doesn't count until it is.
 async function loadStreak(container, myTasks, myId) {
   if (!container) return;
   if (!myTasks.length) { container.innerHTML = ""; return; }
@@ -449,7 +449,7 @@ async function loadStreak(container, myTasks, myId) {
     if (complete) {
       streak++;
     } else if (isToday) {
-      // Today's checklist isn't finished yet — that alone shouldn't zero out
+      // Today's checklist isn't finished yet, that alone shouldn't zero out
       // a real streak, so just don't count it and keep looking backward.
     } else {
       break;
@@ -468,8 +468,7 @@ async function loadStreak(container, myTasks, myId) {
   `;
 }
 
-// "Due Today" (main.js's dueTodayList) only ever looks backward-or-equal —
-// it deliberately can't warn you about Thursday's follow-ups on Monday.
+// "Due Today" (main.js's dueTodayList) only ever looks backward-or-equal, // it deliberately can't warn you about Thursday's follow-ups on Monday.
 // This groups the next 7 days of *upcoming* follow_up_date prospects by day
 // so agents can plan ahead instead of only reacting to what's already due.
 // Same visibility rule as dueTodayList: owners see everyone's, agents see
@@ -608,7 +607,7 @@ function openTaskForm() {
 function renderManageTargets(container) {
   container.innerHTML = "";
   // No point setting a future daily/weekly target for someone whose access
-  // has been removed — they can't log in to work toward it.
+  // has been removed, they can't log in to work toward it.
   store.profiles.filter((agent) => agent.active !== false).forEach((agent) => {
     const t = store.agentTargets.find((x) => x.agent_id === agent.id) || { daily_sends_target: 15, weekly_meetings_target: 3 };
     const card = el(`

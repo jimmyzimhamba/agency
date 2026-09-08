@@ -3,31 +3,31 @@ import { el, esc, toast } from "../utils.js";
 import { openModal, closeModal } from "../ui.js";
 import { AVATAR_PRESETS, dicebearUrl, saveAvatarUrl } from "./team.js";
 
-// Shown exactly once, right after a brand-new sign-up — never on an
+// Shown exactly once, right after a brand-new sign-up, never on an
 // ordinary sign-in, and never again after the first time. Triggered by a
 // one-shot sessionStorage flag set in auth.js's handleSubmit right before
 // the signUp() call, and consumed in main.js's enterApp() once the new
 // account's data has finished loading. sessionStorage (not localStorage) is
 // deliberate: this only ever needs to survive the redirect from "just
 // signed up" to "app finished booting" within the same tab, not persist
-// across future visits — a stray leftover flag from a previous browser
+// across future visits, a stray leftover flag from a previous browser
 // session should never be able to re-trigger this.
 //
-// Deliberately short — two or three steps, not the sprawling multi-screen
+// Deliberately short, two or three steps, not the sprawling multi-screen
 // wizard this was inspired by (which also walked through connecting a
 // Chrome extension and buying credits, neither of which exists in this
 // free, WhatsApp-first product). Everything a new team actually needs to
-// *do* — add a prospect, send a contract, etc. — is already covered by the
+// *do*, add a prospect, send a contract, etc., is already covered by the
 // Dashboard's "Getting Started" checklist card, so this wizard doesn't try
 // to repeat that list. It's about making the workspace feel like theirs
 // (an avatar) and, for whoever just created the agency, putting the invite
-// code in front of them before they forget it exists — not about tasks.
+// code in front of them before they forget it exists, not about tasks.
 export function openOnboardingWizard() {
   const isOwner = store.profile?.role === "owner";
   const firstName = (store.profile?.full_name || "").trim().split(/\s+/)[0] || "there";
 
   // Only the person who *created* the agency gets the "invite your team"
-  // step — someone who joined via an invite code is already a member of a
+  // step, someone who joined via an invite code is already a member of a
   // team that presumably has an owner handling invites, and non-owners
   // can't regenerate the code anyway (see team.js), so showing it here
   // would just be a step with nothing new to do.

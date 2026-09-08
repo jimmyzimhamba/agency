@@ -1,5 +1,5 @@
 // ============================================================================
-// STUDIO X COMMAND — Edge Function: research-prospect
+// STUDIO X COMMAND, Edge Function: research-prospect
 // ============================================================================
 // What this does, in plain language:
 //   A teammate adds a new prospect in the app → the app calls this function
@@ -9,14 +9,14 @@
 //        safety net).
 //     2. Asks Claude (Anthropic's AI) to search the web for real, current
 //        information about that business, then write a ready-to-send
-//        3-line WhatsApp message in Studio X's voice — grounded ONLY in
+//        3-line WhatsApp message in Studio X's voice, grounded ONLY in
 //        what it actually found.
 //     3. If research succeeds: saves the message + a short "what we found"
 //        summary onto the prospect.
 //     4. If research fails for any reason (business not findable online,
 //        network hiccup, etc.): saves a clean, honest fallback message
-//        instead, clearly flagged "auto-template — review before sending".
-//   Runs entirely server-side — the Anthropic API key never touches the
+//        instead, clearly flagged "auto-template, review before sending".
+//   Runs entirely server-side, the Anthropic API key never touches the
 //   app or the browser. See SETUP.md for how to deploy this and set that
 //   key as a secret.
 // ============================================================================
@@ -30,12 +30,12 @@ const CORS_HEADERS = {
 
 // How many research runs a single teammate can trigger per hour. This is the
 // hard ceiling that stops a burst of prospect-adding from running up an API
-// bill or tripping Anthropic's own rate limits — see SETUP.md for the actual
+// bill or tripping Anthropic's own rate limits, see SETUP.md for the actual
 // cost this maps to (a few cents per prospect).
 const RATE_LIMIT_PER_HOUR = 20;
 
 // Caps how many web searches Claude can run for a single prospect. Each
-// search costs a fixed, small amount — this is the other half of the cost
+// search costs a fixed, small amount, this is the other half of the cost
 // safety net alongside the per-user hourly limit above.
 const MAX_SEARCHES_PER_RESEARCH = 3;
 
@@ -101,11 +101,11 @@ const RESEARCH_JSON_SCHEMA = {
     },
     line2_cost: {
       type: "string",
-      description: "Line 2 of the outreach message — what the gap is quietly costing this business.",
+      description: "Line 2 of the outreach message: what the gap is quietly costing this business.",
     },
     line3_question: {
       type: "string",
-      description: "Line 3 of the outreach message — a single low-friction question, no pricing, no links.",
+      description: "Line 3 of the outreach message: a single low-friction question, no pricing, no links.",
     },
     liora_conflict_suggested: {
       type: "boolean",
@@ -134,15 +134,15 @@ RESEARCH RULES:
 - Only use SPECIFIC, VERIFIABLE findings: inconsistent posting, no visual identity/branding, broken or missing links, incorrect/incomplete Google listing info, low engagement relative to their size, few reviews for their apparent quality, or a mismatch between their reputation and their online presence.
 - If you cannot find or verify this specific business online, do NOT invent or guess details. Set found_business to false and confidence to "none", and instead write a safe, general (but still specific-sounding) observation about that business's niche/industry in Harare that is very likely broadly true.
 
-MESSAGE RULES — the message must follow this exact 3-line formula, no exceptions:
-1. Line 1 (Observation): one specific observation about their online presence. This line MUST open by naming the business itself — e.g. "I came across {business_name}...". NEVER address a person or guess an owner's name, even if one turns up in research.
-2. Line 2 (Cost): connect that gap to what it is quietly costing THIS business, phrased for their niche — lost bookings, enquiries going to louder competitors, lost mandates/clients, empty tables/rooms/appointments. Pick whichever is actually relevant.
-3. Line 3 (One question): a single, low-friction question that opens a conversation. No pricing. No links. Not "let me know if interested" — an actual question.
+MESSAGE RULES. The message must follow this exact 3-line formula, no exceptions:
+1. Line 1 (Observation): one specific observation about their online presence. This line MUST open by naming the business itself, e.g. "I came across {business_name}...". NEVER address a person or guess an owner's name, even if one turns up in research.
+2. Line 2 (Cost): connect that gap to what it is quietly costing THIS business, phrased for their niche: lost bookings, enquiries going to louder competitors, lost mandates/clients, empty tables/rooms/appointments. Pick whichever is actually relevant.
+3. Line 3 (One question): a single, low-friction question that opens a conversation. No pricing. No links. Not "let me know if interested", an actual question.
 
-- Never write more than these 3 lines' worth of content — no greeting before, no extra pleasantries after.
-- Never use an em dash (—) anywhere in line1_observation, line2_cost, or line3_question. Use a period, comma, or "and"/"but" instead.
-- Never write a sender name. End the message content logically as if signed by the sender, but do NOT generate a name — the app adds "{{agent_name}}, Studio X Marketing, www.studioxmarketing.com" automatically after your line3_question, so line3_question should NOT include a signature itself.
-- Keep it tight enough for WhatsApp — short sentences, not a wall of text.
+- Never write more than these 3 lines' worth of content. No greeting before, no extra pleasantries after.
+- NEVER use an em dash or en dash anywhere in ANY field you return, including research_summary. Not one, not ever. Use a full stop, a comma, or "and"/"but". This is the single most common way a message gets spotted as machine-written, and a message that reads as machine-written does not get a reply.
+- Never write a sender name. End the message content logically as if signed by the sender, but do NOT generate a name. The app adds "{{agent_name}}, Studio X Marketing, www.studioxmarketing.com" automatically after your line3_question, so line3_question should NOT include a signature itself.
+- Keep it tight enough for WhatsApp. Short sentences, not a wall of text.
 
 LIORA CONFLICT: Studio X also runs Liora, a beauty/aesthetics brand. If this business is itself a beauty/aesthetics/skincare/salon/spa business that would directly compete with Liora, set liora_conflict_suggested to true. Otherwise false.
 
@@ -153,7 +153,7 @@ function buildUserPrompt(p: any, nicheName: string | null) {
   const lines = [
     `Business name: ${p.business_name}`,
     `Niche: ${nicheName || "Unknown"}`,
-    `Area: ${p.area || "Unknown — assume Harare, Zimbabwe"}`,
+    `Area: ${p.area || "Unknown, assume Harare, Zimbabwe"}`,
     `Instagram: ${p.instagram || "not provided"}`,
     `Website: ${p.website || "not provided"}`,
     `WhatsApp number on file: ${p.whatsapp_number || "not provided"}`,
@@ -162,8 +162,29 @@ function buildUserPrompt(p: any, nicheName: string | null) {
   return `Research this business and write the outreach message.\n\n${lines.join("\n")}`;
 }
 
+// The em dash is banned from anything a prospect reads, because it is the
+// clearest signal in written English that a message came out of a machine, and
+// these messages go to Harare business owners under a real person's name.
+//
+// The prompt already forbids it, and this exists because that is not enough on
+// its own. A model obeys a "never do X" instruction the vast majority of the
+// time, and the failures are invisible: nobody reviewing a stack of twenty
+// messages is going to spot the one dash that slipped through, which is
+// exactly the one that then goes out. Enforcing it in code makes the rate zero
+// rather than nearly zero.
+//
+// Doing it here rather than only in the app matters too, because this function
+// is what WRITES the message into the database. Cleaning it at this point
+// means the stored text is right, so it stays right no matter what reads it
+// later, including anyone copying it straight out of Supabase.
+function noDash(s: string) {
+  return (s || "")
+    .replace(/(\d)\s*[–—]\s*(\d)/g, "$1 to $2")
+    .replace(/\s*[—–]\s*/g, ", ");
+}
+
 function buildOutreachMessage(line1: string, line2: string, line3: string) {
-  return `${line1.trim()} ${line2.trim()} ${line3.trim()}\n\n{{agent_name}}, Studio X Marketing\nwww.studioxmarketing.com`;
+  return `${noDash(line1).trim()} ${noDash(line2).trim()} ${noDash(line3).trim()}\n\n{{agent_name}}, Studio X Marketing\nwww.studioxmarketing.com`;
 }
 
 function buildFallback(businessName: string, area: string, nicheName: string | null) {
@@ -173,7 +194,7 @@ function buildFallback(businessName: string, area: string, nicheName: string | n
   const message = buildOutreachMessage(line1, f.cost, f.question);
   return {
     message,
-    summary: "Automatic research wasn't able to verify specific details for this business — this is a general opener for their niche. Please review before sending.",
+    summary: "Automatic research wasn't able to verify specific details for this business. This is a general opener for their niche. Please review before sending.",
   };
 }
 
@@ -229,7 +250,7 @@ Deno.serve(async (req: Request) => {
       .gte("created_at", oneHourAgo);
     if ((count || 0) >= RATE_LIMIT_PER_HOUR) {
       return json(
-        { error: `Research limit reached (${RATE_LIMIT_PER_HOUR}/hour) — this keeps API costs in check. Try again shortly, or write this one by hand for now.` },
+        { error: `Research limit reached (${RATE_LIMIT_PER_HOUR}/hour). This keeps API costs in check. Try again shortly, or write this one by hand for now.` },
         429
       );
     }
@@ -252,7 +273,7 @@ Deno.serve(async (req: Request) => {
     if (!ANTHROPIC_API_KEY) {
       const fb = buildFallback(prospect.business_name, prospect.area, nicheName);
       outreach_message = fb.message;
-      research_summary = "AI research isn't set up yet (no API key configured) — using a general opener for this niche. Please review before sending.";
+      research_summary = "AI research isn't set up yet (no API key configured). Using a general opener for this niche. Please review before sending.";
       message_source = "auto_template";
       research_status = "failed";
     } else {
@@ -265,11 +286,11 @@ Deno.serve(async (req: Request) => {
           research_status = "done";
           liora_conflict_suggested = !!aiResult.liora_conflict_suggested;
         } else {
-          // Claude looked but couldn't verify anything specific — still use
+          // Claude looked but couldn't verify anything specific, still use
           // its niche-aware fallback line rather than ours, it's usually better.
           if (aiResult) {
             outreach_message = buildOutreachMessage(aiResult.line1_observation, aiResult.line2_cost, aiResult.line3_question);
-            research_summary = aiResult.research_summary || "Couldn't verify specific details online for this business — used a general niche-based opener instead.";
+            research_summary = aiResult.research_summary || "Couldn't verify specific details online for this business, so this is a general niche-based opener instead.";
           } else {
             const fb = buildFallback(prospect.business_name, prospect.area, nicheName);
             outreach_message = fb.message;
@@ -291,7 +312,10 @@ Deno.serve(async (req: Request) => {
 
     const updatePayload: Record<string, unknown> = {
       outreach_message,
-      research_summary,
+      // Cleaned here as well as in buildOutreachMessage, because the summary is
+      // a free-text field the model writes with no structure imposed on it,
+      // and Jimmy reads it on screen next to the message itself.
+      research_summary: noDash(research_summary),
       message_source,
       research_status,
       researched_at: new Date().toISOString(),
@@ -307,7 +331,7 @@ Deno.serve(async (req: Request) => {
       message:
         research_status === "done" && message_source === "ai_generated"
           ? `AI research completed for ${prospect.business_name}`
-          : `AI research unavailable for ${prospect.business_name} — auto-template used, needs review`,
+          : `AI research unavailable for ${prospect.business_name}, auto-template used, needs review`,
     });
 
     return json({ ok: true, message_source, research_status, research_summary });

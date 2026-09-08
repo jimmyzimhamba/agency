@@ -1,5 +1,5 @@
 // ============================================================================
-// STUDIO X COMMAND — Edge Function: review-reorder
+// STUDIO X COMMAND, Edge Function: review-reorder
 // ============================================================================
 // What this does, in plain language:
 //   Lets the public client review page drag-reorder the grid tiles, same
@@ -8,7 +8,7 @@
 //
 //   Takes the FULL ordered list of post ids for the plan (same shape
 //   enablePointerReorder's onReorder callback already produces on the
-//   agency side) rather than a single "move post X to position Y" — that
+//   agency side) rather than a single "move post X to position Y", that
 //   makes the validation simple and airtight: the set of ids sent has to be
 //   EXACTLY the set of post ids that already belong to this plan, no more,
 //   no less. Anything else (an id from another plan, a missing id, a
@@ -44,7 +44,7 @@ Deno.serve(async (req: Request) => {
     }
 
     const allowed = await checkRateLimit(admin, `reorder:${token}`, RATE_LIMIT, RATE_WINDOW_SECONDS);
-    if (!allowed) return json({ error: "Too many requests — please wait a moment and try again" }, 429);
+    if (!allowed) return json({ error: "Too many requests, please wait a moment and try again" }, 429);
 
     const plan = await resolvePlan(admin, token);
     if (!plan) return json({ error: "Invalid or expired link" }, 404);
@@ -57,7 +57,7 @@ Deno.serve(async (req: Request) => {
     const sameSize = existingIds.size === orderIds.size;
     const sameMembers = sameSize && order.every((id) => existingIds.has(id));
     if (!sameSize || !sameMembers) {
-      return json({ error: "The post list doesn't match this plan — refresh and try again" }, 409);
+      return json({ error: "The post list doesn't match this plan. Refresh and try again" }, 409);
     }
 
     const results = await Promise.all(

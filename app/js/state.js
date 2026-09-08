@@ -2,8 +2,7 @@ import { sb } from "./supabaseClient.js";
 import { celebrateToast } from "./utils.js";
 import { badgeByKey } from "./badges.js";
 
-// Generic "you just earned points" star, for the celebratory toast below —
-// same star path as the Prospector/Legend badge icons in badges.js, kept
+// Generic "you just earned points" star, for the celebratory toast below, // same star path as the Prospector/Legend badge icons in badges.js, kept
 // as its own constant here since this one isn't tied to any specific badge.
 const POINTS_STAR_ICON = '<path d="M12 2l2.4 7.2H22l-6 4.6 2.3 7.2-6.3-4.5-6.3 4.5 2.3-7.2-6-4.6h7.6z"/>';
 
@@ -29,7 +28,7 @@ export const store = {
   monthlyGoal: null,
   contracts: [],
   invoices: [],
-  // Money out — see supabase/migration_money_and_portal.sql. Loaded in full
+  // Money out, see supabase/migration_money_and_portal.sql. Loaded in full
   // rather than capped like pointsLog, because every total the Expenses screen
   // shows is a sum over the whole set: capping it would silently under-report
   // spending, and an expense total that quietly reads low is worse than no
@@ -52,17 +51,17 @@ export const store = {
   communityPosts: [],
   communityComments: [],
   communityReactions: [],
-  // Gamification — see supabase/migration_points.sql. pointsLog is a recent
+  // Gamification, see supabase/migration_points.sql. pointsLog is a recent
   // slice of the ledger (enough for an "activity so far" breakdown per
   // person); pointsTotals is the authoritative all-time sum per profile
   // (from the points_totals view), which the leaderboard actually ranks
-  // by — it's never computed by summing pointsLog client-side, since that
+  // by, it's never computed by summing pointsLog client-side, since that
   // list is capped and would silently under-count once someone earns more
   // than a screenful of points.
   pointsLog: [],
   pointsTotals: [],
-  // Badges — see supabase/migration_badges.sql. Loaded in full (not capped
-  // like pointsLog) since expected row count per org is tiny — a handful of
+  // Badges, see supabase/migration_badges.sql. Loaded in full (not capped
+  // like pointsLog) since expected row count per org is tiny, a handful of
   // teammates times ~14 possible badges each, nowhere near pointsLog's
   // unbounded growth.
   badgesEarned: [],
@@ -85,7 +84,7 @@ export function emit(key) {
 // Anything sitting in the outbox (see js/outbox.js) has been applied on this
 // device but not yet accepted by the server. Every path below that replaces
 // the prospect list, or one prospect's notes, with a fresh server copy would
-// wipe those un-sent edits off the screen — so the freshly loaded rows are run
+// wipe those un-sent edits off the screen, so the freshly loaded rows are run
 // back through the outbox first, and only then handed to the views.
 //
 // Registered by initOutbox() rather than imported, so state.js keeps knowing
@@ -137,11 +136,11 @@ export function nicheById(id) {
 //
 // This deliberately does not reuse colorFor() in utils.js. That palette is for
 // people's avatars: it's only 7 long, and it's built from the app's own accent
-// colours — including the exact gold and purple that mean Tier A and Tier B on
+// colours, including the exact gold and purple that mean Tier A and Tier B on
 // the very same prospect row. A gold niche dot beside a gold TIER A pill would
 // be two unrelated things wearing the same signal.
 //
-// These are OKLCH hue angles, not HSL ones — the numbers are not
+// These are OKLCH hue angles, not HSL ones, the numbers are not
 // interchangeable between the two. OKLCH is worth the unfamiliarity here
 // because its lightness is perceptually even across hues, and HSL's is not:
 // the first cut of this used HSL at a single fixed lightness and the dots
@@ -158,14 +157,14 @@ const NICHE_HUES = [25, 55, 90, 130, 155, 180, 205, 235, 265, 295, 325, 355];
 // A hash looks fairer but loses to the birthday problem badly: measured over
 // 20,000 simulated orgs, ten niches hashed into these twelve hues produced only
 // ~7 distinct colours on average, and 99.6% of orgs had at least one pair of
-// niches wearing the same colour — which defeats the entire point of colouring
+// niches wearing the same colour, which defeats the entire point of colouring
 // them. Indexing guarantees the first twelve niches are all different.
 //
 // Indexed over ids sorted lexically, not over the list's own display order.
 // Sorting by id is immutable, so dragging niches into a new order or renaming
 // one never repaints anything. It also means neighbouring rows don't get
 // neighbouring hues, which matters because adjacent entries in this palette are
-// the most similar to each other — exactly the pair you least want side by side.
+// the most similar to each other, exactly the pair you least want side by side.
 // Adding or deleting a niche does shift some colours, which is accepted: it's a
 // rare, deliberate act, and it happens on the Niche Matrix page where every
 // niche and its colour are on screen together, so nothing changes behind
@@ -229,9 +228,9 @@ export function bestTemplateFor(prospect, category = "opener") {
 export async function loadAll() {
   // portfolio_settings/portfolio_items are the one place in the app where a
   // second RLS policy intentionally lets ANYONE read rows across every org
-  // (published/public portfolio content, by design — see
+  // (published/public portfolio content, by design, see
   // migration_portfolio.sql). That's fine for the public showcase page, but
-  // it means a plain select() here — inside the logged-in app — could pull
+  // it means a plain select() here, inside the logged-in app, could pull
   // in another org's published rows alongside our own. Explicitly filtering
   // by our own org_id (known from the profile, already loaded before
   // loadAll() runs) keeps this internal management view scoped to exactly
@@ -327,7 +326,7 @@ export async function loadNotesFor(prospectId) {
   return store.notesByProspect[prospectId];
 }
 
-// Same targeted-per-prospect pattern as loadNotesFor above — a WhatsApp
+// Same targeted-per-prospect pattern as loadNotesFor above, a WhatsApp
 // thread can only ever be looked at from inside one prospect's detail
 // sheet, so there's no reason to pull every org's messages into memory
 // up front the way loadAll() does for small, always-visible tables.
@@ -343,7 +342,7 @@ export async function loadMessagesFor(prospectId) {
 }
 
 // Refetches just the prospects table and re-renders. Used as a safety net
-// any time we might have missed a Realtime event — e.g. a phone drops the
+// any time we might have missed a Realtime event, e.g. a phone drops the
 // websocket while backgrounded/asleep, so a teammate's new prospect never
 // arrives as a live event, and the list looks stuck until this runs.
 export async function refreshProspects() {
@@ -385,8 +384,8 @@ export function startRealtime() {
       const pid = payload.new.prospect_id;
       if (store.notesByProspect[pid]) {
         // Replace rather than append when the id is already here. A note you
-        // posted yourself is on screen the instant you tap Post — from the
-        // outbox, carrying an id this device generated — so the server's own
+        // posted yourself is on screen the instant you tap Post, from the
+        // outbox, carrying an id this device generated, so the server's own
         // copy of that same note arrives moments later wearing the same id.
         // Appending it would show the note twice; swapping it in puts the
         // real, saved row in place of the still-sending one.
@@ -399,7 +398,7 @@ export function startRealtime() {
       }
     })
     // Same "only touch it if that prospect's thread is already loaded" rule
-    // as prospect_notes above — INSERT appends a new message (inbound reply,
+    // as prospect_notes above, INSERT appends a new message (inbound reply,
     // or an outbound send from a teammate on another device); UPDATE is a
     // Twilio delivery-status callback (queued -> sent -> delivered -> read,
     // or failed) landing on a message already in the thread.
@@ -458,7 +457,7 @@ export function startRealtime() {
       emit("portfolioItems");
     })
     // portfolio_settings is a single row (or none) per org, not a list, so it
-    // doesn't fit upsertLocal's array-of-rows shape — just mirror whatever
+    // doesn't fit upsertLocal's array-of-rows shape, just mirror whatever
     // came through directly.
     .on("postgres_changes", { event: "*", schema: "public", table: "portfolio_settings" }, (payload) => {
       store.portfolioSettings = payload.eventType === "DELETE" ? null : payload.new;
@@ -498,9 +497,9 @@ export function startRealtime() {
       }
       emit("pointsLog");
       emit("pointsTotals");
-      // Celebrate it in the moment — but only OUR OWN decent-sized wins
+      // Celebrate it in the moment, but only OUR OWN decent-sized wins
       // (meeting booked, a deal/contract signed, an invoice paid, a project
-      // finished — 10+ points), not every little +2/+3 for a note or a
+      // finished, 10+ points), not every little +2/+3 for a note or a
       // daily task, or this would fire constantly and stop feeling special.
       // Teammates' points don't toast for us; they see their own copy of
       // this same event on their own device.
@@ -514,13 +513,13 @@ export function startRealtime() {
       }
     })
     // badges_earned rows are also append-only (a badge, once unlocked, is
-    // never revoked or edited) — INSERT only, same as points_log above.
+    // never revoked or edited), INSERT only, same as points_log above.
     .on("postgres_changes", { event: "INSERT", schema: "public", table: "badges_earned" }, (payload) => {
       if (!store.badgesEarned.some((b) => b.id === payload.new.id)) {
         store.badgesEarned = [...store.badgesEarned, payload.new];
         emit("badgesEarned");
         // Every badge unlock is inherently a big moment (there are only 14,
-        // ever) — so unlike points above, this always celebrates, no
+        // ever), so unlike points above, this always celebrates, no
         // threshold needed. Only for the person who actually earned it.
         if (payload.new.profile_id === store.profile?.id) {
           const badge = badgeByKey(payload.new.badge_key);
@@ -538,13 +537,12 @@ export function startRealtime() {
     .on("postgres_changes", { event: "*", schema: "public", table: "community_reactions" }, (payload) => {
       // Reactions have no natural "updated" case (insert to like, delete to
       // unlike) and no id column consumers key off of for display, but
-      // upsertLocal only needs payload.new/old.id to exist, which it does —
-      // reused as-is for consistency with every other realtime table here.
+      // upsertLocal only needs payload.new/old.id to exist, which it does,       // reused as-is for consistency with every other realtime table here.
       upsertLocal("communityReactions", payload);
       emit("communityReactions");
     })
     .subscribe((status) => {
-      // The first SUBSCRIBED is just normal startup — nothing missed yet.
+      // The first SUBSCRIBED is just normal startup, nothing missed yet.
       // Any SUBSCRIBED after that means the socket had dropped and just
       // reconnected, so events during the gap could've been lost silently.
       // Catch up by refetching prospects straight away.

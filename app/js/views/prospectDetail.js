@@ -11,7 +11,7 @@ import { patchProspect, postNote, cancelPendingProspect } from "../outbox.js";
 const STATUSES = ["not_contacted", "sent", "replied", "meeting_booked", "signed", "dead"];
 
 // Every "why did this die" reason is stored as a plain prospect_notes row
-// with this marker prefix — same trick the Deal Pricing Calculator's quote
+// with this marker prefix, same trick the Deal Pricing Calculator's quote
 // log (dealPricing.js's QUOTE_MARKER) and the "Assign to me" flow already
 // use to smuggle structured data through an existing table instead of a
 // schema migration. Pipeline Value's "Lost Reasons" breakdown reads these
@@ -28,7 +28,7 @@ function currentProspect(id) {
 }
 
 // prospectForm.js's placeholder ("www.business.co.zw") makes clear the
-// website field is saved without a protocol most of the time — an <a href>
+// website field is saved without a protocol most of the time, an <a href>
 // without one resolves relative to the app itself instead of opening the
 // site, so this adds https:// only when a protocol isn't already there.
 function websiteHref(website) {
@@ -45,7 +45,7 @@ function render(p0) {
   const isOwner = store.profile?.role === "owner";
 
   // "Business Ops" used to only offer *create* buttons once a prospect was
-  // signed — there was no way to see contracts/invoices/projects that
+  // signed, there was no way to see contracts/invoices/projects that
   // already exist for them without leaving the sheet and searching three
   // separate list views. Now it also lists whatever's already linked, so a
   // rep can check billing/delivery status without ever leaving this card.
@@ -55,7 +55,7 @@ function render(p0) {
   const hasBizOpsRecords = linkedContracts.length || linkedInvoices.length || linkedProjects.length;
   // Invoices' "Top Clients by Revenue" already totals this org-wide, but the
   // one screen where someone's actually looking at a single client never
-  // added it up locally — you'd have to eyeball each invoice row in the list
+  // added it up locally, you'd have to eyeball each invoice row in the list
   // below and do the math yourself. Paid only (not sent/overdue) since this
   // is meant to answer "what have they actually paid us," not what's billed.
   const lifetimeValue = linkedInvoices.filter((i) => i.status === "paid").reduce((s, i) => s + (Number(i.amount) || 0), 0);
@@ -67,7 +67,7 @@ function render(p0) {
   // Only offer active team members for a *new* assignment, but if this
   // prospect is already assigned to someone whose access has since been
   // removed, still show that option (labeled) so it doesn't silently
-  // disappear from the dropdown — the owner can see it and reassign away.
+  // disappear from the dropdown, the owner can see it and reassign away.
   const teamOptions = store.profiles
     .filter((pr) => pr.active !== false || p.assigned_to === pr.id)
     .map((pr) => `<option value="${pr.id}" ${p.assigned_to === pr.id ? "selected" : ""}>${esc(pr.full_name || pr.email)}${pr.active === false ? " (removed)" : ""}</option>`)
@@ -83,7 +83,7 @@ function render(p0) {
     ${p._pending ? `
       <div class="card pending-card" style="margin-bottom:14px;">
         <div style="font-size:12.5px;">
-          <b>Saved on this phone, not sent yet.</b> Everything here works normally — you
+          <b>Saved on this phone, not sent yet.</b> Everything here works normally. You
           can set a status, pick a follow-up date and write notes, and it all goes out
           together as soon as you have signal.
         </div>
@@ -277,7 +277,7 @@ function render(p0) {
     // most likely to be tapped standing outside a shop with one bar, and it
     // has to stick whether or not the message gets out. See js/outbox.js.
     await patchProspect(p.id, { status: newStatus });
-    toast(navigator.onLine ? "Status updated" : "Status saved — will send when you're back online", "success");
+    toast(navigator.onLine ? "Status updated" : "Status saved, will send when you're back online", "success");
 
     if (newStatus === "signed" && !wasSigned) {
       const already = store.contracts?.some((c) => c.prospect_id === p.id);
@@ -302,7 +302,7 @@ function render(p0) {
 
   box.querySelector("#pd-followup").addEventListener("change", async (e) => {
     await patchProspect(p.id, { follow_up_date: e.target.value || null });
-    toast(navigator.onLine ? "Follow-up date set" : "Follow-up saved — will send when you're back online", "success");
+    toast(navigator.onLine ? "Follow-up date set" : "Follow-up saved, will send when you're back online", "success");
     const icsBtn = box.querySelector("#pd-followup-ics");
     if (icsBtn) icsBtn.style.display = e.target.value ? "" : "none";
   });
@@ -340,7 +340,7 @@ function render(p0) {
   const claimBtn = box.querySelector("#pd-claim");
   if (claimBtn) claimBtn.addEventListener("click", async () => {
     // Nobody can be racing you for a prospect that only exists on this phone,
-    // and the server has no row to hand over — so take it here. See the same
+    // and the server has no row to hand over, so take it here. See the same
     // reasoning in sendWhatsApp() in pipeline.js.
     if (p._pending) {
       patchProspect(p.id, { assigned_to: store.profile.id });
@@ -377,7 +377,7 @@ function render(p0) {
       confirmLabel: "Delete",
       danger: true,
       onConfirm: async () => {
-        // Still only in the outbox — nothing has reached the server, so there
+        // Still only in the outbox, nothing has reached the server, so there
         // is nothing to ask it to delete. Dropping the queued job is the whole
         // operation, and it works with no signal, which matters because the
         // usual reason to delete a just-added prospect is a typo you spotted
@@ -419,7 +419,7 @@ function render(p0) {
 
 // The "AI Research" + "Message" cards live in their own container so they
 // can be refreshed in place (via Realtime, or after tapping Regenerate)
-// without re-rendering — and losing focus on — the rest of the sheet.
+// without re-rendering, and losing focus on, the rest of the sheet.
 function renderAISection(box, p) {
   const wrap = box.querySelector("#pd-ai-section");
   if (!wrap) return;
@@ -493,10 +493,10 @@ function renderAISection(box, p) {
 // Sits right below the Contact card, alongside the cold-open "Send
 // WhatsApp" button above. Renders nothing at all until a prospect has
 // actually replied on WhatsApp at least once (whatsapp_last_inbound_at is
-// null) — before that, the cold-open button is the only way to reach them,
+// null), before that, the cold-open button is the only way to reach them,
 // exactly as it always has been. Once they've replied, this shows the real
 // two-way thread, with a reply box only while still inside WhatsApp's
-// 24-hour customer-service window (canSendFreeform) — outside it, the
+// 24-hour customer-service window (canSendFreeform), outside it, the
 // thread is still shown (so history isn't lost), just read-only, pointing
 // back at the cold-open button to re-open the conversation.
 function renderWhatsAppSection(box, p) {
@@ -547,7 +547,7 @@ function renderWhatsAppSection(box, p) {
 }
 
 // Bubble-style thread, same visual language as Copilot's chat bubbles
-// (inbound left/neutral, outbound right/purple) — kept as a plain HTML
+// (inbound left/neutral, outbound right/purple), kept as a plain HTML
 // string like renderNotes below rather than DOM nodes since it only ever
 // needs a full re-render, never per-message patching.
 function renderWhatsAppThread(prospectId) {
@@ -624,7 +624,7 @@ function renderNotes(prospectId) {
     .join("");
 }
 
-// Fires right after a prospect is moved to Dead — a one-tap reason picker
+// Fires right after a prospect is moved to Dead, a one-tap reason picker
 // so the "why" isn't lost the moment the deal is. Saved as a plain
 // prospect_notes row (see LOST_REASON_MARKER above) so it shows up in this
 // prospect's own Notes tab too, not just the Pipeline Value rollup.

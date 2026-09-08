@@ -62,7 +62,7 @@ let currentView = "dashboard";
 
 export function switchView(name) {
   // Grid Plans opens a per-plan Realtime channel (presence + broadcast) the
-  // moment a plan is opened in the builder — renderGridPlans() itself tears
+  // moment a plan is opened in the builder, renderGridPlans() itself tears
   // that down when going back to the plan list, but not if the user jumps
   // straight to some other tab/sidebar link with a plan still open, which
   // would otherwise leave that channel (and its presence heartbeat) running
@@ -92,7 +92,7 @@ export function switchView(name) {
   // The floating "+" only makes sense where it's unambiguous what it adds.
   // It used to float over every single view (Dashboard, Messages, Team,
   // Settings, ...) which made it feel like a stray button rather than a
-  // clear "add a prospect" action — so it's now shown only on the Pipeline
+  // clear "add a prospect" action, so it's now shown only on the Pipeline
   // view (the "Prospects" list), where tapping it obviously means "add one
   // here."
   document.getElementById("fab-add")?.classList.toggle("show", name === "pipeline");
@@ -320,8 +320,7 @@ function initKeyboardShortcuts() {
   });
 }
 
-// Keeps the toggle button's tooltip/label matching its actual effect —
-// "Minimize" when the sidebar is currently full-width, "Expand" once it's
+// Keeps the toggle button's tooltip/label matching its actual effect, // "Minimize" when the sidebar is currently full-width, "Expand" once it's
 // already collapsed to icons.
 function syncSidebarToggleTitle(btn) {
   btn.title = isSidebarCollapsed() ? "Expand sidebar" : "Minimize sidebar";
@@ -379,7 +378,7 @@ function renderOrgBrand() {
 }
 
 // Keeps the sidebar's profile chip (avatar, name, role) in sync with
-// store.profile — same source the Team view reads from, just mirrored here
+// store.profile, same source the Team view reads from, just mirrored here
 // since the sidebar is always on screen at desktop widths.
 function renderSidebarUser() {
   const p = store.profile;
@@ -408,10 +407,10 @@ function refreshSidebarDueBadge() {
 // The strip under the top bar. It has two separate jobs now, and which one it
 // does depends on whether there is anything waiting in the outbox:
 //
-//   Nothing waiting, no connection — the original message. You can look, and
+//   Nothing waiting, no connection, the original message. You can look, and
 //   what you're looking at is as fresh as the last time there was signal.
 //
-//   Something waiting — say so, and keep saying so even after the connection
+//   Something waiting, say so, and keep saying so even after the connection
 //   comes back, until it has actually gone. That second part is the important
 //   one: the gap between "the phone thinks it has data again" and "the edits
 //   have genuinely reached the server" is where the doubt lives, and it is
@@ -429,7 +428,7 @@ function setOfflineBanner() {
     const thing = waiting === 1 ? "change" : "changes";
     banner.textContent = navigator.onLine
       ? `Sending ${waiting} ${thing}…`
-      : `Offline — ${waiting} ${thing} saved on this phone, will send when you're back online`;
+      : `Offline, ${waiting} ${thing} saved on this phone, will send when you're back online`;
     banner.classList.add("show");
     // "Sending…" is progress, not a problem, so it drops the warning amber
     // and goes purple. Still offline with work queued keeps the amber.
@@ -442,7 +441,7 @@ function setOfflineBanner() {
 }
 
 // Safety net for missed Realtime events. Phones suspend the websocket
-// whenever the app is backgrounded or the screen locks — Supabase's client
+// whenever the app is backgrounded or the screen locks, Supabase's client
 // reconnects on its own (see the SUBSCRIBED handler in state.js), but this
 // covers the same ground from the browser's own lifecycle signals too, so a
 // prospect a teammate added while you were away shows up the moment you
@@ -463,7 +462,7 @@ document.addEventListener("visibilitychange", () => {
 // How long we'll wait on any single boot-time network step (checking the
 // session, loading the profile, loading the pipeline data) before giving up
 // and showing a retry screen. Without this, a stalled request on a flaky
-// mobile-data connection has NO error and NO timeout of its own — it just
+// mobile-data connection has NO error and NO timeout of its own, it just
 // hangs forever, which is what left people stuck on the loading spinner
 // indefinitely on cellular even though the exact same steps work fine on
 // WiFi (where requests rarely stall for this long).
@@ -512,12 +511,11 @@ async function bootApp() {
 
 function showAuthScreen() {
   document.getElementById("boot-loading").style.display = "none";
-  // "block", not "flex" — .auth-wrap (this element's class) has no flex
+  // "block", not "flex", .auth-wrap (this element's class) has no flex
   // styling of its own; .auth-shell (its child) is what does the row/column
   // split-screen layout. Toggling *this* wrapper to display:flex turns it
   // into an unintended row-flex container, and a flex item with no
-  // flex-grow shrinks to its content width instead of filling the screen —
-  // that's what was leaving a dead strip of black down the right edge of
+  // flex-grow shrinks to its content width instead of filling the screen,   // that's what was leaving a dead strip of black down the right edge of
   // the sign-in screen on wide/desktop windows. "block" lets .auth-shell
   // fill 100% of the wrapper's width the normal way.
   document.getElementById("auth-screen").style.display = "block";
@@ -592,7 +590,7 @@ async function enterApp(session) {
     switchView("dashboard");
     refreshDueBadge();
 
-    // One-shot flag set in auth.js right before signUp() — see the comment
+    // One-shot flag set in auth.js right before signUp(), see the comment
     // there. Consumed (removed) immediately so a page reload straight after
     // signing up, or a later ordinary sign-in in the same tab, never shows
     // this twice.

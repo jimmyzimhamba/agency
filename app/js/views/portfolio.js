@@ -3,13 +3,13 @@ import { store, on } from "../state.js";
 import { el, esc, toast } from "../utils.js";
 import { openSheet, closeSheet, confirmModal } from "../ui.js";
 
-// The agency's public "our best work" showcase — case studies of past
+// The agency's public "our best work" showcase, case studies of past
 // client projects that can be shared as a plain link (portfolio.html), no
 // login required on the other end. Different from every other tab: this is
 // the one place in the app with content that's meant to leave the building.
 // Permission model mirrors Niches/Services & Packages: everyone on the team
 // browses the full internal catalog (published or not), only the owner
-// curates it — see migration_portfolio.sql for the RLS/security reasoning.
+// curates it, see migration_portfolio.sql for the RLS/security reasoning.
 
 let filterStatus = "all"; // "all" | "published" | "draft"
 

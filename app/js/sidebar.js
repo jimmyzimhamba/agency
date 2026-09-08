@@ -1,4 +1,4 @@
-// Desktop sidebar collapse ("minimize to icons") — a personal, per-device
+// Desktop sidebar collapse ("minimize to icons"), a personal, per-device
 // layout preference, not an org-wide setting, so it lives in localStorage
 // rather than the profiles table (same reasoning as theme.js: no reason
 // for one teammate's screen layout choice to sync to everyone else's).
@@ -25,7 +25,7 @@ export function setSidebarCollapsed(collapsed) {
   try {
     localStorage.setItem(KEY, collapsed ? "1" : "0");
   } catch {
-    // Private browsing / storage disabled — still applies for this page
+    // Private browsing / storage disabled, still applies for this page
     // load, it just won't be remembered next time. Not worth a toast.
   }
 }

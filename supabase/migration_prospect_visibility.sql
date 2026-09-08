@@ -1,26 +1,26 @@
 -- ============================================================================
--- STUDIO X COMMAND — MIGRATION: Team members only see prospects assigned to them
+-- STUDIO X COMMAND, MIGRATION: Team members only see prospects assigned to them
 -- ============================================================================
 -- What this does, in plain language:
 --   - You (the owner) can still see and manage every prospect, always.
 --   - A team member can now ONLY see a prospect once you've assigned it to
---     them — or if they personally added it themselves.
+--     them, or if they personally added it themselves.
 --   - Team members can no longer "grab" an unclaimed prospect from a shared
---     pool, and they can't hand a prospect to a teammate — only you assign.
+--     pool, and they can't hand a prospect to a teammate, only you assign.
 --   - The team Activity feed and per-prospect Notes now also hide anything
 --     tied to a prospect a team member isn't allowed to see (so a name/status
 --     can't leak through the feed even though the prospect itself is hidden).
---   - The "This Week — Team" leaderboard on the Dashboard keeps working for
+--   - The "This Week, Team" leaderboard on the Dashboard keeps working for
 --     everyone, since it only shows counts (sends/replies/meetings/signed),
 --     never business names.
 --
 -- HOW TO RUN THIS (you already ran the main schema.sql once, so just run
--- this smaller file — don't re-paste the whole schema.sql, it will error
+-- this smaller file, don't re-paste the whole schema.sql, it will error
 -- on things that already exist):
 --   1. Open your Supabase project → SQL Editor → New query.
 --   2. Paste this ENTIRE file in.
 --   3. Click "Run".
--- Nothing in your app or data gets deleted — this only changes who is
+-- Nothing in your app or data gets deleted, this only changes who is
 -- allowed to see/edit which rows.
 -- ============================================================================
 
@@ -50,7 +50,7 @@ create policy "prospects: update own or owner" on public.prospects
 
 -- ----------------------------------------------------------------------------
 -- Harden the "claim" function so a team member can only self-claim a
--- prospect they personally added — never someone else's or your unassigned
+-- prospect they personally added, never someone else's or your unassigned
 -- pool leads. Assignment to a teammate is owner-only from here on.
 -- ----------------------------------------------------------------------------
 create or replace function public.claim_prospect(p_id uuid)
@@ -92,6 +92,6 @@ create policy "notes: read visible prospects" on public.prospect_notes
     exists (select 1 from public.prospects p where p.id = prospect_notes.prospect_id)
   );
 
--- status_history is deliberately left as "read all" — the Dashboard's
+-- status_history is deliberately left as "read all", the Dashboard's
 -- weekly team leaderboard needs it, and it only exposes counts, not
 -- business names, so it's not a privacy concern.

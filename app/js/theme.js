@@ -1,4 +1,4 @@
-// Light/dark mode — a personal, per-device display preference, not an
+// Light/dark mode, a personal, per-device display preference, not an
 // org-wide setting, so it lives in localStorage rather than the profiles
 // table (no reason for a teammate's screen brightness preference to sync
 // to everyone else's phone, and no migration/RLS needed for it either).
@@ -14,7 +14,7 @@
 // hardcoded boundaries genuinely accurate here, and saves pulling in a solar
 // position library to compute something that never moves.
 //
-// Tapping the theme button still wins — but only until the next time the sun
+// Tapping the theme button still wins, but only until the next time the sun
 // comes up or goes down. Someone who forces light mode at 8pm in a bright
 // room gets light mode for that evening, and wakes up to an app that has gone
 // back to following the clock. That way an explicit choice is always honoured
@@ -43,8 +43,7 @@ export function getTheme() {
 
   const at = raw.indexOf("@");
   // A bare "light"/"dark" is the old format from before this was automatic.
-  // Those are treated as no choice at all rather than as a permanent pin —
-  // otherwise everyone who ever touched the toggle would be locked out of the
+  // Those are treated as no choice at all rather than as a permanent pin,   // otherwise everyone who ever touched the toggle would be locked out of the
   // new behaviour and would never see it work.
   if (at < 0) return clockTheme();
 
@@ -55,7 +54,7 @@ export function getTheme() {
   const now = Date.now();
   const elapsed = now - when;
   // The pin lapses when the sun next moves. The elapsed check catches the case
-  // where it is 8pm again exactly one day later — same side of the clock, but
+  // where it is 8pm again exactly one day later, same side of the clock, but
   // obviously a stale choice.
   if (elapsed < 0 || elapsed > PIN_MAX_MS) return clockTheme();
   if (clockTheme(new Date(when)) !== clockTheme(new Date(now))) return clockTheme();
@@ -82,7 +81,7 @@ export function setTheme(mode) {
   try {
     localStorage.setItem(KEY, theme + "@" + Date.now());
   } catch {
-    // Private browsing / storage disabled — theme still applies for this
+    // Private browsing / storage disabled, theme still applies for this
     // page load, it just won't be remembered next time. Not worth a toast.
   }
 }

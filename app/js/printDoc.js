@@ -1,10 +1,10 @@
 // Print / "Save as PDF" for invoices and contracts. Deliberately no PDF
-// library — every desktop and mobile browser's print dialog already offers
+// library, every desktop and mobile browser's print dialog already offers
 // "Save as PDF" as a destination, so filling a hidden #print-area with a
 // clean letterhead-style document and calling window.print() gets a real,
 // shareable PDF with zero new dependencies. The @media print rule in
 // styles.css hides everything else on the page while printing, so the
-// output is just the document — not the app chrome around it.
+// output is just the document, not the app chrome around it.
 import { store, prospectById } from "./state.js";
 import { esc, money, fmtDate } from "./utils.js";
 
@@ -13,7 +13,7 @@ function renderPrintArea(html) {
   if (!area) return;
   area.innerHTML = html;
   // One frame so the browser lays out the freshly-injected content before
-  // the print dialog opens — printing on the same tick can occasionally
+  // the print dialog opens, printing on the same tick can occasionally
   // grab a blank first paint on slower devices.
   requestAnimationFrame(() => window.print());
 }
@@ -95,7 +95,7 @@ export function printContract(contract) {
   renderPrintArea(html);
 }
 
-// One combined "account statement" for a client — every contract's value
+// One combined "account statement" for a client, every contract's value
 // plus every invoice's status/amount, with a running Paid / Outstanding
 // summary. Built entirely from records already in the store (contracts +
 // invoices filtered by prospect_id), same letterhead/table markup as the

@@ -1,13 +1,12 @@
-// Badges & Achievements — client-side catalog.
+// Badges & Achievements, client-side catalog.
 // This is DISPLAY ONLY: label, description, icon, and tier for each badge
 // key. The actual unlocking happens entirely server-side in
-// supabase/migration_badges.sql (check_and_award_badges()) — this file just
+// supabase/migration_badges.sql (check_and_award_badges()), this file just
 // needs to know the same keys so it can render them. If you add a badge to
 // the SQL catalog, add a matching entry here (same badge_key) or it'll show
 // up unlocked with no name/icon.
 //
-// tier: "purple" = easy/first-time badges, "gold" = volume/mastery badges —
-// same purple/gold split the rest of the app already uses for "regular" vs.
+// tier: "purple" = easy/first-time badges, "gold" = volume/mastery badges, // same purple/gold split the rest of the app already uses for "regular" vs.
 // "special" (see .icon-badge / .icon-badge.gold in styles.css).
 
 export const BADGES = [

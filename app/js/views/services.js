@@ -3,13 +3,13 @@ import { store, on } from "../state.js";
 import { el, esc, money, toast, toCSV, downloadTextFile } from "../utils.js";
 import { openSheet, closeSheet, confirmModal } from "../ui.js";
 
-// The agency's own sellable catalog — fixed, named service offerings with a
-// price and a turnaround estimate (e.g. "Starter Social Package — $500/mo,
+// The agency's own sellable catalog, fixed, named service offerings with a
+// price and a turnaround estimate (e.g. "Starter Social Package, $500/mo,
 // 5 business days"). Distinct from Deal Pricing (dealPricing.js), which is a
 // market-band *calculator* keyed on a client's segment, not a list of what
 // the agency actually sells. Permission model mirrors Niches, not
 // Contracts/Invoices/Projects: everyone reads the catalog (to quote a client
-// accurately) but only the owner curates it — a service catalog is a
+// accurately) but only the owner curates it, a service catalog is a
 // pricing/positioning decision, not day-to-day delivery work.
 
 let filterCategory = "all";

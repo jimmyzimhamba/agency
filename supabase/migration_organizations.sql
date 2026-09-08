@@ -1,15 +1,15 @@
 -- ============================================================================
--- STUDIO X COMMAND — MIGRATION: multi-tenant organizations
+-- STUDIO X COMMAND, MIGRATION: multi-tenant organizations
 -- ============================================================================
 -- What this does, in plain language:
 --   Until now, every row in this database belonged to one single team
 --   (Studio X). This migration turns "Agency Command" into something other
 --   agencies can sign up and use too, fully walled off from each other:
 --
---     1. Adds an `organizations` table — one row per agency.
+--     1. Adds an `organizations` table, one row per agency.
 --     2. Gives every existing table an `org_id` column, and backfills all
 --        of Studio X's existing data into one "Studio X Marketing"
---        organization automatically — nothing is lost or reassigned by hand.
+--        organization automatically, nothing is lost or reassigned by hand.
 --     3. Rewrites every security rule (RLS policy) so a user can only ever
 --        see/edit rows that belong to their own organization. An owner at
 --        Agency A can never see Agency B's prospects, team, goals, etc.
@@ -18,7 +18,7 @@
 --        an invite code its owner shares with them. See the matching
 --        frontend changes in app/js/auth.js and app/index.html.
 --
--- This is safe to run on your existing live database — it does not delete
+-- This is safe to run on your existing live database, it does not delete
 -- or move any of your current prospects, notes, activity, templates, etc.
 -- Everything you already have becomes "Studio X Marketing" org data.
 --
@@ -90,8 +90,7 @@ begin
   update public.monthly_goal set org_id = default_org_id where org_id is null;
 
   -- research_requests is an invisible internal rate-limit log (see schema.sql)
-  -- with no client-facing read policy either way, so it stays nullable —
-  -- not worth tightening today.
+  -- with no client-facing read policy either way, so it stays nullable,   -- not worth tightening today.
   alter table public.research_requests add column if not exists org_id uuid references public.organizations (id) on delete set null;
   update public.research_requests set org_id = default_org_id where org_id is null;
 end $$;
@@ -127,7 +126,7 @@ alter table public.monthly_goal add constraint monthly_goal_org_month_key unique
 
 -- ----------------------------------------------------------------------------
 -- 3. HELPER  "what organization does the currently logged-in person belong
---    to?" — security definer so it can read profiles without recursing
+--    to?", security definer so it can read profiles without recursing
 --    through the RLS policy that itself calls this function.
 -- ----------------------------------------------------------------------------
 create or replace function public.my_org_id()
@@ -163,7 +162,7 @@ $$;
 
 -- Auto-stamps org_id on insert for any table that has the column, so the
 -- app's existing insert calls (which don't know about organizations at all)
--- don't all need to be rewritten — the database fills it in from whoever's
+-- don't all need to be rewritten, the database fills it in from whoever's
 -- actually logged in.
 create or replace function public.stamp_org_id()
 returns trigger
@@ -206,7 +205,7 @@ create trigger trg_monthly_goal_org before insert on public.monthly_goal
   for each row execute function public.stamp_org_id();
 
 -- ----------------------------------------------------------------------------
--- 4. ORGANIZATIONS  RLS — you can only see/edit your own agency's row.
+-- 4. ORGANIZATIONS  RLS, you can only see/edit your own agency's row.
 -- ----------------------------------------------------------------------------
 drop policy if exists "organizations: read own org" on public.organizations;
 create policy "organizations: read own org" on public.organizations
@@ -216,12 +215,12 @@ drop policy if exists "organizations: owner updates" on public.organizations;
 create policy "organizations: owner updates" on public.organizations
   for update using (id = public.my_org_id() and public.is_owner())
   with check (id = public.my_org_id() and public.is_owner());
--- No insert/delete policy for ordinary clients — new organizations are only
+-- No insert/delete policy for ordinary clients, new organizations are only
 -- ever created by the handle_new_user trigger below (runs as security
 -- definer, bypasses RLS).
 
 -- ----------------------------------------------------------------------------
--- 5. PROFILES  RLS — add the organization boundary on top of the existing
+-- 5. PROFILES  RLS, add the organization boundary on top of the existing
 --    rules (see schema.sql for the original policies these replace).
 -- ----------------------------------------------------------------------------
 drop policy if exists "profiles: read all" on public.profiles;
@@ -287,7 +286,7 @@ create policy "prospects: owner deletes" on public.prospects
   for delete using (org_id = public.my_org_id() and public.is_owner());
 
 -- claim_prospect() runs as security definer (bypasses RLS on purpose, so the
--- "never worked twice" race-condition check is atomic) — which means it has
+-- "never worked twice" race-condition check is atomic), which means it has
 -- to enforce the organization boundary itself in the WHERE clause, or an
 -- agent could theoretically pass another agency's prospect id straight
 -- through to it.
@@ -375,7 +374,7 @@ begin
 end;
 $$;
 
--- log_new_note() also writes to activity_log as security definer — same
+-- log_new_note() also writes to activity_log as security definer, same
 -- treatment, org_id copied from the prospect the note belongs to.
 create or replace function public.log_new_note()
 returns trigger
@@ -396,8 +395,7 @@ begin
 end;
 $$;
 
--- prospect_notes itself doesn't need an org_id column or policy change —
--- its existing "notes: read visible prospects" policy already checks
+-- prospect_notes itself doesn't need an org_id column or policy change, -- its existing "notes: read visible prospects" policy already checks
 -- `exists (select 1 from prospects p where p.id = prospect_notes.prospect_id)`,
 -- and that subquery runs through prospects' own (now org-scoped) RLS, so
 -- visibility is already correctly restricted to your organization.
@@ -538,14 +536,13 @@ $$;
 
 -- ============================================================================
 -- DONE. Next steps:
---   1. Re-deploy the manage-team-member Edge Function — its code now also
+--   1. Re-deploy the manage-team-member Edge Function, its code now also
 --      checks that the person being removed/restored belongs to the same
 --      organization as the owner calling it.
 --   2. Deploy the updated app/ folder (Netlify Drop, as usual).
---   3. Everyone currently on your team keeps working exactly as before —
---      they're all in "Studio X Marketing" now. Any brand-new sign-up from
+--   3. Everyone currently on your team keeps working exactly as before, --      they're all in "Studio X Marketing" now. Any brand-new sign-up from
 --      here on picks "Create a new agency" or "Join with an invite code".
 --   4. Studio X's own invite code is visible on the Team & Settings screen
---      (owner view) — share that with any new teammate who should join
+--      (owner view), share that with any new teammate who should join
 --      YOUR agency, so they don't accidentally create their own.
 -- ============================================================================

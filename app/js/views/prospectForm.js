@@ -179,7 +179,7 @@ export function buildProspectForm(existing, onSaved) {
 
       if (existing) {
         // Correcting a prospect that is still waiting to be sent is handled
-        // entirely on the phone — there is no server row to update yet, so an
+        // entirely on the phone, there is no server row to update yet, so an
         // ordinary save would just fail. Editing a prospect that IS on the
         // server stays a live write: it's a whole form of fields, usually done
         // sitting down, and queueing it could quietly overwrite a colleague's
@@ -199,12 +199,11 @@ export function buildProspectForm(existing, onSaved) {
         const assignMe = wrap.querySelector("#pf-assign-me");
         if (assignSel) payload.assigned_to = assignSel.value || null;
         else if (assignMe) payload.assigned_to = assignMe.checked ? store.profile.id : null;
-        // A teammate typing their own message means "skip auto-research" —
-        // only kick off AI research when the message box was left blank.
+        // A teammate typing their own message means "skip auto-research",         // only kick off AI research when the message box was left blank.
         const wantsResearch = !payload.outreach_message;
 
         // Goes through the outbox rather than straight to Supabase, so that
-        // writing down a shop works with no signal — see outbox.js. Online this
+        // writing down a shop works with no signal, see outbox.js. Online this
         // sends immediately and behaves as it always did; the difference only
         // shows on a bad connection, where the prospect appears now and is sent
         // when there is one. The push notification and the AI research are
@@ -225,7 +224,7 @@ export function buildProspectForm(existing, onSaved) {
       if (onSaved) onSaved();
     };
 
-    // Only flag possible duplicates on brand-new prospects — editing an
+    // Only flag possible duplicates on brand-new prospects, editing an
     // existing one obviously matches itself, that's not a duplicate.
     if (!existing) {
       const dupe = findDuplicateProspect(name, payload.whatsapp_number, store.prospects);

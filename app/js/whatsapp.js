@@ -1,8 +1,8 @@
 // ============================================================================
-// STUDIO X COMMAND — WhatsApp (Twilio in-app conversation thread)
+// STUDIO X COMMAND, WhatsApp (Twilio in-app conversation thread)
 // ============================================================================
 // The cold-open "Send WhatsApp" button (see buildWhatsAppLink in utils.js)
-// stays a plain wa.me deep link — a human sending that first message from
+// stays a plain wa.me deep link, a human sending that first message from
 // their own WhatsApp app is never subject to WhatsApp's 24-hour
 // customer-service window. This module is only for what happens AFTER a
 // prospect has replied at least once: a real in-app conversation thread,
@@ -13,7 +13,7 @@
 import { sb } from "./supabaseClient.js";
 
 // Mirrors the 24-hour check enforced authoritatively in
-// supabase/functions/send-whatsapp/index.ts — this copy is just so the UI
+// supabase/functions/send-whatsapp/index.ts, this copy is just so the UI
 // can decide up front whether to show the reply box or point back at the
 // cold-open button, without waiting on a round-trip that's just going to
 // say no anyway. The server is the one that actually enforces it.

@@ -3,7 +3,7 @@ import { store, on, profileById } from "../state.js";
 import { el, esc, toast, avatarHTML, timeAgo } from "../utils.js";
 import { confirmModal } from "../ui.js";
 
-// A team-only social feed — wins, shout-outs, quick updates, announcements.
+// A team-only social feed, wins, shout-outs, quick updates, announcements.
 // Different from the Activity Feed (auto-generated system log of "created a
 // contract"-type events, read-only) and from Messages (a template library,
 // not a conversation). Permission model is deliberately the OPPOSITE of
@@ -14,7 +14,7 @@ import { confirmModal } from "../ui.js";
 // for the full RLS reasoning.
 //
 // Post images live in the private "community-media" bucket (org-scoped
-// folder + createSignedUrl on read) — same pattern as grid-media, NOT
+// folder + createSignedUrl on read), same pattern as grid-media, NOT
 // portfolio-media's public bucket, since this content is internal team
 // chatter with no reason to ever be publicly reachable.
 

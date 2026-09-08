@@ -1,5 +1,5 @@
 // ============================================================================
-// STUDIO X COMMAND — Edge Function: send-push
+// STUDIO X COMMAND, Edge Function: send-push
 // ============================================================================
 // What this does, in plain language:
 //   The app calls this function right after two specific moments:
@@ -10,7 +10,7 @@
 //   from) and send each one a pop-up via the Web Push protocol. Nobody gets
 //   a pop-up unless they've explicitly turned notifications on themselves
 //   from the Team screen.
-//   Runs entirely server-side — the private VAPID signing key never touches
+//   Runs entirely server-side, the private VAPID signing key never touches
 //   the app or the browser. See SETUP.md for how to deploy this and set
 //   that key as a secret.
 // ============================================================================
@@ -39,7 +39,7 @@ Deno.serve(async (req: Request) => {
 
   try {
     if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY) {
-      // Notifications simply aren't configured yet — fail quietly so this
+      // Notifications simply aren't configured yet, fail quietly so this
       // never blocks the actual prospect add/assign action that triggered it.
       return json({ sent: 0, skipped: "VAPID keys not configured" }, 200);
     }
@@ -91,7 +91,7 @@ Deno.serve(async (req: Request) => {
 
     if (!subs || !subs.length) return json({ sent: 0 }, 200);
 
-    // "/app.html", not "/" — the site root is now the public marketing
+    // "/app.html", not "/", the site root is now the public marketing
     // landing page (see app/index.html); a push notification should always
     // open straight into the real app.
     const payload = JSON.stringify({ title, body, url: "/app.html" });
@@ -108,7 +108,7 @@ Deno.serve(async (req: Request) => {
           sent++;
         } catch (err: any) {
           // 404/410 means the browser has unsubscribed or the subscription
-          // expired — clean it up so we stop wasting sends on it.
+          // expired, clean it up so we stop wasting sends on it.
           const status = err?.statusCode;
           if (status === 404 || status === 410) staleIds.push(sub.id);
         }

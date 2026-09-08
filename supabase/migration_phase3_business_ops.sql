@@ -1,5 +1,5 @@
 -- ============================================================================
--- Agency Command — Phase 3: Contracts, Invoices, Projects
+-- Agency Command, Phase 3: Contracts, Invoices, Projects
 -- ============================================================================
 -- Adds three new org-scoped modules for what happens AFTER a prospect signs:
 -- Contracts (drafted/sent/signed agreements), Invoices (billing), and
@@ -15,7 +15,7 @@
 -- and public.touch_updated_at(), all defined there).
 --
 -- HOW TO RUN: Supabase Dashboard → SQL Editor → paste this whole file → Run.
--- Safe to re-run — every statement is guarded (if not exists / or replace /
+-- Safe to re-run, every statement is guarded (if not exists / or replace /
 -- drop policy if exists).
 -- ============================================================================
 
@@ -86,7 +86,7 @@ begin
 
   if tg_op = 'INSERT' then
     insert into public.activity_log (actor_id, prospect_id, message, org_id)
-    values (auth.uid(), new.prospect_id, actor_name || ' drafted a contract — ' || new.title, new.org_id);
+    values (auth.uid(), new.prospect_id, actor_name || ' drafted a contract: ' || new.title, new.org_id);
     return new;
   end if;
 
@@ -252,7 +252,7 @@ begin
 
   if tg_op = 'INSERT' then
     insert into public.activity_log (actor_id, prospect_id, message, org_id)
-    values (auth.uid(), new.prospect_id, actor_name || ' started a project — ' || new.name, new.org_id);
+    values (auth.uid(), new.prospect_id, actor_name || ' started a project: ' || new.name, new.org_id);
     return new;
   end if;
 
@@ -269,7 +269,7 @@ drop trigger if exists trg_projects_activity on public.projects;
 create trigger trg_projects_activity after insert or update on public.projects
   for each row execute function public.log_project_changes();
 
--- Per-project checklist (deliverables) — a much simpler cousin of
+-- Per-project checklist (deliverables), a much simpler cousin of
 -- daily_tasks: no per-agent completion tracking, just a shared list of
 -- done/not-done items scoped to one project.
 create table if not exists public.project_tasks (
@@ -292,7 +292,7 @@ create policy "project_tasks: read org" on public.project_tasks
   for select using (org_id = public.my_org_id());
 
 -- Insert/update/delete are open to anyone in the org (not just the project's
--- creator) — a project's checklist is shared delivery work, same spirit as
+-- creator), a project's checklist is shared delivery work, same spirit as
 -- the shared daily checklist, so any teammate helping on it can tick items
 -- off or add a new one. The subquery on insert makes sure you can only file
 -- tasks under a project you can actually see (i.e. one in your own org).
@@ -345,10 +345,10 @@ end $$;
 
 -- ============================================================================
 -- DONE. After running this in the SQL Editor:
---   1. Redeploy the frontend (app/ folder via Netlify Drop) — sw.js's
+--   1. Redeploy the frontend (app/ folder via Netlify Drop), sw.js's
 --      CACHE_VERSION was bumped so every phone picks up the new views.
 --   2. New sidebar links: Contracts, Invoices, Projects (under a new
---      "Business" group) — visible to everyone, editing rules enforced by
+--      "Business" group), visible to everyone, editing rules enforced by
 --      the RLS policies above (draft freely, owner/creator edits, owner
 --      deletes).
 -- ============================================================================

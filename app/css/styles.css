@@ -1,5 +1,5 @@
 /* ===========================================================================
-   AGENCY COMMAND — design system
+   AGENCY COMMAND, design system
    Crushed black, violet glow, gold accents. Mobile-first, cinematic,
    scales up responsively on tablet/desktop widths.
    =========================================================================== */
@@ -34,7 +34,7 @@
   --info: #5fb0ff;
   --info-dim: rgba(95, 176, 255, 0.16);
 
-  /* Bumped from 10px — the reference UI (Biiblo) reads noticeably softer/
+  /* Bumped from 10px, the reference UI (Biiblo) reads noticeably softer/
      rounder everywhere (inputs, small cards, nav rows) than our old value.
      This is a single-variable nudge that cascades to every component below
      that already keys off --radius-sm, instead of hand-editing each one. */
@@ -55,8 +55,7 @@
 
 /* ---- light mode -----------------------------------------------------------
    Toggled by setting data-theme="light" on <html> (see js/theme.js). Every
-   virtually-black surface flips to an off-white one and text flips dark —
-   but --purple/--gold/--danger/--success/--warn/--info (the brand + status
+   virtually-black surface flips to an off-white one and text flips dark,    but --purple/--gold/--danger/--success/--warn/--info (the brand + status
    colors themselves) are deliberately left untouched, so the app reads as
    the same product in a different lighting, not a different palette. The
    *-dim tints are also left as-is: they're already translucent overlays,
@@ -84,7 +83,7 @@
   background: rgba(255, 255, 255, 0.88);
 }
 /* The ambient purple/gold glows and film-grain texture were tuned to sit
-   quietly behind a near-black page — at the same strength on white they'd
+   quietly behind a near-black page, at the same strength on white they'd
    read as a visible colored wash instead of ambience, so they're dialed
    back rather than removed outright. */
 :root[data-theme="light"] .grain { opacity: 0.02; }
@@ -113,7 +112,7 @@ body {
 
    It lives here as one rule rather than as attributes on each icon for two
    reasons. There are around eighty icons spread across app.html and a dozen
-   view files, so as attributes this would be eighty chances to miss one — and
+   view files, so as attributes this would be eighty chances to miss one, and
    in fact only fifteen of them had ever been given round caps, which is
    exactly how the set drifted. And any icon added later inherits the house
    style for free instead of depending on whoever adds it remembering.
@@ -160,7 +159,7 @@ svg {
 }
 .ambient-glow.a { top: -80px; left: -60px; width: 260px; height: 260px; background: var(--purple); }
 .ambient-glow.b { bottom: 40px; right: -80px; width: 220px; height: 220px; background: var(--gold); opacity: 0.12; }
-/* A slow, barely-there drift — makes the whole app (and the marketing
+/* A slow, barely-there drift, makes the whole app (and the marketing
    homepage, which shares this stylesheet) feel a little alive instead of
    a static gradient sitting in the corner forever. Transform-only (no
    layout thrash) and skipped entirely for anyone with reduced-motion on. */
@@ -207,7 +206,7 @@ button { font-family: inherit; }
   -webkit-background-clip: text; background-clip: text; color: transparent;
 }
 
-/* Dashboard's "Welcome back" greeting — bold gradient text with a soft
+/* Dashboard's "Welcome back" greeting, bold gradient text with a soft
    glow behind it. text-shadow still renders around the glyph outlines even
    though the fill itself is transparent (background-clip:text), so the two
    combine into a "glowing gradient" look without needing an extra element.
@@ -221,7 +220,7 @@ button { font-family: inherit; }
 }
 /* Light mode gets a plain deep purple instead. The gradient above is built for
    a dark page and falls apart on a light one: it opens at #fff, so the first
-   word — "Welcome" — fades out against a near white background, and the glow
+   word, "Welcome", fades out against a near white background, and the glow
    then bleeds through letters that are transparent by design, which reads as a
    blurry smear rather than as a greeting.
 
@@ -251,7 +250,7 @@ button { font-family: inherit; }
 .db-collapse-head.open .db-collapse-arrow { transform: rotate(180deg); }
 
 /* ---------------------------------------------------------------------------
-   Pitch Practice — the face-down card you tap to draw, and the objection card
+   Pitch Practice, the face-down card you tap to draw, and the objection card
    it turns into. The face-down state is deliberately a bit theatrical (big
    mark, gradient, lifts on hover): drawing a card should feel like drawing a
    card, and that half-second of "what am I about to get" is the whole reason
@@ -285,7 +284,7 @@ button { font-family: inherit; }
   padding-left: 12px; border-left: 3px solid var(--purple);
 }
 
-/* Hidden by default — only the desktop breakpoint below turns it on, where
+/* Hidden by default, only the desktop breakpoint below turns it on, where
    the brand has moved into the sidebar and left this bar otherwise empty. */
 .topbar-page {
   display: none;
@@ -303,13 +302,13 @@ button { font-family: inherit; }
 .icon-btn:active { transform: scale(0.94); }
 
 /* The theme-toggle icon-btn holds both a moon and a sun glyph and shows
-   only the one matching what tapping it will switch you INTO — sun (go
+   only the one matching what tapping it will switch you INTO, sun (go
    light) while in dark mode, moon (go dark) while in light mode. */
 #btn-theme .icon-sun { display: none; }
 :root[data-theme="light"] #btn-theme .icon-moon { display: none; }
 :root[data-theme="light"] #btn-theme .icon-sun { display: block; }
 
-/* Biiblo-style icon treatment — a rounded-square tinted badge behind an
+/* Biiblo-style icon treatment, a rounded-square tinted badge behind an
    icon, instead of our older plain circular .icon-btn. Not retrofitted
    everywhere (that'd be a much bigger visual pass), but available for new
    feature/section markup that wants that "SaaS card" icon look. */
@@ -320,12 +319,12 @@ button { font-family: inherit; }
 }
 .icon-badge svg { width: 19px; height: 19px; }
 .icon-badge.gold { background: var(--gold-dim); color: var(--gold-soft); }
-/* Compact variant for list rows (the phone "More" sheet) — same tinted-
+/* Compact variant for list rows (the phone "More" sheet), same tinted-
    square treatment, just sized to sit next to a single line of text
    instead of a card heading. */
 .icon-badge.sm { width: 30px; height: 30px; border-radius: 9px; }
 .icon-badge.sm svg { width: 15px; height: 15px; }
-/* Achievements wall — a badge the person hasn't unlocked yet. Same shape,
+/* Achievements wall, a badge the person hasn't unlocked yet. Same shape,
    dimmed and desaturated so unlocked (colored) ones visually "pop" out of
    the grid without needing a separate empty-state layout. */
 .icon-badge.locked {
@@ -343,7 +342,7 @@ button { font-family: inherit; }
 .badges-grid {
   display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;
 }
-/* AI avatar picker (Edit Profile modal) — a grid of DiceBear preset
+/* AI avatar picker (Edit Profile modal), a grid of DiceBear preset
    thumbnails the person can tap instead of uploading a photo. */
 .avatar-preset {
   width: 40px; height: 40px; border-radius: 50%; overflow: hidden; cursor: pointer;
@@ -365,7 +364,7 @@ button { font-family: inherit; }
    Phone widths: .app-sidebar stays hidden and .app-main-col behaves exactly
    like the old single-column shell (topbar + bottom nav). Past the desktop
    breakpoint below, a persistent left rail takes over navigation and the
-   bottom nav/FAB step aside — same views, same data, wider chrome. -------*/
+   bottom nav/FAB step aside, same views, same data, wider chrome. -------*/
 .app-layout { display: block; }
 .app-main-col { min-width: 0; }
 .app-sidebar { display: none; }
@@ -389,7 +388,7 @@ button { font-family: inherit; }
 .sidebar-link svg { width: 18px; height: 18px; flex: 0 0 auto; opacity: 0.85; }
 .sidebar-link:hover { background: rgba(255,255,255,0.04); color: var(--text); }
 /* Reference nav highlights the active item as a solid filled pill (not a
-   soft tint) — same idea here, just in our purple instead of their green,
+   soft tint), same idea here, just in our purple instead of their green,
    per "keep the colours" instructions. */
 .sidebar-link.active { background: linear-gradient(135deg, var(--purple), #5c1fd1); color: #fff; box-shadow: 0 6px 16px -8px var(--purple-glow); }
 .sidebar-link.active svg { opacity: 1; filter: none; }
@@ -405,7 +404,7 @@ button { font-family: inherit; }
 .sidebar-foot-name { font-size: 13px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .sidebar-foot-role { font-size: 11px; color: var(--text-faint); text-transform: capitalize; }
 
-/* Minimize-to-icons toggle — a small circular button that straddles the
+/* Minimize-to-icons toggle, a small circular button that straddles the
    sidebar's right edge (half in, half out), matching the floating-chevron
    pattern from the reference app. Sits on top of everything else in the
    sidebar via position:absolute against .app-sidebar's own positioning
@@ -444,11 +443,11 @@ button { font-family: inherit; }
   .app-main-col .fab { bottom: 24px; max-width: none; }
 }
 
-/* Collapsed ("minimized") sidebar — icon rail only. Only takes effect at
+/* Collapsed ("minimized") sidebar, icon rail only. Only takes effect at
    the same desktop breakpoint the sidebar itself appears at; on phone
    widths the attribute is simply inert since .app-sidebar is display:none
    there regardless. Labels/search/group headings are hidden rather than
-   removed, so switching back just fades the same DOM back in — no
+   removed, so switching back just fades the same DOM back in, no
    re-render, no lost scroll position. */
 :root[data-sidebar="collapsed"] {
   --sidebar-w: var(--sidebar-w-collapsed);
@@ -555,7 +554,7 @@ main {
    here to see. ------------------------------------------------------------ */
 
 /* Registering this as a real number is what lets the highlight FADE rather
-   than blink off — un-registered custom properties can't be transitioned.
+   than blink off, un-registered custom properties can't be transitioned.
    Browsers without @property just skip this block; the effect still works,
    it only loses the fade-out, which is why every use below also carries a
    `, 0` fallback rather than relying on initial-value. */
@@ -630,7 +629,7 @@ main {
       rotateX(var(--rx, 0deg))
       rotateY(var(--ry, 0deg))
       translate3d(0, -2px, 0);
-    /* No transform transition while lit — the tilt has to track the cursor,
+    /* No transform transition while lit, the tilt has to track the cursor,
        not lag a third of a second behind it. It's restored on release above,
        which is what lets the card settle back level instead of snapping. */
     transition: --glass-lit 0.35s ease;
@@ -651,8 +650,8 @@ main {
 .stat-card.purple .num { color: var(--purple-soft); }
 
 /* ---- buttons ------------------------------------------------------------
-   Reference UI (Biiblo) uses fully pill-shaped buttons — rounded ends,
-   medium (not black) weight, small hover lift — instead of our old
+   Reference UI (Biiblo) uses fully pill-shaped buttons, rounded ends,
+   medium (not black) weight, small hover lift, instead of our old
    10px-radius, heavy-weight rectangles. Shape/weight/motion changed here;
    every variant keeps its existing colour exactly as-is. */
 .btn {
@@ -697,7 +696,7 @@ main {
    as washed-out labels. The tinted backgrounds carry over unchanged: they
    are translucent overlays and already sit correctly on either surface.
    Both shades are picked to clear WCAG AA (4.5:1) against the tint-over-white
-   these labels actually sit on — measured 4.86:1 and 5.35:1. The obvious
+   these labels actually sit on, measured 4.86:1 and 5.35:1. The obvious
    lighter picks looked fine on screen but only reached ~4.0:1 and ~4.4:1. */
 :root[data-theme="light"] .btn-whatsapp { color: #0b7a3b; }
 :root[data-theme="light"] .btn-gold { color: #7a6011; }
@@ -720,7 +719,7 @@ main {
 
 /* ---- toggle switch --------------------------------------------------------
    iOS-style on/off pill. Currently powers the Appearance (dark/light) switch
-   in Team & Settings, but is a generic reusable component — the underlying
+   in Team & Settings, but is a generic reusable component, the underlying
    checkbox stays screen-reader/keyboard accessible, only its default box is
    hidden and re-drawn as the track+thumb via the two sibling <span>s. */
 .switch { position: relative; display: inline-block; width: 44px; height: 26px; flex: 0 0 auto; cursor: pointer; }
@@ -793,7 +792,7 @@ main {
 .chip.active { background: var(--purple-dim); border-color: var(--purple); color: var(--purple-soft); }
 .chip.gold.active { background: var(--gold-dim); border-color: var(--gold); color: var(--gold-soft); }
 
-/* Pipeline "Saved Views" chips — same base chip, plus a small inline
+/* Pipeline "Saved Views" chips, same base chip, plus a small inline
    delete control so removing a view doesn't need a separate manage screen. */
 .view-chip { display: inline-flex; align-items: center; gap: 6px; }
 .view-chip-x {
@@ -832,7 +831,7 @@ main {
 
    What a row drops: the heat bar and the WhatsApp/Details buttons. What it
    keeps: the tier stripe, the name, where they are, the status pill and every
-   warning flag — i.e. everything that would change whether you pick this row
+   warning flag, i.e. everything that would change whether you pick this row
    out of the list at all. */
 /* Card view flows into 2-3 columns on a wide screen (see the responsive block
    at the bottom of this file). List view deliberately does not: a list you
@@ -859,7 +858,7 @@ main {
 .prospect-list.compact .prospect-card:last-child {
   border-bottom-left-radius: var(--radius-md); border-bottom-right-radius: var(--radius-md);
 }
-/* A hovered row needs to look pickable — in card view the card itself is the
+/* A hovered row needs to look pickable, in card view the card itself is the
    affordance, in list view the highlight is. Raised above its neighbours so
    the overlapped borders don't clip the highlight edge. */
 .prospect-list.compact .prospect-card:hover { background-color: var(--black-raised); z-index: 1; }
@@ -875,7 +874,7 @@ main {
 .prospect-list.compact .prospect-card.select-mode { padding-left: 38px; }
 .prospect-list.compact .select-check { top: 10px; }
 
-/* Pipeline bulk-select mode — a checkbox overlay on each card, plus a fixed
+/* Pipeline bulk-select mode, a checkbox overlay on each card, plus a fixed
    action bar above the bottom nav so status/assign/mark-dead changes can be
    applied to many prospects in one shot instead of opening each one. */
 .prospect-card.select-mode { padding-left: 38px; }
@@ -909,8 +908,7 @@ main {
 .status-pill.signed { background: var(--success-dim); color: var(--success); }
 .status-pill.dead { background: var(--danger-dim); color: var(--danger); }
 
-/* Shared with Contracts / Invoices / Projects (business-ops modules) —
-   same .status-pill base, a few extra status names layered on top. */
+/* Shared with Contracts / Invoices / Projects (business-ops modules),    same .status-pill base, a few extra status names layered on top. */
 .status-pill.draft { background: rgba(255,255,255,0.06); color: var(--text-dim); }
 .status-pill.paid { background: var(--success-dim); color: var(--success); }
 .status-pill.void { background: var(--danger-dim); color: var(--danger); }
@@ -918,7 +916,7 @@ main {
 .status-pill.in_progress { background: var(--info-dim); color: var(--info); }
 .status-pill.blocked { background: var(--danger-dim); color: var(--danger); }
 
-/* Dashboard "Needs Follow-up" widget — a lead that's gone quiet, distinct
+/* Dashboard "Needs Follow-up" widget, a lead that's gone quiet, distinct
    from any real pipeline status, so it gets its own look (same amber as
    "replied" reads as "needs attention" without implying a status change). */
 .status-pill.stale { background: var(--warn-dim); color: var(--warn); }
@@ -931,7 +929,7 @@ main {
 
 .conflict-flag { font-size: 10px; font-weight: 700; padding: 3px 7px; border-radius: 6px; background: var(--danger-dim); color: var(--danger); }
 
-/* "SENDING…" — a prospect written down on someone's phone that hasn't reached
+/* "SENDING…", a prospect written down on someone's phone that hasn't reached
    the server yet, and the matching explanation card at the top of that
    prospect's detail sheet.
 
@@ -956,7 +954,7 @@ main {
 
 .empty-state { text-align: center; padding: 50px 20px; color: var(--text-faint); }
 /* Reference empty states sit the icon inside a soft tinted circle rather
-   than a bare dim glyph — same purple tint used by .icon-badge elsewhere,
+   than a bare dim glyph, same purple tint used by .icon-badge elsewhere,
    just circular and larger since it's the sole focal point of the state. */
 .empty-state svg {
   width: 40px; height: 40px; margin-bottom: 12px; padding: 14px;
@@ -1040,7 +1038,7 @@ main {
   /* Drill-down list modals (dashboard "needs follow-up", messages "sent"
      bucket, contracts pending-signature, etc.) can render dozens of rows.
      Without a height cap the box just grows past the viewport in both
-     directions with no way to reach the rest — "can't scroll it" — since
+     directions with no way to reach the rest, "can't scroll it", since
      .modal-backdrop centers it but never clips or scrolls it. Capping the
      box itself (minus the backdrop's 20px padding on each side) and letting
      it scroll internally fixes every openModal() list at once; short modals
@@ -1125,7 +1123,7 @@ main {
    reuse --info/--warn/--success the way .status-pill does: a pill puts the
    color on *text* over a dim tint, but a donut arc is a solid block on a near
    white card, and measured against #f4f3f7 the stock colors come out at
-   1.62:1 (warn), 1.74:1 (success) and 2.08:1 (info) — well under the 3:1 WCAG
+   1.62:1 (warn), 1.74:1 (success) and 2.08:1 (info), well under the 3:1 WCAG
    asks of a graphical object. That matters here because the arcs are the one
    place color is NOT redundant: a legend row says "Sent" next to its dot, but
    a slice of ring is only identifiable by its color.
@@ -1215,7 +1213,7 @@ main {
    doubles as the day/night switch: light mode is midday over Harare, dark mode
    is the same street after dark with the windows and the streetlamps lit. Both
    skies are always in the SVG and one is hidden here, so flipping the theme
-   re-skins the town instantly without a re-render — and the town can never be
+   re-skins the town instantly without a re-render, and the town can never be
    caught showing stars at midday because it happened to be drawn first.
 
    The buildings are filled from each niche's hue in oklch(), one shade for the
@@ -1271,14 +1269,14 @@ main {
 .emp-scroll::-webkit-scrollbar-thumb { background: var(--chart-track); border-radius: 4px; }
 .emp-svg { display: block; }
 
-/* Day and night. SVG elements default to display:inline, not block — using
+/* Day and night. SVG elements default to display:inline, not block, using
    "block" here would work in Chrome and quietly break the layout elsewhere. */
 .emp-day { display: none; }
 :root[data-theme="light"] .emp-day { display: inline; }
 :root[data-theme="light"] .emp-night { display: none; }
 
 /* Gradient stops are set here rather than as stop-color="" attributes because
-   var() is only substituted in CSS declarations — as an SVG presentation
+   var() is only substituted in CSS declarations, as an SVG presentation
    attribute it is invalid and the stop renders black. Same trap as the donut's
    stroke on the dashboard. */
 .emp-sky-a { stop-color: var(--emp-sky-top); }
@@ -1302,7 +1300,7 @@ main {
 /* Motion. Everything below is inside a no-preference gate: a phone set to
    reduce motion gets exactly the town as it was, still and correct, rather
    than a degraded version of the animated one. Nothing here carries meaning
-   that is only visible while it moves — the sun's position says what time it
+   that is only visible while it moves, the sun's position says what time it
    is whether or not it is animating there.
 
    transform-box: fill-box makes percentage transform-origins resolve against
@@ -1373,7 +1371,7 @@ main {
   }
 
   /* Each limb pivots about its own hip or shoulder, which is the top edge of
-     its rectangle — hence fill-box with the origin at 50% 0%. Without fill-box
+     its rectangle, hence fill-box with the origin at 50% 0%. Without fill-box
      the origin would resolve against the whole SVG and the legs would swing
      from somewhere out in the sky. */
   .emp-person.walking .emp-leg,
@@ -1388,7 +1386,7 @@ main {
     animation: emp-swing var(--step, 0.6s) ease-in-out var(--stepd, 0s) infinite alternate;
   }
   /* The opposite half of the cycle. An arm swings with the leg on the OTHER
-     side — same-side arm and leg moving together is the walk of someone who
+     side, same-side arm and leg moving together is the walk of someone who
      has been told to march, and the eye picks it up immediately even at this
      size. So each arm is paired with the diagonal leg. */
   .emp-person.walking .emp-leg-b,
@@ -1476,7 +1474,7 @@ main {
 
 /* The name plate stays white in both themes. It is the only element on this
    drawing that has to be readable against a midday sky and a midnight one, and
-   dark text on white is 15:1 either way — restyling it per theme would be
+   dark text on white is 15:1 either way, restyling it per theme would be
    three more things to get wrong for no gain. */
 .emp-label rect { fill: #fff; stroke: rgba(20, 26, 40, 0.1); stroke-width: 1; }
 .emp-label text { fill: #1b2333; font-size: 9.5px; font-weight: 700; letter-spacing: 0.1px; }
@@ -1535,7 +1533,7 @@ main {
 .toast.error { border-color: rgba(255,92,108,0.4); color: var(--danger); }
 @keyframes toastin { from { opacity:0; transform: translateY(-8px);} to {opacity:1; transform: translateY(0);} }
 
-/* Celebratory toast (badge unlocked / a big chunk of points earned) — a
+/* Celebratory toast (badge unlocked / a big chunk of points earned), a
    card-shaped cousin of the plain pill toast above, with an icon-badge and
    two lines of text, plus a brief gold glow so it actually reads as a
    "moment" instead of just another status message. */
@@ -1555,7 +1553,7 @@ main {
 
 /* ---- auth screen --------------------------------------------------------------*/
 .auth-wrap { min-height: 100vh; position: relative; z-index: 1; }
-/* Mobile default: a single centered column — identical behaviour to the
+/* Mobile default: a single centered column, identical behaviour to the
    pre-redesign layout, since .auth-showcase-panel is display:none until the
    desktop media query below turns .auth-shell into a real split screen. */
 .auth-shell { display: flex; flex-direction: column; min-height: 100vh; }
@@ -1575,15 +1573,14 @@ main {
 .auth-toggle b { color: var(--gold-soft); cursor: pointer; }
 
 /* Sign-up-only benefit checklist, shown above the form fields (same spot
-   Biiblo puts theirs) — compact enough to sit above the card on every
+   Biiblo puts theirs), compact enough to sit above the card on every
    screen size, not just the desktop showcase panel. */
 .auth-benefits { list-style: none; margin: 0 0 16px; padding: 0; display: flex; flex-direction: column; gap: 8px; }
 .auth-benefits li { display: flex; align-items: flex-start; gap: 8px; font-size: 12px; line-height: 1.4; color: var(--text-dim); }
 .auth-benefits li svg { flex: 0 0 auto; width: 14px; height: 14px; color: var(--success); margin-top: 2px; }
 .auth-terms { font-size: 10.5px; color: var(--text-faint); text-align: center; line-height: 1.5; margin: 10px 0 0; }
 
-/* A gentle one-time rise-into-place for the sign-in/sign-up card itself —
-   the auth screen only ever mounts once per visit, so this isn't a scroll
+/* A gentle one-time rise-into-place for the sign-in/sign-up card itself,    the auth screen only ever mounts once per visit, so this isn't a scroll
    trigger, just a soft entrance instead of the card appearing instantly. */
 @media (prefers-reduced-motion: no-preference) {
   .auth-form-panel .glow-card { animation: riseIn 0.5s ease both; }
@@ -1592,7 +1589,7 @@ main {
 }
 
 /* Desktop/laptop-width visitors (an owner setting the team up from a
-   computer) get a decorative split screen — the form keeps its same
+   computer) get a decorative split screen, the form keeps its same
    centered-card look on the left, and a purple/gold gradient panel on the
    right previews the pipeline so the screen doesn't feel like a mostly-
    empty login box on a wide monitor. Phone widths never see this. */
@@ -1647,7 +1644,7 @@ main {
   font-weight: 700; padding: 7px; position: sticky; top: calc(var(--topbar-h) + var(--safe-top)); z-index: 29;
 }
 .offline-banner.show { display: block; }
-/* Work is queued and the connection is back — this is progress, not a fault,
+/* Work is queued and the connection is back, this is progress, not a fault,
    so it loses the warning amber. It also becomes tappable ("try again now"),
    hence the cursor and the padding for a finger. */
 .offline-banner.sending {
@@ -1659,7 +1656,7 @@ main {
    one: measured against this banner's own composited background, the amber
    comes out at 1.5:1 and the purple at 2.9:1, where readable body text needs
    4.5:1. The amber one has been that faint since long before the queue
-   existed — it just never mattered much, because "you're offline" is a
+   existed, it just never mattered much, because "you're offline" is a
    statement you can ignore. "2 changes still haven't sent" is not, so both
    are fixed here rather than only the new one. These land at 5.0:1 and
    6.6:1. Hardcoded rather than added to the light --warn/--purple-soft
@@ -1669,7 +1666,7 @@ main {
 :root[data-theme="light"] .offline-banner.sending { color: #5b21b6; }
 
 /* ---- misc ------------------------------------------------------------------------*/
-/* Hidden by default now — only the Pipeline ("Prospects") view turns this
+/* Hidden by default now, only the Pipeline ("Prospects") view turns this
    on via the .show class (see switchView() in main.js). It used to float
    over every single view regardless of context, which made "add a
    prospect" feel like a random floating button rather than a page-specific
@@ -1703,7 +1700,7 @@ main {
 .flex-between { display: flex; justify-content: space-between; align-items: center; }
 .small-link { font-size: 12px; color: var(--purple-soft); font-weight: 700; cursor: pointer; }
 
-/* Niche colour swatch. The hue comes from nicheHue() in utils.js — see there
+/* Niche colour swatch. The hue comes from nicheHue() in utils.js, see there
    for why it's derived rather than stored, and why niches don't share the
    avatar palette. Saturation and lightness are set here rather than baked into
    the hash so light mode can darken all twelve at once: the shades that read
@@ -1713,7 +1710,7 @@ main {
   width: 7px; height: 7px; border-radius: 50%;
   margin-right: 6px; vertical-align: middle; position: relative; top: -1px;
   /* Two backgrounds on purpose. A browser too old for oklch() drops the second
-     line and every dot comes out the same neutral grey — the colour coding
+     line and every dot comes out the same neutral grey, the colour coding
      quietly switches off, which is fine because the niche name is always
      printed right next to it. Without the first line those browsers would draw
      nothing and leave a 7px hole. */
@@ -1793,7 +1790,7 @@ main {
 
 ::-webkit-scrollbar { width: 0; height: 0; }
 
-/* ---- print / "Save as PDF" — invoices & contracts -------------------------
+/* ---- print / "Save as PDF", invoices & contracts -------------------------
    #print-area sits hidden at the end of the DOM. printDoc.js fills it with a
    letterhead-style document, then calls window.print(). The @media print
    block below hides the rest of the app chrome so only the document itself
@@ -1829,7 +1826,7 @@ main {
 .print-sign-line { border-top: 1px solid #000; margin-bottom: 6px; height: 32px; }
 
 /* ---- Grid Plan Review -----------------------------------------------------
-   .status-pill already covers most statuses (see the block above) — these
+   .status-pill already covers most statuses (see the block above), these
    are just the grid_plans-specific ones layered on top of that same base
    class, same convention as .draft/.paid/.void etc. did for other tables. */
 .status-pill.shared { background: var(--info-dim); color: var(--info); }
@@ -1870,7 +1867,7 @@ main {
 }
 .grid-tile-add:active { transform: scale(0.97); }
 
-/* Soft-lock indicator (Slice 5) — advisory only, never blocks a save. Shows
+/* Soft-lock indicator (Slice 5), advisory only, never blocks a save. Shows
    up on a tile when Presence says someone else has that post's editor open
    right now, and (with an inline position:static override) as a banner
    inside the editor itself when you open a post someone else is already on. */
@@ -1882,7 +1879,7 @@ main {
 }
 
 /* Two content fields on a post look almost identical unless we make it
-   impossible to confuse them — a client once pasted a full rewritten
+   impossible to confuse them, a client once pasted a full rewritten
    caption into what was meant to be a short note, and it had to be fixed by
    hand. The client-note field always gets a visibly different (warm/gold)
    border + a background tint + an explicit warning label, everywhere it
@@ -1897,7 +1894,7 @@ main {
 .print-footer { margin-top: 40px; font-size: 11px; color: #888; text-align: center; }
 
 /* ---- Public client review page (app/review.html) ---------------------
-   Standalone page, no login — reuses the shared design system above, plus
+   Standalone page, no login, reuses the shared design system above, plus
    a handful of layout pieces specific to that one page. Namespaced with a
    review- prefix so nothing here can collide with the main app's classes. */
 .review-page-wrap { padding: 20px 16px calc(100px + var(--safe-bottom)); max-width: var(--content-max); margin: 0 auto; }

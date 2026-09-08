@@ -11,7 +11,7 @@ import { openProspectDetail } from "./prospectDetail.js";
 // market bands. An agent answers a handful of tap-to-select questions about
 // a prospect and gets back a recommended monthly retainer, a "never go
 // below" floor, a once-off launch package, and a one-line pitch sentence.
-// Opens as a bottom sheet — from the More menu (general use, pick a
+// Opens as a bottom sheet, from the More menu (general use, pick a
 // prospect to save to) or as a quick action on a prospect's own Details
 // screen (pre-filled and pre-targeted at that prospect).
 // ============================================================================
@@ -63,8 +63,8 @@ const PLATFORM_OPTIONS = [
   { key: "4plus", label: "4+", val: 4 },
 ];
 const VOLUME_OPTIONS = [
-  { key: "light", label: "Light (4–8)", val: 0 },
-  { key: "standard", label: "Standard (10–16)", val: 0.5 },
+  { key: "light", label: "Light (4-8)", val: 0 },
+  { key: "standard", label: "Standard (10-16)", val: 0.5 },
   { key: "heavy", label: "Heavy (20+ / daily)", val: 1 },
 ];
 const VIDEO_OPTIONS = [
@@ -81,8 +81,7 @@ const ADS_OPTIONS = [
   { key: "yes", label: "Yes (ad spend billed separately)", val: 1 },
 ];
 
-// Freeform niche names get matched by keyword to guess a starting tier —
-// checked most-specific-first so e.g. "property developer" wins over "real
+// Freeform niche names get matched by keyword to guess a starting tier, // checked most-specific-first so e.g. "property developer" wins over "real
 // estate". Falls back to SME (a safe middle default) if nothing matches;
 // the agent can always tap a different tier chip to override.
 const NICHE_KEYWORDS = {
@@ -170,7 +169,7 @@ function chipQuestion(label, hint, options, selectedKey, onSelect) {
 }
 
 // Every saved quote is a prospect_notes row with this distinctive marker
-// prefix — until now that made it invisible except by opening one
+// prefix, until now that made it invisible except by opening one
 // prospect's Notes tab at a time. This surfaces "what have we quoted
 // recently across everyone" so an owner can sanity-check pricing
 // consistency, or an agent can check they haven't already quoted someone.
@@ -201,7 +200,7 @@ async function openRecentQuotesModal() {
   data.forEach((n) => {
     const prospect = prospectById(n.prospect_id);
     const author = profileById(n.author_id);
-    // The saved note body already reads as a full sentence — just strip the
+    // The saved note body already reads as a full sentence, just strip the
     // marker emoji/prefix so the card shows the useful part (tier + price).
     const summary = n.body.replace(`${QUOTE_MARKER}: `, "");
     const row = el(`
@@ -225,11 +224,11 @@ async function openRecentQuotesModal() {
 }
 
 // "Recent Quotes" above shows what we *quoted*; nothing checked that against
-// what a prospect actually *signed* for once the deal closed — so
+// what a prospect actually *signed* for once the deal closed, so
 // systematic under-pricing (agents caving on price) or over-quoting (losing
 // deals over an unrealistic number) was invisible. The quoted price was
-// never stored as its own column — it only ever lived inside the saved
-// note's text — so this parses it back out of the same QUOTE_MARKER note
+// never stored as its own column, it only ever lived inside the saved
+// note's text, so this parses it back out of the same QUOTE_MARKER note
 // body and compares it to the prospect's real signed mrr. Only the most
 // recent quote per prospect counts (a prospect can be re-quoted more than
 // once before closing; only the final number was ever actually pitched).
@@ -284,7 +283,7 @@ async function openQuoteAccuracyModal() {
     return;
   }
 
-  // Worst (most-below-quote) first — that's the actionable "we're leaving
+  // Worst (most-below-quote) first, that's the actionable "we're leaving
   // money on the table" case an owner needs to see first.
   rows.sort((a, b) => (a.pct ?? 0) - (b.pct ?? 0));
 

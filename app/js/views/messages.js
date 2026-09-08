@@ -7,7 +7,7 @@ import { openProspectDetail } from "./prospectDetail.js";
 const CATEGORIES = [["opener", "Opener"], ["follow_up", "Follow-up"], ["objection", "Objection Handler"], ["close", "Close"]];
 
 // A template that never uses any personalization token sends out reading as
-// obviously copy-pasted — but nothing today tells the team which templates
+// obviously copy-pasted, but nothing today tells the team which templates
 // are still generic. Same token list personalizeMessage() (utils.js)
 // actually recognizes, so "generic" here means "would render byte-for-byte
 // identical to every prospect."
@@ -22,7 +22,7 @@ function isGeneric(t) {
 // outreach message was sent. Nothing today rolls that up across the whole
 // pipeline, so an owner has no quick answer to "how much of our live
 // outreach is AI-personalized vs. still raw auto-template vs. hand-written?"
-// Scoped to prospects that have actually been contacted — not_contacted
+// Scoped to prospects that have actually been contacted, not_contacted
 // prospects haven't had a message_source assigned in any meaningful sense.
 function outreachOriginStats() {
   const contacted = store.prospects.filter((p) => p.status !== "not_contacted");
@@ -36,13 +36,13 @@ function outreachOriginStats() {
 }
 
 // outreachOriginStats above already answers "how much of our outreach is
-// AI/auto/manual" agency-wide — but never broken down by WHO sent it. Team
+// AI/auto/manual" agency-wide, but never broken down by WHO sent it. Team
 // Leaderboard (team.js) already ranks agents by MRR/win-rate; this is a
-// distinct axis — outreach hygiene, not revenue — that's never been sliced
+// distinct axis, outreach hygiene, not revenue, that's never been sliced
 // per-person anywhere. Ranked worst-first (highest raw-auto-template %) so
 // whoever needs the most coaching on personalizing their outreach surfaces
 // first, same "worst-first" convention Dashboard's stale-lead/at-risk lists
-// already use. Owner-only, matching Team Leaderboard's own gating — this is
+// already use. Owner-only, matching Team Leaderboard's own gating, this is
 // a coaching view into individual reps' work, not something every agent
 // needs to see about each other. Minimum sample size guards against one
 // contacted lead reading as a false 100%.
@@ -162,7 +162,7 @@ export function renderMessages() {
   });
 }
 
-// Click-through drill-down modal — same pattern as Invoices' "Slowest
+// Click-through drill-down modal, same pattern as Invoices' "Slowest
 // Payers"/"Outstanding by Client" and Contracts' "Signed This Month": list
 // the flagged rows, tapping one closes the modal and jumps straight into
 // fixing it.
@@ -194,7 +194,7 @@ function openGenericTemplatesModal(items) {
   openModal(box);
 }
 
-// Drill-down for the outreach-origin stat cards above — lists the contacted
+// Drill-down for the outreach-origin stat cards above, lists the contacted
 // prospects in that bucket, tapping one closes the modal and jumps straight
 // into their Prospect Detail (same click-through pattern as
 // openGenericTemplatesModal above, but into prospects instead of templates).
@@ -257,14 +257,13 @@ function templateCard(t) {
   return card;
 }
 
-// Exported so Global Search can jump straight into a matched template —
-// unlike niches, template editing was never owner-gated in the UI, so no
+// Exported so Global Search can jump straight into a matched template, // unlike niches, template editing was never owner-gated in the UI, so no
 // extra permission check is needed at the call site.
 export function openTemplateForm(existing) {
   const t = existing || {};
   // A caller can pass a partial template (e.g. { category: "opener",
   // niche_id }) to pre-fill a *new* template without it counting as editing
-  // an existing one — only a real `id` means "edit mode."
+  // an existing one, only a real `id` means "edit mode."
   const isEdit = !!t.id;
   const nicheOptions = store.niches
     .map((n) => `<option value="${n.id}" ${t.niche_id === n.id ? "selected" : ""}>${esc(n.name)}</option>`)
@@ -376,7 +375,7 @@ export function openTemplateForm(existing) {
 
 // Lets another view (e.g. the niche template-coverage flag) open a *new*
 // template pre-filled with a category/niche, without it being mistaken for
-// editing an existing one — openTemplateForm only treats an object with a
+// editing an existing one, openTemplateForm only treats an object with a
 // real `id` as edit mode.
 export function openNewTemplateForm(prefill) {
   openTemplateForm(prefill || null);

@@ -1,5 +1,5 @@
 -- ============================================================================
--- STUDIO X COMMAND — Migration: Pitch Practice (the team practice game)
+-- STUDIO X COMMAND, Migration: Pitch Practice (the team practice game)
 -- ============================================================================
 -- Run this in the Supabase SQL Editor to add what the new Pitch Practice
 -- feature needs. Safe to run on a live database: it only ADDS new tables and
@@ -48,7 +48,7 @@ alter table public.pitch_scenarios enable row level security;
 --
 -- Every policy and trigger below is dropped first. Postgres has no
 -- "create policy if not exists", so on a database that already has these the
--- bare create fails with "policy already exists" — and because the Supabase
+-- bare create fails with "policy already exists", and because the Supabase
 -- SQL Editor runs the whole script in one transaction, that single error
 -- rolls back EVERYTHING above it, including the is_starter column. Re-running
 -- the migration could therefore never repair a half-applied install, which is
@@ -133,4 +133,4 @@ create table if not exists public.pitch_coach_requests (
 create index if not exists idx_pitch_coach_requests_by_user on public.pitch_coach_requests (requested_by, created_at);
 
 alter table public.pitch_coach_requests enable row level security;
--- No policies on purpose — only the pitch-coach function touches this table.
+-- No policies on purpose, only the pitch-coach function touches this table.

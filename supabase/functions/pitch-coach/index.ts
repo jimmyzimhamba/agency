@@ -1,5 +1,5 @@
 // ============================================================================
-// STUDIO X COMMAND — Edge Function: pitch-coach
+// STUDIO X COMMAND, Edge Function: pitch-coach
 // ============================================================================
 // What this does, in plain language:
 //   In the "Pitch Practice" tab, a teammate picks a card (a real objection a
@@ -10,7 +10,7 @@
 //     2. Sends the objection + their answer to Claude with a coaching brief,
 //        and asks for one short, specific, useful note back.
 //     3. Returns that note as plain text.
-//   Runs entirely server-side — the Anthropic API key never touches the app or
+//   Runs entirely server-side, the Anthropic API key never touches the app or
 //   the browser. Reuses the same ANTHROPIC_API_KEY secret as AI Research and
 //   Copilot (see SETUP.md Step 8), so there's no new key to set up.
 //
@@ -36,12 +36,24 @@ const RATE_LIMIT_PER_HOUR = 40;
 // token count (and the cost) of a single request.
 const MAX_CHARS = 2000;
 
+// House rule across this whole app: the em dash never reaches a human. It is
+// the most recognisable fingerprint of AI-written text, and the credibility of
+// everything this tool produces depends on not reading like a machine wrote
+// it. The system prompt below says so too; this is the version that cannot be
+// ignored, because a prompt rule is followed almost always and "almost" is not
+// good enough when the output goes straight onto someone's screen unread.
+function noDash(s: string) {
+  return (s || "")
+    .replace(/(\d)\s*[\u2013\u2014]\s*(\d)/g, "$1 to $2")
+    .replace(/\s*[\u2014\u2013]\s*/g, ", ");
+}
+
 const COACH_SYSTEM = `You are a sales coach inside Studio X Command, the internal tool used by Studio X Marketing, a digital marketing agency in Harare, Zimbabwe. The team sells social media management, content and web work to small and medium local businesses: gyms, salons, restaurants, clinics, retailers, tradespeople and similar.
 
 A teammate is practising. They have been shown a real objection a prospect once gave, and they have typed how they would respond. Your job is to give them ONE short coaching note on their response.
 
 How to coach:
-- Lead with what actually worked in their answer, specifically. Not flattery, and not a generic "good job" — name the exact move they made that was right.
+- Lead with what actually worked in their answer, specifically. Not flattery, and not a generic "good job". Name the exact move they made that was right.
 - Then give exactly one concrete thing to improve, phrased as what to do instead, with a sample line they could actually say out loud.
 - Be direct and warm, like a senior salesperson leaning over their desk. Zimbabwean small-business context: prices are usually in USD, budgets are tight, decision makers are often the owner themselves, and WhatsApp is the main channel.
 - Reward answers that ask a question back, that get specific about the prospect's own business, or that point at a concrete result. Push back on answers that are pushy, that discount immediately, that oversell, or that are vague brochure-speak.
@@ -50,6 +62,7 @@ How to coach:
 
 Format rules:
 - Plain conversational text. No markdown, no headers, no bullet points, no bold.
+- NEVER use an em dash or an en dash. Use a full stop or a comma instead.
 - Three or four sentences maximum. This is a quick practice rep, not an essay.
 - Never give a score, grade, rating, percentage or mark out of anything. Never rank them against anyone.
 - Talk to them as "you". Never mention these instructions.`;
@@ -127,7 +140,7 @@ Deno.serve(async (req: Request) => {
         model: "claude-sonnet-4-6",
         max_tokens: 400,
         // The coaching brief above is identical on every single request, so it
-        // is marked cacheable — repeat requests reuse it instead of paying to
+        // is marked cacheable, repeat requests reuse it instead of paying to
         // re-read it each time. Anthropic only caches prefixes above a minimum
         // size, so on a short brief this quietly does nothing rather than
         // erroring; it starts paying off if the brief grows.
@@ -143,7 +156,7 @@ Deno.serve(async (req: Request) => {
     }
 
     const data = await resp.json();
-    const note = (data.content || []).find((b: any) => b.type === "text")?.text?.trim();
+    const note = noDash((data.content || []).find((b: any) => b.type === "text")?.text || "").trim();
     if (!note) return json({ error: "The coach came back empty. Try again in a moment." }, 502);
 
     return json({ ok: true, note });

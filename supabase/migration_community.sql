@@ -1,28 +1,27 @@
 -- ============================================================================
--- STUDIO X COMMAND — Community Feed
+-- STUDIO X COMMAND, Community Feed
 -- ============================================================================
 -- Third in the Biblo-inspired series (after Services & Packages, Portfolio
--- Studio). An internal, team-only social feed — wins, shout-outs, quick
--- updates, announcements — separate from the auto-generated Activity Feed
+-- Studio). An internal, team-only social feed, wins, shout-outs, quick
+-- updates, announcements, separate from the auto-generated Activity Feed
 -- (which logs system events like "created a contract") and from Messages
 -- (which is a template library, not a conversation).
 --
 -- Three tables:
---   community_posts     — the posts themselves, optionally with one image
---   community_comments  — threaded replies on a post
---   community_reactions — a simple one-per-person "like" toggle per post
+--   community_posts, the posts themselves, optionally with one image
+--   community_comments, threaded replies on a post
+--   community_reactions, a simple one-per-person "like" toggle per post
 --
--- PERMISSION MODEL — deliberately different from Niches/Services/Portfolio:
+-- PERMISSION MODEL, deliberately different from Niches/Services/Portfolio:
 -- this is "team writes", not "owner writes, team reads". A community feed
--- where only the owner can post isn't a community — everyone on the team
+-- where only the owner can post isn't a community, everyone on the team
 -- should be able to share a win or an update. Matches the existing
 -- Contracts/Invoices/Projects convention instead:
 --   - Posts:     anyone inserts; creator-or-owner edits; OWNER ONLY deletes
---                (keeps moderation in one place, discourages rage-deletes —
---                same reasoning as contracts/invoices/projects)
+--                (keeps moderation in one place, discourages rage-deletes, --                same reasoning as contracts/invoices/projects)
 --   - Comments:  anyone inserts; creator-or-owner edits OR deletes (a
 --                comment is more like a chat message than a business
---                record — you should be able to remove your own typo/reply
+--                record, you should be able to remove your own typo/reply
 --                immediately without waiting on the owner)
 --   - Reactions: a simple insert-to-like / delete-to-unlike toggle, and you
 --                can only ever touch your own reaction row (no liking on
@@ -31,13 +30,13 @@
 --
 -- New posts get one Activity Feed entry (mirroring contracts/invoices/
 -- projects, which also log to activity_log despite having their own list
--- view) — comments and reactions do NOT, to keep the Activity Feed from
+-- view), comments and reactions do NOT, to keep the Activity Feed from
 -- drowning in "so-and-so liked a post" noise. The Community Feed itself is
 -- already the place to watch that traffic.
 --
 -- Post images use the SAME private-bucket-plus-signed-URL pattern as
 -- grid-media (org-scoped folder, `createSignedUrl()` on read) rather than
--- portfolio-media's public bucket — unlike a portfolio, this content is
+-- portfolio-media's public bucket, unlike a portfolio, this content is
 -- internal team chatter and was never meant to be discoverable outside the
 -- org, so there's no reason to make it public.
 --
@@ -46,7 +45,7 @@
 -- public.touch_updated_at(), all defined there).
 --
 -- HOW TO RUN: Supabase Dashboard → SQL Editor → paste this whole file → Run.
--- Safe to re-run — every statement is guarded (if not exists / or replace /
+-- Safe to re-run, every statement is guarded (if not exists / or replace /
 -- drop policy if exists).
 -- ============================================================================
 
@@ -74,7 +73,7 @@ create policy "community_posts: read org" on public.community_posts
   for select using (org_id = public.my_org_id());
 
 -- Anyone on the team can post. Only the owner or whoever wrote it can edit
--- it afterwards; only the owner can delete one outright — same split as
+-- it afterwards; only the owner can delete one outright, same split as
 -- contracts/invoices/projects.
 drop policy if exists "community_posts: insert self" on public.community_posts;
 create policy "community_posts: insert self" on public.community_posts
@@ -146,8 +145,8 @@ drop policy if exists "community_comments: insert self" on public.community_comm
 create policy "community_comments: insert self" on public.community_comments
   for insert with check (auth.role() = 'authenticated' and org_id = public.my_org_id());
 
--- Comments read more like chat messages than business records, so — unlike
--- posts — the author can remove their own comment immediately, not just
+-- Comments read more like chat messages than business records, so, unlike
+-- posts, the author can remove their own comment immediately, not just
 -- edit it, without waiting on the owner.
 drop policy if exists "community_comments: update own or owner" on public.community_comments;
 create policy "community_comments: update own or owner" on public.community_comments
@@ -168,7 +167,7 @@ create trigger trg_community_comments_touch before update on public.community_co
   for each row execute function public.touch_updated_at();
 
 -- ----------------------------------------------------------------------------
--- 3. COMMUNITY_REACTIONS  ("likes" — one per person per post)
+-- 3. COMMUNITY_REACTIONS  ("likes", one per person per post)
 -- ----------------------------------------------------------------------------
 create table if not exists public.community_reactions (
   id uuid primary key default gen_random_uuid(),
@@ -189,7 +188,7 @@ create policy "community_reactions: read org" on public.community_reactions
   for select using (org_id = public.my_org_id());
 
 -- You can only ever like on your own behalf, and only ever remove your own
--- like — there's nothing here for the owner to moderate, so no owner
+-- like, there's nothing here for the owner to moderate, so no owner
 -- override is needed on either policy.
 drop policy if exists "community_reactions: insert self" on public.community_reactions;
 create policy "community_reactions: insert self" on public.community_reactions
@@ -208,14 +207,13 @@ create trigger trg_community_reactions_org before insert on public.community_rea
   for each row execute function public.stamp_org_id();
 
 -- ----------------------------------------------------------------------------
--- 4. STORAGE — community-media bucket (private, org-scoped, signed URLs)
+-- 4. STORAGE, community-media bucket (private, org-scoped, signed URLs)
 -- ----------------------------------------------------------------------------
 insert into storage.buckets (id, name, public)
 values ('community-media', 'community-media', false)
 on conflict (id) do nothing;
 
--- Org scoping via the first path segment, e.g. `{org_id}/{timestamp}.jpg` —
--- same folder-prefix convention as grid-media.
+-- Org scoping via the first path segment, e.g. `{org_id}/{timestamp}.jpg`, -- same folder-prefix convention as grid-media.
 drop policy if exists "community-media: org read" on storage.objects;
 create policy "community-media: org read" on storage.objects
   for select using (
@@ -269,7 +267,7 @@ end $$;
 -- DONE.
 --   1. Run this whole file in Supabase Dashboard → SQL Editor.
 --   2. Redeploy the app/ folder (frontend changes ship alongside this).
---   3. New sidebar link: "Community Feed" — everyone can post/comment/like;
+--   3. New sidebar link: "Community Feed", everyone can post/comment/like;
 --      only the owner can pin or delete a post; a comment's own author (or
 --      the owner) can delete/edit that comment.
 -- ============================================================================

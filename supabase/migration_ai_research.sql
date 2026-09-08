@@ -1,5 +1,5 @@
 -- ============================================================================
--- STUDIO X COMMAND — MIGRATION: AI auto-research + auto-generated outreach
+-- STUDIO X COMMAND, MIGRATION: AI auto-research + auto-generated outreach
 -- ============================================================================
 -- What this does, in plain language:
 --   - Adds a "Website" field to prospects (one more research clue alongside
@@ -10,7 +10,7 @@
 --     real research, or is a safe fallback template that needs a review,
 --     and when the research last ran.
 --   - Adds a small research_requests log table. This is NOT visible
---     anywhere in the app — it's only used by the backend research
+--     anywhere in the app, it's only used by the backend research
 --     function to make sure one teammate adding a burst of prospects can't
 --     accidentally rack up API costs or trip Anthropic's own rate limits.
 --
@@ -18,7 +18,7 @@
 --   1. Open your Supabase project → SQL Editor → New query.
 --   2. Paste this ENTIRE file in.
 --   3. Click "Run".
--- Safe to run even if you've already added some of this — every statement
+-- Safe to run even if you've already added some of this, every statement
 -- below is written to skip anything that already exists.
 -- ============================================================================
 
@@ -39,7 +39,7 @@ alter table public.prospects add constraint prospects_message_source_check
 alter table public.prospects add column if not exists researched_at timestamptz;
 
 -- ----------------------------------------------------------------------------
--- RESEARCH REQUESTS  (invisible rate-limit log — one row per research run)
+-- RESEARCH REQUESTS  (invisible rate-limit log, one row per research run)
 -- ----------------------------------------------------------------------------
 create table if not exists public.research_requests (
   id uuid primary key default gen_random_uuid(),
@@ -51,7 +51,7 @@ create table if not exists public.research_requests (
 create index if not exists idx_research_requests_by_user on public.research_requests (requested_by, created_at);
 
 alter table public.research_requests enable row level security;
--- No select/insert policies for ordinary clients on purpose — this table is
+-- No select/insert policies for ordinary clients on purpose, this table is
 -- only ever written to by the research-prospect backend function, which
 -- uses the secure service-role key and bypasses RLS entirely (the same
 -- pattern already used for status_history).

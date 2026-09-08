@@ -1,9 +1,9 @@
 // ============================================================================
-// STUDIO X COMMAND — Public client project page (app/project.html)
+// STUDIO X COMMAND, Public client project page (app/project.html)
 // ============================================================================
 // What this does, in plain language:
 //   The page a client lands on when the agency sends them their project link.
-//   No login and no account — the ?t=<token> in the URL is their access. It
+//   No login and no account, the ?t=<token> in the URL is their access. It
 //   shows what's been done, what's still to do, and how far along the whole
 //   thing is. It is strictly read-only: there is nothing here for a client to
 //   change, so there is nothing here that can be abused.
@@ -13,8 +13,8 @@
 //   actually change things there (reordering posts, approving them), and
 //   writes from an anonymous visitor need real server-side checking. This page
 //   only reads, and it reads exactly one row. That fits in a single database
-//   function — public.project_portal in
-//   supabase/migration_money_and_portal.sql — which arrives with the SQL and
+//   function, public.project_portal in
+//   supabase/migration_money_and_portal.sql, which arrives with the SQL and
 //   needs no separate deploy. Given there is already one Edge Function in this
 //   project that was written and never deployed, "no deploy step" is a
 //   feature, not a shortcut.
@@ -67,7 +67,7 @@ function centerState(title, body) {
 
 async function load() {
   if (!token) {
-    return centerState("This link is incomplete", "Ask your agency to send the link again — part of it seems to have been cut off.");
+    return centerState("This link is incomplete", "Ask your agency to send the link again. Part of it seems to have been cut off.");
   }
 
   centerState("Loading your project", "One moment.");
@@ -89,8 +89,7 @@ async function load() {
     return centerState("Couldn't load your project", "Check your connection and try again. If it keeps happening, let your agency know.");
   }
 
-  // The database function answers null for anything it doesn't recognise —
-  // expired, revoked, mistyped, or never real. They are one message here on
+  // The database function answers null for anything it doesn't recognise,   // expired, revoked, mistyped, or never real. They are one message here on
   // purpose: telling a stranger which kind of wrong their guess was is the
   // only thing that would make guessing worthwhile.
   if (!json || !json.project) {
@@ -145,7 +144,7 @@ function render(data) {
       `}
 
       <div class="review-subtext" style="margin-top:20px;">
-        This page updates itself as work progresses — keep the link and check back any time.
+        This page updates itself as work progresses. Keep the link and check back any time.
         ${p.updated_at ? "Last updated " + esc(fmtDate(p.updated_at.slice(0, 10))) + "." : ""}
       </div>
     </div>

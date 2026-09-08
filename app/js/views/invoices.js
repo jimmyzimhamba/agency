@@ -13,8 +13,7 @@ let filterStatus = "all";
 // Overdue (sent, past due_date) was already covered, but nothing flagged the
 // opposite failure mode: an invoice drafted and then never actually sent.
 // It never counts toward "Outstanding" (sent-only) and Dashboard's Revenue
-// at Risk only catches a signed client with *zero* invoices after 30 days —
-// a client who already has a half-finished draft sitting untouched is
+// at Risk only catches a signed client with *zero* invoices after 30 days, // a client who already has a half-finished draft sitting untouched is
 // invisible everywhere. Mirrors contracts.js's STALE_DAYS/isStale pattern
 // for its own "Awaiting Signature" case, just anchored on created_at since
 // drafts don't have a sent_date yet.
@@ -27,7 +26,7 @@ function isStaleDraft(i) {
   return i.status === "draft" && i.created_at && daysSinceCreated(i) >= STALE_DRAFT_DAYS;
 }
 
-// Overdue only fires once due_date has already passed — the team only ever
+// Overdue only fires once due_date has already passed, the team only ever
 // chases money once it's late. Nothing nudges a client *before* the
 // deadline, when a friendly heads-up reads as courteous instead of a
 // collections message. Same "catch it before it's a problem" pattern
@@ -49,7 +48,7 @@ function isDueSoon(i) {
 // A signed client with a monthly retainer who has no invoice covering this
 // month is revenue quietly going missing. It's the one money problem nothing
 // else in the app could ever surface, because every other warning here is
-// about an invoice that exists — overdue, stale draft, due soon. An invoice
+// about an invoice that exists, overdue, stale draft, due soon. An invoice
 // nobody created has no row to flag, so it never appears anywhere and the
 // month just closes short.
 //
@@ -97,7 +96,7 @@ export function renderInvoices() {
     .reduce((sum, i) => sum + (Number(i.amount) || 0), 0);
   const overdueCount = store.invoices.filter((i) => i.status === "sent" && i.due_date && i.due_date < todayISO()).length;
   // Distinct from "Projected MRR" on the Dashboard (forward-looking, based on
-  // signed clients' recurring value) — this is what's actually landed:
+  // signed clients' recurring value), this is what's actually landed:
   // invoices marked Paid with a paid_date inside the current calendar month.
   // The one number an owner asks about most and, until now, had nowhere on
   // Invoices to see at a glance.
@@ -107,7 +106,7 @@ export function renderInvoices() {
   const staleDraftCount = store.invoices.filter(isStaleDraft).length;
   const dueSoonCount = store.invoices.filter(isDueSoon).length;
   const topClients = topClientsByRevenue();
-  // Distinct from every other stat here — those are all snapshots of money's
+  // Distinct from every other stat here, those are all snapshots of money's
   // current state (landed, owed, late, unsent). This is the one number that
   // answers a cash-flow question owners actually ask: once a client's
   // billed, how long does it typically take them to actually pay? Neither
@@ -118,21 +117,21 @@ export function renderInvoices() {
     ? Math.round(paidWithDates.reduce((sum, i) => sum + (new Date(i.paid_date) - new Date(i.created_at.slice(0, 10))) / 86400000, 0) / paidWithDates.length)
     : null;
   // Money actually billed or collected with no signed contract on file is a
-  // real compliance/audit gap — if the client disputes it, there's nothing
+  // real compliance/audit gap, if the client disputes it, there's nothing
   // to point to. Distinct from every other flag here: those all inspect
   // status/dates, this is the only one that inspects contract_id. Only
-  // counts sent/paid invoices — a draft with no contract yet isn't a
+  // counts sent/paid invoices, a draft with no contract yet isn't a
   // problem, since nothing's actually been billed yet.
   const noContractInvoices = store.invoices.filter((i) => !i.contract_id && (i.status === "sent" || i.status === "paid"));
   // Outstanding (one total) and Outstanding by Client (grouped by who owes
   // it) both already exist, but neither tells an owner whether that total is
-  // healthy — mostly not-yet-due — or a real collections problem — mostly
+  // healthy, mostly not-yet-due, or a real collections problem, mostly
   // weeks late. Standard AR-aging buckets, grouped by *when* instead of *who*.
   const agingGroups = agingBuckets();
   const uninvoicedRetainers = retainersNotInvoicedThisMonth();
   const uninvoicedTotal = uninvoicedRetainers.reduce((sum, p) => sum + (Number(p.mrr) || 0), 0);
   // Only the owner sees the drafting banner, because only the owner can run
-  // it — the database function refuses anybody else (see
+  // it, the database function refuses anybody else (see
   // draft_my_retainer_invoices). Showing an agent a button that always errors
   // would be worse than showing nothing.
   const canDraft = store.profile?.role === "owner";
@@ -219,7 +218,7 @@ export function renderInvoices() {
         body:
           `This creates <b>${uninvoicedRetainers.length}</b> draft invoice${uninvoicedRetainers.length === 1 ? "" : "s"} ` +
           `totalling <b>${money(uninvoicedTotal)}</b>, one per signed client with a monthly retainer and no invoice yet ` +
-          `this month. Nothing is sent to anyone — they land as drafts for you to check first.`,
+          `this month. Nothing is sent to anyone. They land as drafts for you to check first.`,
         confirmLabel: "Draft Them",
         onConfirm: async () => {
           // Calls the same database function the monthly schedule calls, so
@@ -339,7 +338,7 @@ function renderList(listEl) {
   });
 }
 
-// Drill-down for the "Avg. Days to Get Paid" stat card — the bare average
+// Drill-down for the "Avg. Days to Get Paid" stat card, the bare average
 // alone can't tell an owner *which* clients are the slow payers worth
 // following up with on payment terms; this ranks the paid invoices slowest
 // (longest created_at → paid_date gap) first, same modal-list pattern
@@ -379,8 +378,8 @@ function openSlowestPayersModal(paidWithDates) {
 
 // Standard AR-aging breakdown. "Outstanding" (one total) and "Outstanding by
 // Client" (grouped by who owes it) already exist, but neither says whether
-// that total is healthy — mostly not-yet-due — or a real collections
-// problem — mostly weeks late. Buckets every sent (unpaid) invoice by how
+// that total is healthy, mostly not-yet-due, or a real collections
+// problem, mostly weeks late. Buckets every sent (unpaid) invoice by how
 // overdue it is, using the same daysUntilDue() the Due Soon flag already
 // relies on, so "we're owed $4,200" becomes "$3,000 of that is 30+ days
 // overdue" at a glance.
@@ -388,8 +387,8 @@ function agingBuckets() {
   const sent = store.invoices.filter((i) => i.status === "sent");
   const defs = [
     { key: "notDue", label: "Not Yet Due", test: (d) => d !== null && d >= 0 },
-    { key: "overdue15", label: "1–15 Days Overdue", test: (d) => d !== null && d < 0 && d >= -15 },
-    { key: "overdue30", label: "16–30 Days Overdue", test: (d) => d !== null && d < -15 && d >= -30 },
+    { key: "overdue15", label: "1-15 Days Overdue", test: (d) => d !== null && d < 0 && d >= -15 },
+    { key: "overdue30", label: "16-30 Days Overdue", test: (d) => d !== null && d < -15 && d >= -30 },
     { key: "overdue31", label: "31+ Days Overdue", test: (d) => d !== null && d < -30 },
     { key: "noDate", label: "No Due Date", test: (d) => d === null },
   ];
@@ -407,18 +406,17 @@ function agingBuckets() {
     .filter((g) => g.count > 0);
 }
 
-// Drill-down for the "Outstanding" stat card — the aggregate total alone
+// Drill-down for the "Outstanding" stat card, the aggregate total alone
 // doesn't say *who* owes it, so chasing collections meant manually scanning
 // the invoice list and mentally tallying per-client totals. Groups every
 // sent (unpaid) invoice by client, sums what each one owes, and sorts
 // worst-first so the biggest collections targets are immediately obvious.
 // Distinct from "Slowest to Pay" (which measures speed of already-paid
 // invoices) and Dashboard's Revenue at Risk (which flags a signed client
-// with no invoice at all) — this is "who currently owes the most, right now."
-// Distinct from "Outstanding by Client" below (that's a collections tool —
-// who owes us money right now) and "Revenue by Niche/Tier" on the Dashboard
+// with no invoice at all), this is "who currently owes the most, right now."
+// Distinct from "Outstanding by Client" below (that's a collections tool, // who owes us money right now) and "Revenue by Niche/Tier" on the Dashboard
 // (aggregated by category, not by individual client). This is the first
-// place that ranks actual clients by lifetime paid revenue — useful for
+// place that ranks actual clients by lifetime paid revenue, useful for
 // prioritizing account-management attention, upsell/renewal conversations,
 // and referral asks toward the accounts actually generating the most money.
 function topClientsByRevenue() {
@@ -509,7 +507,7 @@ function openOutstandingByClientModal() {
   openModal(box);
 }
 
-// Drill-down for an "Outstanding by Age" bucket — same click-through pattern
+// Drill-down for an "Outstanding by Age" bucket, same click-through pattern
 // as Outstanding by Client, just scoped to one age band, sorted most
 // overdue first so the most urgent chases surface at the top.
 function openAgingBucketModal(label, invoices) {
@@ -545,7 +543,7 @@ function openAgingBucketModal(label, invoices) {
   openModal(box);
 }
 
-// Drill-down for the "billed with no contract on file" stat card — lists
+// Drill-down for the "billed with no contract on file" stat card, lists
 // the offending invoices individually (not grouped by client, since the fix
 // is per-invoice), tapping one closes the modal and opens that invoice's
 // edit sheet, where the existing "Linked contract" dropdown lets a rep
@@ -582,7 +580,7 @@ function openNoContractModal(invoices) {
 }
 
 // Builds a friendly WhatsApp payment-reminder message and opens it in a new
-// tab — reuses buildWhatsAppLink the same way pipeline.js's outreach send
+// tab, reuses buildWhatsAppLink the same way pipeline.js's outreach send
 // does, just with billing copy instead of an outreach opener. Wording shifts
 // depending on whether the due date has actually passed yet, so a
 // not-yet-due nudge doesn't read as an accusation.
@@ -596,8 +594,7 @@ function sendPaymentReminder(invoice, prospect) {
   window.open(buildWhatsAppLink(prospect.whatsapp_number, message), "_blank");
 }
 
-// Exports whatever's currently in view (respects the active status chip) —
-// useful for handing a batch of invoices off to an accountant/bookkeeper
+// Exports whatever's currently in view (respects the active status chip), // useful for handing a batch of invoices off to an accountant/bookkeeper
 // without them needing app access. Same toCSV/downloadTextFile mechanism as
 // the Pipeline's existing CSV export and Contracts' new one.
 function exportInvoicesCSV() {
@@ -686,7 +683,7 @@ function offerRecurringInvoice(paidInvoice) {
 
 // Invoices are covered by Realtime, so rows the database creates on its own
 // normally arrive by themselves. This refetch exists for the case where they
-// don't — a dropped socket, a phone that just woke up — because the banner
+// don't, a dropped socket, a phone that just woke up, because the banner
 // that triggered this is the kind of thing somebody taps twice if it doesn't
 // visibly go away. Drafting twice is harmless (the function refuses to
 // duplicate) but it looks broken, which is its own problem.

@@ -22,13 +22,13 @@
   </div>
 
   <!-- Same minimal modal shell as the main app (app/app.html), just for
-       this one page — see js/review.js's own tiny openModal/closeModal. -->
+       this one page, see js/review.js's own tiny openModal/closeModal. -->
   <div id="modal-backdrop" class="modal-backdrop">
     <div id="modal-box" class="modal-box"></div>
   </div>
 
   <!-- Realtime only (presence + broadcast pings for live sync/soft-lock
-       indicators) — this page never calls .from()/.storage on this client;
+       indicators), this page never calls .from()/.storage on this client;
        all actual data access stays exclusively through the review-* Edge
        Functions in js/review.js, over plain fetch() with the anon key. -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>

@@ -1,39 +1,38 @@
 -- ============================================================================
--- STUDIO X COMMAND — Badges & Achievements (gamification, phase 2)
+-- STUDIO X COMMAND, Badges & Achievements (gamification, phase 2)
 -- ============================================================================
 -- Builds on migration_points.sql (run that one first if you haven't). Badges
--- are unlocked automatically by counting up what's already in points_log —
--- there's no new "did the thing" tracking to maintain, and no way for the
+-- are unlocked automatically by counting up what's already in points_log, -- there's no new "did the thing" tracking to maintain, and no way for the
 -- app's JavaScript to hand out a badge that wasn't actually earned, because
 -- the counting happens entirely server-side, in the same moment a point-
 -- earning trigger already fires.
 --
--- One new table (badges_earned — who has which badge, and when), plus a
+-- One new table (badges_earned, who has which badge, and when), plus a
 -- helper (award_badge) and a checker (check_and_award_badges) that the
 -- existing points triggers now call at the end of their work. Visible to the
--- whole team, same as the points leaderboard — achievements aren't sensitive
+-- whole team, same as the points leaderboard, achievements aren't sensitive
 -- like revenue numbers are.
 --
--- THE BADGE CATALOG (14 badges — keep this list in sync with the matching
+-- THE BADGE CATALOG (14 badges, keep this list in sync with the matching
 -- catalog in app/js/badges.js, which owns the label/description/icon for
 -- display; this file only owns the unlock KEY and threshold):
---   first_prospect   — add 1 prospect
---   prospector       — add 25 prospects
---   first_deal       — sign 1 deal
---   closer           — sign 5 deals
---   rainmaker        — sign 10 deals
---   paperwork        — draft 1 contract
---   ink_master       — get 5 contracts signed
---   getting_paid     — get 5 invoices paid
---   note_taker       — leave 10 notes
---   team_player      — post 10 times in Community Feed
---   consistent       — complete 30 daily tasks
---   century_club     — reach 100 total points
---   high_roller      — reach 500 total points
---   legend           — reach 1000 total points
+--   first_prospect, add 1 prospect
+--   prospector, add 25 prospects
+--   first_deal, sign 1 deal
+--   closer, sign 5 deals
+--   rainmaker, sign 10 deals
+--   paperwork, draft 1 contract
+--   ink_master, get 5 contracts signed
+--   getting_paid, get 5 invoices paid
+--   note_taker, leave 10 notes
+--   team_player, post 10 times in Community Feed
+--   consistent, complete 30 daily tasks
+--   century_club, reach 100 total points
+--   high_roller, reach 500 total points
+--   legend, reach 1000 total points
 --
--- HOW UNLOCKS ARE DETECTED — each of the 7 point-earning trigger functions
--- from migration_points.sql is re-declared here (CREATE OR REPLACE — same
+-- HOW UNLOCKS ARE DETECTED, each of the 7 point-earning trigger functions
+-- from migration_points.sql is re-declared here (CREATE OR REPLACE, same
 -- function, same trigger, nothing new to attach) with one extra line at the
 -- end: a call to check_and_award_badges(org_id, profile_id), which recounts
 -- that person's points_log rows and awards any badge whose threshold is now
@@ -42,7 +41,7 @@
 -- delayed batch job.
 --
 -- ANTI-DUPLICATE CELEBRATION: award_badge() uses the same ON CONFLICT DO
--- NOTHING + GET DIAGNOSTICS pattern as award_points() — a badge can only be
+-- NOTHING + GET DIAGNOSTICS pattern as award_points(), a badge can only be
 -- unlocked once per person (unique constraint), and the celebratory Activity
 -- Feed post ("X earned the 'Closer' badge!") only fires the moment it's
 -- actually newly inserted, never on a re-check that finds it already there.
@@ -51,12 +50,12 @@
 -- from points_log and points_totals, both defined there).
 --
 -- HOW TO RUN: Supabase Dashboard → SQL Editor → paste this whole file → Run.
--- Safe to re-run — every statement is guarded (if not exists / or replace /
+-- Safe to re-run, every statement is guarded (if not exists / or replace /
 -- drop trigger if exists).
 -- ============================================================================
 
 -- ----------------------------------------------------------------------------
--- 1. BADGES_EARNED — one row per person per badge, ever.
+-- 1. BADGES_EARNED, one row per person per badge, ever.
 -- ----------------------------------------------------------------------------
 create table if not exists public.badges_earned (
   id uuid primary key default gen_random_uuid(),
@@ -72,14 +71,14 @@ create index if not exists idx_badges_earned_profile on public.badges_earned (pr
 
 alter table public.badges_earned enable row level security;
 
--- Everyone on the team can see everyone's badges — nobody can insert/update/
+-- Everyone on the team can see everyone's badges, nobody can insert/update/
 -- delete a row directly. Only the security-definer functions below write here.
 drop policy if exists "badges_earned: read org" on public.badges_earned;
 create policy "badges_earned: read org" on public.badges_earned
   for select using (org_id = public.my_org_id());
 
 -- ----------------------------------------------------------------------------
--- 2. AWARD_BADGE — shared helper. Inserts once (unique constraint), and only
+-- 2. AWARD_BADGE, shared helper. Inserts once (unique constraint), and only
 --    when this is a genuinely NEW unlock (not a re-check that already has
 --    it), posts a celebratory line to the Activity Feed so the whole team
 --    sees it.
@@ -119,7 +118,7 @@ end;
 $$;
 
 -- ----------------------------------------------------------------------------
--- 3. CHECK_AND_AWARD_BADGES — recomputes this person's counts from points_log
+-- 3. CHECK_AND_AWARD_BADGES, recomputes this person's counts from points_log
 --    and awards every badge whose threshold is now met. Cheap to call on
 --    every point-earning event; already-earned badges are just a no-op via
 --    the unique constraint above.
@@ -191,7 +190,7 @@ $$;
 -- ----------------------------------------------------------------------------
 -- 4. Re-declare the 7 points triggers from migration_points.sql, each with
 --    one extra line at the end calling check_and_award_badges(). Same
---    functions, same triggers already attached — nothing new to create here,
+--    functions, same triggers already attached, nothing new to create here,
 --    CREATE OR REPLACE just swaps in the new function body.
 -- ----------------------------------------------------------------------------
 
@@ -302,13 +301,13 @@ set search_path = public
 as $$
 begin
   if tg_op = 'INSERT' then
-    perform public.award_points(new.org_id, auth.uid(), 8, 'Drafted a contract — ' || new.title, 'contracts', new.id, 'drafted');
+    perform public.award_points(new.org_id, auth.uid(), 8, 'Drafted a contract: ' || new.title, 'contracts', new.id, 'drafted');
     perform public.check_and_award_badges(new.org_id, auth.uid());
     return new;
   end if;
 
   if tg_op = 'UPDATE' and new.status is distinct from old.status and new.status = 'signed' then
-    perform public.award_points(new.org_id, auth.uid(), 15, 'Contract signed — ' || new.title, 'contracts', new.id, 'status:signed');
+    perform public.award_points(new.org_id, auth.uid(), 15, 'Contract signed: ' || new.title, 'contracts', new.id, 'status:signed');
     perform public.check_and_award_badges(new.org_id, auth.uid());
   end if;
 
@@ -360,13 +359,13 @@ set search_path = public
 as $$
 begin
   if tg_op = 'INSERT' then
-    perform public.award_points(new.org_id, auth.uid(), 5, 'Started a project — ' || new.name, 'projects', new.id, 'started');
+    perform public.award_points(new.org_id, auth.uid(), 5, 'Started a project: ' || new.name, 'projects', new.id, 'started');
     perform public.check_and_award_badges(new.org_id, auth.uid());
     return new;
   end if;
 
   if tg_op = 'UPDATE' and new.status is distinct from old.status and new.status = 'complete' then
-    perform public.award_points(new.org_id, auth.uid(), 10, 'Finished the project — ' || new.name, 'projects', new.id, 'status:complete');
+    perform public.award_points(new.org_id, auth.uid(), 10, 'Finished the project: ' || new.name, 'projects', new.id, 'status:complete');
     perform public.check_and_award_badges(new.org_id, auth.uid());
   end if;
 
@@ -379,7 +378,7 @@ create trigger trg_projects_points after insert or update on public.projects
   for each row execute function public.award_points_for_project();
 
 -- ----------------------------------------------------------------------------
--- 5. REALTIME — so a badge unlocked (yours or a teammate's) shows up live,
+-- 5. REALTIME, so a badge unlocked (yours or a teammate's) shows up live,
 --    no refresh needed. Guarded so this is safe to re-run.
 -- ----------------------------------------------------------------------------
 do $$

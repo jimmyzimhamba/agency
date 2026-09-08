@@ -1,5 +1,5 @@
 // ============================================================================
-// STUDIO X COMMAND — Edge Function: send-email
+// STUDIO X COMMAND, Edge Function: send-email
 // ============================================================================
 // What this does, in plain language:
 //   The app calls this function right after the exact same two moments
@@ -9,7 +9,7 @@
 //        teammate.
 //   For each person who should be told, we check they haven't turned email
 //   notifications off (Team screen), then send them a short email via
-//   Resend. Runs entirely server-side — the Resend API key never touches
+//   Resend. Runs entirely server-side, the Resend API key never touches
 //   the app or the browser. See SETUP.md Step 145 for how to deploy this
 //   and set that key as a secret.
 // ============================================================================
@@ -37,7 +37,7 @@ Deno.serve(async (req: Request) => {
 
   try {
     if (!RESEND_API_KEY) {
-      // Not configured yet — fail quietly so this never blocks the actual
+      // Not configured yet, fail quietly so this never blocks the actual
       // prospect add/assign action that triggered it.
       return json({ sent: 0, skipped: "RESEND_API_KEY not configured" }, 200);
     }
@@ -70,12 +70,12 @@ Deno.serve(async (req: Request) => {
     if (type === "new_prospect") {
       const { data: owners } = await admin.from("profiles").select("id").eq("role", "owner");
       targetUserIds = (owners || []).map((o: any) => o.id).filter((id: string) => id !== callerId);
-      subject = `New prospect added — ${prospect.business_name}`;
+      subject = `New prospect added: ${prospect.business_name}`;
       heading = "New Prospect Added";
       line = `${prospect.business_name}${prospect.city ? " · " + prospect.city : ""} was just added to the pipeline.`;
     } else if (type === "assigned") {
       if (agent_id && agent_id !== callerId) targetUserIds = [agent_id];
-      subject = `Assigned to you — ${prospect.business_name}`;
+      subject = `Assigned to you: ${prospect.business_name}`;
       heading = "Prospect Assigned to You";
       line = `${prospect.business_name}${prospect.area ? " · " + prospect.area : ""} is now yours to work.`;
     } else {
@@ -111,7 +111,7 @@ Deno.serve(async (req: Request) => {
 
 function buildEmailHtml(heading: string, line: string, appUrl?: string) {
   // The site root is now the public marketing landing page (app/index.html),
-  // not the app itself — append /app.html so this button always deep-links
+  // not the app itself, append /app.html so this button always deep-links
   // straight into the real app instead of dropping someone back onto a
   // sales pitch they've already seen.
   const button = appUrl

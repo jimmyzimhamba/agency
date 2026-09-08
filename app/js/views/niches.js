@@ -18,7 +18,7 @@ export function overallScore(n) {
 
 // A niche with live outreach but no niche-tagged Opener means agents are
 // either improvising a first message from scratch or reaching for a
-// General template that doesn't mention this niche's specific pitch — flag
+// General template that doesn't mention this niche's specific pitch, flag
 // it so whoever owns the niche notices before it costs replies.
 function hasActiveProspects(n) {
   return store.prospects.some((p) => p.niche_id === n.id && !["signed", "dead"].includes(p.status));
@@ -41,7 +41,7 @@ function nicheConversionStats(n) {
 }
 
 // The opener-template flag and conversion stats above only ever fire once a
-// niche has active prospects — a niche the team rated a strong opportunity
+// niche has active prospects, a niche the team rated a strong opportunity
 // but never actually worked can sit invisibly idle forever. This flags that
 // gap directly: high score, zero prospects logged against it at all.
 const UNTAPPED_SCORE_THRESHOLD = 60;
@@ -51,8 +51,8 @@ function isUntapped(n) {
 
 // Niche conversion (above) and Revenue by City (Pipeline Value) both slice
 // the pipeline by dimensions the team explicitly chose (a niche tag, the
-// broad city field). Area is finer-grained — the actual neighborhood an
-// agent typed while scouting — and nothing anywhere aggregates it. A
+// broad city field). Area is finer-grained, the actual neighborhood an
+// agent typed while scouting, and nothing anywhere aggregates it. A
 // minimum sample size keeps one 1-for-1 lead from looking like a 100%
 // hotspot.
 const MIN_AREA_SAMPLE = 3;
@@ -80,8 +80,7 @@ function hotAreas() {
     .slice(0, 5);
 }
 
-// Pipeline already has a "No Website" filter chip (hasNoWebsite() there) —
-// but it's a flat, agency-wide list, never sliced by niche, even though this
+// Pipeline already has a "No Website" filter chip (hasNoWebsite() there), // but it's a flat, agency-wide list, never sliced by niche, even though this
 // is exactly the view that already answers "where should the team focus
 // outreach" (opportunity score, conversion rate, hot areas). A niche where
 // most active prospects don't even have a website yet is a strong opener
@@ -90,7 +89,7 @@ function hotAreas() {
 // directly from store.prospects (same fields Pipeline's own hasNoWebsite()
 // reads) rather than importing from pipeline.js, to keep this a one-file
 // change. Minimum sample size guards against one prospect reading as a false
-// 100% — same guardrail areaStats() above already uses.
+// 100%, same guardrail areaStats() above already uses.
 const NO_WEBSITE_MIN_SAMPLE = 3;
 function nicheNoWebsiteStats(n) {
   const active = store.prospects.filter((p) => p.niche_id === n.id && !["signed", "dead"].includes(p.status));
@@ -263,7 +262,7 @@ function openAreaStatsModal(rows) {
 }
 
 // Exported so Global Search can jump straight into a matched niche's detail
-// — owner-only editing is enforced by the caller (globalSearch.js only
+//, owner-only editing is enforced by the caller (globalSearch.js only
 // invokes this for owners, matching the fact that niche cards elsewhere in
 // the app only expose an "Edit" entry point to owners too).
 export function openNicheForm(existing) {

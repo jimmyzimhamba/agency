@@ -3,7 +3,7 @@ import { el, esc, timeAgo, debounce, toCSV, downloadTextFile, toast } from "../u
 import { openProspectDetail } from "./prospectDetail.js";
 
 // The feed only ever holds the most recent 60 rows (see state.js), so these
-// filters operate on data already loaded client-side — no extra query, no
+// filters operate on data already loaded client-side, no extra query, no
 // pagination to build. Persisted at module scope (not per-render) so
 // switching away and back to the tab keeps whatever filter was set.
 let filterAgent = "all";
@@ -65,7 +65,7 @@ export function renderActivity() {
 // Quick per-teammate count of who's actually logged something today, so a
 // glance at this tab answers "is anyone actually working the pipeline right
 // now" without reading through the raw feed. Runs over the same
-// store.activityLog the rest of this view uses — that's only ever the most
+// store.activityLog the rest of this view uses, that's only ever the most
 // recent 60 rows team-wide (see state.js), so on a very high-volume day this
 // can undercount someone whose earlier entries got pushed out by everyone
 // else's more recent ones. Acceptable: it's a "who's active" glance, not a
@@ -94,7 +94,7 @@ function renderTodayGlance(container) {
 }
 
 // Shared by the on-screen list and the CSV export, so "what you're looking
-// at" and "what you export" always match — exporting respects whatever
+// at" and "what you export" always match, exporting respects whatever
 // agent chip/search text is currently active instead of always dumping the
 // full unfiltered feed.
 function filteredActivity() {
@@ -106,7 +106,7 @@ function filteredActivity() {
 }
 
 // Same toCSV/downloadTextFile mechanism Pipeline/Contracts/Invoices/Projects
-// already use for their own exports — Activity was the one list view left
+// already use for their own exports, Activity was the one list view left
 // without one, useful for handing a slice of the feed to someone outside
 // the app or keeping an offline audit trail.
 function exportActivityCSV() {

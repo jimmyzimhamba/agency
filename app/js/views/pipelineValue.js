@@ -5,12 +5,12 @@ import { LOST_REASON_MARKER } from "./prospectDetail.js";
 import { QUOTE_MARKER } from "./dealPricing.js";
 
 // ============================================================================
-// PIPELINE VALUE — "what this pipeline is worth" calculator
+// PIPELINE VALUE, "what this pipeline is worth" calculator
 // ----------------------------------------------------------------------------
 // Sliders let an agent model a month of outreach. By default the sliders are
 // set from REAL numbers pulled from the last 30 days of your team's own
 // outreach (status_history table + signed prospects' actual retainer values)
-// — so the calculator starts truthful, not guessed. Drag any slider to
+//, so the calculator starts truthful, not guessed. Drag any slider to
 // explore a "what if" scenario; a badge shows whether you're looking at the
 // live number or a custom one, and "Reset to Live" snaps back. Whatever you
 // leave it on is remembered on this device (localStorage) for next time.
@@ -23,8 +23,7 @@ const DAYS_PER_MONTH = 30;
 // counters above, so it gets its own, longer lookback window.
 const TIMING_WINDOW_DAYS = 90;
 
-// The four adjacent funnel steps we report a "time in stage" average for —
-// deliberately excludes "dead" and any non-adjacent jump (e.g. sent straight
+// The four adjacent funnel steps we report a "time in stage" average for, // deliberately excludes "dead" and any non-adjacent jump (e.g. sent straight
 // to signed) so one weird outlier can't masquerade as a clean stage duration.
 const STAGE_TRANSITIONS = [
   { from: "not_contacted", to: "sent", label: "Lead → First Sent" },
@@ -109,7 +108,7 @@ function persist() {
   try {
     localStorage.setItem(LS_KEY, JSON.stringify({ inputs, isCustom }));
   } catch {
-    /* storage unavailable — non-fatal, just won't remember across visits */
+    /* storage unavailable, non-fatal, just won't remember across visits */
   }
 }
 
@@ -425,12 +424,12 @@ function renderRevenueBreakdown() {
   }
 }
 
-// Revenue by Niche/Tier above answer "where's the money" — this answers
+// Revenue by Niche/Tier above answer "where's the money", this answers
 // "where does outreach actually convert". Win rate = signed ÷ everyone who
 // was actually contacted (i.e. left Not Contacted at all), so a niche/agent
 // with just 2 leads and 1 signed doesn't get buried under one with 40 leads
 // and 3 signed. Minimum-sample-size cells are still shown (with their raw
-// counts) rather than hidden, so a 1-for-1 doesn't quietly disappear —  the
+// counts) rather than hidden, so a 1-for-1 doesn't quietly disappear, the
 // count subtext makes the sample size obvious at a glance.
 function winRateCells(groups) {
   return Array.from(groups.entries())
@@ -439,7 +438,7 @@ function winRateCells(groups) {
 }
 
 // Cold/Warm/Hot bucket boundaries for the Heat Score win-rate breakdown
-// below — mirrors the 0-100 range prospectForm.js's #pf-heat input already
+// below, mirrors the 0-100 range prospectForm.js's #pf-heat input already
 // enforces (schema check: heat_score between 0 and 100).
 const HEAT_BANDS = [
   { label: "Cold (0-39)", min: 0, max: 39 },
@@ -525,7 +524,7 @@ function renderConversionBreakdown() {
   }
 }
 
-// Every other metric on this page answers "how many" or "what %" — this
+// Every other metric on this page answers "how many" or "what %", this
 // answers "how long", which nothing else here does. Walks each prospect's
 // status_history in order, using the previous stage's timestamp (or the
 // prospect's created_at for the very first step) as the baseline, so each
@@ -583,7 +582,7 @@ function renderStageTimingBreakdown() {
 const DOW_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 // Everything above groups outcomes by who/what (niche, agent, heat score) or
-// by how-long (time in stage) — nothing groups by *when* the first outreach
+// by how-long (time in stage), nothing groups by *when* the first outreach
 // actually went out. Reuses the same stageTimingCache already fetched for
 // Average Time in Stage, so this costs zero extra Supabase queries. For each
 // prospect, find its "sent" transitions and bucket by day-of-week, then
@@ -631,7 +630,7 @@ function renderBestDayBreakdown() {
 }
 
 // Every other breakdown on this page explains why deals win. This is the
-// only one that looks at why they die — reading back the reason picked in
+// only one that looks at why they die, reading back the reason picked in
 // prospectDetail.js's "Why did this one die?" prompt the moment a prospect
 // is moved to Dead. Those are stored as plain prospect_notes rows tagged
 // with LOST_REASON_MARKER (same trick the Deal Pricing Calculator's quote
@@ -659,10 +658,10 @@ function renderLostReasonsBreakdown() {
 }
 
 // Every other win-rate lens here groups by a hand-assigned attribute
-// (niche/agent/heat/tier) — this is the first that groups by an actual
+// (niche/agent/heat/tier), this is the first that groups by an actual
 // sales *action*: did this prospect ever get a Deal Pricing Calculator
 // quote saved to their record (dealPricing.js's "Save Quote to Prospect",
-// tagged with QUOTE_MARKER — same trick Lost Reasons above already uses).
+// tagged with QUOTE_MARKER, same trick Lost Reasons above already uses).
 // Same "engaged" denominator (contacted, not left at Not Contacted) and
 // winRateCells() helper as the Niche/Agent/Heat/Tier breakdowns.
 function computeQuoteConversion() {
@@ -720,7 +719,7 @@ async function refreshLiveStats(wrap, sliderInputs) {
   if (!quoteRes.error) quotedProspectsCache = quoteRes.data || [];
 
   // A view we're not currently looking at may have re-rendered since this
-  // fetch started (or the user navigated away) — bail rather than touch
+  // fetch started (or the user navigated away), bail rather than touch
   // detached DOM nodes.
   if (!document.body.contains(wrap)) return;
 
@@ -749,8 +748,7 @@ const refreshDebounced = debounce(() => {
 export function initPipelineValueView() {
   // Real-time: any status change a teammate logs updates the prospects
   // table (and, via the DB trigger, status_history) which already fires
-  // this "prospects" event through the app's existing realtime channel —
-  // so the live numbers here refresh themselves without anyone hitting
+  // this "prospects" event through the app's existing realtime channel,   // so the live numbers here refresh themselves without anyone hitting
   // reload, the moment new outreach activity happens.
   on("prospects", () => refreshDebounced());
 }

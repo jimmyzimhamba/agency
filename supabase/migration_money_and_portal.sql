@@ -1,12 +1,12 @@
 -- ============================================================================
--- STUDIO X COMMAND — Expenses, the client project portal, and auto-drafted
+-- STUDIO X COMMAND, Expenses, the client project portal, and auto-drafted
 -- retainer invoices.
 -- ----------------------------------------------------------------------------
 -- Three features ship together in ONE file on purpose. They could each have
 -- their own migration (that's the convention every earlier feature followed),
 -- but the person running this is not a developer, and three separate pastes
 -- into the SQL editor is three chances to run two of them and forget the
--- third — which fails in the worst possible way, because the app would load
+-- third, which fails in the worst possible way, because the app would load
 -- fine and then break only on the one screen whose table never got created.
 -- One paste either works completely or fails completely.
 --
@@ -15,14 +15,14 @@
 -- partial failure fixes up whatever is missing and leaves the rest alone. It
 -- never drops anything and never touches a row of existing data.
 --
---   SECTION A — expenses (money out, so profit is knowable)
---   SECTION B — client project portal (a no-login link per project)
---   SECTION C — retainer invoices that draft themselves
+--   SECTION A, expenses (money out, so profit is knowable)
+--   SECTION B, client project portal (a no-login link per project)
+--   SECTION C, retainer invoices that draft themselves
 -- ============================================================================
 
 
 -- ============================================================================
--- SECTION A — EXPENSES
+-- SECTION A, EXPENSES
 -- ----------------------------------------------------------------------------
 -- Until now the app tracked every dollar coming in (invoices) and nothing
 -- going out, which means "we collected $4,000 this month" could not be turned
@@ -53,13 +53,13 @@ create table if not exists public.expenses (
 
   -- Categories are a fixed list rather than free text so the breakdown can
   -- actually group. They're chosen for a Harare agency specifically:
-  --   ad_spend       — Meta/Google budget, very often fronted for a client
-  --   subcontractor  — freelance designer, editor, photographer, writer
-  --   software       — Canva, hosting, domains, scheduling tools
-  --   data_airtime   — bundles and airtime, a real and recurring line here
-  --   transport      — fuel and kombi fare to client meetings
-  --   equipment      — phones, laptops, lights, gimbals
-  --   other          — the honest escape hatch, so nothing gets miscategorised
+  --   ad_spend, Meta/Google budget, very often fronted for a client
+  --   subcontractor, freelance designer, editor, photographer, writer
+  --   software, Canva, hosting, domains, scheduling tools
+  --   data_airtime, bundles and airtime, a real and recurring line here
+  --   transport, fuel and kombi fare to client meetings
+  --   equipment, phones, laptops, lights, gimbals
+  --   other, the honest escape hatch, so nothing gets miscategorised
   --                    just to make the form submit
   category text not null default 'other'
     check (category in ('ad_spend', 'subcontractor', 'software', 'data_airtime', 'transport', 'equipment', 'other')),
@@ -76,7 +76,7 @@ create table if not exists public.expenses (
   spent_on date not null default current_date,
 
   -- A flag, not a scheduler. Marking a subscription recurring does not create
-  -- next month's row — it just lets the Expenses screen show a "these repeat"
+  -- next month's row, it just lets the Expenses screen show a "these repeat"
   -- total, so the owner can see the standing monthly burn separately from
   -- one-off spending. Auto-creating rows for money that may not have actually
   -- left the account would put fiction in the ledger.
@@ -137,13 +137,13 @@ create trigger trg_expenses_touch before update on public.expenses
 
 
 -- ============================================================================
--- SECTION B — CLIENT PROJECT PORTAL
+-- SECTION B, CLIENT PROJECT PORTAL
 -- ----------------------------------------------------------------------------
 -- A read-only page a client opens with no login, showing what's been done on
 -- their project and what's next. The link is the credential: ?t=<token>.
 --
 -- Grid Plans already solved this exact problem and its solution is the one
--- worth copying — the table stays completely unreadable to anonymous
+-- worth copying, the table stays completely unreadable to anonymous
 -- visitors, and the public page gets its data through a single controlled
 -- entry point that validates the token server-side. What is NOT copied is the
 -- delivery mechanism. Grid Plans routes through four Edge Functions, and Edge
@@ -169,7 +169,7 @@ create unique index if not exists idx_projects_share_token on public.projects (s
 
 -- Lets a task be kept off the client's page. Without this the team has to
 -- choose between writing tasks honestly ("chase client for their logo, third
--- time") and being able to share the project at all — and faced with that
+-- time") and being able to share the project at all, and faced with that
 -- choice people write vague tasks, which quietly makes the whole checklist
 -- less useful internally. Defaults to false so sharing shows everything unless
 -- somebody deliberately hides a line.
@@ -178,7 +178,7 @@ alter table public.project_tasks add column if not exists internal boolean not n
 -- The public page's only door. Takes a token, returns one project as json, or
 -- null for anything it doesn't recognise.
 --
--- Returning plain null on a bad token — rather than raising — is deliberate.
+-- Returning plain null on a bad token, rather than raising, is deliberate.
 -- An error would let someone guessing tokens tell the difference between
 -- "wrong token" and "something else went wrong", and there is no benefit to
 -- the client in distinguishing them either: the page says "this link isn't
@@ -247,7 +247,7 @@ grant execute on function public.project_portal(text) to anon;
 
 
 -- ============================================================================
--- SECTION C — RETAINER INVOICES THAT DRAFT THEMSELVES
+-- SECTION C, RETAINER INVOICES THAT DRAFT THEMSELVES
 -- ----------------------------------------------------------------------------
 -- Signed clients carry a monthly retainer (prospects.mrr) but invoices are
 -- created entirely by hand. Revenue that depends on somebody remembering to
@@ -278,7 +278,7 @@ begin
   -- file relied solely on the revoke at the bottom to keep web callers out,
   -- and that revoke did not work. Postgres grants EXECUTE on a new function
   -- to PUBLIC automatically, and revoking from 'anon' does not remove a grant
-  -- held by PUBLIC — so this function stayed callable by anyone holding the
+  -- held by PUBLIC, so this function stayed callable by anyone holding the
   -- publishable key, which is everyone, since it ships inside the app's
   -- JavaScript. Called with no argument it drafts invoices for every
   -- organisation in the database.
@@ -315,7 +315,7 @@ begin
     -- Numbering reads the highest number already used in this org and adds
     -- one, rather than counting the rows. Counting is what the app's own
     -- client-side helper does, and it repeats a number as soon as an invoice
-    -- has ever been deleted — fine-ish when a human is looking at the field
+    -- has ever been deleted, fine-ish when a human is looking at the field
     -- and can correct it, not fine for something that runs unattended.
     select 'INV-' || lpad((coalesce(max(nullif(regexp_replace(invoice_number, '\D', '', 'g'), '')::bigint), 0) + 1)::text, 4, '0')
       into next_num
@@ -332,7 +332,7 @@ begin
       -- Due at the end of the month it covers. A date the client can sanity
       -- check against the work they received.
       month_end,
-      'Monthly retainer — ' || to_char(month_start, 'FMMonth YYYY') || '. Drafted automatically; check the amount before sending.',
+      'Monthly retainer: ' || to_char(month_start, 'FMMonth YYYY') || '. Drafted automatically; check the amount before sending.',
       -- Attributed to whoever owns the client, so it shows up under a real
       -- name in Invoices rather than appearing from nowhere. Null if the
       -- client is unassigned, which the invoices table already allows.
@@ -347,7 +347,7 @@ $$;
 
 -- The version the app calls. The one above takes an org id and will happily
 -- run for every org in the database, which is exactly right for a scheduled
--- job and exactly wrong for a button in a web app — a caller could pass
+-- job and exactly wrong for a button in a web app, a caller could pass
 -- somebody else's org id, or none at all. This wrapper takes no arguments, so
 -- the only org it can ever touch is the caller's own, and it refuses anyone
 -- who isn't the owner of it.
@@ -367,7 +367,7 @@ $$;
 
 -- These revokes name PUBLIC, not anon/authenticated, and that distinction is
 -- the whole point. Creating a function automatically grants EXECUTE to
--- PUBLIC — a group both web roles belong to — and "revoke from anon" only
+-- PUBLIC, a group both web roles belong to, and "revoke from anon" only
 -- removes a grant made directly to anon. It leaves the inherited PUBLIC grant
 -- untouched, so the function stays callable. Revoking from PUBLIC first and
 -- then granting back to exactly the role that should have it is the only
@@ -382,7 +382,7 @@ grant execute on function public.draft_my_retainer_invoices() to authenticated;
 -- No Edge Function and no pg_net here, unlike the overdue-invoice job that
 -- already runs on this database. That one has to make an HTTP call because it
 -- sends push notifications, which the database can't do. This one only writes
--- rows, so pg_cron can call it directly — which means no function to deploy,
+-- rows, so pg_cron can call it directly, which means no function to deploy,
 -- no secret to paste, and nothing that can silently stop working because a
 -- key was rotated.
 --
@@ -407,5 +407,5 @@ begin
 
   raise notice 'Retainer invoice drafting scheduled for the 1st of each month.';
 exception when others then
-  raise notice 'Could not schedule the monthly job (%). Not a problem — the Invoices screen has a button that does the same thing.', sqlerrm;
+  raise notice 'Could not schedule the monthly job (%). Not a problem, the Invoices screen has a button that does the same thing.', sqlerrm;
 end $$;

@@ -1,22 +1,21 @@
 // ============================================================================
-// STUDIO X COMMAND — Edge Function: check-overdue-invoices
+// STUDIO X COMMAND, Edge Function: check-overdue-invoices
 // ============================================================================
 // What this does, in plain language:
-//   Runs once a day on a timer (set up via pg_cron — see SETUP.md, "Turn on
+//   Runs once a day on a timer (set up via pg_cron, see SETUP.md, "Turn on
 //   overdue invoice alerts"). It looks for invoices that were marked "sent"
 //   but never paid, and whose due date has already passed, and haven't been
 //   flagged before. For each one, it pings whoever created the invoice plus
-//   every owner with a pop-up — even if nobody has Agency Command open —
-//   then marks it as flagged so it only pings once, not every day it stays
+//   every owner with a pop-up, even if nobody has Agency Command open, //   then marks it as flagged so it only pings once, not every day it stays
 //   overdue.
 //   Uses the exact same Web Push setup as send-push (same VAPID secrets),
 //   and also emails the same people via the same Resend setup as send-email
-//   (same RESEND_API_KEY secret) — whichever of the two (or both, or
+//   (same RESEND_API_KEY secret), whichever of the two (or both, or
 //   neither) is configured just works, nothing here requires both.
 //   Unlike send-push, nobody is logged in when this runs (it's woken up by a
 //   timer, not a person), so instead of checking a login token it checks a
 //   shared secret you set once as the CRON_SECRET. If you never set that
-//   secret, it just skips the check — everything still works, just slightly
+//   secret, it just skips the check, everything still works, just slightly
 //   less locked down.
 // ============================================================================
 
@@ -53,7 +52,7 @@ Deno.serve(async (req: Request) => {
     const pushConfigured = !!(VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY);
     const emailConfigured = !!RESEND_API_KEY;
     if (!pushConfigured && !emailConfigured) {
-      // Neither notification channel is configured yet — fail quietly so
+      // Neither notification channel is configured yet, fail quietly so
       // this never errors out the scheduled run, it just does nothing.
       return json({ sent: 0, skipped: "No notification channel configured" }, 200);
     }
@@ -138,7 +137,7 @@ Deno.serve(async (req: Request) => {
 
     // Mark every overdue invoice we looked at as flagged, whether or not a
     // push/email actually went out (e.g. nobody has notifications turned
-    // on) — otherwise we'd re-check and re-attempt the same invoices every
+    // on), otherwise we'd re-check and re-attempt the same invoices every
     // day.
     if (notifiedIds.length) {
       await admin.from("invoices").update({ overdue_notified_at: new Date().toISOString() }).in("id", notifiedIds);
@@ -158,7 +157,7 @@ function escapeHtml(s: string) {
 
 function buildEmailHtml(heading: string, line: string, appUrl?: string) {
   // The site root is now the public marketing landing page (app/index.html),
-  // not the app itself — append /app.html so this button always deep-links
+  // not the app itself, append /app.html so this button always deep-links
   // straight into the real app instead of dropping someone back onto a
   // sales pitch they've already seen.
   const button = appUrl

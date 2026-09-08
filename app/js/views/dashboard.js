@@ -1,6 +1,6 @@
 import { sb } from "../supabaseClient.js";
 import { store, on, profileById, prospectById, firstOfMonth } from "../state.js";
-import { el, esc, money, avatarHTML, statusLabel, toast, todayISO, timeAgo } from "../utils.js";
+import { el, esc, money, avatarHTML, statusLabel, toast, todayISO, timeAgo, noDash } from "../utils.js";
 import { openModal, closeModal } from "../ui.js";
 import { openProspectDetail } from "./prospectDetail.js";
 import { openProjectDetail } from "./projects.js";
@@ -8,7 +8,7 @@ import { openProjectDetail } from "./projects.js";
 const METRIC_LABELS = { sent: "Sends", replied: "Replies", meeting_booked: "Meetings", signed: "Signed" };
 
 // A static "% of target" bar looks identical whether it's day 5 or day 28
-// of the month — 40% on day 5 is great, 40% on day 28 is a crisis already
+// of the month, 40% on day 5 is great, 40% on day 28 is a crisis already
 // baked in. This compares actual progress against straight-line "expected
 // by today" pacing (days elapsed / days in month) so the team gets an
 // early, actionable signal instead of discovering the miss on the last day.
@@ -31,7 +31,7 @@ const STATUS_ORDER = ["not_contacted", "sent", "replied", "meeting_booked", "sig
 // The one place a status's color is named in JS. These point at the
 // --status-* variables rather than at --info/--warn/--success directly, so
 // that light mode can swap in darkened versions of the same hues without this
-// file knowing about it — a solid arc on a white card needs far more contrast
+// file knowing about it, a solid arc on a white card needs far more contrast
 // than the same color does as pill text. See the palette block in styles.css.
 const STATUS_COLOR = {
   not_contacted: "var(--status-not-contacted)",
@@ -45,12 +45,12 @@ const STATUS_COLOR = {
 let weeklyHistory = [];
 
 // A prospect is "stale" once it's sat in an active (not signed/dead) status
-// with no update at all — no status change, no assignment, no edit — for
+// with no update at all, no status change, no assignment, no edit, for
 // this many days. `updated_at` is touched automatically by a DB trigger on
 // every write to the row, so it's a reliable proxy for "last touched" even
 // though we don't keep a full per-prospect activity history client-side
 // (the loaded activity_log is capped at 60 rows org-wide). This is
-// deliberately independent of `follow_up_date`/"Due Today" — that only
+// deliberately independent of `follow_up_date`/"Due Today", that only
 // catches leads someone remembered to set a reminder on; this catches the
 // ones nobody thought to.
 const STALE_DAYS = 5;
@@ -61,8 +61,7 @@ function staleProspects() {
   );
 }
 
-// Dead leads that have sat untouched for a while are worth a second look —
-// businesses change hands, get new management, or just have better timing
+// Dead leads that have sat untouched for a while are worth a second look, // businesses change hands, get new management, or just have better timing
 // six months later. Same `updated_at` staleness signal as above, just
 // scoped to the opposite end: leads that are dead AND have been dead a
 // long time (a lead marked dead yesterday isn't a win-back candidate yet).
@@ -72,7 +71,7 @@ function winBackCandidates() {
   return store.prospects.filter((p) => p.status === "dead" && new Date(p.updated_at).getTime() < cutoff);
 }
 
-// Revenue that's already been won can still quietly slip away — a client
+// Revenue that's already been won can still quietly slip away, a client
 // stops paying, a project stalls, or nobody ever got around to billing them
 // in the first place. This flags signed clients showing any of those signs
 // so they get a second look before the relationship goes cold, instead of
@@ -97,7 +96,7 @@ function revenueAtRiskClients() {
 }
 
 // A "signed" prospect left at $0 MRR almost always just means someone
-// forgot to fill in the retainer amount, not an intentional free deal — and
+// forgot to fill in the retainer amount, not an intentional free deal, and
 // it silently understates every revenue number derived from it: the Monthly
 // Revenue Goal progress bar, Revenue by Niche/Tier, and the win-rate grids
 // on Pipeline Value all quietly treat it as if it isn't there. Flagging it
@@ -106,10 +105,10 @@ function zeroMrrSignedProspects() {
   return store.prospects.filter((p) => p.status === "signed" && !(Number(p.mrr) > 0));
 }
 
-// The whole follow-up system — "Due Today" on the home screen, "Week Ahead"
-// on Team, the ICS calendar export — only works for a lead someone remembered
+// The whole follow-up system, "Due Today" on the home screen, "Week Ahead"
+// on Team, the ICS calendar export, only works for a lead someone remembered
 // to set a follow_up_date on. A rep replies to a lead, moves it to Replied,
-// gets pulled onto something else, and never sets a reminder — that lead
+// gets pulled onto something else, and never sets a reminder, that lead
 // goes invisible to every follow-up surface in the app, and (unlike the
 // "Needs Follow-up" staleness card above) won't even get flagged there for
 // STALE_DAYS more days, and only once it's genuinely gone untouched. This
@@ -119,7 +118,7 @@ function noFollowUpProspects() {
 }
 
 // Distinct from the "Project blocked" signal inside Revenue at Risk: a
-// project can be humming along as "in_progress" and still be late — blocked
+// project can be humming along as "in_progress" and still be late, blocked
 // only tells you something stalled it, not whether the calendar already
 // slipped. Client-delivery accountability, so a missed deadline gets caught
 // before the client notices it first.
@@ -130,22 +129,22 @@ function overdueProjects() {
 
 // store.gridPlans/store.gridPosts (Client Grid Plan Review) are loaded into
 // the store like everything else but, until now, never referenced anywhere
-// outside gridPlans.js itself — a plan the client sent back with
+// outside gridPlans.js itself, a plan the client sent back with
 // "changes_requested" only ever surfaced if someone happened to open Grid
 // Plans and notice the status pill. Same "flag it here too" logic as every
 // other Dashboard card: the data already exists, it just needed a
 // cross-cutting home. Deliberately just the plan's own status (not scanning
-// individual posts within it) — a plan only carries "changes_requested"
+// individual posts within it), a plan only carries "changes_requested"
 // once the client has actually submitted that verdict on the whole review.
 function gridPlansNeedingChanges() {
   return store.gridPlans.filter((p) => p.status === "changes_requested");
 }
 
 // Revenue at Risk already watches billing (overdue invoice / no invoice
-// after 30 days) and a blocked project — but it never checks the simpler,
+// after 30 days) and a blocked project, but it never checks the simpler,
 // earlier failure: a client signed, and nobody ever created a project row
 // for them at all, so delivery work isn't tracked anywhere. That's a
-// distinct real-world gap for a small agency — the deal closed, maybe even
+// distinct real-world gap for a small agency, the deal closed, maybe even
 // got invoiced, but nobody spun up the actual work, and nothing surfaces it
 // until the client asks "so when do we start?" 3-day grace period avoids
 // flagging a deal signed minutes ago before anyone's had a chance to react.
@@ -162,10 +161,10 @@ function signedNoProjectClients() {
 }
 
 // A lead that's active but nobody's actually assigned to it is easy to lose
-// track of — it doesn't show up on any one agent's plate, so it can just sit
+// track of, it doesn't show up on any one agent's plate, so it can just sit
 // there until someone happens to notice. Owner-only: under RLS a non-owner
 // only ever sees prospects assigned to (or created by) them, so this count
-// would be silently incomplete for anyone else — same reasoning as the
+// would be silently incomplete for anyone else, same reasoning as the
 // Monthly Leaderboard's org-wide-vs-per-user data source choice.
 function unassignedActiveProspects() {
   return store.prospects.filter((p) => !["signed", "dead"].includes(p.status) && !p.assigned_to);
@@ -173,7 +172,7 @@ function unassignedActiveProspects() {
 
 // Distinct from "Unassigned" above: this lead DOES have someone assigned,
 // but that person's profile has since been marked inactive (access
-// removed) — prospectDetail.js's reassignment dropdown already labels this
+// removed), prospectDetail.js's reassignment dropdown already labels this
 // case "(removed)" one lead at a time, but there was no aggregate view of
 // how many active leads are currently orphaned this way, so they can go
 // unnoticed until someone happens to open that specific prospect. Owner-only
@@ -188,7 +187,7 @@ function orphanedActiveProspects() {
 // already lost. Revenue at Risk watches for warning signs on clients
 // already showing trouble. This is the one forward-looking retention
 // signal: a still-happy signed client quietly approaching (or just past)
-// the 12-month mark on their earliest signed contract — the natural
+// the 12-month mark on their earliest signed contract, the natural
 // moment for a renewal check-in before a competitor gets there first or
 // inattention lets the relationship go cold. Uses the earliest signed
 // contract per prospect (not the latest) since that's the date the client
@@ -221,7 +220,7 @@ function clientAnniversaries() {
 // Invoices, Team, the Goal card) but getting them into one shareable
 // message today means visiting four screens and typing it out by hand.
 // WhatsApp-share is already an established pattern for individual records
-// (payment reminders, contracts) — this applies the same idea to an
+// (payment reminders, contracts), this applies the same idea to an
 // aggregate weekly rollup. Uses exact signed/paid dates rather than the
 // fuzzier `updated_at` staleness signal other widgets rely on, since a
 // recap needs to land in the right week, not just "recently".
@@ -271,11 +270,11 @@ function buildRecapText(s) {
   return lines.join("\n");
 }
 
-// "Getting Started" checklist — nudges a brand-new team toward the handful
+// "Getting Started" checklist, nudges a brand-new team toward the handful
 // of actions that make every other Dashboard card meaningful (an empty
 // pipeline can't show stale leads, an org with no contracts can't show
 // Revenue at Risk, etc.). Every item is derived from data that already
-// exists in the store — nothing new to track in the database — and the
+// exists in the store, nothing new to track in the database, and the
 // card disappears on its own once every relevant item is done, or
 // immediately if someone hides it. Two items (setting a revenue goal,
 // inviting a teammate) are owner-only actions elsewhere in the app, so
@@ -299,7 +298,7 @@ function getChecklistItems(isOwner) {
 }
 
 // Dismissal is a personal, cosmetic UI preference ("stop nudging me about
-// this"), not team data — so it's kept in localStorage rather than a new
+// this"), not team data, so it's kept in localStorage rather than a new
 // database column. Keyed by org+user so switching accounts or organizations
 // doesn't inherit someone else's dismissal.
 function checklistDismissKey() {
@@ -346,7 +345,7 @@ export function renderDashboard() {
 
   // Everything that used to be its own always-visible card down the length of
   // the Dashboard is now folded into one collapsible "Data Health" section.
-  // These are all real signals, but they're *occasional* ones — a client
+  // These are all real signals, but they're *occasional* ones, a client
   // anniversary or a missing MRR value doesn't need to cost you a screenful of
   // scrolling every single morning. Collapsed, they cost one line; the count
   // below is what makes that safe, because it's the one number that tells you
@@ -385,8 +384,8 @@ export function renderDashboard() {
       </div>
       ` : ""}
 
-      <!-- The two questions you open this page to answer — what shape is the
-           pipeline, and are we going to hit the number — now sit together at
+      <!-- The two questions you open this page to answer, what shape is the
+           pipeline, and are we going to hit the number, now sit together at
            the top, side by side on a laptop and stacked on a phone.
 
            The six status stat-cards that used to be Pipeline Overview are gone,
@@ -667,7 +666,7 @@ export function renderDashboard() {
 
   // "Data Health" open/closed. Every card inside stays in the DOM whether the
   // section is open or not, so all the click handlers further down still find
-  // their cards by ID exactly as before — this only hides them visually.
+  // their cards by ID exactly as before, this only hides them visually.
   const healthToggle = wrap.querySelector("#db-health-toggle");
   const healthBody = wrap.querySelector("#db-health-body");
   const toggleHealth = () => {
@@ -684,7 +683,7 @@ export function renderDashboard() {
 
   wrap.querySelector("#db-share-recap").addEventListener("click", () => {
     const text = buildRecapText(weeklyRecapStats());
-    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
+    window.open(`https://wa.me/?text=${encodeURIComponent(noDash(text))}`, "_blank");
   });
 
   if (isOwner) {
@@ -761,7 +760,7 @@ export function renderDashboard() {
   }
 
   // Each card jumps to its list pre-filtered to the status it's actually
-  // counting, instead of dumping onto the unfiltered "All" view — same
+  // counting, instead of dumping onto the unfiltered "All" view, same
   // deep-link pattern Pipeline's own status grid already uses
   // (goToPipelineStatus below). "Awaiting Sig." and "Active Projects" are
   // each really a multi-status count (draft+sent / not_started+in_progress+
@@ -804,7 +803,7 @@ export function renderDashboard() {
   // statuses are skipped so they can't leave a hairline artifact on the ring.
   //
   // stroke goes in a style attribute rather than the stroke="" presentation
-  // attribute because var() is only substituted in CSS declarations — as a
+  // attribute because var() is only substituted in CSS declarations, as a
   // presentation attribute it is invalid and the segment renders black.
   let offset = 0;
   const segs = STATUS_ORDER.filter((s) => byStatus[s] > 0)
@@ -843,7 +842,7 @@ export function renderDashboard() {
     const count = byStatus[s];
     const pct = totalProspects ? (count / totalProspects) * 100 : 0;
     // min-width keeps a 1-of-400 status from rounding away to an empty track,
-    // but only when the count is actually non-zero — a stray sliver on a zero
+    // but only when the count is actually non-zero, a stray sliver on a zero
     // row would read as "there's one in here somewhere".
     const row = el(`
       <div class="legend-row" data-status="${s}" style="--legend-color:${STATUS_COLOR[s]};">
@@ -868,7 +867,7 @@ export function renderDashboard() {
 }
 
 // Once a prospect goes signed -> dead, `prospects.status` alone can't tell
-// you it used to be a paying client — it looks identical to a lead that
+// you it used to be a paying client, it looks identical to a lead that
 // simply never converted. That's a materially different (and costlier)
 // event for an agency: losing revenue already won is worth investigating
 // (delivery problem? pricing issue?), not just re-pitching like a cold
@@ -890,7 +889,7 @@ async function loadChurned(wrap) {
 
   // A non-owner's local `store.prospects` is RLS-scoped to their own
   // prospects, so prospectById() naturally comes back null for anyone
-  // else's churned client — filtering those out keeps this accurate per
+  // else's churned client, filtering those out keeps this accurate per
   // viewer instead of needing separate owner/agent branches.
   const rows = (data || [])
     .map((h) => ({ prospect: prospectById(h.prospect_id), changedAt: h.changed_at }))
@@ -922,7 +921,7 @@ async function loadChurned(wrap) {
   );
 }
 
-// Ranks the whole team by deals signed this month — the one number that
+// Ranks the whole team by deals signed this month, the one number that
 // matters most, front and center, instead of buried in the unranked
 // per-agent breakdown below. Pulled straight from status_history, which is
 // readable org-wide under RLS (unlike the prospects table, which a non-owner
@@ -970,9 +969,8 @@ async function loadLeaderboard(wrap) {
 }
 
 // Shows how many *active* leads (not signed/dead) currently sit with each
-// agent — a capacity/fairness view, distinct from This Week's activity
-// counts (which measure recent output, not current load). Synchronous —
-// unlike the leaderboard/weekly stats, this doesn't need a fresh
+// agent, a capacity/fairness view, distinct from This Week's activity
+// counts (which measure recent output, not current load). Synchronous, // unlike the leaderboard/weekly stats, this doesn't need a fresh
 // status_history query since it just re-slices store.prospects, which an
 // owner already has the full org-wide copy of under RLS. Owner-only for the
 // same reason Unassigned Leads is: a non-owner's local copy of

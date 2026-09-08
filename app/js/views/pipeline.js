@@ -38,7 +38,7 @@ function isStaleProspect(p) {
 }
 
 // Same signal dashboard.js's "No Follow-up Date Set" Data Check card
-// computes org-wide — surfaced here too so a rep can jump straight to one of
+// computes org-wide, surfaced here too so a rep can jump straight to one of
 // these leads and set a reminder while working the list, same reasoning as
 // "Going Cold" above.
 function hasNoFollowUp(p) {
@@ -47,11 +47,11 @@ function hasNoFollowUp(p) {
 
 // hasNoFollowUp above only catches a MISSING follow-up date. Once a date is
 // actually set and then blown past, every per-row view here reads it as
-// "handled" — the only place that catches a blown-past date today is
+// "handled", the only place that catches a blown-past date today is
 // main.js's dueTodayList() (the bell icon / "Due Today" sheet), a separate,
 // read-only, org-wide modal disconnected from the working list. This
 // surfaces the same blown-past signal right here so a rep can filter
-// straight to it while actually working Pipeline — same reasoning Going
+// straight to it while actually working Pipeline, same reasoning Going
 // Cold/No Follow-up above already established. Deliberately strictly-before-
 // today (not due-today-or-earlier), matching projects.js's own
 // isOverdueProject() convention: due today isn't overdue yet.
@@ -60,7 +60,7 @@ function hasOverdueFollowUp(p) {
 }
 
 // A prospect with no WhatsApp, email, or Instagram is a lead nobody can
-// actually act on — no opener to send, no way to reach them at all — yet it
+// actually act on, no opener to send, no way to reach them at all, yet it
 // sits in the pipeline looking like normal backlog. prospectDetail.js only
 // surfaces this passively, one prospect at a time, as a "No contact details
 // saved" note. This makes it visible and filterable across the whole list so
@@ -71,8 +71,8 @@ export function hasNoContactMethod(p) {
 
 // Unlike the flags above (process/data-quality gaps), this one flags a
 // sales opportunity: a prospect who visibly lacks the exact product this
-// agency sells is a stronger pitch — "I noticed you don't have a website
-// yet..." — worth surfacing as its own lens for building a call-list.
+// agency sells is a stronger pitch, "I noticed you don't have a website
+// yet...", worth surfacing as its own lens for building a call-list.
 function hasNoWebsite(p) {
   return !["signed", "dead"].includes(p.status) && !p.website;
 }
@@ -80,8 +80,8 @@ function hasNoWebsite(p) {
 // `rating` is captured on every prospect (Add/Edit form) and shown once in
 // Prospect Detail's subheader, but nothing ever uses it to prioritize
 // outreach. A high public rating that's still sitting untouched is the
-// strongest, most-proven kind of lead — an established business with real
-// customer trust — so it deserves its own lens distinct from heat score,
+// strongest, most-proven kind of lead, an established business with real
+// customer trust, so it deserves its own lens distinct from heat score,
 // which is agency-assigned rather than public-signal-driven.
 const TOP_RATED_THRESHOLD = 4.5;
 function isTopRatedUncontacted(p) {
@@ -90,7 +90,7 @@ function isTopRatedUncontacted(p) {
 
 // The AI Research edge function marks a prospect "failed" when the lookup
 // errors out, but the client currently treats "failed" the same as "done"
-// everywhere it's checked — a crashed run renders identically to a
+// everywhere it's checked, a crashed run renders identically to a
 // successful one that just came up empty. That leaves dead-end leads
 // (no research summary, likely a weak generic outreach message) invisible
 // unless someone opens every card one at a time. This makes them
@@ -102,7 +102,7 @@ function hasFailedResearch(p) {
 // ---- bulk select mode -------------------------------------------------------
 // Lets someone check off several prospect cards and apply one change (status,
 // assignment, or a quick "mark dead") to all of them at once via a single
-// `.in("id", [...])` update — instead of opening each prospect one at a time.
+// `.in("id", [...])` update, instead of opening each prospect one at a time.
 let selectMode = false;
 const selectedIds = new Set();
 
@@ -113,7 +113,7 @@ function exitSelectMode() {
 }
 
 // Lets other views (e.g. Dashboard tiles) deep-link into a filtered Pipeline
-// — resets the other filters so the jump lands on a clean, predictable view.
+//, resets the other filters so the jump lands on a clean, predictable view.
 export function setStatusFilter(status) {
   filters.search = "";
   filters.status = status;
@@ -125,11 +125,11 @@ export function setStatusFilter(status) {
 
 // ---- saved filter views ----------------------------------------------------
 // Lets someone save a named combo of filter chips (status/tier/city/niche/
-// assigned-to-me/sort) and re-apply it in one tap — e.g. "Harare, Tier A,
+// assigned-to-me/sort) and re-apply it in one tap, e.g. "Harare, Tier A,
 // cold" instead of re-clicking five chips every time. Deliberately a
 // per-device preference stored in localStorage rather than a synced table:
 // this is a personal shortcut, not shared pipeline data, so it doesn't need
-// a migration, RLS, or Realtime — it just needs to survive a reload on the
+// a migration, RLS, or Realtime, it just needs to survive a reload on the
 // device it was saved on. Scoped by org + profile so a shared/kiosk browser
 // with multiple people signing in and out doesn't mix up whose views are
 // whose.
@@ -150,7 +150,7 @@ function persistSavedViews(views) {
   try {
     localStorage.setItem(viewsStorageKey(), JSON.stringify(views));
   } catch {
-    // Private-browsing / storage-full edge case — the view just won't
+    // Private-browsing / storage-full edge case, the view just won't
     // persist this session. Nothing else in the app depends on it.
   }
 }
@@ -159,8 +159,7 @@ function persistSavedViews(views) {
 // Two ways to look at the same prospects. Card view is the original: every
 // lead gets its heat bar and its WhatsApp/Details buttons, which is right when
 // you are working one lead at a time. List view strips a row down to name,
-// where they are, and status so roughly three times as many fit on a screen —
-// which is what you want when you are scanning for a particular business or
+// where they are, and status so roughly three times as many fit on a screen, // which is what you want when you are scanning for a particular business or
 // getting a feel for the whole pipeline. Tapping a row still opens the full
 // detail panel, so nothing is actually lost by scanning in List view.
 //
@@ -171,7 +170,7 @@ function persistSavedViews(views) {
 //
 // Same reasoning as saved views for storing it per-device in localStorage:
 // how you like to look at a list is a personal habit, not shared pipeline
-// data, so it needs no table and no sync — just to survive a reload.
+// data, so it needs no table and no sync, just to survive a reload.
 function densityStorageKey() {
   return `sxc-pipeline-density:${store.organization?.id || "default"}:${store.profile?.id || "anon"}`;
 }
@@ -190,12 +189,12 @@ function persistDensity() {
   try {
     localStorage.setItem(densityStorageKey(), compactList ? "compact" : "cards");
   } catch {
-    // Private-browsing / storage-full edge case — the choice just won't
+    // Private-browsing / storage-full edge case, the choice just won't
     // persist past this session. The list itself still works.
   }
 }
 
-// The free-text search box is deliberately left out of a saved view — a
+// The free-text search box is deliberately left out of a saved view, a
 // view is a reusable preset of structural filters, not a one-off search
 // term someone happened to be typing when they hit Save.
 function currentFilterSnapshot() {
@@ -270,7 +269,7 @@ function openBulkStatusModal() {
 
 // Dashboard's "Unassigned Leads" and "Team Workload" cards already *detect*
 // a pile of ungiven-out or lopsided-assigned leads, but nothing actually
-// *fixes* it in one action — an owner had to bulk-assign in several manual
+// *fixes* it in one action, an owner had to bulk-assign in several manual
 // passes (select 10, assign to A; select the next 10, assign to B...).
 // Round-robins the selected batch across active teammates, always handing
 // the next one to whoever currently has the fewest active (not signed/dead)
@@ -288,8 +287,7 @@ async function distributeEvenly(ids) {
   });
 
   // Greedy round-robin: each prospect goes to whoever has the lowest running
-  // count at that moment, then that count is bumped before the next pick —
-  // same "worst-first" spirit as tasks.js's Team Checklist sort, just used to
+  // count at that moment, then that count is bumped before the next pick,   // same "worst-first" spirit as tasks.js's Team Checklist sort, just used to
   // decide *where work goes* instead of *what to show first*.
   const byAgent = new Map();
   ids.forEach((id) => {
@@ -391,11 +389,11 @@ export function renderPipeline() {
   // is known until sign-in has finished.
   loadDensity();
   // Every filter chip/sort/select-mode click above calls renderPipeline()
-  // again, which wipes and rebuilds the whole view — including a brand new
+  // again, which wipes and rebuilds the whole view, including a brand new
   // #pl-search element. Unconditionally focusing that new element afterward
   // (further down) used to fire on *every single one* of those re-renders,
   // including the very first one when a user simply taps into the Pipeline
-  // tab from the nav bar — which is what was popping the mobile keyboard
+  // tab from the nav bar, which is what was popping the mobile keyboard
   // open every time someone just wanted to look at the list. Capturing
   // whether the search box actually had focus *before* the rebuild lets us
   // restore it only when the user was genuinely mid-search, not on a fresh
@@ -553,7 +551,7 @@ export function renderPipeline() {
     tierRow.appendChild(chip);
   });
 
-  // city chips — lets any agent who just logged on narrow straight down to
+  // city chips, lets any agent who just logged on narrow straight down to
   // the city they're working (e.g. Harare vs Bulawayo) instead of scrolling
   // past every prospect in the other market.
   const cityRow = wrap.querySelector("#pl-city-chips");
@@ -709,7 +707,7 @@ function exportFilteredCSV() {
 
 // findDuplicateProspect() already runs at creation time (new-prospect save
 // and bulk-import preview), but that only catches overlaps at the moment
-// something's added — two reps adding the same business weeks apart, with
+// something's added, two reps adding the same business weeks apart, with
 // no shared import batch, never gets flagged. This retroactively sweeps the
 // whole pipeline already loaded in `store.prospects` for name/phone matches,
 // same matching rules as the at-creation check, just run pairwise across
@@ -909,7 +907,7 @@ export async function sendWhatsApp(p) {
     }
   } else {
     // Already has a message (manually written, or AI-generated with an
-    // {{agent_name}} token in it) — personalize it just for this send,
+    // {{agent_name}} token in it), personalize it just for this send,
     // without overwriting the saved copy, so it still reads right for
     // whichever teammate opens this prospect next.
     message = personalizeMessage(message, p, store.profile?.full_name?.split(" ")[0]);

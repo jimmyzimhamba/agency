@@ -1,10 +1,9 @@
 // ============================================================================
-// STUDIO X COMMAND — Outreach (batch approve, then one-tap send)
+// STUDIO X COMMAND, Outreach (batch approve, then one-tap send)
 // ============================================================================
 // The problem this solves:
 //   Sending 20 cold openers used to mean 20 separate trips into a prospect,
-//   reading what the AI wrote, deciding if it's any good, and tapping send —
-//   with the pipeline redrawing between each one. The research and the writing
+//   reading what the AI wrote, deciding if it's any good, and tapping send, //   with the pipeline redrawing between each one. The research and the writing
 //   were already automated (the research-prospect Edge Function looks the
 //   business up online with Claude and writes the 3-line opener). The part
 //   that still ate the morning was the reviewing and the tapping.
@@ -16,7 +15,7 @@
 //   The first message to a stranger always leaves from a human's own WhatsApp
 //   app via a wa.me hand-off. Automating that step means driving a WhatsApp
 //   session from a script, which is against WhatsApp's terms and gets numbers
-//   banned — detection is automatic, it does not wait for anyone to complain,
+//   banned, detection is automatic, it does not wait for anyone to complain,
 //   and unanswered messages are themselves a flag, which is precisely the
 //   pattern cold outreach produces. The agency's WhatsApp number is also the
 //   number existing clients use, so a ban costs far more than the outreach is
@@ -34,7 +33,7 @@ import { patchProspect } from "../outbox.js";
 import { sendWhatsApp } from "./pipeline.js";
 
 // A target, not a cap. The ask was "at least 20 a day", so the number is drawn
-// as something to reach rather than a limit to bump into — nothing here stops
+// as something to reach rather than a limit to bump into, nothing here stops
 // anyone at 20.
 const DAILY_TARGET = 20;
 
@@ -49,7 +48,7 @@ function isActive() {
 }
 
 // Local midnight, built from local date parts rather than toISOString(), which
-// converts to UTC and — in a UTC+2 country — reports anything sent before 2am
+// converts to UTC and, in a UTC+2 country, reports anything sent before 2am
 // as belonging to the previous day.
 function startOfToday() {
   const d = new Date();
@@ -64,7 +63,7 @@ function sentToday() {
 // Every prospect this screen will ever touch: never contacted, reachable on
 // WhatsApp, and not on the do-not-contact list. Assignment is checked at send
 // time by sendWhatsApp() rather than filtered out here, so a teammate's
-// prospects are still visible for review — seeing that somebody else is
+// prospects are still visible for review, seeing that somebody else is
 // already on it is useful; silently hiding it looks like the lead vanished.
 function contactable() {
   return store.prospects.filter(
@@ -80,7 +79,7 @@ function readyToSend() {
   return contactable().filter((p) => p.outreach_approved_at);
 }
 
-// The message as it will actually go out — tokens filled in for whoever is
+// The message as it will actually go out, tokens filled in for whoever is
 // looking at it. Mirrors what sendWhatsApp() does at send time, so the text
 // reviewed on this screen is the text that leaves.
 function previewMessage(p) {
@@ -110,8 +109,8 @@ async function doSend(p) {
   if (!message.trim()) return toast("No message written for this prospect yet", "error");
 
   // sendWhatsApp handles claiming the prospect, opening WhatsApp, and moving
-  // the status to 'sent'. It answers false when it refused — no number, or a
-  // teammate got there first — and nothing should be logged in that case.
+  // the status to 'sent'. It answers false when it refused, no number, or a
+  // teammate got there first, and nothing should be logged in that case.
   const ok = await sendWhatsApp(p);
   if (!ok) return false;
 
@@ -122,7 +121,7 @@ async function doSend(p) {
     sent_by: store.profile?.id || null,
   });
   // A failed log entry is worth knowing about but must not look like a failed
-  // send — WhatsApp is already open with the message in it at this point.
+  // send, WhatsApp is already open with the message in it at this point.
   if (error) console.error("outreach_log insert failed", error);
   else await refreshOutreachLog();
 
@@ -154,7 +153,7 @@ export function renderOutreach() {
       ${today.length >= HEAVY_DAY ? `
         <div class="text-faint" style="font-size:11.5px;margin-top:8px;line-height:1.5;">
           That's a lot from one number in a day. Nothing's wrong, but heavy volume
-          from a single number is what looks like spam from the outside — worth
+          from a single number is what looks like spam from the outside, so it's worth
           spreading the rest over tomorrow.
         </div>` : ""}
     </div>
@@ -245,7 +244,7 @@ function renderPending(view, list) {
       title: `Approve all ${list.length}?`,
       body:
         "This approves every message below exactly as the AI wrote it, without you reading them one by one. " +
-        "Fine when you've spot-checked a few and they're good — but these go to real businesses under your name.",
+        "Fine when you've spot-checked a few and they're good, but these go to real businesses under your name.",
       confirmLabel: "Approve all",
       onConfirm: async () => {
         const stamp = { outreach_approved_at: new Date().toISOString(), outreach_approved_by: store.profile?.id || null };
@@ -331,7 +330,7 @@ function renderPending(view, list) {
           rewriteBtn.textContent = "Try Again";
           return toast(error.message || "Research failed", "error");
         }
-        toast("Researched — pull down to refresh", "success");
+        toast("Researched, pull down to refresh", "success");
       });
     }
 
@@ -342,7 +341,7 @@ function renderPending(view, list) {
           title: `Never contact ${p.business_name}?`,
           body:
             "Use this when a business has asked not to be messaged. They stay in your list but " +
-            "drop out of every outreach screen, and nobody can approve a message for them — " +
+            "drop out of every outreach screen, and nobody can approve a message for them, " +
             "including if they get added again from Discovery later.",
           confirmLabel: "Never contact",
           danger: true,

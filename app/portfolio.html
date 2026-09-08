@@ -21,11 +21,11 @@
   </div>
 
   <!-- This page reads directly from Supabase (anon key) rather than through
-       an Edge Function, unlike review.html — the content it fetches is
+       an Edge Function, unlike review.html, the content it fetches is
        explicitly public/marketing material, gated by RLS to only ever
        return rows the owner has switched to "published" on a showcase
        they've explicitly turned "public". See supabase/migration_portfolio.sql
-       for the full reasoning. No realtime, no login — a plain load-on-visit
+       for the full reasoning. No realtime, no login, a plain load-on-visit
        page. -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script type="module" src="js/portfolioPublic.js"></script>

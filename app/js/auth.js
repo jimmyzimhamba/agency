@@ -3,7 +3,7 @@ import { store, emit } from "./state.js";
 import { toast } from "./utils.js";
 
 let mode = "signin"; // or "signup"
-let agencyMode = "create"; // or "join" — only meaningful when mode === "signup"
+let agencyMode = "create"; // or "join", only meaningful when mode === "signup"
 
 const els = () => ({
   screen: document.getElementById("auth-screen"),

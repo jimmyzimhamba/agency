@@ -1,4 +1,4 @@
-// Outbox — the field actions keep working with no signal.
+// Outbox, the field actions keep working with no signal.
 //
 // THE PROBLEM THIS SOLVES
 //
@@ -7,14 +7,13 @@
 // outside a shop in Mbare can still look up who they're about to walk in on.
 // But every WRITE went straight to Supabase and, with no signal, straight into
 // a red error toast. So the app opened, showed you the prospect, and then
-// refused to let you record what just happened — which is the one thing you
+// refused to let you record what just happened, which is the one thing you
 // actually need to do while you're standing there. In practice that means the
 // update gets written on the back of a hand and re-typed hours later, if at
 // all.
 //
 // So: those writes now go into a queue on the phone first, take effect on
-// screen immediately, and are sent the moment there's a connection again —
-// which might be five seconds later when the bar comes back, or tomorrow
+// screen immediately, and are sent the moment there's a connection again, // which might be five seconds later when the bar comes back, or tomorrow
 // morning on the office WiFi. The queue survives closing the app, killing the
 // browser, and restarting the phone, because it lives in localStorage rather
 // than in memory.
@@ -31,14 +30,14 @@
 //   except when the row appears.
 //
 //   A status and a follow-up date are single fields on one prospect, so
-//   sending a stale one late is last-write-wins on that field only — the
+//   sending a stale one late is last-write-wins on that field only, the
 //   ordinary outcome of two people editing the same box, no worse.
 //
 //   A note is append-only. It can't clobber anything, and arriving late just
 //   means it arrives late.
 //
 //   A mission tick is one person's own row for one mission on one date, and
-//   nobody else can write it — so nothing can be racing it, and arriving late
+//   nobody else can write it, so nothing can be racing it, and arriving late
 //   is invisible.
 //
 // Adding a prospect is the one that makes the other four worth having. Walking
@@ -50,7 +49,7 @@
 // Deliberately NOT queued, and these are the interesting ones:
 //
 //   Claiming or assigning a prospect. Whether you get it depends on whether
-//   someone else already has it — that's a race the server decides (there's a
+//   someone else already has it, that's a race the server decides (there's a
 //   claim_prospect function for exactly this reason). Queueing it would mean
 //   telling someone "it's yours" while offline and taking it away again an
 //   hour later. Better to say "you need signal for this" up front.
@@ -64,7 +63,7 @@
 //
 // SENDING TWICE IS FINE, BY CONSTRUCTION
 //
-// The nastiest case on bad mobile data isn't a request that fails — it's one
+// The nastiest case on bad mobile data isn't a request that fails, it's one
 // that reaches the server, is applied, and then the reply is lost on the way
 // back. The phone can't tell that apart from a request that never arrived, so
 // it will send again. Every job type is built so that a second delivery is
@@ -76,7 +75,7 @@
 //   A note and a new prospect both carry an id generated HERE, on the phone,
 //   instead of letting the database make one up. A repeat delivery therefore
 //   collides with the row that already landed and is rejected as a duplicate
-//   key — which this file reads as "good, it's already there" rather than as
+//   key, which this file reads as "good, it's already there" rather than as
 //   an error. Without that, a shop added at the edge of a signal could end up
 //   in the pipeline twice, and the second copy would look like a genuine
 //   second business rather than an obvious mistake.
@@ -88,7 +87,7 @@
 // ORDER IS NOW LOAD-BEARING
 //
 // Adding a shop and then straight away setting its status, or writing a note
-// on it, is completely normal — that's one conversation outside one door. Those
+// on it, is completely normal, that's one conversation outside one door. Those
 // later jobs refer to a row that does not exist on the server yet, so they can
 // only work if the insert goes first. It does: the queue drains oldest-first
 // and STOPS at the first job that couldn't get through rather than skipping
@@ -111,7 +110,7 @@ import { notify } from "./push.js";
 const KEY = "sxc-outbox-v1";
 
 // How often to try again while something is still waiting. navigator.onLine
-// is not a connectivity test — it only reports whether the device thinks it
+// is not a connectivity test, it only reports whether the device thinks it
 // has a network interface, so it stays true on a carrier data connection that
 // is technically attached and passing nothing. That's the normal state of a
 // weak signal, and it means the "online" event alone would never fire to wake
@@ -147,7 +146,7 @@ function save() {
   try {
     localStorage.setItem(KEY, JSON.stringify(queue));
   } catch {
-    // Out of storage. Nothing useful to do — the in-memory queue still works
+    // Out of storage. Nothing useful to do, the in-memory queue still works
     // for this session, it just won't survive a restart.
   }
   watchers.forEach((fn) => fn(queue.length));
@@ -185,8 +184,8 @@ export function onOutboxChange(fn) {
 // ---- putting things in -----------------------------------------------------
 
 // Add a brand-new prospect. Returns the id it will have, which is generated
-// here so that the rest of the app can start using it — opening the prospect,
-// setting a status, writing a note — long before the server has heard of it.
+// here so that the rest of the app can start using it, opening the prospect,
+// setting a status, writing a note, long before the server has heard of it.
 //
 // `payload` is the form's own field values. `wantsResearch` says the message
 // box was left blank, so the AI should write the outreach message once this
@@ -195,7 +194,7 @@ export function onOutboxChange(fn) {
 // The row that goes on screen is assembled here rather than waiting for the
 // server's copy, which means the defaults below have to match the ones in
 // schema.sql. They are the columns the pipeline card and the detail sheet read
-// — get one wrong and a freshly added shop renders blank or, worse, in the
+//, get one wrong and a freshly added shop renders blank or, worse, in the
 // wrong status column. (org_id is deliberately absent: a database trigger
 // fills it in, and it isn't needed to draw anything.)
 export function addProspect(payload, wantsResearch) {
@@ -225,7 +224,7 @@ export function addProspect(payload, wantsResearch) {
 
 // Throw away a queued prospect that hasn't been sent yet.
 //
-// Deleting is normally a live write, and deliberately so — you should never be
+// Deleting is normally a live write, and deliberately so, you should never be
 // told something irreversible happened without confirmation that it did. But a
 // prospect that is still only in this queue is a special case: nothing has
 // happened yet, so there is nothing to confirm. Cancelling the job is the whole
@@ -259,7 +258,7 @@ export function cancelPendingProspect(prospectId) {
 //
 // This exists because the obvious alternative is wrong. A prospect added ten
 // minutes ago has no row on the server, so an ordinary update aimed at it has
-// nothing to find — correcting a name you'd just mistyped would fail, and keep
+// nothing to find, correcting a name you'd just mistyped would fail, and keep
 // failing, until the original insert happened to go out. Folding the correction
 // into the insert means only the corrected version is ever sent, which is also
 // what somebody fixing a typo thirty seconds later plainly meant.
@@ -304,7 +303,7 @@ export function patchProspect(prospectId, patch) {
   return flushOutbox();
 }
 
-// Post a note. The id is made here rather than by the database — see the
+// Post a note. The id is made here rather than by the database, see the
 // "sending twice is fine" note at the top of this file.
 export function postNote(prospectId, body) {
   const job = {
@@ -330,7 +329,7 @@ export function postNote(prospectId, body) {
 // captured here for the same reason: something ticked late on Monday belongs
 // to Monday even if it sends on Tuesday.
 //
-// Merged per mission per day, like the prospect patches — somebody tapping a
+// Merged per mission per day, like the prospect patches, somebody tapping a
 // box on and off while they decide should send one final answer, not a replay
 // of them changing their mind.
 export function setTaskCompletion(taskId, completed) {
@@ -360,7 +359,7 @@ export function setTaskCompletion(taskId, completed) {
 // update, coming back to the app from the lock screen. That server copy does
 // not contain anything still sitting in this queue, so without these two the
 // status you just set would appear, then silently revert to the old one the
-// next time anything refreshed — which looks exactly like the app losing your
+// next time anything refreshed, which looks exactly like the app losing your
 // work, and is the failure people would trust least.
 //
 // state.js calls both of these on every such refresh (see setOutboxDecorators
@@ -403,7 +402,7 @@ function decorateNotes(prospectId, list) {
   // Drop any still-sending note whose job has since left the queue. Without
   // this the placeholder would sit there wearing "Sending…" forever after the
   // real note was saved, on any screen that didn't happen to refetch. Note
-  // this runs even when the queue is empty — that IS the case where the last
+  // this runs even when the queue is empty, that IS the case where the last
   // note just went out and its placeholder needs clearing.
   for (let i = list.length - 1; i >= 0; i--) {
     if (list[i]._pending && !queue.some((j) => j.id === list[i].id)) list.splice(i, 1);
@@ -413,7 +412,7 @@ function decorateNotes(prospectId, list) {
   queue.forEach((job) => {
     if (job.kind !== "note" || job.prospectId !== prospectId) return;
     // Already arrived (the note went out, and this refresh is the server's
-    // own copy of it coming back) — the queue just hasn't been trimmed yet.
+    // own copy of it coming back), the queue just hasn't been trimmed yet.
     if (list.some((n) => n.id === job.id)) return;
     list.push({
       id: job.id,
@@ -430,8 +429,7 @@ function decorateNotes(prospectId, list) {
   list.sort((a, b) => (a.created_at < b.created_at ? -1 : 1));
 }
 
-// Simpler than the notes one, because a completion row has a natural key —
-// (mission, person, date) — so a queued tick can always find the row it
+// Simpler than the notes one, because a completion row has a natural key, // (mission, person, date), so a queued tick can always find the row it
 // belongs to instead of needing an id matched up. Every placeholder this
 // added last time is thrown away first and rebuilt from the queue, which is
 // what keeps it correct once the real row arrives: at that point the queued
@@ -487,7 +485,7 @@ function isTransient(error) {
 
 async function send(job) {
   if (job.kind === "prospect-insert") {
-    // org_id is left out on purpose — the stamp_org_id trigger fills it in.
+    // org_id is left out on purpose, the stamp_org_id trigger fills it in.
     // _pending is a marker this file invented; it is not a column, and sending
     // it would be rejected.
     const { _pending, ...row } = job.row;
@@ -503,7 +501,7 @@ async function send(job) {
     //
     // They run on the duplicate-key path too, and that is not an oversight. A
     // lost reply means this file returned a transient error last time and never
-    // got here — so the row landed but the team was never told about it. This
+    // got here, so the row landed but the team was never told about it. This
     // attempt is the first chance to do that.
     notify("new_prospect", job.prospectId);
     if (job.wantsResearch) {
@@ -532,7 +530,7 @@ async function send(job) {
   }
   if (job.kind === "task-completion") {
     // The same upsert tasks.js has always used. org_id is left out on purpose
-    // — a database trigger (stamp_org_id) fills it in, so sending one from
+    //, a database trigger (stamp_org_id) fills it in, so sending one from
     // here would be duplicating a decision the server already makes.
     const { error } = await sb.from("daily_task_completions").upsert(
       {
@@ -546,7 +544,7 @@ async function send(job) {
     );
     return error;
   }
-  return null; // Unknown kind (an older/newer version of this file wrote it) — drop it.
+  return null; // Unknown kind (an older/newer version of this file wrote it), drop it.
 }
 
 // Sends everything waiting, oldest first, and stops at the first job that
@@ -604,7 +602,7 @@ export async function flushOutbox() {
           // Everything queued behind this one hangs off a prospect that is now
           // never going to exist, so each would fail on arrival and fire its
           // own error. Drop them together and say it once, naming the business
-          // — "couldn't save one change" is no use when what was actually lost
+          //, "couldn't save one change" is no use when what was actually lost
           // is a shop you wrote down an hour ago and can no longer remember.
           const name = job.row.business_name || "that prospect";
           queue = queue.filter((j) => j.prospectId !== job.prospectId);
@@ -634,7 +632,7 @@ export async function flushOutbox() {
   //
   // A prospect that has just been added needs a refetch rather than a re-render,
   // and this is the one place where the difference is visible. Its placeholder
-  // was the ONLY copy on this phone — so simply re-rendering would prune it and
+  // was the ONLY copy on this phone, so simply re-rendering would prune it and
   // leave nothing behind, and the shop somebody added ten minutes ago would
   // disappear off the pipeline at the exact moment it was successfully saved.
   // Fetching first and rendering once means the placeholder is quietly replaced
@@ -646,12 +644,12 @@ export async function flushOutbox() {
 
   // Something was refused outright. The screen is currently showing a value
   // that this device believes and the server never accepted, and nothing else
-  // is going to correct it — the job is gone from the queue, so the decorators
+  // is going to correct it, the job is gone from the queue, so the decorators
   // won't be re-applying it either. Pull the truth back down so the screen
   // stops claiming a change that didn't happen. (Notes and refused new
   // prospects need no equivalent: there was never a server row behind either
-  // of them, so pruning the placeholder — which the re-render above already
-  // did — leaves the screen honest with nothing to fetch.)
+  // of them, so pruning the placeholder, which the re-render above already
+  // did, leaves the screen honest with nothing to fetch.)
   if (rejected.has("prospect-patch")) refreshProspects();
   if (rejected.has("task-completion")) refreshDailyCompletions();
 
@@ -678,7 +676,7 @@ export function initOutbox() {
     if (document.visibilityState === "visible") flushOutbox();
   });
 
-  // Anything left over from a previous session — the app was closed with edits
+  // Anything left over from a previous session, the app was closed with edits
   // still unsent, and this is the first chance to deliver them.
   flushOutbox();
 }

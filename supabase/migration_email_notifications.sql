@@ -1,5 +1,5 @@
 -- ============================================================================
--- STUDIO X COMMAND — Migration: Email Notifications
+-- STUDIO X COMMAND, Migration: Email Notifications
 -- ============================================================================
 -- Run this once in the Supabase SQL Editor to add what the new email
 -- notifications feature needs. See SETUP.md Step 145.

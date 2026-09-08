@@ -1,5 +1,5 @@
 // ============================================================================
-// STUDIO X COMMAND — View: Pitch Practice
+// STUDIO X COMMAND, View: Pitch Practice
 // ============================================================================
 // A practice game for the sales team, built on one idea: the objections your
 // own team actually hears are better training material than anything bought
@@ -424,8 +424,7 @@ function renderStage(stage) {
   card.querySelector("#pp-coach").addEventListener("click", () => submitAnswer(stage, card));
 }
 
-// One-tap day-one deck. These go in as ordinary cards owned by the agency —
-// editable and deletable like any other — just flagged as starter cards so
+// One-tap day-one deck. These go in as ordinary cards owned by the agency, // editable and deletable like any other, just flagged as starter cards so
 // they aren't falsely credited to whoever pressed the button.
 async function seedStarterCards(link, stage) {
   link.textContent = "Loading the deck...";
@@ -449,8 +448,8 @@ async function seedStarterCards(link, stage) {
     console.error("pitchPractice: could not load starter cards", error);
     // Re-running the migration is still the fix, but say WHY it failed rather
     // than only guessing at the cause. The two real causes look identical from
-    // here — a missing is_starter column and a missing stamp_org_id trigger
-    // (which leaves org_id null and trips the not-null constraint) — and
+    // here, a missing is_starter column and a missing stamp_org_id trigger
+    // (which leaves org_id null and trips the not-null constraint), and
     // without the database's own words there is no way to tell them apart, so
     // a wrong guess sends someone re-running SQL that was never the problem.
     const why = (error.message || "").trim();
@@ -481,7 +480,7 @@ function pickCard() {
 // supabase-js reports a function that isn't deployed and a function that is
 // deployed but unreachable with the same opaque sentence: "Failed to send a
 // request to the Edge Function". On its own that tells the reader nothing they
-// can act on — it looks like the app is broken rather than like a setup step
+// can act on, it looks like the app is broken rather than like a setup step
 // was skipped. By far the likeliest cause on a fresh install is simply that
 // pitch-coach was never deployed, so name that and point at the step. The
 // original wording is kept on the end so a genuinely different fault (a
@@ -489,7 +488,7 @@ function pickCard() {
 function coachErrorMessage(error, data) {
   const raw = (error?.message || data?.error || "").trim();
   if (/failed to send a request/i.test(raw)) {
-    return "The pitch-coach function isn't deployed yet — see SETUP.md Step 158.2. Cards still work without it; only the coaching notes need it.";
+    return "The pitch-coach function isn't deployed yet. See SETUP.md Step 158.2. Cards still work without it; only the coaching notes need it.";
   }
   return raw || "Couldn't get a coaching note";
 }

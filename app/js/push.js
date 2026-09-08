@@ -1,5 +1,4 @@
-// Pop-up (Web Push) notifications. A teammate opts in from the Team screen —
-// nobody is ever subscribed automatically. Once on, their browser holds a
+// Pop-up (Web Push) notifications. A teammate opts in from the Team screen, // nobody is ever subscribed automatically. Once on, their browser holds a
 // "push subscription" (saved to Supabase) that the send-push Edge Function
 // uses to wake their device with a real OS-level notification, even if
 // Agency Command isn't open on screen. See supabase/functions/send-push.
@@ -91,7 +90,7 @@ export async function disablePush() {
 }
 
 // Fire-and-forget: tells the send-push and send-email Edge Functions someone
-// should be told. Never blocks or surfaces errors to the UI — a
+// should be told. Never blocks or surfaces errors to the UI, a
 // failed/unset-up notification should never get in the way of the actual
 // add/assign action that triggered it.
 export function notify(type, prospect_id, agent_id) {

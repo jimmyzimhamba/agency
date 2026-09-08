@@ -1,13 +1,13 @@
 -- ============================================================================
--- STUDIO X COMMAND — MIGRATION: City field + filter for prospects
+-- STUDIO X COMMAND, MIGRATION: City field + filter for prospects
 -- ============================================================================
 -- What this does, in plain language:
 --   - Adds a "City" field to every prospect (e.g. Harare, Bulawayo) so as
 --     the team expands beyond Harare, any agent who logs on can filter the
---     pipeline down to just the city they're working — no more scrolling
+--     pipeline down to just the city they're working, no more scrolling
 --     past leads from the other city to find their own.
 --   - Existing prospects are backfilled to "Harare" since that's been the
---     only market so far — nothing gets lost or reset.
+--     only market so far, nothing gets lost or reset.
 --   - New prospects default to "Harare" too unless changed in the Add
 --     Prospect form (or set explicitly via Bulk Import).
 --

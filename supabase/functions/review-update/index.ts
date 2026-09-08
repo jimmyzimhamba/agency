@@ -1,9 +1,9 @@
 // ============================================================================
-// STUDIO X COMMAND — Edge Function: review-update
+// STUDIO X COMMAND, Edge Function: review-update
 // ============================================================================
 // What this does, in plain language:
 //   Lets the public, no-login client review page edit ONE post's caption
-//   and/or approval status. Nothing else — not client_note (that's the
+//   and/or approval status. Nothing else, not client_note (that's the
 //   agency writing TO the client, not the other way around), not platform,
 //   not post_date, not position (that's review-reorder's job). The field
 //   whitelist below is the actual security boundary, not just a convenience:
@@ -12,12 +12,12 @@
 //
 //   Every real change here also gets picked up automatically by the
 //   trg_log_grid_post_changes trigger on grid_posts (see
-//   migration_grid_plans.sql) — it logs to grid_activity as actor_type
+//   migration_grid_plans.sql), it logs to grid_activity as actor_type
 //   'client' because this call has no auth.uid() (service-role key, no
 //   user session). No manual activity-log insert needed in this file.
 //
 //   Cross-plan isolation: the post_id in the request has to actually belong
-//   to the plan the token resolves to — checked explicitly below — so a
+//   to the plan the token resolves to, checked explicitly below, so a
 //   client with a valid token for Plan A can never touch a post that
 //   belongs to Plan B just by guessing/copying its id.
 // ============================================================================
@@ -56,7 +56,7 @@ Deno.serve(async (req: Request) => {
     }
 
     const allowed = await checkRateLimit(admin, `update:${token}`, RATE_LIMIT, RATE_WINDOW_SECONDS);
-    if (!allowed) return json({ error: "Too many requests — please wait a moment and try again" }, 429);
+    if (!allowed) return json({ error: "Too many requests, please wait a moment and try again" }, 429);
 
     const plan = await resolvePlan(admin, token);
     if (!plan) return json({ error: "Invalid or expired link" }, 404);
@@ -68,7 +68,7 @@ Deno.serve(async (req: Request) => {
       return json({ error: "Post not found on this plan" }, 404);
     }
 
-    // Field whitelist — only these two keys are ever written, regardless of
+    // Field whitelist, only these two keys are ever written, regardless of
     // what else the request body contains.
     const patch: Record<string, unknown> = {};
     if (typeof caption === "string") patch.caption = caption.slice(0, 2200);
@@ -78,7 +78,7 @@ Deno.serve(async (req: Request) => {
     // it last saw (expected_updated_at) and didn't explicitly ask to
     // override (force), only apply the write if the row hasn't moved since
     // then. Chaining .eq("updated_at", expected_updated_at) onto the update
-    // makes this atomic — no separate read-then-write race window — and if
+    // makes this atomic, no separate read-then-write race window, and if
     // zero rows match, .select().maybeSingle() below comes back null, which
     // is how we detect "someone else changed this in the meantime" without
     // any extra round trip.
@@ -93,7 +93,7 @@ Deno.serve(async (req: Request) => {
 
     if (!updated) {
       // The row exists (checked above) but didn't match expected_updated_at
-      // — a teammate or the client in another tab saved a change in
+      //, a teammate or the client in another tab saved a change in
       // between this page loading the post and this save. Hand back the
       // current values so the caller can show what changed and offer
       // "Save Anyway" (a retry with force: true).

@@ -32,7 +32,7 @@ export function openBulkImportSheet() {
 }
 
 // Agents copying from ad-hoc spreadsheets had only the inline "Column
-// order: ..." hint to go on — easy to misalign columns (e.g. Rating landing
+// order: ..." hint to go on, easy to misalign columns (e.g. Rating landing
 // in the Tier slot) when re-typing/re-ordering their own sheet by hand. A
 // ready-made template with the exact header + one filled example row can be
 // opened in Excel/Sheets, filled in, and pasted straight back in. Reuses the
@@ -67,7 +67,7 @@ function findNicheId(name) {
   return match ? match.id : null;
 }
 
-// Flags rows that look like duplicates — either of a prospect already in
+// Flags rows that look like duplicates, either of a prospect already in
 // the pipeline, or of an earlier row in this same pasted batch (easy to do
 // by accident when copying from a big spreadsheet). Returns one entry per
 // row: null if clean, or { with, reason, inBatch } describing the match.
@@ -86,8 +86,7 @@ function runPreview(box) {
   const lines = raw.split("\n").map((l) => l.trim()).filter(Boolean);
   const rows = [];
   const errors = [];
-  // Rows whose pasted niche text didn't match any known niche by name —
-  // silently landing with niche_id: null used to be invisible until later,
+  // Rows whose pasted niche text didn't match any known niche by name,   // silently landing with niche_id: null used to be invisible until later,
   // when auto-personalization or Niche Strategy stats quietly skipped the
   // prospect. Tracked as { idx, raw } pairs (idx = the row's eventual
   // position in `rows`) so the confirm step can apply whatever the agent
@@ -126,7 +125,7 @@ function runPreview(box) {
   // Pipeline's "Unreachable" flag (hasNoContactMethod, pipeline.js) only ever
   // catches this after a lead's already imported and sitting in the pipeline
   // looking like normal backlog. Reusing that exact same check here surfaces
-  // it at preview time instead — purely a heads-up, not a block, since a
+  // it at preview time instead, purely a heads-up, not a block, since a
   // business with no contact info today might still be worth having on file
   // for later enrichment.
   const noContactRows = rows.filter(hasNoContactMethod);
@@ -212,7 +211,7 @@ function runPreview(box) {
 }
 
 // A bulk paste is exactly the kind of thing that goes wrong in a way you
-// only notice after confirming — columns off by one, wrong niche mapped,
+// only notice after confirming, columns off by one, wrong niche mapped,
 // pasted the wrong sheet range. The only recovery used to be manually
 // hunting down and deleting each new prospect one at a time in Pipeline.
 // Capturing the IDs Supabase just handed back from the insert (via

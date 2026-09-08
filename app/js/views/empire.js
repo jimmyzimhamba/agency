@@ -6,7 +6,7 @@ import { openProspectDetail } from "./prospectDetail.js";
 // Every building on this street is a real signed client, its colour is that
 // client's real niche, its height is that client's real monthly value, and
 // the name on the door is the teammate who actually signed it. Nothing here
-// can be earned by playing with it — the only way to put up a building is to
+// can be earned by playing with it, the only way to put up a building is to
 // sign a client, which is exactly the point. That also means it can never go
 // stale or drift out of agreement with the rest of the app: delete a client
 // and the building comes down on the next render.
@@ -19,7 +19,7 @@ import { openProspectDetail } from "./prospectDetail.js";
 // The street is drawn in ISOMETRIC rather than flat elevation. That is worth
 // the extra geometry for one specific reason: a flat side-on street of
 // coloured rectangles of varying height is a bar chart, and people read it as
-// one — they compare the bars instead of looking at the town. Turning the
+// one, they compare the bars instead of looking at the town. Turning the
 // boxes corner-on breaks that reading instantly. It also buys two visible
 // faces per building instead of one, so a building can have a lit side and a
 // shaded side and stop looking like a flat swatch of niche colour.
@@ -68,7 +68,7 @@ const FLOOR_H = 30;    // nominal storey height; the real one is fitted to h
 
 // Stable per-client pseudo-randomness. Roof inset, window pattern, which
 // windows are lit and which have flower boxes all key off this, so a given
-// client always gets the same building — a town that reshuffled itself on
+// client always gets the same building, a town that reshuffled itself on
 // every render would read as broken rather than alive.
 function hashOf(str) {
   let h = 2166136261;
@@ -85,8 +85,7 @@ function pt(x, y) { return `${n1(x)},${n1(y)}`; }
 // A point on one of a building's two visible walls. `dir` is +1 for the
 // right-hand wall and -1 for the left-hand one; `u` runs along the wall away
 // from the shared near edge and `v` runs straight up it. Expressing both walls
-// from the same origin is what makes the box meet cleanly at its near corner —
-// there is no seam to fudge, because both walls are literally computed from
+// from the same origin is what makes the box meet cleanly at its near corner, // there is no seam to fudge, because both walls are literally computed from
 // the same two numbers.
 function wallPt(x, y, dir, u, v) { return [x + dir * u, y - u * ISO - v]; }
 
@@ -97,7 +96,7 @@ function wallQuad(x, y, dir, u1, u2, v1, v2) {
 }
 
 // The flat top of a box. It is a diamond rather than a rectangle because both
-// of its horizontal axes are sloped — this one function draws every roof, the
+// of its horizontal axes are sloped, this one function draws every roof, the
 // footprint, and every cast shadow.
 function diamond(x, y, fw, sw) {
   return [[x, y], [x + fw, y - fw * ISO], [x + fw - sw, y - (fw + sw) * ISO], [x - sw, y - sw * ISO]]
@@ -106,7 +105,7 @@ function diamond(x, y, fw, sw) {
 }
 
 // Signed clients, oldest first, so the street reads left-to-right as the
-// agency's history — the founding client is nearest the start of the road.
+// agency's history, the founding client is nearest the start of the road.
 function townClients() {
   return store.prospects
     .filter((p) => p.status === "signed")
@@ -138,7 +137,7 @@ function buildingSVG(p, x, h, hue) {
 
   // Storeys are fitted rather than stacked. Dividing the wall evenly means a
   // short building gets short storeys and a tall one gets tall ones, and
-  // neither is left with a random band of blank wall under the roof — which is
+  // neither is left with a random band of blank wall under the roof, which is
   // what happens if you stack a fixed floor height into a height that came
   // from someone's monthly retainer and was never going to divide neatly.
   const floors = Math.max(1, Math.round((h - GROUND_H) / FLOOR_H));
@@ -163,7 +162,7 @@ function buildingSVG(p, x, h, hue) {
   // The name goes on a plate at the kerb rather than on the building: a 58px
   // shopfront cannot hold readable text, and a street where you have to tap
   // every door to find out who lives there is not much of a street. The plate
-  // is white in both themes — it is the one element here that has to stay
+  // is white in both themes, it is the one element here that has to stay
   // legible against a midday sky and a midnight one without being restyled.
   const name = p.business_name || "Client";
   const short = name.length > 14 ? name.slice(0, 13).trimEnd() + "…" : name;
@@ -219,7 +218,7 @@ function tree(x, y, seed) {
 }
 
 // The lamp's glow is a real radial gradient rather than a flat blob, and it is
-// tagged emp-night so it only exists after dark — a pool of light on a sunlit
+// tagged emp-night so it only exists after dark, a pool of light on a sunlit
 // pavement is the single fastest way to make a drawing look wrong.
 function lamp(x, y) {
   return `<g class="emp-lamp">
@@ -302,7 +301,7 @@ function cart(x, y) {
 
 // ---- sky -----------------------------------------------------------------
 // Both skies are always drawn and CSS hides one, rather than JS reading the
-// current theme. That is not laziness — it means flipping the theme switch
+// current theme. That is not laziness, it means flipping the theme switch
 // re-skins the town instantly with no re-render, and it removes the whole
 // class of bug where the town is left showing stars at midday because it was
 // drawn before the theme was applied.
@@ -330,7 +329,7 @@ function starsSVG(w) {
 // ---- sun and moon --------------------------------------------------------
 // Both are placed from the device clock, on the same arc: low at the left at
 // sunrise, highest at midday, low at the right at sunset, and the moon does
-// the same across the night. That means the sky is not decoration — a glance
+// the same across the night. That means the sky is not decoration, a glance
 // at where the sun is sitting tells you roughly how much of the working day
 // is left, which is the sort of thing an outreach team actually thinks about.
 //
@@ -354,7 +353,7 @@ function arcPos(w, t) {
 
 // Computed once per render and handed to both the defs and the sky, so the
 // moon mask cannot end up a minute behind the moon it is supposed to be
-// cutting into — which is exactly what would happen if each of them called
+// cutting into, which is exactly what would happen if each of them called
 // the clock separately either side of a minute boundary.
 function celestial(w, now) {
   const d = now || new Date();
@@ -387,7 +386,7 @@ function moonSVG(sky) {
   const r = 15;
   // The halo has to be a radial gradient, not a translucent disc. A flat
   // circle at low alpha still has a hard edge, and on a dark sky that edge is
-  // the only thing you see — it reads as a grey plate with a moon on it.
+  // the only thing you see, it reads as a grey plate with a moon on it.
   return `<g class="emp-moon emp-night">
     <circle class="emp-moon-halo" cx="${n1(cx)}" cy="${n1(cy)}" r="${n1(r * 3)}"/>
     <circle class="emp-moon-body" cx="${n1(cx)}" cy="${n1(cy)}" r="${r}" mask="url(#emp-moon-mask)"/>
@@ -404,7 +403,7 @@ function moonMask(sky) {
 
 // Each bird gets its own group so it can glide on its own timing, and the
 // wings are a scaleY squash on the one path rather than two paths swapped in
-// and out — a single shape flexing reads as a wingbeat, two shapes alternating
+// and out, a single shape flexing reads as a wingbeat, two shapes alternating
 // reads as a flicker. The negative delays stop the flock beating in formation.
 function birdsSVG(w) {
   const spots = [[0.2, 62], [0.26, 46], [0.31, 70], [0.66, 54]];
@@ -431,8 +430,7 @@ const PERSON_HALF = 7.5;  // half the body, used for the shadow
 // What a figure needs kept clear either side, which is deliberately wider than
 // the body: the arms swing out past the shoulders, so measuring the standing
 // silhouette leaves them clipping the edge of a planter at the end of the
-// swing. Found by sampling the animation rather than by reading the numbers —
-// the drawn width is 15, the swept width is nearly 17.
+// swing. Found by sampling the animation rather than by reading the numbers, // the drawn width is 15, the swept width is nearly 17.
 const PERSON_CLEAR = 9.5;
 const MIN_WALK = 13;      // below this there is no room to walk, so they stand
 const MAX_WALK = 48;      // nobody marches the entire length of the street
@@ -443,7 +441,7 @@ const PERSON_SLOT = 17;   // the least pavement one person can be given
 //
 //   .emp-person   placed by a transform ATTRIBUTE, never touched by CSS
 //     .emp-walk   translateX, in true screen units because nothing above it
-//                 scales — this is why the scaling moved down a level
+//                 scales, this is why the scaling moved down a level
 //       shadow    travels with them but does not bob or swing
 //       .emp-figure  the constant scale/facing
 //         .emp-person-idle  bob while walking, sway while standing
@@ -451,7 +449,7 @@ const PERSON_SLOT = 17;   // the least pavement one person can be given
 //
 // The shadow used to sit outside all the movement, because a shadow that rocks
 // with a standing body has nothing casting it. Now that they walk it has to
-// travel with them — but it still sits above the bob and the limb swings, so
+// travel with them, but it still sits above the bob and the limb swings, so
 // it slides along the ground instead of bouncing off it.
 function personSVG(prof, x, range) {
   const s = hashOf(prof.id);
@@ -464,7 +462,7 @@ function personSVG(prof, x, range) {
   // Speed is picked first and the durations derive from it, rather than the
   // other way round. Give everyone the same duration instead and whoever has
   // the longest clear stretch of pavement sprints down it while the hemmed-in
-  // one creeps — and worse, the feet stop matching the ground. Fixing speed
+  // one creeps, and worse, the feet stop matching the ground. Fixing speed
   // means one stride always covers one stride's worth of pavement, so nobody
   // moonwalks no matter how much room they were given.
   const speed = 8.5 + ((s >> 14) % 7) * 0.5;   // user units per second
@@ -501,8 +499,8 @@ function personSVG(prof, x, range) {
 
 // Where each teammate stands, and how far they can wander from there.
 //
-// The obvious approach — spread everyone evenly, then measure how much room
-// each one happens to have — was the first attempt, and it mostly produced
+// The obvious approach, spread everyone evenly, then measure how much room
+// each one happens to have, was the first attempt, and it mostly produced
 // people standing still. Even spacing keeps dropping someone right next to a
 // bench, and next to a bench there is no room to walk, so on a seven-client
 // street with four teammates nobody moved at all. Which is a strange way to
@@ -552,7 +550,7 @@ function placePeople(count, lo, hi, obstacles) {
   }
   spots.sort((a, b) => a.x - b.x);
 
-  // Not enough clear pavement to give everyone a real place — a big team with
+  // Not enough clear pavement to give everyone a real place, a big team with
   // one client, say. Fall back to the old even spread and let everyone stand
   // still: crowded and static is honest, whereas walking in that little space
   // would mean walking through the furniture.
@@ -579,7 +577,7 @@ const BACK_ITEMS = [tree, lamp, tree, tree, lamp, tree];
 const FRONT_ITEMS = [bench, planter, bike, bench, postbox, planter];
 
 // How much pavement each piece of street furniture actually occupies, measured
-// off the widest shape in its drawing function rather than its shadow — the
+// off the widest shape in its drawing function rather than its shadow, the
 // bike's shadow is narrower than its wheels, and a person clipping through a
 // wheel is just as obvious as one clipping through the frame.
 const FRONT_HALF = new Map([
@@ -677,7 +675,7 @@ export function renderEmpire() {
 
 function emptyStreet(host) {
   // An empty town has to explain itself, or it just looks broken. This is also
-  // the honest state for a new agency — the street is empty because nobody has
+  // the honest state for a new agency, the street is empty because nobody has
   // signed anyone yet, not because the feature is failing. Same sky and same
   // slab as the real street, so it reads as this street before anyone built on
   // it rather than as a different illustration. The dashed box is a
@@ -814,7 +812,7 @@ function renderStreet(host, clients, detailHost) {
 
   // Open on the newest end of the street: on a long street the left edge is
   // all old news and the most recent win is what you want to see. But only
-  // once there's real overflow — when the street only just misses fitting,
+  // once there's real overflow, when the street only just misses fitting,
   // jumping to the end lops a sliver off the first building and reads as a
   // rendering fault rather than as something you're meant to scroll.
   requestAnimationFrame(() => {
@@ -822,7 +820,7 @@ function renderStreet(host, clients, detailHost) {
   });
 
   // The street's width is baked in at draw time (see streetW above), so it has
-  // to be redrawn when the card changes size — collapsing the sidebar or
+  // to be redrawn when the card changes size, collapsing the sidebar or
   // rotating a phone would otherwise leave the island off-centre. Only redraws
   // when the width actually changed, so this can't loop.
   if (streetRO) streetRO.disconnect();
@@ -838,8 +836,8 @@ function renderStreet(host, clients, detailHost) {
   // the four circles along instead of redrawing the street: a full redraw every
   // minute would throw away the scroll position and cancel any hover.
   //
-  // A minute is far finer than the eye needs — the sun moves about half a
-  // pixel in that time — but it costs one arithmetic pass and it means the
+  // A minute is far finer than the eye needs, the sun moves about half a
+  // pixel in that time, but it costs one arithmetic pass and it means the
   // sky is never visibly wrong after waking a phone from sleep.
   clearInterval(skyTimer);
   skyTimer = setInterval(() => {
@@ -887,11 +885,11 @@ function showClient(host, id) {
       <div class="emp-detail-rows">
         <div><span class="text-faint">Worth</span><b>${p.mrr ? money(Number(p.mrr)) + "/mo" : "Not set"}</b></div>
         <div><span class="text-faint">Signed by</span><b>${signer ? esc(signer.full_name || "Teammate") : "Unassigned"}</b></div>
-        <div><span class="text-faint">On the street since</span><b>${p.created_at ? esc(fmtDate(p.created_at)) : "—"}</b></div>
+        <div><span class="text-faint">On the street since</span><b>${p.created_at ? esc(fmtDate(p.created_at)) : "Not recorded"}</b></div>
       </div>
     </div>
   `);
-  // openProspectDetail takes the prospect object, not its id — it re-reads the
+  // openProspectDetail takes the prospect object, not its id, it re-reads the
   // live copy out of the store itself and only falls back to what it was given.
   card.querySelector("#emp-open").addEventListener("click", () => openProspectDetail(p));
   host.appendChild(card);

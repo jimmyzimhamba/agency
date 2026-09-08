@@ -1,17 +1,17 @@
 // ============================================================================
-// STUDIO X COMMAND — Edge Function: send-whatsapp
+// STUDIO X COMMAND, Edge Function: send-whatsapp
 // ============================================================================
 // What this does, in plain language:
 //   Once a prospect has replied to you on WhatsApp at least once, the
 //   prospect detail page shows a real in-app conversation thread instead of
 //   just a one-shot "Send WhatsApp" deep link. This function is what sends
-//   a reply typed into that thread — it calls Twilio's API server-side (the
+//   a reply typed into that thread, it calls Twilio's API server-side (the
 //   Twilio credentials never touch the app or the browser) and logs the
 //   message so it shows up in the thread for every teammate who can see
 //   this prospect.
 //
 //   WhatsApp itself only allows a business to send free-form text within 24
-//   hours of the customer's last message — outside that window, only
+//   hours of the customer's last message, outside that window, only
 //   pre-approved template messages are allowed, which this app doesn't
 //   support (that's what the "Send WhatsApp" deep-link button is still for:
 //   the teammate's own WhatsApp app sends that first message, so it's never
@@ -34,7 +34,7 @@ const RATE_LIMIT_PER_HOUR = 30;
 
 // Turns any Zimbabwe-style number into the digits-only international format
 // Twilio's WhatsApp API needs (e.g. 0771234567 -> 263771234567). Kept in
-// sync with toWhatsAppDigits() in app/js/utils.js — same logic, duplicated
+// sync with toWhatsAppDigits() in app/js/utils.js, same logic, duplicated
 // here since edge functions are deployed standalone with no shared imports.
 function toWhatsAppDigits(raw: string): string {
   let digits = (raw || "").replace(/[^\d+]/g, "");
@@ -60,7 +60,7 @@ Deno.serve(async (req: Request) => {
 
   try {
     if (!TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN || !TWILIO_WHATSAPP_FROM) {
-      return json({ error: "WhatsApp isn't set up yet — ask the owner to add the Twilio secrets in Supabase (see SETUP.md Step 146)." }, 501);
+      return json({ error: "WhatsApp isn't set up yet. Ask the owner to add the Twilio secrets in Supabase (see SETUP.md Step 146)." }, 501);
     }
 
     const { prospect_id, body } = await req.json();
@@ -78,7 +78,7 @@ Deno.serve(async (req: Request) => {
     const userId = userData.user.id;
 
     // Load the prospect through the CALLER's own client, not the admin
-    // client — that way Postgres RLS itself decides whether this teammate
+    // client, that way Postgres RLS itself decides whether this teammate
     // is even allowed to see this prospect (owner, or assigned/created by
     // them), the exact same rule enforced everywhere else in the app,
     // instead of re-implementing it by hand here and risking a mismatch.
@@ -92,14 +92,14 @@ Deno.serve(async (req: Request) => {
 
     if (!prospect.whatsapp_last_inbound_at) {
       return json(
-        { error: "This prospect hasn't messaged you on WhatsApp yet. Use the Send WhatsApp button to start the conversation — once they reply, you can chat right here." },
+        { error: "This prospect hasn't messaged you on WhatsApp yet. Use the Send WhatsApp button to start the conversation, and once they reply, you can chat right here." },
         409
       );
     }
     const hoursSinceReply = (Date.now() - new Date(prospect.whatsapp_last_inbound_at).getTime()) / 3600000;
     if (hoursSinceReply > 24) {
       return json(
-        { error: "It's been more than 24 hours since they last messaged you — WhatsApp requires them to message first before you can reply here again. Use the Send WhatsApp button instead." },
+        { error: "It's been more than 24 hours since they last messaged you. WhatsApp requires them to message first before you can reply here again. Use the Send WhatsApp button instead." },
         409
       );
     }
@@ -113,7 +113,7 @@ Deno.serve(async (req: Request) => {
       .gte("created_at", oneHourAgo);
     if ((count || 0) >= RATE_LIMIT_PER_HOUR) {
       return json(
-        { error: `Message limit reached (${RATE_LIMIT_PER_HOUR}/hour) — this keeps Twilio costs in check. Try again shortly.` },
+        { error: `Message limit reached (${RATE_LIMIT_PER_HOUR}/hour). This keeps Twilio costs in check. Try again shortly.` },
         429
       );
     }

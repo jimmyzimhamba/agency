@@ -1,8 +1,8 @@
 // ============================================================================
-// STUDIO X COMMAND — Edge Function: whatsapp-webhook
+// STUDIO X COMMAND, Edge Function: whatsapp-webhook
 // ============================================================================
 // What this does, in plain language:
-//   Twilio calls this function directly — nobody is logged in, and it's
+//   Twilio calls this function directly, nobody is logged in, and it's
 //   never called from inside the app. It fires in two situations, both
 //   configured once against this same URL in your Twilio console (see
 //   SETUP.md Step 146):
@@ -13,12 +13,11 @@
 //        to them (push + email, same as every other notification in this
 //        app) so a real person follows up.
 //     2. Twilio reports a delivery status ("delivered", "read", "failed")
-//        for a message this app sent earlier via send-whatsapp — this
+//        for a message this app sent earlier via send-whatsapp, this
 //        function just updates that message's status in the thread.
 //   Since nobody is logged in when Twilio calls this, it can't check a
 //   login token like every other function in this app does. Instead it
-//   verifies Twilio's own request signature (X-Twilio-Signature header) —
-//   proof the request really came from Twilio and wasn't spoofed by
+//   verifies Twilio's own request signature (X-Twilio-Signature header), //   proof the request really came from Twilio and wasn't spoofed by
 //   someone who found this URL.
 // ============================================================================
 
@@ -26,7 +25,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import webpush from "npm:web-push@3.6.7";
 
 // Turns any Zimbabwe-style number into the digits-only international format
-// used everywhere else in the app — kept in sync with toWhatsAppDigits() in
+// used everywhere else in the app, kept in sync with toWhatsAppDigits() in
 // app/js/utils.js (and the copy in send-whatsapp/index.ts). Used here to
 // match an inbound "From" number back to a prospect's saved whatsapp_number,
 // however it happened to be typed in.
@@ -41,8 +40,7 @@ function toWhatsAppDigits(raw: string): string {
 // Twilio's signature is an HMAC-SHA1 of (the exact webhook URL you
 // configured in Twilio, with every POST parameter's key+value appended in
 // alphabetical-by-key order), base64-encoded, using your Auth Token as the
-// key. This must be computed against the SAME url Twilio was told to call —
-// TWILIO_WEBHOOK_URL should be set to that exact URL if it's ever different
+// key. This must be computed against the SAME url Twilio was told to call, // TWILIO_WEBHOOK_URL should be set to that exact URL if it's ever different
 // from the default guess below (e.g. behind a custom domain).
 async function verifyTwilioSignature(authToken: string, url: string, params: URLSearchParams, signature: string): Promise<boolean> {
   const keys = Array.from(new Set(params.keys())).sort();
@@ -118,7 +116,7 @@ Deno.serve(async (req: Request) => {
       return twiml();
     }
 
-    // Twilio can retry a webhook delivery — the unique index on twilio_sid
+    // Twilio can retry a webhook delivery, the unique index on twilio_sid
     // means a second insert of the same message id is silently skipped
     // rather than duplicating it in the thread.
     await admin.from("whatsapp_messages").insert({
@@ -142,7 +140,7 @@ Deno.serve(async (req: Request) => {
     });
 
     // Notify whoever's assigned to this prospect; if nobody is, notify
-    // every owner instead — same target-resolution rule used for the
+    // every owner instead, same target-resolution rule used for the
     // "new_prospect" notification type elsewhere in the app.
     let targetUserIds: string[] = [];
     if (match.assigned_to) {
@@ -190,7 +188,7 @@ Deno.serve(async (req: Request) => {
         if (recipients.length) {
           const html = buildEmailHtml("WhatsApp Reply", line, APP_URL);
           await Promise.all(
-            recipients.map((to: string) => sendViaResend(RESEND_API_KEY!, RESEND_FROM, to, `WhatsApp reply — ${match.business_name}`, html, line))
+            recipients.map((to: string) => sendViaResend(RESEND_API_KEY!, RESEND_FROM, to, `WhatsApp reply from ${match.business_name}`, html, line))
           );
         }
       }
@@ -199,7 +197,7 @@ Deno.serve(async (req: Request) => {
     return twiml();
   } catch (err: any) {
     console.error("whatsapp-webhook error", err);
-    // Always respond 200/TwiML even on an internal hiccup — returning an
+    // Always respond 200/TwiML even on an internal hiccup, returning an
     // error here would make Twilio retry the same delivery repeatedly
     // instead of just logging the failure and moving on.
     return twiml();
@@ -217,7 +215,7 @@ function escapeHtml(s: string) {
 
 function buildEmailHtml(heading: string, line: string, appUrl?: string) {
   // The site root is now the public marketing landing page (app/index.html),
-  // not the app itself — append /app.html so this button always deep-links
+  // not the app itself, append /app.html so this button always deep-links
   // straight into the real app instead of dropping someone back onto a
   // sales pitch they've already seen.
   const button = appUrl

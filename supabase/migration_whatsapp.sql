@@ -1,5 +1,5 @@
 -- ============================================================================
--- STUDIO X COMMAND — Migration: WhatsApp Integration (Twilio)
+-- STUDIO X COMMAND, Migration: WhatsApp Integration (Twilio)
 -- ============================================================================
 -- Run this in the Supabase SQL Editor to add what the new two-way
 -- WhatsApp feature needs. See SETUP.md Step 146.
@@ -9,7 +9,7 @@
 
 -- Tracks when a prospect last messaged you on WhatsApp. WhatsApp only lets a
 -- business send free-form replies within 24 hours of the customer's last
--- message — this is how the app knows whether the in-app reply box is
+-- message, this is how the app knows whether the in-app reply box is
 -- allowed to be used right now, or whether the cold-open "Send WhatsApp"
 -- button (which hands off to the teammate's own WhatsApp app instead) is
 -- the only option.
@@ -23,7 +23,7 @@ alter table public.prospects
 -- created by the send-whatsapp function right after Twilio accepts the
 -- message; inbound rows (and delivery-status updates to outbound rows) are
 -- created/updated by the whatsapp-webhook function whenever Twilio calls it.
--- Client apps never insert into this table directly — only those two
+-- Client apps never insert into this table directly, only those two
 -- backend functions do, using the service-role key.
 create table if not exists public.whatsapp_messages (
   id uuid primary key default gen_random_uuid(),
@@ -53,14 +53,14 @@ alter table public.whatsapp_messages enable row level security;
 
 -- A conversation thread is about a specific prospect, so only show it to
 -- people who can see that prospect (owner, or the team member it's
--- assigned to/added) — same subquery-through-prospects'-own-RLS trick as
+-- assigned to/added), same subquery-through-prospects'-own-RLS trick as
 -- prospect_notes above.
 drop policy if exists "whatsapp_messages: read visible prospects" on public.whatsapp_messages;
 create policy "whatsapp_messages: read visible prospects" on public.whatsapp_messages
   for select using (
     exists (select 1 from public.prospects p where p.id = whatsapp_messages.prospect_id)
   );
--- No insert/update/delete policy for ordinary clients on purpose — a plain
+-- No insert/update/delete policy for ordinary clients on purpose, a plain
 -- client-side insert wouldn't actually send anything via Twilio, it'd just
 -- create a fake-looking message. Only send-whatsapp (outbound) and
 -- whatsapp-webhook (inbound + delivery status) ever write to this table.
@@ -79,7 +79,7 @@ create table if not exists public.whatsapp_send_requests (
 create index if not exists idx_whatsapp_send_requests_by_user on public.whatsapp_send_requests (requested_by, created_at);
 
 alter table public.whatsapp_send_requests enable row level security;
--- No select/insert policies for ordinary clients on purpose — only the
+-- No select/insert policies for ordinary clients on purpose, only the
 -- send-whatsapp function ever touches this table.
 
 -- ----------------------------------------------------------------------------

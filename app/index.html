@@ -10,7 +10,7 @@
      installed home-screen shortcut/bookmark still points at (they were
      saved before app.html existed, back when this same address WAS the
      app). Anyone opening it as an *installed* app (standalone display
-     mode — i.e. it has no browser chrome, exactly what "Add to Home
+     mode, i.e. it has no browser chrome, exactly what "Add to Home
      Screen" produces) obviously still wants the real app, not a sales
      pitch, so this bounces them straight to app.html before anything
      renders. A normal browser tab (someone just visiting the URL) is
@@ -37,7 +37,7 @@
   /* ==========================================================================
      Landing-page-only layout. Deliberately NOT using #app (that id is capped
      at --content-max/560px everywhere else in this codebase, for the phone-
-     first internal app) — this page needs to breathe on desktop widths, so
+     first internal app), this page needs to breathe on desktop widths, so
      it gets its own full-width wrapper and its own responsive rules below,
      while still borrowing every color/shape token (--purple, --gold, .btn,
      .card, .icon-badge, pill radii, Inter) from the shared stylesheet so it
@@ -63,7 +63,7 @@
   .lp-tabs { display: flex; gap: 6px; background: var(--black-card); border: 1px solid var(--line); border-radius: 999px; padding: 4px; margin: 0 auto 22px; width: fit-content; }
   .lp-tab { position: relative; overflow: hidden; padding: 9px 18px; border-radius: 999px; font-size: 13px; font-weight: 700; color: var(--text-faint); cursor: pointer; user-select: none; border: none; background: none; font-family: var(--font); transition: color 0.2s ease; }
   .lp-tab.active { background: linear-gradient(135deg, var(--purple), #5c1fd1); color: #fff; }
-  /* Thin fill line under the active tab while it's auto-advancing — gives a
+  /* Thin fill line under the active tab while it's auto-advancing, gives a
      visual countdown to when the mockup will switch panes on its own, and
      disappears the moment someone takes over by clicking a tab themselves. */
   .lp-tab.active::after {
@@ -99,7 +99,7 @@
   .lp-chatline.out .lp-bubble { background: linear-gradient(135deg, var(--purple), #5c1fd1); color: #fff; }
 
   /* Brief "typing…" bubble that stands in for the outgoing reply for a
-     moment before the real message fades in — see the choreography in the
+     moment before the real message fades in, see the choreography in the
      motion media query below for timing. */
   .lp-typing-bubble { display: flex; align-items: center; gap: 4px; padding: 12px 14px; }
   .lp-typing-bubble span { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.85); }
@@ -111,7 +111,7 @@
   .lp-docrow .status.paid { color: var(--success); background: var(--success-dim); }
   .lp-docrow .status.overdue { color: var(--danger); background: var(--danger-dim); }
 
-  /* All of the "see it in action" motion lives behind this query — anyone
+  /* All of the "see it in action" motion lives behind this query, anyone
      with reduced-motion turned on just sees each pane's content appear
      instantly and complete, with no auto-advance, no stagger, no typing
      bubbles. Everything above this point (colors, layout, spacing) applies
@@ -169,14 +169,14 @@
 
      Glass is only legible if there is something BEHIND it worth refracting. On
      a near-black page a blurred backdrop is indistinguishable from a flat grey
-     fill, so .lp-field below lays coloured light behind each grid — without it
+     fill, so .lp-field below lays coloured light behind each grid, without it
      this whole section is an expensive no-op. The shared .ambient-glow pair is
      position:fixed in the page corners and can't do that job here.
 
      Three layers make up a plate:
-       the element  — translucent tint + backdrop blur (the glass body)
-       ::before     — a specular highlight that tracks the pointer (the sheen)
-       ::after      — a bright rim on the edge nearest the pointer
+       the element, translucent tint + backdrop blur (the glass body)
+       ::before, a specular highlight that tracks the pointer (the sheen)
+       ::after, a bright rim on the edge nearest the pointer
      ========================================================================== */
   .lp-feature-card {
     position: relative;
@@ -216,7 +216,7 @@
     mask-composite: exclude;
   }
   /* .lp-tilting is in here as well as :hover so the light and the tilt are
-     driven by the same signal — the JS class — rather than drifting apart. */
+     driven by the same signal, the JS class, rather than drifting apart. */
   .lp-feature-card:hover::before, .lp-feature-card:hover::after,
   .lp-feature-card.lp-tilting::before, .lp-feature-card.lp-tilting::after,
   .lp-feature-card:focus-within::before, .lp-feature-card:focus-within::after { opacity: 1; }
@@ -239,7 +239,7 @@
 
   /* No light-mode variants here on purpose. This page never loads js/theme.js,
      so data-theme is never set on it and the landing page is dark-only by
-     design — light-mode glass rules would be untestable code for a state that
+     design, light-mode glass rules would be untestable code for a state that
      cannot happen. If a theme toggle is ever added here, the tint and the rim
      both need inverting: a white pane on a white page is invisible. */
 
@@ -323,7 +323,7 @@
      tap that does nothing. Phones already get the idle drift, which is the
      part of this that reads at arm's length anyway. */
 
-  /* testimonials (illustrative examples only — Studio X has no verified
+  /* testimonials (illustrative examples only, Studio X has no verified
      customer quotes yet, so these are explicitly labeled as such rather
      than presented as real reviews). ------------------------------------ */
   .lp-testimonial-card { display: flex; flex-direction: column; gap: 14px; }
@@ -333,10 +333,10 @@
   .lp-testimonial-person div b { display: block; font-size: 12.5px; }
   .lp-testimonial-person div span { display: block; font-size: 11px; color: var(--text-faint); margin-top: 1px; }
 
-  /* scroll-reveal utility — sections fade/slide up into place as they enter
+  /* scroll-reveal utility, sections fade/slide up into place as they enter
      the viewport (see the IntersectionObserver in the script block below).
      Entirely inert with no JS and no hidden state at all when reduced
-     motion is requested — everything below is nested inside the same
+     motion is requested, everything below is nested inside the same
      no-preference query the rest of this page's motion already uses. */
   @media (prefers-reduced-motion: no-preference) {
     .lp-reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.6s ease, transform 0.6s ease; }
@@ -345,7 +345,7 @@
     .lp-grid-3 .lp-reveal:nth-child(3), .lp-grid-4 .lp-reveal:nth-child(3) { transition-delay: 0.16s; }
     .lp-grid-4 .lp-reveal:nth-child(4) { transition-delay: 0.24s; }
 
-    /* hero entrance — eyebrow, headline, lead copy, CTAs and the device
+    /* hero entrance, eyebrow, headline, lead copy, CTAs and the device
        mockup rise in on load, in sequence. */
     .lp-hero .lp-eyebrow { animation: riseIn 0.6s ease both; }
     .lp-hero h1 { animation: riseIn 0.6s ease both 0.08s; }
@@ -480,8 +480,7 @@
 
     <!-- ============ FEATURE TRIO ============ -->
     <!-- lp-field lays soft coloured light behind the grid. The cards are glass,
-         and glass over a flat near-black page just looks like grey plastic —
-         the blur needs something worth refracting. -->
+         and glass over a flat near-black page just looks like grey plastic,          the blur needs something worth refracting. -->
     <section class="lp-section lp-field">
       <div class="lp-grid-3">
         <div class="card lp-feature-card lp-reveal">
@@ -668,14 +667,14 @@
 
   <script>
     // Pure presentational tab switcher + auto-play for the hero device
-    // mockup — no dependency on the app's real JS modules, since this page
+    // mockup, no dependency on the app's real JS modules, since this page
     // must load and work standalone for a visitor who has never signed in.
     //
     // Behavior: cycles through Pipeline → WhatsApp → Contracts & Invoices
     // on its own (with a fill line under the active tab counting down to
     // the next switch), so a visitor who never touches anything still sees
     // the whole "see it in action" story. The moment someone clicks a tab
-    // themselves, auto-play stops for good — they're driving now, and
+    // themselves, auto-play stops for good, they're driving now, and
     // yanking the mockup out from under them would just be annoying.
     (function () {
       const ROTATE_MS = 6000;
@@ -750,8 +749,7 @@
     // These two live together because they fight over one CSS property. The
     // reveal slides an element up by animating `transform`; the plate float
     // animates `transform` too, and a running CSS animation always beats a
-    // transition. Start the float first and the slide silently never happens —
-    // the card just fades in. So a plate is only handed the float class once
+    // transition. Start the float first and the slide silently never happens,     // the card just fades in. So a plate is only handed the float class once
     // its reveal has finished, and only while it's actually on screen.
     //
     // Both are skipped entirely for prefers-reduced-motion: those elements
@@ -810,7 +808,7 @@
     // and the bright rim to meet it and tips the plate slightly toward it,
     // which is what sells a flat rectangle as a thick pane with an edge.
     //
-    // All of it is four CSS custom properties — no layout, no reflow. Skipped
+    // All of it is four CSS custom properties, no layout, no reflow. Skipped
     // on reduced motion, and skipped on touch, where there is no hovering
     // pointer to track and the CSS falls back to a plain press-down instead.
     (function () {

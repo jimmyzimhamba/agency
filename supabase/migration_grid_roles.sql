@@ -1,7 +1,7 @@
 -- ============================================================================
--- Agency Command — Grid Plan Review, Part 1: Team Roles
+-- Agency Command, Grid Plan Review, Part 1: Team Roles
 -- ============================================================================
--- Today profiles.role only allows 'owner' or 'agent' — everyone who isn't
+-- Today profiles.role only allows 'owner' or 'agent', everyone who isn't
 -- the owner has identical permissions everywhere in the app. The Client
 -- Grid Plan Review feature needs finer-grained roles so an agency can let a
 -- designer edit captions/media without letting them send a plan to a client,
@@ -14,7 +14,7 @@
 --     prospectForm.js, prospectDetail.js, invoices.js, projects.js,
 --     contracts.js, dashboard.js, niches.js) only ever tests
 --     `role === "owner"` vs. anything else, so it keeps working unchanged.
---   - Existing rows stay 'owner' or 'agent' — nothing is migrated/renamed.
+--   - Existing rows stay 'owner' or 'agent', nothing is migrated/renamed.
 --   - 'agent' is treated as equal to the new 'manager' tier for grid-plan
 --     permissions (full edit + send-to-client), since that matches the
 --     access an "agent" already has everywhere else in the app today.
@@ -26,9 +26,9 @@
 -- Functions run with the service-role key and must not blindly trust it):
 --   owner / manager / agent : create/edit/delete plans, edit posts + media,
 --                             reorder, send to client, mark complete
---   designer                : edit posts + media, reorder — CANNOT send to
+--   designer                : edit posts + media, reorder, CANNOT send to
 --                             client, CANNOT create/delete plans
---   contributor             : read-only — can view plans, cannot write
+--   contributor             : read-only, can view plans, cannot write
 --
 -- Safe to re-run.
 -- ============================================================================
@@ -38,7 +38,7 @@ alter table public.profiles add constraint profiles_role_check
   check (role in ('owner', 'agent', 'manager', 'designer', 'contributor'));
 
 -- "Can this person create/edit/delete grid plans and send them to a client?"
--- owner/manager/agent all qualify — see note above on why 'agent' is
+-- owner/manager/agent all qualify, see note above on why 'agent' is
 -- included. Security definer for the same reason as is_owner()/my_org_id().
 create or replace function public.grid_can_manage()
 returns boolean
@@ -69,7 +69,7 @@ as $$
 $$;
 
 -- ============================================================================
--- DONE. This alone changes nothing visible — it just makes the wider role
+-- DONE. This alone changes nothing visible, it just makes the wider role
 -- values legal so the next migration's RLS policies (migration_grid_plans.sql)
 -- and the eventual Team-screen role picker can use them.
 -- ============================================================================

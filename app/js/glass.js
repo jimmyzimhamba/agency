@@ -1,17 +1,17 @@
-// Pointer-reactive card surfaces — the "glass plates" from the landing page,
+// Pointer-reactive card surfaces, the "glass plates" from the landing page,
 // brought into the app.
 //
 // What this does: while the cursor is over a card, a soft specular highlight
 // follows it across the surface, the edge nearest the cursor brightens, and
 // clickable cards tip a few degrees away from the hand. All of it is four CSS
-// custom properties (see the "glass surfaces" block in css/styles.css) — this
+// custom properties (see the "glass surfaces" block in css/styles.css), this
 // file measures, the stylesheet decides what that means visually.
 //
 // Two things it deliberately does NOT do, unlike the landing page version:
 //
 //   No idle drift. On the sales page the cards float gently because nobody is
 //   trying to hit them. In here they are tap targets. A target that is moving
-//   while someone aims at it — on a phone, on a bumpy ride, one-handed — is
+//   while someone aims at it, on a phone, on a bumpy ride, one-handed, is
 //   worse than a still one no matter how good it looks.
 //
 //   No see-through glass. Making these translucent would cost contrast on the
@@ -56,7 +56,7 @@ export function initGlass() {
   if (!mq("(hover: hover) and (pointer: fine)").matches) return;
 
   // Someone who has asked their device to reduce motion gets none of this.
-  // Not a slower version — none. Same rule the rest of the app follows.
+  // Not a slower version, none. Same rule the rest of the app follows.
   if (mq("(prefers-reduced-motion: reduce)").matches) return;
 
   document.addEventListener("pointermove", onPointerMove, { passive: true });
@@ -114,7 +114,7 @@ function apply() {
   s.setProperty("--ry", ((fx - 0.5) * 2 * MAX_TILT).toFixed(2) + "deg");
 
   // Which edge lights up. This is drawn as an inset shadow, and an inset
-  // shadow pushed left exposes — and therefore brightens — the RIGHT edge, so
+  // shadow pushed left exposes, and therefore brightens, the RIGHT edge, so
   // the offsets are negated to land the light on the edge nearest the cursor.
   s.setProperty("--gx", (-(fx - 0.5) * 2 * RIM_SHIFT).toFixed(2) + "px");
   s.setProperty("--gy", (-(fy - 0.5) * 2 * RIM_SHIFT).toFixed(2) + "px");

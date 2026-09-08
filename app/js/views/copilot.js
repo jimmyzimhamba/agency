@@ -1,12 +1,11 @@
 // ============================================================================
-// STUDIO X COMMAND — View: Copilot
+// STUDIO X COMMAND, View: Copilot
 // ============================================================================
 // A chat assistant that can answer questions about the team's real pipeline,
-// tasks, activity and finances — backed by the copilot-chat edge function,
+// tasks, activity and finances, backed by the copilot-chat edge function,
 // which gives Claude tools to look up that data server-side.
 //
-// Conversation history is kept in memory only (module-level `history`) —
-// it resets on page reload. This is a deliberate v1 scope decision, not an
+// Conversation history is kept in memory only (module-level `history`), // it resets on page reload. This is a deliberate v1 scope decision, not an
 // oversight: see SETUP.md Step 145 for why, and how to add persistence later
 // if the team wants it.
 // ============================================================================

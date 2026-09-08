@@ -19,7 +19,7 @@ export function setProjectStatusFilter(status) {
 }
 
 // Same definition Dashboard's "Overdue Projects" stat card already uses
-// (overdueProjects() in dashboard.js) — kept in sync deliberately so a
+// (overdueProjects() in dashboard.js), kept in sync deliberately so a
 // project counted as overdue there matches what gets flagged/filtered here.
 // Dashboard could only ever tell you *how many* were late; this surfaces
 // exactly *which* ones right where the team actually manages delivery.
@@ -27,11 +27,11 @@ function isOverdueProject(p) {
   return p.status !== "complete" && p.due_date && p.due_date < todayISO();
 }
 
-// Overdue only ever fires *after* a deadline is already blown — nothing
+// Overdue only ever fires *after* a deadline is already blown, nothing
 // warns the team beforehand. A project due in 2 days looks visually
 // identical to one due in 6 weeks until the moment it flips to Overdue.
 // Mirrors invoices.js's "Due Soon" idiom (payment deadlines) applied here to
-// delivery deadlines instead — same proactive-warning pattern, different
+// delivery deadlines instead, same proactive-warning pattern, different
 // table/page, not a duplicate.
 const DUE_SOON_DAYS = 3;
 function daysUntilDue(p) {
@@ -44,11 +44,11 @@ function isDueSoonProject(p) {
   return d !== null && d >= 0 && d <= DUE_SOON_DAYS;
 }
 
-// Overdue only fires when a project has a due_date that's passed — but
+// Overdue only fires when a project has a due_date that's passed, but
 // due_date is optional, and plenty of projects get created without one (or
 // with a due date weeks out) and then just sit at not_started/in_progress
 // with nothing touched for weeks. Dashboard's Revenue at Risk only catches a
-// blocked project on a signed client, not a plain stalled one — nothing else
+// blocked project on a signed client, not a plain stalled one, nothing else
 // answers "which in-flight projects have gone quiet," independent of
 // whether they even have a deadline. updated_at is already bumped by the
 // existing trg_projects_touch trigger on status/date/notes edits, same
@@ -63,8 +63,7 @@ function isIdleProject(p) {
   return p.status !== "complete" && !isOverdueProject(p) && daysSinceUpdate(p) >= IDLE_DAYS;
 }
 
-// The checklist and the status dropdown are two separate manual steps —
-// a rep ticks off every deliverable but forgets the extra click to flip
+// The checklist and the status dropdown are two separate manual steps, // a rep ticks off every deliverable but forgets the extra click to flip
 // Status to "Complete." That leaves finished work misclassified as
 // in-progress: it never counts toward Avg. Delivery Time above (which only
 // looks at status='complete' rows), so delivery-time stats stay skewed, and
@@ -77,13 +76,13 @@ function isReadyToClose(p) {
   return tasks.length > 0 && tasks.every((t) => t.done);
 }
 
-// Overdue and Idle above are both about *in-flight* projects — nothing here
+// Overdue and Idle above are both about *in-flight* projects, nothing here
 // answers "once a project actually finishes, how long did delivery take?"
 // There's no dedicated completed_at column, but trg_projects_touch already
 // bumps updated_at on every projects-row edit (the same "last touched" proxy
 // Idle leans on above), so for a project sitting at status='complete',
 // updated_at is a reasonable stand-in for "the day it was finished." Mirrors
-// invoices.js's Avg. Days to Get Paid (created_at → paid_date) — this is
+// invoices.js's Avg. Days to Get Paid (created_at → paid_date), this is
 // created_at → updated_at, scoped to completed projects only.
 function completedProjectsWithDuration() {
   return store.projects
@@ -92,18 +91,18 @@ function completedProjectsWithDuration() {
     .filter((r) => r.days >= 0);
 }
 
-// Flag threshold for the drill-down list only — a delivery this slow is
+// Flag threshold for the drill-down list only, a delivery this slow is
 // worth an owner actually looking at, same "worth a second look" spirit as
 // invoices.js's own 14-day cutoff on its Slowest Payers modal.
 const SLOW_DELIVERY_DAYS = 21;
 
 // Per-project, the checklist only ever answers "is THIS project on track."
 // Nothing aggregates ACROSS projects to show which specific deliverable
-// keeps stalling team-wide — e.g. every "Client review round" item sitting
+// keeps stalling team-wide, e.g. every "Client review round" item sitting
 // unchecked on several active projects at once is an invisible pattern
 // today, even though each individual project's checklist looks fine in
 // isolation. Reuses store.projectTasks (already loaded, same table the
-// per-project checklist already renders from) — no new query. Counts each
+// per-project checklist already renders from), no new query. Counts each
 // project at most once per title (a project can't be "stuck" twice on the
 // same deliverable), and only surfaces a title once it's recurred on at
 // least BOTTLENECK_MIN_PROJECTS active projects, so a one-off custom
@@ -130,12 +129,11 @@ function bottleneckDeliverables() {
     .sort((a, b) => b.count - a.count);
 }
 
-// Every new project starts with a blank checklist — the team retypes the
+// Every new project starts with a blank checklist, the team retypes the
 // same recurring delivery steps by hand for every client, one deliverable at
 // a time, and different agents list (or skip) different steps since nothing
 // standardizes what a given engagement type actually involves. These are
-// just starting points a rep can still edit/remove items from afterward —
-// static content baked into the file, no template table needed.
+// just starting points a rep can still edit/remove items from afterward, // static content baked into the file, no template table needed.
 const PROJECT_TEMPLATES = {
   "Client Onboarding": ["Kickoff call scheduled", "Brand assets collected", "Access/logins gathered", "Goals & KPIs confirmed", "Content calendar drafted", "Kickoff recap sent"],
   "Monthly Content Batch": ["Content ideas approved", "Assets/copy drafted", "Client review round", "Revisions applied", "Batch scheduled", "Performance recap sent"],
@@ -232,7 +230,7 @@ function renderList(listEl) {
   // attention" convention tasks.js's Team Checklist sorts worst-progress-first.
   // Idle projects (stalled, no deadline pressure) rank just below overdue
   // ones for the same reason. Ready-to-close is the opposite kind of
-  // "needs a look" — not a problem, but an easy action item — so it ranks
+  // "needs a look", not a problem, but an easy action item, so it ranks
   // just below idle rather than competing with genuine warning signs.
   items.sort((a, b) => {
     const aOver = isOverdueProject(a), bOver = isOverdueProject(b);
@@ -310,7 +308,7 @@ function exportProjectsCSV() {
   downloadTextFile(`projects-export-${stamp}.csv`, csv);
 }
 
-// Drill-down for the "Avg. Delivery Time" stat card — the bare average
+// Drill-down for the "Avg. Delivery Time" stat card, the bare average
 // alone can't tell an owner *which* projects dragged, so this ranks
 // completed projects slowest (longest created_at → updated_at gap) first,
 // same modal-list pattern invoices.js's Slowest Payers already uses.
@@ -345,7 +343,7 @@ function openSlowestDeliveriesModal(completed) {
   openModal(box);
 }
 
-// Drill-down for the "Due within Xd" stat card — same modal-list pattern as
+// Drill-down for the "Due within Xd" stat card, same modal-list pattern as
 // openSlowestDeliveriesModal above, soonest-due first so the most urgent
 // deadline is the first thing an owner sees.
 function openDueSoonModal(projects) {
@@ -381,8 +379,8 @@ function openDueSoonModal(projects) {
 }
 
 // Drill-down for the "Common bottlenecks" stat card. Each row is a
-// deliverable TITLE (not a single project), so — unlike every other modal
-// row in this file — tapping one doesn't open a project detail; it expands
+// deliverable TITLE (not a single project), so, unlike every other modal
+// row in this file, tapping one doesn't open a project detail; it expands
 // to show which active projects still have that item unchecked, since
 // that's the actual follow-up an owner needs ("who do I nudge").
 function openBottlenecksModal(bottlenecks) {
@@ -610,7 +608,7 @@ function openProjectDetail(p0) {
 // Long random token, generated on this device. Same approach and the same
 // reasoning as Grid Plans' share link: it gates a public no-login page, so it
 // needs to be far too wide to guess. 24 bytes of crypto randomness is 48 hex
-// characters — there is no practical number of attempts that finds one, and
+// characters, there is no practical number of attempts that finds one, and
 // the database function backing the page refuses anything shorter than 16
 // characters outright.
 function generateShareToken() {
@@ -636,7 +634,7 @@ function renderShareBox(box, p0) {
 
   if (!p.share_token) {
     blurb.innerHTML =
-      "Create a link the client can open — no login, no app to install — showing how far along this " +
+      "Create a link the client can open with no login and no app to install, showing how far along this " +
       "project is. They see the checklist, minus anything you've marked <b>Hide</b>.";
     const btn = el(`<button class="btn btn-primary btn-sm" style="width:auto;">Create Client Link</button>`);
     btn.addEventListener("click", async () => {
@@ -673,7 +671,7 @@ function renderShareBox(box, p0) {
       toast("Link copied", "success");
     } catch {
       // Clipboard access is refused in some in-app browsers. Showing the URL
-      // is a worse experience but still a usable one — the alternative is a
+      // is a worse experience but still a usable one, the alternative is a
       // button that silently does nothing.
       toast(url, "");
     }
@@ -685,7 +683,7 @@ function renderShareBox(box, p0) {
     const waBtn = el(`<button class="btn btn-ghost btn-sm" style="width:auto;">Send on WhatsApp</button>`);
     waBtn.addEventListener("click", () => {
       const msg =
-        `Hi ${prospect.business_name} — here's a live progress page for "${p.name}". ` +
+        `Hi ${prospect.business_name}, here's a live progress page for "${p.name}". ` +
         `You can open it any time to see where things are: ${shareUrlFor(p)}`;
       window.open(buildWhatsAppLink(prospect.whatsapp_number, msg), "_blank");
     });
@@ -733,7 +731,7 @@ function renderChecklist(box, projectId) {
     // "Hide"/"Show" controls whether this line appears on the client's page.
     // It exists so the checklist can stay honest: without it the team has to
     // choose between writing a real task ("chase them for the logo, third
-    // time") and being able to share the project at all — and given that
+    // time") and being able to share the project at all, and given that
     // choice people write vague tasks, which makes the checklist worse for
     // everyone including the team.
     const row = el(`

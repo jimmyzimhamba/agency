@@ -1,23 +1,23 @@
 // ============================================================================
-// STUDIO X COMMAND — Public portfolio showcase page (app/portfolio.html)
+// STUDIO X COMMAND, Public portfolio showcase page (app/portfolio.html)
 // ============================================================================
 // What this does, in plain language:
 //   The page a prospect lands on when the agency sends them a portfolio
-//   link. No login, no account — just ?org=<id> in the URL. Unlike
+//   link. No login, no account, just ?org=<id> in the URL. Unlike
 //   review.html (which proxies every read/write through Edge Functions
 //   because a client's content calendar is private data), this page talks
 //   directly to Supabase with the anon key, because the whole point of a
 //   showcase is that it's meant to be public. RLS is the actual gate here:
 //   portfolio_settings only returns a row when that org has explicitly
 //   flipped "is_public" on, and portfolio_items only ever returns rows the
-//   owner explicitly marked "is_published" — see
+//   owner explicitly marked "is_published", see
 //   supabase/migration_portfolio.sql for the full policy reasoning. Nothing
 //   else about the organization (team, pipeline, contracts, etc.) is
 //   reachable from here; every other table's RLS is untouched.
 //
 //   Deliberately self-contained: reuses only the pure-DOM helpers from
 //   utils.js (el/esc), not portfolio.js or state.js, since this page has no
-//   session/store to hang off of — same convention as review.js.
+//   session/store to hang off of, same convention as review.js.
 // ============================================================================
 
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./config.js";
@@ -26,7 +26,7 @@ import { el, esc } from "./utils.js";
 const orgId = new URLSearchParams(location.search).get("org");
 const root = document.getElementById("portfolio-root");
 
-// persistSession: false — no login here, and this is often a shared/first
+// persistSession: false, no login here, and this is often a shared/first
 // -time visitor, so nothing about this visit should linger in localStorage.
 const sb = window.supabase
   ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false } })

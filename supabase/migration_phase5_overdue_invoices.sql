@@ -1,5 +1,5 @@
 -- ============================================================================
--- PHASE 5 — Overdue invoice alerts
+-- PHASE 5, Overdue invoice alerts
 -- ============================================================================
 -- Run this once in the Supabase SQL Editor. Safe to re-run.
 --
@@ -11,7 +11,7 @@
 --   3. Schedules a daily job (9:00am UTC) that calls the
 --      check-overdue-invoices Edge Function.
 --
--- This step depends on that Edge Function already being deployed — see
+-- This step depends on that Edge Function already being deployed, see
 -- SETUP.md, "Turn on overdue invoice alerts", for the full walkthrough in
 -- order (deploy the function first, then run this).
 -- ============================================================================

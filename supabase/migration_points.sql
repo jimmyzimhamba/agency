@@ -1,22 +1,22 @@
 -- ============================================================================
--- STUDIO X COMMAND — Points & Leaderboard (gamification, phase 1)
+-- STUDIO X COMMAND, Points & Leaderboard (gamification, phase 1)
 -- ============================================================================
 -- Turns everyday pipeline activity into points, and adds a leaderboard that
 -- (unlike the existing owner-only, revenue-based "Team Leaderboard" in
 -- Team & Settings) is visible to the whole team. The goal is to reward
--- SHOWING UP and doing the work — adding a prospect, following up, finishing
--- your daily tasks — not just whoever happens to close the one big deal
+-- SHOWING UP and doing the work, adding a prospect, following up, finishing
+-- your daily tasks, not just whoever happens to close the one big deal
 -- that month. Revenue/MRR numbers are NOT touched or exposed by this
 -- migration; this is a separate, additive scoring system.
 --
--- One new table (points_log — an append-only ledger, one row per point-
--- earning event) and one read-only view (points_totals — per-person sums,
+-- One new table (points_log, an append-only ledger, one row per point-
+-- earning event) and one read-only view (points_totals, per-person sums,
 -- so the app never has to add up potentially thousands of rows itself).
 --
--- HOW POINTS ARE AWARDED — entirely server-side, via triggers on tables that
+-- HOW POINTS ARE AWARDED, entirely server-side, via triggers on tables that
 -- already exist (prospects, prospect_notes, daily_task_completions,
 -- community_posts, contracts, invoices, projects). Nothing in the app's
--- JavaScript ever writes to points_log directly — points can only come from
+-- JavaScript ever writes to points_log directly, points can only come from
 -- an actual, real action already recorded elsewhere, so there's no separate
 -- "claim my points" button to trust or a client-side number to fudge.
 --
@@ -24,11 +24,11 @@
 -- caused it (source_table + source_id + event_type), and points_log has a
 -- UNIQUE constraint on that triple. That means flipping a prospect's status
 -- back and forth, or checking/unchecking the same daily task on the same
--- day, only ever pays out once — the second, third, etc. attempt is
+-- day, only ever pays out once, the second, third, etc. attempt is
 -- silently ignored (ON CONFLICT DO NOTHING), not an error.
 --
 -- Current point values (tweak the numbers in the trigger functions below if
--- you ever want to rebalance — nothing else needs to change):
+-- you ever want to rebalance, nothing else needs to change):
 --   +5   added a prospect to the pipeline
 --   +2   moved a prospect to "Sent"
 --   +5   moved a prospect to "Replied"
@@ -45,21 +45,21 @@
 --   +10  marked a project as complete
 --
 -- Points always go to whoever DID the thing (auth.uid() at the moment it
--- happened) — e.g. whoever flips a deal to "Signed" gets those points, even
+-- happened), e.g. whoever flips a deal to "Signed" gets those points, even
 -- if a teammate originally added that prospect. Same "credit the actor"
 -- rule the existing Activity Feed triggers already use.
 --
 -- PREREQUISITE: the base schema (schema.sql or the earlier phase migrations)
--- must already be applied — this uses public.my_org_id() and the prospects/
+-- must already be applied, this uses public.my_org_id() and the prospects/
 -- contracts/invoices/projects/community_posts tables, all defined there.
 --
 -- HOW TO RUN: Supabase Dashboard → SQL Editor → paste this whole file → Run.
--- Safe to re-run — every statement is guarded (if not exists / or replace /
+-- Safe to re-run, every statement is guarded (if not exists / or replace /
 -- drop trigger if exists).
 -- ============================================================================
 
 -- ----------------------------------------------------------------------------
--- 1. POINTS_LOG — append-only ledger, one row per point-earning event
+-- 1. POINTS_LOG, append-only ledger, one row per point-earning event
 -- ----------------------------------------------------------------------------
 create table if not exists public.points_log (
   id uuid primary key default gen_random_uuid(),
@@ -81,17 +81,17 @@ create index if not exists idx_points_log_created on public.points_log (created_
 alter table public.points_log enable row level security;
 
 -- Everyone on the team can see everyone's points (that's the point of a
--- leaderboard) — but nobody can insert/update/delete a row directly. Only
+-- leaderboard), but nobody can insert/update/delete a row directly. Only
 -- the security-definer trigger functions below ever write here.
 drop policy if exists "points_log: read org" on public.points_log;
 create policy "points_log: read org" on public.points_log
   for select using (org_id = public.my_org_id());
 
 -- ----------------------------------------------------------------------------
--- 2. POINTS_TOTALS — a read-only view, one row per person, so the app never
+-- 2. POINTS_TOTALS, a read-only view, one row per person, so the app never
 --    has to sum a growing ledger itself. security_invoker means this view
 --    checks the RLS of whoever's actually querying it (same as querying
---    points_log directly would), not the view owner's — so it can never leak
+--    points_log directly would), not the view owner's, so it can never leak
 --    another organization's totals.
 -- ----------------------------------------------------------------------------
 create or replace view public.points_totals
@@ -106,8 +106,8 @@ create or replace view public.points_totals
   group by org_id, profile_id;
 
 -- ----------------------------------------------------------------------------
--- 3. Shared helper — every trigger below just calls this. p_profile_id can
---    be null (e.g. a row with no assigned actor) — in that case we simply
+-- 3. Shared helper, every trigger below just calls this. p_profile_id can
+--    be null (e.g. a row with no assigned actor), in that case we simply
 --    don't award anything rather than erroring.
 -- ----------------------------------------------------------------------------
 create or replace function public.award_points(
@@ -135,7 +135,7 @@ end;
 $$;
 
 -- ----------------------------------------------------------------------------
--- 4. PROSPECTS — added to pipeline, and forward-moving status changes.
+-- 4. PROSPECTS, added to pipeline, and forward-moving status changes.
 --    ('dead' and 'not_contacted' intentionally earn nothing.)
 -- ----------------------------------------------------------------------------
 create or replace function public.award_points_for_prospect()
@@ -175,7 +175,7 @@ create trigger trg_prospects_points after insert or update on public.prospects
   for each row execute function public.award_points_for_prospect();
 
 -- ----------------------------------------------------------------------------
--- 5. PROSPECT_NOTES — no org_id column on this table, so it's looked up via
+-- 5. PROSPECT_NOTES, no org_id column on this table, so it's looked up via
 --    the prospect the note belongs to (same trick log_new_note() already
 --    uses for the Activity Feed).
 -- ----------------------------------------------------------------------------
@@ -199,10 +199,10 @@ create trigger trg_notes_points after insert on public.prospect_notes
   for each row execute function public.award_points_for_note();
 
 -- ----------------------------------------------------------------------------
--- 6. DAILY_TASK_COMPLETIONS — the app upserts the SAME row (unique on
+-- 6. DAILY_TASK_COMPLETIONS, the app upserts the SAME row (unique on
 --    task_id/agent_id/work_date) when someone checks/unchecks a daily task,
 --    so "completed becomes true" can fire more than once a day if someone
---    toggles it off and back on — the unique constraint on points_log
+--    toggles it off and back on, the unique constraint on points_log
 --    (source_table, source_id, event_type) means only the first one that day
 --    actually pays out. Points go to the row's agent_id (whoever the task
 --    belongs to), not necessarily auth.uid(), though in practice they're
@@ -246,7 +246,7 @@ create trigger trg_community_posts_points after insert on public.community_posts
   for each row execute function public.award_points_for_community_post();
 
 -- ----------------------------------------------------------------------------
--- 8. CONTRACTS — drafted, and marked as signed.
+-- 8. CONTRACTS, drafted, and marked as signed.
 -- ----------------------------------------------------------------------------
 create or replace function public.award_points_for_contract()
 returns trigger
@@ -256,12 +256,12 @@ set search_path = public
 as $$
 begin
   if tg_op = 'INSERT' then
-    perform public.award_points(new.org_id, auth.uid(), 8, 'Drafted a contract — ' || new.title, 'contracts', new.id, 'drafted');
+    perform public.award_points(new.org_id, auth.uid(), 8, 'Drafted a contract: ' || new.title, 'contracts', new.id, 'drafted');
     return new;
   end if;
 
   if tg_op = 'UPDATE' and new.status is distinct from old.status and new.status = 'signed' then
-    perform public.award_points(new.org_id, auth.uid(), 15, 'Contract signed — ' || new.title, 'contracts', new.id, 'status:signed');
+    perform public.award_points(new.org_id, auth.uid(), 15, 'Contract signed: ' || new.title, 'contracts', new.id, 'status:signed');
   end if;
 
   return new;
@@ -273,7 +273,7 @@ create trigger trg_contracts_points after insert or update on public.contracts
   for each row execute function public.award_points_for_contract();
 
 -- ----------------------------------------------------------------------------
--- 9. INVOICES — created, and marked as paid.
+-- 9. INVOICES, created, and marked as paid.
 -- ----------------------------------------------------------------------------
 create or replace function public.award_points_for_invoice()
 returns trigger
@@ -304,7 +304,7 @@ create trigger trg_invoices_points after insert or update on public.invoices
   for each row execute function public.award_points_for_invoice();
 
 -- ----------------------------------------------------------------------------
--- 10. PROJECTS — started, and marked as complete.
+-- 10. PROJECTS, started, and marked as complete.
 -- ----------------------------------------------------------------------------
 create or replace function public.award_points_for_project()
 returns trigger
@@ -314,12 +314,12 @@ set search_path = public
 as $$
 begin
   if tg_op = 'INSERT' then
-    perform public.award_points(new.org_id, auth.uid(), 5, 'Started a project — ' || new.name, 'projects', new.id, 'started');
+    perform public.award_points(new.org_id, auth.uid(), 5, 'Started a project: ' || new.name, 'projects', new.id, 'started');
     return new;
   end if;
 
   if tg_op = 'UPDATE' and new.status is distinct from old.status and new.status = 'complete' then
-    perform public.award_points(new.org_id, auth.uid(), 10, 'Finished the project — ' || new.name, 'projects', new.id, 'status:complete');
+    perform public.award_points(new.org_id, auth.uid(), 10, 'Finished the project: ' || new.name, 'projects', new.id, 'status:complete');
   end if;
 
   return new;
@@ -331,7 +331,7 @@ create trigger trg_projects_points after insert or update on public.projects
   for each row execute function public.award_points_for_project();
 
 -- ----------------------------------------------------------------------------
--- 11. REALTIME — so a point you just earned (or a teammate just earned)
+-- 11. REALTIME, so a point you just earned (or a teammate just earned)
 --     shows up on the leaderboard live, no refresh needed. Guarded so this
 --     is safe to re-run even if points_log is already in the publication.
 -- ----------------------------------------------------------------------------

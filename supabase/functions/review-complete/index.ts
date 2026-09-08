@@ -1,19 +1,18 @@
 // ============================================================================
-// STUDIO X COMMAND — Edge Function: review-complete
+// STUDIO X COMMAND, Edge Function: review-complete
 // ============================================================================
 // What this does, in plain language:
 //   The client's "I'm done reviewing" button. Looks at every post on the
 //   plan: if every single one is 'approved', the whole plan becomes
 //   'approved'; if even one post is still 'pending' or 'changes_requested',
-//   the plan becomes 'changes_requested' — the agency needs to look at it
+//   the plan becomes 'changes_requested', the agency needs to look at it
 //   again either way. Either outcome also stamps client_completed_at, which
 //   is deliberately a SEPARATE field from status: it's the answer to "did
 //   the client actually finish a review pass," independent of whether that
 //   pass ended in approval or a change request.
 //
 //   Unlike review-update/review-reorder, this isn't a plain row UPDATE on
-//   grid_posts, so the auto-logging trigger on that table doesn't cover it —
-//   this function writes its own grid_activity row by hand.
+//   grid_posts, so the auto-logging trigger on that table doesn't cover it, //   this function writes its own grid_activity row by hand.
 // ============================================================================
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -42,7 +41,7 @@ Deno.serve(async (req: Request) => {
     }
 
     const allowed = await checkRateLimit(admin, `complete:${token}`, RATE_LIMIT, RATE_WINDOW_SECONDS);
-    if (!allowed) return json({ error: "Too many requests — please wait a moment and try again" }, 429);
+    if (!allowed) return json({ error: "Too many requests, please wait a moment and try again" }, 429);
 
     const plan = await resolvePlan(admin, token);
     if (!plan) return json({ error: "Invalid or expired link" }, 404);

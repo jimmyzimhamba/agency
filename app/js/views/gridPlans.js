@@ -6,12 +6,11 @@ import { openModal, closeModal, confirmModal } from "../ui.js";
 const STATUS_LABELS = { draft: "Draft", shared: "Shared", in_review: "In Review", changes_requested: "Changes Requested", approved: "Approved" };
 
 // Contracts and invoices both flag a record that's been sitting untouched
-// too long (contracts.js's STALE_DAYS, invoices.js's STALE_DRAFT_DAYS) —
-// grid plans had no equivalent, even though a plan stuck in "draft" or
+// too long (contracts.js's STALE_DAYS, invoices.js's STALE_DRAFT_DAYS), // grid plans had no equivalent, even though a plan stuck in "draft" or
 // "shared" with nobody moving it forward is the same kind of thing quietly
 // falling through the cracks. updated_at is auto-bumped by the DB trigger
 // on every edit/post change, so it's already the right "last touched"
-// signal — same proxy projects.js's isIdleProject relies on.
+// signal, same proxy projects.js's isIdleProject relies on.
 const STALE_PLAN_DAYS = 5;
 function daysSinceTouched(plan) {
   const ref = plan.updated_at || plan.created_at;
@@ -29,7 +28,7 @@ const PLATFORMS = ["Instagram", "Facebook", "TikTok", "LinkedIn", "X / Twitter",
 // uses for its own filter/sort state.
 let openPlanId = null;
 
-// Status filter for the plans list — same "all" + per-status chip-row idiom
+// Status filter for the plans list, same "all" + per-status chip-row idiom
 // contracts.js/invoices.js/projects.js already use, persisted at module
 // scope so it survives switching tabs and back. Before this, the list had no
 // aggregate view at all: a bare stack of client cards each with its own
@@ -49,13 +48,13 @@ export function openGridPlanId(id) {
 // --- Slice 5: realtime presence + soft locking (per open plan) -------------
 // One Supabase Realtime channel per plan, joined only while that plan is
 // open in the builder (see ensurePlanChannel/teardownPlanChannel below).
-// It carries no post content at all — just Presence (who's currently
+// It carries no post content at all, just Presence (who's currently
 // editing which post, for the soft-lock badges) and a tiny "changed"
 // broadcast ping so other open tabs know to refetch/re-render. The public,
 // no-login review page (review.js) joins this SAME channel name with its
 // own anon Realtime client, which is what makes cross-side awareness work
 // (the agency sees the client editing, and vice versa) without ever
-// granting the client's anon key any actual table access — see the
+// granting the client's anon key any actual table access, see the
 // security note in migration_grid_plans.sql for why that boundary matters.
 let planChannel = null;
 let planChannelId = null;
@@ -65,7 +64,7 @@ const sessionKey = crypto.randomUUID();
 const PRESENCE_STALE_MS = 30000;
 
 // 'agent' is treated as manager-equivalent for grid-plan purposes (agents
-// already have full non-owner access everywhere else in the app) — mirrors
+// already have full non-owner access everywhere else in the app), mirrors
 // grid_can_manage()/grid_can_edit() in migration_grid_roles.sql exactly, so
 // a button that's hidden here would also be rejected by RLS if someone
 // forced it through anyway.
@@ -202,7 +201,7 @@ function currentPlan(id) {
 }
 
 // Joins (or confirms we're already on) the Realtime channel for this one
-// plan. Cheap to call on every render — it's a no-op once already joined.
+// plan. Cheap to call on every render, it's a no-op once already joined.
 function ensurePlanChannel(planId) {
   if (planChannel && planChannelId === planId) return;
   teardownPlanChannel();
@@ -211,7 +210,7 @@ function ensurePlanChannel(planId) {
     .channel(`grid-plan-${planId}`, { config: { presence: { key: sessionKey } } })
     .on("broadcast", { event: "changed" }, () => {
       // Our own writes already land via the grid_plans/grid_posts
-      // postgres_changes handlers in state.js — this ping is what tells us
+      // postgres_changes handlers in state.js, this ping is what tells us
       // to re-render for the CLIENT's writes too, since the client's
       // anon-key session has no table access and so produces no
       // postgres_changes event for us to hear on this side at all.
@@ -236,7 +235,7 @@ function teardownPlanChannel() {
 
 // Exported so main.js's switchView() can call this when the user navigates
 // away from Grid Plans to somewhere else entirely, WITHOUT having closed an
-// open post-edit modal first — otherwise the channel/heartbeat would keep
+// open post-edit modal first, otherwise the channel/heartbeat would keep
 // running in the background indefinitely (renderGridPlans() already tears
 // it down when going back to the plan list, but that code path only runs
 // when the user clicks "All Plans," not when they tap a different tab).
@@ -245,13 +244,12 @@ export function leaveGridPlansView() {
 }
 
 // Tells everyone else on this plan's channel "something changed, you
-// should refetch/re-render" — carries no actual post content, just a ping.
+// should refetch/re-render", carries no actual post content, just a ping.
 function pingPlanChannel() {
   if (planChannel) planChannel.send({ type: "broadcast", event: "changed", payload: {} });
 }
 
-// Starts (or restarts) a ~8s heartbeat that re-tracks our Presence entry —
-// {editing_post_id, ...} — for as long as the post-edit modal stays open.
+// Starts (or restarts) a ~8s heartbeat that re-tracks our Presence entry, // {editing_post_id, ...}, for as long as the post-edit modal stays open.
 // ui.js's closeModal() has no onClose hook to key off of, so instead this
 // checks the modal's own open/closed CSS state on every tick and quietly
 // untracks/stops itself the moment it notices the modal is gone, regardless
@@ -286,7 +284,7 @@ function stopEditingHeartbeat() {
 
 // Soft-lock lookup: is anyone ELSE (not us) currently editing this post,
 // per a fresh-enough Presence entry? Returns that entry (for its
-// actor_name) or null. "Soft" per the spec's exact wording — this is
+// actor_name) or null. "Soft" per the spec's exact wording, this is
 // advisory only and never blocks a save, it just informs the UI.
 function editorFor(postId) {
   if (!planChannel) return null;
@@ -304,7 +302,7 @@ function editorFor(postId) {
 // Atomic optimistic-concurrency save: only applies `payload` if the row's
 // updated_at still matches what we captured when the editor opened
 // (baselineUpdatedAt). Chaining .eq("updated_at", ...) onto the update
-// makes the check-and-write a single atomic round trip — if the row moved
+// makes the check-and-write a single atomic round trip, if the row moved
 // in between, zero rows match and .select().maybeSingle() comes back null,
 // which is how we detect the conflict with no separate read-then-write
 // race window.
@@ -328,7 +326,7 @@ async function saveWithConflictCheck(post, baselineUpdatedAt, payload) {
 }
 
 // A teammate (or the client) saved a change to this exact post while we
-// had it open — offer "Save Anyway" (last-write-wins, overwriting theirs;
+// had it open, offer "Save Anyway" (last-write-wins, overwriting theirs;
 // the existing trg_log_grid_post_changes trigger already logs their
 // overwritten value to grid_activity, so nothing is silently lost) or
 // "Cancel & Reload" (discard our local edits and reopen with the latest
@@ -489,7 +487,7 @@ async function addPost(planId, position) {
   if (data) openPostModal(data);
 }
 
-// Reordering deliberately gets NO conflict check — last-write-wins here is
+// Reordering deliberately gets NO conflict check, last-write-wins here is
 // the intended behavior (per spec), not an oversight, since position has
 // no meaningful "your edit vs. their edit" content to protect.
 async function handleReorder(orderedIds) {
@@ -499,10 +497,10 @@ async function handleReorder(orderedIds) {
   else pingPlanChannel();
 }
 
-// Client-side random token — long and unguessable enough that brute-forcing
+// Client-side random token, long and unguessable enough that brute-forcing
 // it isn't practical, same spirit as the org invite_code but wider (this one
 // gates a public no-login page, not just a signup flow). The page it opens,
-// app/review.html, went live back in Step 121 — the two toasts below said it
+// app/review.html, went live back in Step 121, the two toasts below said it
 // was still coming for every build since, which is why nobody was sending
 // these links.
 function generateShareToken() {
@@ -522,7 +520,7 @@ async function shareWithClient(plan) {
     })
     .eq("id", plan.id);
   if (error) return toast(error.message, "error");
-  toast("Share link ready — copy it and send it to the client", "success");
+  toast("Share link ready, copy it and send it to the client", "success");
 }
 
 async function copyShareLink(plan) {
@@ -540,7 +538,7 @@ async function copyShareLink(plan) {
 // grid_post_media rows just point at private objects in the "grid-media"
 // Storage bucket (see loadSignedThumb above), so there's no portable way to
 // carry the actual image/video bytes inside a JSON file without a whole
-// separate re-upload pipeline — out of scope here. `status` is included on
+// separate re-upload pipeline, out of scope here. `status` is included on
 // export for reference/record-keeping but deliberately IGNORED on import
 // (see handleImportFile): status is supposed to reflect the CLIENT's live
 // review state, not something a re-import should be able to fabricate, so
@@ -564,7 +562,7 @@ function exportPlanJSON(plan, posts) {
         client_note: p.client_note || "",
         platform: p.platform || null,
         post_date: p.post_date || null,
-        status: p.status, // informational only — never re-applied on import
+        status: p.status, // informational only, never re-applied on import
       })),
   };
   downloadTextFile(`${slugify(plan.client_name)}-grid-plan.json`, JSON.stringify(payload, null, 2), "application/json;charset=utf-8;");
@@ -586,7 +584,7 @@ function buildWhatsAppText(plan, posts) {
   return lines.join("\n").trim();
 }
 
-// Clipboard-first (that's the actual point — paste straight into a WhatsApp
+// Clipboard-first (that's the actual point, paste straight into a WhatsApp
 // chat) with a plain-text-file download as the fallback for browsers/contexts
 // where clipboard access is blocked, same defensive pattern copyShareLink()
 // above already uses for the share link itself.
@@ -601,8 +599,7 @@ async function exportPlanWhatsApp(plan, posts) {
   }
 }
 
-// Reads + validates the picked file, then hands off to a preview modal —
-// nothing is written to the database until the user explicitly confirms in
+// Reads + validates the picked file, then hands off to a preview modal, // nothing is written to the database until the user explicitly confirms in
 // that modal. Accepts either `{posts: [...]}` (our own export shape) or a
 // bare `[...]` array, so a hand-edited or hand-written JSON file still works.
 async function handleImportFile(file, planId, startPosition) {
@@ -663,8 +660,7 @@ function openImportPreviewModal(rows, unrecognizedPlatformCount) {
   openModal(box);
 }
 
-// Keeps the just-inserted ids around for a single one-tap "Undo Import" —
-// same escape hatch bulkImport.js's prospect import offers, applied here so
+// Keeps the just-inserted ids around for a single one-tap "Undo Import", // same escape hatch bulkImport.js's prospect import offers, applied here so
 // a bad/duplicate JSON file doesn't mean manually deleting posts one by one.
 function showImportDoneState(box, insertedRows) {
   box.innerHTML = "";
@@ -733,7 +729,7 @@ function openPostModal(post0) {
   const editable = canEdit();
   const manageable = canManage();
   const media = store.gridPostMedia.filter((m) => m.post_id === post.id).sort((a, b) => a.position - b.position);
-  // Baseline for the optimistic-concurrency check on save — captured now,
+  // Baseline for the optimistic-concurrency check on save, captured now,
   // at the moment the editor opens, not re-read at save time.
   const baselineUpdatedAt = post.updated_at;
   const otherEditor = editorFor(post.id);

@@ -1,5 +1,5 @@
 // ============================================================================
-// STUDIO X COMMAND — Edge Function: manage-team-member
+// STUDIO X COMMAND, Edge Function: manage-team-member
 // ============================================================================
 // What this does, in plain language:
 //   Only the Owner can call this, from the Team screen's "Remove access" /
@@ -10,11 +10,11 @@
 //        so their session stops refreshing once its current token expires.
 //     2. Flips their `profiles.active` flag so the app can show a "Removed"
 //        badge and leave them out of future "assign to" pickers.
-//   Nothing about the teammate is deleted — their name still shows up
+//   Nothing about the teammate is deleted, their name still shows up
 //   correctly on every prospect, note, and activity-log entry they ever
 //   touched. "Restore access" (same function, opposite action) undoes both
 //   steps and lets them log back in immediately.
-//   Runs entirely server-side — the service-role key never touches the app
+//   Runs entirely server-side, the service-role key never touches the app
 //   or the browser. See SETUP.md for how to deploy this.
 // ============================================================================
 
@@ -25,7 +25,7 @@ const CORS_HEADERS = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// ~100 years — effectively "forever" without Supabase's ban API needing a
+// ~100 years, effectively "forever" without Supabase's ban API needing a
 // dedicated "permanent" option. "Restore access" sets ban_duration back to
 // "none" to lift it.
 const BAN_FOREVER = "876000h";
@@ -48,7 +48,7 @@ Deno.serve(async (req: Request) => {
     }
 
     // Identify the caller from their login token and confirm they're the
-    // owner — never trust a client-supplied "I'm the owner" flag.
+    // owner, never trust a client-supplied "I'm the owner" flag.
     const authHeader = req.headers.get("Authorization") || "";
     const callerClient = createClient(SUPABASE_URL, ANON_KEY, {
       global: { headers: { Authorization: authHeader } },
@@ -65,7 +65,7 @@ Deno.serve(async (req: Request) => {
     }
 
     // Using the service-role key bypasses RLS entirely, so this endpoint has
-    // to enforce the organization boundary itself — otherwise an owner of
+    // to enforce the organization boundary itself, otherwise an owner of
     // one agency could deactivate/reactivate a user_id belonging to a
     // completely different agency just by guessing/supplying their id.
     const { data: target } = await admin.from("profiles").select("role, active, org_id").eq("id", user_id).single();

@@ -1,28 +1,28 @@
 // ============================================================================
-// STUDIO X COMMAND — Public client grid-plan review page (app/review.html)
+// STUDIO X COMMAND, Public client grid-plan review page (app/review.html)
 // ============================================================================
 // What this does, in plain language:
 //   The page a client lands on when they tap the private link the agency
-//   sends them. No login, no account — the ?t=<token> in the URL IS their
+//   sends them. No login, no account, the ?t=<token> in the URL IS their
 //   access. Everything here talks to the four review-* Edge Functions
 //   (supabase/functions/review-load|update|reorder|complete) over plain
-//   fetch() with the public anon key, never to the database directly — this
+//   fetch() with the public anon key, never to the database directly, this
 //   file has no Supabase client at all, on purpose, since the whole point of
 //   those Edge Functions is to be the one narrow, checked doorway a
 //   no-login visitor is allowed to use.
 //
 //   Deliberately self-contained: reuses only the pure-DOM helpers from
-//   utils.js (el/esc/toast/enablePointerReorder/fmtDate — none of which
+//   utils.js (el/esc/toast/enablePointerReorder/fmtDate, none of which
 //   touch auth or Supabase), not gridPlans.js or state.js, since this page
 //   has no session/store to hang off of.
 //
 //   Slice 5 adds one exception to "never talks to Supabase directly": a
 //   second, Realtime-only client (rtClient below) used exclusively for
-//   .channel() — Presence (soft-lock "editing" indicators) and Broadcast
+//   .channel(), Presence (soft-lock "editing" indicators) and Broadcast
 //   ("something changed, please refetch") pings. This client NEVER calls
 //   .from()/.storage/.auth for anything; those calls would be blocked by
 //   RLS anyway (see migration_grid_plans.sql's security model comment), but
-//   the real safeguard is architectural — this file simply never makes
+//   the real safeguard is architectural, this file simply never makes
 //   them. All actual plan/post data still flows exclusively through the
 //   four review-* Edge Functions via callFn() below.
 // ============================================================================
@@ -37,7 +37,7 @@ const token = new URLSearchParams(location.search).get("t");
 const root = document.getElementById("review-root");
 const FN_BASE = `${SUPABASE_URL}/functions/v1`;
 
-// persistSession: false — there's no login here, and this is often a
+// persistSession: false, there's no login here, and this is often a
 // shared/borrowed device, so nothing about this visit should linger in
 // localStorage after the tab closes.
 const rtClient = window.supabase
@@ -56,7 +56,7 @@ async function callFn(name, body) {
     throw new Error("Couldn't reach the server, check your connection and try again");
   }
   let json = null;
-  try { json = await res.json(); } catch { /* non-JSON body — json stays null */ }
+  try { json = await res.json(); } catch { /* non-JSON body, json stays null */ }
   if (!res.ok) {
     const err = new Error((json && json.error) || "Something went wrong, please try again");
     err.status = res.status;
@@ -71,7 +71,7 @@ async function callFn(name, body) {
 
 // --- Slice 5: realtime presence + soft locking -----------------------------
 // One channel per plan, named identically to the one gridPlans.js joins on
-// the agency side (grid-plan-<id>) — that shared name is what makes
+// the agency side (grid-plan-<id>), that shared name is what makes
 // cross-side awareness work at all. Carries no post content, only presence
 // metadata and a bare "changed" ping.
 let channel = null;
@@ -90,7 +90,7 @@ function ensureChannel(planId) {
     .on("broadcast", { event: "changed" }, () => {
       // The agency (or another tab of ours) saved something. This is the
       // ONLY way this no-login page can ever hear about an agency-side
-      // change — it has no table access at all to receive a
+      // change, it has no table access at all to receive a
       // postgres_changes event from, unlike the authenticated app.
       loadPlan();
     })
@@ -115,7 +115,7 @@ function pingChannel() {
 
 // Re-tracks a Presence entry every ~8s for as long as the post-edit modal
 // stays open, self-stopping the moment it notices the modal has closed
-// (however it closed — Save, Approve/Request Changes, or backdrop tap).
+// (however it closed, Save, Approve/Request Changes, or backdrop tap).
 function startEditingHeartbeat(postId) {
   stopEditingHeartbeat();
   editingPostId = postId;
@@ -144,7 +144,7 @@ function stopEditingHeartbeat() {
   channel?.untrack();
 }
 
-// Soft-lock lookup — is anyone else (i.e. an agency teammate) currently
+// Soft-lock lookup, is anyone else (i.e. an agency teammate) currently
 // editing this post, per a fresh-enough Presence entry? Advisory only,
 // never blocks a save.
 function editorFor(postId) {
@@ -160,7 +160,7 @@ function editorFor(postId) {
   return null;
 }
 
-// ---- tiny modal controller — mirrors js/ui.js's openModal/closeModal, but
+// ---- tiny modal controller, mirrors js/ui.js's openModal/closeModal, but
 // standalone so this one page doesn't need the rest of the app shell (the
 // bottom sheet, its markup, initGlobalUI, etc.) it would otherwise require.
 function openModal(contentEl) {
@@ -279,12 +279,12 @@ function renderTiles(tilesEl, posts) {
   enablePointerReorder(tilesEl, ".grid-tile", ".grid-tile-drag-handle", handleReorder);
 }
 
-// Reordering deliberately gets NO conflict check — last-write-wins here is
+// Reordering deliberately gets NO conflict check, last-write-wins here is
 // the intended behavior, not an oversight. A full refetch after success
 // (rather than an optimistic local patch) is needed because reordering
 // also bumps each post's updated_at server-side, and this page has no
 // postgres_changes subscription to otherwise pick up that new canonical
-// value — the next caption/status save needs the fresh updated_at as its
+// value, the next caption/status save needs the fresh updated_at as its
 // conflict-check baseline, or it would misfire as a false conflict.
 async function handleReorder(orderedIds) {
   try {
@@ -294,8 +294,7 @@ async function handleReorder(orderedIds) {
     await loadPlan();
   } catch (err) {
     toast(err.message, "error");
-    // The DOM may now disagree with what actually got saved (or didn't) —
-    // resync from the server rather than leave it silently wrong.
+    // The DOM may now disagree with what actually got saved (or didn't),     // resync from the server rather than leave it silently wrong.
     await loadPlan();
   }
 }
@@ -303,7 +302,7 @@ async function handleReorder(orderedIds) {
 function openPostModal(post0) {
   const post = state.posts.find((p) => p.id === post0.id) || post0;
   const media = post.media || [];
-  // Captured now, at the moment the editor opens — the baseline the
+  // Captured now, at the moment the editor opens, the baseline the
   // eventual save is checked against, not re-read at save time.
   const baselineUpdatedAt = post.updated_at;
   const otherEditor = editorFor(post.id);
@@ -378,7 +377,7 @@ async function setPostStatus(post, baselineUpdatedAt, status) {
 // Shared save path for both caption edits and approve/request-changes,
 // with optimistic-concurrency conflict handling. `force: true` (used only
 // from the conflict prompt's "Save Anyway") skips the expected_updated_at
-// check entirely — last-write-wins, same as the agency side, and the
+// check entirely, last-write-wins, same as the agency side, and the
 // existing trg_log_grid_post_changes trigger already logs whatever gets
 // overwritten to grid_activity, so nothing is silently lost.
 async function submitUpdate(post, baselineUpdatedAt, patch, { force = false } = {}) {
@@ -402,7 +401,7 @@ async function submitUpdate(post, baselineUpdatedAt, patch, { force = false } = 
 
 // The agency changed this exact post while the client had it open. Offers
 // "Save Anyway" (overwrite their change with ours) or "Reload Latest"
-// (discard our local edit and refetch) — same choice gridPlans.js offers
+// (discard our local edit and refetch), same choice gridPlans.js offers
 // on the agency side for the mirror-image conflict.
 function showConflictPrompt(post, patch) {
   const box = el(`

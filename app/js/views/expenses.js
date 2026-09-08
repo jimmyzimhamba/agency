@@ -1,9 +1,9 @@
 // ============================================================================
-// STUDIO X COMMAND — View: Expenses & Profit
+// STUDIO X COMMAND, View: Expenses & Profit
 // ----------------------------------------------------------------------------
 // The other half of the money picture. Invoices answer "what came in";
 // this answers "what went out", and together they answer the question that
-// actually decides who the agency should keep working with — which clients
+// actually decides who the agency should keep working with, which clients
 // are worth it.
 //
 // The single most important thing on this screen is Profit by Client, and the
@@ -14,7 +14,7 @@
 // same place, and the wrong one looks like the better client.
 //
 // Deliberately NOT here: any attempt to spread office overhead across clients.
-// See the long note in supabase/migration_money_and_portal.sql — the short
+// See the long note in supabase/migration_money_and_portal.sql, the short
 // version is that every formula for it invents a number, and an invented
 // number that looks precise is worse than an honest gap. So "profit" on this
 // screen means revenue minus costs actually booked against that client, and
@@ -46,7 +46,7 @@ function amountOf(e) {
 
 // money() in utils.js puts the dollar sign in front of whatever it's given, so
 // a negative comes out as "$-190". Nothing in the app had ever handed it a
-// negative before — every other money figure in here is a total that can only
+// negative before, every other money figure in here is a total that can only
 // go up. Profit can go down, so it needs the minus in front of the sign rather
 // than after it, which is how every bank statement and accounting package
 // writes it and therefore what people actually read at a glance.
@@ -77,7 +77,7 @@ function collectedThisMonth() {
 
 // ---- profit by client ------------------------------------------------------
 //
-// Revenue counts paid invoices only — not sent, not drafted. Money that has
+// Revenue counts paid invoices only, not sent, not drafted. Money that has
 // been billed but not received cannot be counted against money that has
 // definitely left the account, or a client who never pays would show up as the
 // most profitable one on the list right up until they're written off.
@@ -107,8 +107,7 @@ function profitByClient() {
       ...r,
       profit: r.revenue - r.cost,
       // Margin is only meaningful against revenue that exists. A client with
-      // costs and no payments yet has an undefined margin, not a -100% one —
-      // showing -100% would rank a brand-new client alongside a genuine
+      // costs and no payments yet has an undefined margin, not a -100% one,       // showing -100% would rank a brand-new client alongside a genuine
       // loss-maker, which are completely different problems.
       margin: r.revenue > 0 ? Math.round(((r.revenue - r.cost) / r.revenue) * 100) : null,
     }))
@@ -131,8 +130,8 @@ export function renderExpenses() {
   const spent = monthList.reduce((sum, e) => sum + amountOf(e), 0);
   const collected = collectedThisMonth();
   const profit = collected - spent;
-  // The standing monthly burn — subscriptions and retainers the agency itself
-  // pays — separated from one-off spending because it's the number that says
+  // The standing monthly burn, subscriptions and retainers the agency itself
+  // pays, separated from one-off spending because it's the number that says
   // what a quiet month still costs. It reads every recurring expense ever
   // logged, not just this month's, since the whole point is that these repeat
   // whether or not anyone remembered to enter one this month.
@@ -281,7 +280,7 @@ function openProfitByClientModal(rows) {
       <div style="font-weight:800;font-size:16px;margin-bottom:6px;">Profit by Client</div>
       <div class="hint" style="margin:0 0 12px;">
         Money each client has actually paid, minus costs booked against them. Shared running
-        costs like software and office data aren't split across clients — they're not any one
+        costs like software and office data aren't split across clients. They're not any one
         client's fault, so guessing a share would only invent a number.
       </div>
       <div id="ex-profit-list"></div>
@@ -363,7 +362,7 @@ export function openExpenseSheet(existing) {
   const isEdit = !!e.id;
   const isOwner = store.profile?.role === "owner";
   // Matches the RLS policy in the migration exactly. Showing a Save button
-  // that the database will refuse is worse than not showing it — the person
+  // that the database will refuse is worse than not showing it, the person
   // fills the whole form in first and only then finds out.
   const canEdit = !isEdit || isOwner || e.created_by === store.profile?.id;
   const canDelete = isEdit && isOwner;
@@ -400,7 +399,7 @@ export function openExpenseSheet(existing) {
         <label>Spent for which client?</label>
         <select id="ex-prospect"><option value="">General overhead (not one client)</option>${prospectOptions}</select>
         <div class="hint" style="margin-top:6px;">
-          Link it to a client when the money was spent specifically for them — ad budget, a
+          Link it to a client when the money was spent specifically for them, like ad budget or a
           freelancer on their job. Leave it on overhead for costs of just being open, like
           software or office data.
         </div>

@@ -1,11 +1,10 @@
 // ============================================================================
-// GLOBAL SEARCH — one box, everything in the org
+// GLOBAL SEARCH, one box, everything in the org
 // ----------------------------------------------------------------------------
 // Searches prospects (by business name/area/city), contracts and invoices
 // (by title/number, or by the client they're linked to), projects (by
 // name, or by their linked client), niches (by name/notes), message
-// templates (by title/body/category), and grid plans (by client name) —
-// all against data already loaded into
+// templates (by title/body/category), and grid plans (by client name), // all against data already loaded into
 // `store` (no extra network round-trip). Prospect notes are the one
 // exception: `prospect_notes` isn't preloaded org-wide (only lazy-loaded per
 // prospect when someone opens Prospect Detail), so a note's content is
@@ -21,8 +20,7 @@
 //     inside the app's existing bottom sheet (there's no persistent sidebar
 //     to anchor a dropdown to at that width).
 // Clicking any result opens that item exactly the way it opens everywhere
-// else in the app (prospect detail sheet, contract/invoice/project sheet) —
-// those sheets already float above whatever view is currently showing, so
+// else in the app (prospect detail sheet, contract/invoice/project sheet), // those sheets already float above whatever view is currently showing, so
 // there's no need to switch tabs first.
 // ============================================================================
 
@@ -48,7 +46,7 @@ function computeMatches(query) {
 
   // Agents often have a raw WhatsApp number, email, or Instagram handle in
   // hand (from a reply, a referral, or before adding a new lead) and need a
-  // quick "is this prospect already in the pipeline?" check — so contact
+  // quick "is this prospect already in the pipeline?" check, so contact
   // fields count as a match here too, not just name/area/city.
   const prospects = store.prospects
     .filter(
@@ -87,8 +85,7 @@ function computeMatches(query) {
     )
     .slice(0, MAX_PER_GROUP);
 
-  // Grid plans were the one client-facing record type left out of search —
-  // contracts, invoices and projects all match on their client's name, so
+  // Grid plans were the one client-facing record type left out of search,   // contracts, invoices and projects all match on their client's name, so
   // grid plans do too, keyed on the same client_name field they're already
   // listed by everywhere else (gridPlans.js).
   const gridPlans = store.gridPlans
@@ -135,7 +132,7 @@ async function runNoteSearch(query, resultsEl) {
   const notes = await fetchNoteMatches(q);
   if (token !== noteSearchToken) return; // a newer keystroke already superseded this search
   currentNoteResults = notes;
-  if (!notes.length) return; // nothing to add — leave the synchronous groups as rendered
+  if (!notes.length) return; // nothing to add, leave the synchronous groups as rendered
   const notesHTML = group("Notes", noteRows(notes));
   if (resultsEl.querySelector(".hint")) {
     // The synchronous groups found nothing, so the notes group is the whole result set.
@@ -247,7 +244,7 @@ function openResult(type, id) {
     if (p) openProjectDetail(p);
   } else if (type === "niche") {
     // Niche editing is owner-only everywhere else in the app (the "Edit"
-    // link on a niche card is hidden from non-owners) — match that here
+    // link on a niche card is hidden from non-owners), match that here
     // instead of letting search punch a hole in that restriction.
     if (store.profile?.role !== "owner") return;
     const n = store.niches.find((x) => x.id === id);
@@ -266,7 +263,7 @@ function openResult(type, id) {
 
 // Grid plans live on their own tab rather than floating in a sheet above
 // whatever's currently open (unlike contracts/invoices/projects), so
-// opening one from search means switching views first — same deep-link
+// opening one from search means switching views first, same deep-link
 // pattern dashboard.js's goToGridPlan already uses. Dynamic import keeps
 // globalSearch.js from needing a static dependency on main.js.
 async function goToGridPlanResult(id) {

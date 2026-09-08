@@ -1,10 +1,10 @@
 // ============================================================================
-// STUDIO X COMMAND — View: Discovery
+// STUDIO X COMMAND, View: Discovery
 // ============================================================================
 // Search Google Maps for real businesses in a niche + area, review the
 // results, and add the ones worth pursuing straight into the pipeline.
 // Results already in the org's pipeline (matched by Google listing id) are
-// greyed out and can't be re-added — see migration_lead_discovery.sql.
+// greyed out and can't be re-added, see migration_lead_discovery.sql.
 // ============================================================================
 
 import { sb } from "../supabaseClient.js";

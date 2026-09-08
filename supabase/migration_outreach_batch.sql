@@ -1,5 +1,5 @@
 -- ============================================================================
--- STUDIO X COMMAND — Batch outreach: approval, do-not-contact, and a send log
+-- STUDIO X COMMAND, Batch outreach: approval, do-not-contact, and a send log
 -- ============================================================================
 -- Paste this whole file into Supabase → SQL Editor → New query → Run.
 -- Safe to run more than once.
@@ -9,14 +9,14 @@
 --   research-prospect Edge Function, which IS deployed and working). What was
 --   missing was everything around it: a place to review a stack of those
 --   messages in one sitting, a record of who has actually been contacted
---   today, and — most importantly — a way to record "never message this
+--   today, and, most importantly, a way to record "never message this
 --   business again".
 --
 -- What this deliberately does NOT do:
 --   It does not send anything. There is no automated WhatsApp sending here and
 --   there is not going to be. Cold outreach from an automated WhatsApp session
 --   is the single fastest way to get +263775051827 banned, and that number is
---   how existing clients reach the agency — losing it costs far more than the
+--   how existing clients reach the agency, losing it costs far more than the
 --   outreach is worth. The app's long-standing design (see the comment at the
 --   top of app/js/whatsapp.js) is that the FIRST message to a stranger is
 --   always a wa.me hand-off that a human presses send on inside their own
@@ -28,12 +28,12 @@
 
 
 -- ============================================================================
--- SECTION A — Do not contact
+-- SECTION A, Do not contact
 -- ============================================================================
 -- The gap that mattered most, and the reason this is section A rather than an
 -- afterthought at the bottom. Right now if a business replies "stop messaging
 -- me", there is nowhere to put that. The prospect can be marked 'dead', but
--- dead means "no sale here" — it does not mean "do not ever write to these
+-- dead means "no sale here", it does not mean "do not ever write to these
 -- people again", and nothing stops a teammate re-adding them from Discovery
 -- next month and starting over. In a city the size of Harare, where the
 -- business community talks, that is how an agency gets a reputation.
@@ -54,7 +54,7 @@ create index if not exists idx_prospects_dnc on public.prospects (org_id)
 
 
 -- ============================================================================
--- SECTION B — Approval
+-- SECTION B, Approval
 -- ============================================================================
 -- Two columns rather than a queue table, and that choice is worth explaining
 -- because a queue table was the obvious design.
@@ -62,8 +62,8 @@ create index if not exists idx_prospects_dnc on public.prospects (org_id)
 -- A queue would hold its own copy of the message, which immediately creates
 -- two versions of the truth: edit the prospect's opener afterwards and the
 -- queued copy silently goes stale, so the message reviewed is not the message
--- sent. Approval is really just a fact about the prospect — "a human has read
--- this opener and is happy for it to go" — so it lives on the prospect, and
+-- sent. Approval is really just a fact about the prospect, "a human has read
+-- this opener and is happy for it to go", so it lives on the prospect, and
 -- there is only ever one copy of the text.
 --
 -- Editing the message clears the approval again. That is enforced by the
@@ -82,7 +82,7 @@ begin
   -- distinct from" rather than <> so a null-to-text change counts too, which a
   -- plain inequality would miss.
   if new.outreach_message is distinct from old.outreach_message then
-    -- Unless this same statement is what granted the approval — otherwise the
+    -- Unless this same statement is what granted the approval, otherwise the
     -- app could never approve and tidy up the wording in one go.
     if new.outreach_approved_at is not distinct from old.outreach_approved_at then
       new.outreach_approved_at := null;
@@ -109,14 +109,14 @@ create trigger trg_prospects_clear_approval before update on public.prospects
 
 
 -- ============================================================================
--- SECTION C — The send log
+-- SECTION C, The send log
 -- ============================================================================
 -- One row every time somebody actually hands a message off to WhatsApp.
 --
 -- Why not just count prospects whose status flipped to 'sent' today? Because
 -- status is a single field that moves for lots of reasons and only remembers
 -- where a prospect is now, not what happened. It gets set by hand, corrected
--- after a mistake, and moved on to 'replied' the moment somebody answers — at
+-- after a mistake, and moved on to 'replied' the moment somebody answers, at
 -- which point that send disappears from any count based on it. A prospect
 -- contacted this morning who replies this afternoon would make the daily
 -- total go DOWN, which is exactly the number nobody can trust.
@@ -132,7 +132,7 @@ create table if not exists public.outreach_log (
 
   -- Only whatsapp for now. Email is in the check constraint because the column
   -- is cheaper to widen than to add later, not because email outreach exists
-  -- yet — it needs a sending domain and a provider whose terms permit cold
+  -- yet, it needs a sending domain and a provider whose terms permit cold
   -- email, and neither is set up.
   channel text not null default 'whatsapp' check (channel in ('whatsapp', 'email')),
 

@@ -1,10 +1,10 @@
-// Agency Command — service worker
+// Agency Command, service worker
 // Makes the app open instantly and work (in read-only "last synced" mode)
 // even with a weak or dropped connection. Bump CACHE_VERSION any time you
 // want to force everyone's phone to fetch fresh files.
-const CACHE_VERSION = "sxc-v186";
+const CACHE_VERSION = "sxc-v187";
 
-// Plain fetch() has no timeout of its own — on a flaky/carrier-throttled
+// Plain fetch() has no timeout of its own, on a flaky/carrier-throttled
 // mobile-data connection a request can sit "pending" indefinitely instead
 // of failing fast. That's what left people stuck on the boot logo forever:
 // the navigation fetch below never resolved AND never rejected, so it never
@@ -19,7 +19,7 @@ function fetchWithTimeout(req, ms) {
 // Two navigable "front doors" live at the site root now: "./" / "index.html"
 // is the public marketing landing page, and "app.html" is the actual
 // installable app shell (manifest.json's start_url points there). Both are
-// precached and both get the same offline-shell treatment below — the
+// precached and both get the same offline-shell treatment below, the
 // landing page needs it too, not because it needs to work offline as
 // marketing, but because every home-screen shortcut saved *before* this
 // split existed still points at the old address ("/" or "/index.html"), and
@@ -101,17 +101,17 @@ self.addEventListener("fetch", (event) => {
   const req = event.request;
   const url = new URL(req.url);
 
-  // Never intercept the live database/auth calls — those must always hit
+  // Never intercept the live database/auth calls, those must always hit
   // the network so everyone sees real, current data.
   if (url.hostname.includes("supabase.co")) return;
 
   // The public client review page is a separate page, not part of this
-  // installable app's shell — it isn't in APP_SHELL and was never meant to
+  // installable app's shell, it isn't in APP_SHELL and was never meant to
   // work offline. Left un-excluded, a device that also has the main app
   // installed (same origin, scope "/") would have review.html navigations
   // silently cached under its own key below, and a dropped connection while
   // a client is reviewing would serve them a cached AGENCY page instead of
-  // an error — so it's excluded outright rather than patched to behave
+  // an error, so it's excluded outright rather than patched to behave
   // "correctly," since "no offline support here" is the actually-correct
   // behavior for this one page.
   if (url.pathname.endsWith("/review.html")) return;
@@ -125,26 +125,25 @@ self.addEventListener("fetch", (event) => {
 
   // And the client project page, for the same reason again. This one is the
   // most likely of the three to be opened on a phone that also has the agency
-  // app installed — it's the page the team checks before sending the link to
-  // a client — so leaving it out would be the version of this bug somebody
+  // app installed, it's the page the team checks before sending the link to
+  // a client, so leaving it out would be the version of this bug somebody
   // actually hits.
   if (url.pathname.endsWith("/project.html")) return;
 
   // Page navigations: try the network first (freshest app), but give up
   // after 8 seconds if it's just hanging (not erroring) and fall back to
-  // whatever was cached under that exact address — and finally the offline
+  // whatever was cached under that exact address, and finally the offline
   // page if nothing is cached at all. This is what makes the app open at
   // all on a stalled mobile-data connection instead of sitting on the boot
   // logo forever: a slightly stale cached page that actually opens beats a
   // "fresh" one that never arrives.
   //
   // Caching is keyed by the request itself (not a single hardcoded name)
-  // now that there are two real front doors — "/" and "app.html" each get
+  // now that there are two real front doors, "/" and "app.html" each get
   // their own cache entry, so a dropped connection on one doesn't serve the
   // other one's content by mistake. If somehow neither exact address was
   // ever cached, the last-resort fallback reaches for the real app shell
-  // (app.html) rather than the marketing page, then finally offline.html —
-  // "something that opens" should always mean the app, not a sales pitch.
+  // (app.html) rather than the marketing page, then finally offline.html,   // "something that opens" should always mean the app, not a sales pitch.
   if (req.mode === "navigate") {
     event.respondWith(
       fetchWithTimeout(req, 8000)
@@ -178,7 +177,7 @@ self.addEventListener("fetch", (event) => {
 });
 
 // A pop-up notification arrived from the send-push Edge Function (someone
-// added a prospect, or one got assigned to you). Show it — this fires even
+// added a prospect, or one got assigned to you). Show it, this fires even
 // if the app itself isn't open, as long as the browser/OS is running.
 // Defaults to app.html (not "/") so a notification always opens straight
 // into the real app, never the marketing landing page.
@@ -187,7 +186,7 @@ self.addEventListener("push", (event) => {
   try {
     if (event.data) data = { ...data, ...event.data.json() };
   } catch {
-    // Non-JSON payload — fall back to the defaults above.
+    // Non-JSON payload, fall back to the defaults above.
   }
   event.waitUntil(
     self.registration.showNotification(data.title, {

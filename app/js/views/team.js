@@ -9,23 +9,22 @@ import { getTheme, setTheme } from "../theme.js";
 import { BADGES } from "../badges.js";
 
 // The team roster showed everyone's role but nothing about whether they're
-// actually working the pipeline right now — an owner had to open Activity
+// actually working the pipeline right now, an owner had to open Activity
 // and filter per-person, one at a time, to find out who's gone quiet.
 // activityLog is already loaded org-wide (readable under RLS for every
 // role, same as dashboard.js relies on) and newest-first, so the first row
 // matching a given actor_id is that person's most recent action.
 const INACTIVE_DAYS = 3;
 
-// This page used to be one long scroll mixing three different concerns —
-// your own profile/performance/badges, the whole team's roster and
+// This page used to be one long scroll mixing three different concerns, // your own profile/performance/badges, the whole team's roster and
 // leaderboards, and app-wide preferences like theme/notifications/sign-out.
 // Split into three subtabs (reusing the same .subtabs/.subtab segmented
 // control already used for the sign-up screen's "New agency / Join a team"
 // toggle, rather than inventing new tab CSS) so each visit lands on
 // whichever concern actually brought someone here. Kept as module state
-// (not a URL/view — this is still the single "Team" nav destination) so a
+// (not a URL/view, this is still the single "Team" nav destination) so a
 // re-render triggered by an unrelated realtime update (someone else added a
-// prospect, etc. — see initTeamView's listeners below) doesn't silently
+// prospect, etc., see initTeamView's listeners below) doesn't silently
 // snap an owner back to "Profile" while they're in the middle of managing
 // the roster on "Team".
 let activeTeamTab = "profile";
@@ -49,14 +48,14 @@ function daysSinceActivity(iso) {
 }
 
 // Every existing performance surface is either time-boxed (Monthly
-// Leaderboard — this month's signed count only, no revenue) or capacity-only
-// (Team Workload — owner-only, active-lead count only, no win rate/MRR).
+// Leaderboard, this month's signed count only, no revenue) or capacity-only
+// (Team Workload, owner-only, active-lead count only, no win rate/MRR).
 // Nothing answers "what have I actually closed, ever, and how good is my
-// hit rate" for an individual — this is that durable, personal number.
+// hit rate" for an individual, this is that durable, personal number.
 // Win rate is signed ÷ everyone actually engaged past Not Contacted, since
 // leads never touched aren't a fair denominator for a "hit rate."
 // agentId defaults to the logged-in user (self view), but accepts any
-// profile id so an owner can pull the same numbers for a teammate — see
+// profile id so an owner can pull the same numbers for a teammate, see
 // openTeammatePerformanceModal below.
 function myPerformanceStats(agentId = store.profile?.id) {
   const mine = store.prospects.filter((p) => p.assigned_to === agentId);
@@ -66,7 +65,7 @@ function myPerformanceStats(agentId = store.profile?.id) {
   const winRate = engaged.length ? Math.round((signed.length / engaged.length) * 100) : 0;
   // Reply rate isolates the *outreach* step from the *closing* step: of
   // everyone actually contacted, how many replied or moved further, vs.
-  // sitting unanswered? Win rate alone conflates the two — an agent with a
+  // sitting unanswered? Win rate alone conflates the two, an agent with a
   // low win rate but a high reply rate needs closing coaching, one with a
   // low reply rate needs messaging/targeting help. Same denominator as
   // winRate (engaged), different numerator.
@@ -85,7 +84,7 @@ function myPerformanceStats(agentId = store.profile?.id) {
 // Owner-only drill-down from a teammate's roster card: "My Performance"
 // above only ever shows the logged-in user their own numbers, and Team
 // Workload on the Dashboard (a separate, owner-only widget) only shows a
-// raw active-lead count per agent — no signed count, MRR, win rate, or
+// raw active-lead count per agent, no signed count, MRR, win rate, or
 // reply rate. This reuses myPerformanceStats() (now agent-id-aware) to give
 // an owner the same breakdown for anyone else on the team.
 function openTeammatePerformanceModal(profile) {
@@ -110,7 +109,7 @@ function openTeammatePerformanceModal(profile) {
 }
 
 // All-time point total for one person, from the points_totals DB view (see
-// supabase/migration_points.sql) — never computed by summing pointsLog
+// supabase/migration_points.sql), never computed by summing pointsLog
 // client-side, since that list is capped to the last 200 org-wide events
 // and would silently under-count a very active team.
 function totalPointsFor(profileId) {
@@ -118,9 +117,9 @@ function totalPointsFor(profileId) {
 }
 
 // Tap a name on the points leaderboard (or your own Points stat card) to
-// see WHY — a plain list of recent point-earning events, newest first.
+// see WHY, a plain list of recent point-earning events, newest first.
 // Pulled from the same capped, org-wide pointsLog the store already keeps
-// in memory (no extra query) — on a very active team someone's older events
+// in memory (no extra query), on a very active team someone's older events
 // may have scrolled out of that shared window, but the TOTAL shown at the
 // top is always exact regardless, straight from points_totals.
 function openPointsBreakdownModal(profile, total) {
@@ -154,13 +153,13 @@ function openPointsBreakdownModal(profile, total) {
   openModal(box);
 }
 
-// Everyone-visible leaderboard — deliberately separate from the MRR-based
+// Everyone-visible leaderboard, deliberately separate from the MRR-based
 // "Team Leaderboard" below, which stays owner-only since it's revenue.
 // Points reward the DOING of the work (adding a prospect, a follow-up
 // landing, finishing daily tasks) rather than only who happened to close
 // the one big deal this month, so a consistent grinder shows up here even
 // on a month they don't personally sign anything. Ranked purely by
-// all-time total_points — no revenue involved anywhere in this section.
+// all-time total_points, no revenue involved anywhere in this section.
 function renderPointsLeaderboard(wrap) {
   const box = wrap.querySelector("#tm-points-leaderboard");
   if (!box) return;
@@ -202,7 +201,7 @@ function renderPointsLeaderboard(wrap) {
 }
 
 // Which badge keys a person has actually unlocked, from badges_earned (see
-// supabase/migration_badges.sql — server-only writes, so this is always the
+// supabase/migration_badges.sql, server-only writes, so this is always the
 // real, earned set, never something the client can fake).
 function earnedBadgeKeysFor(profileId) {
   return new Set(store.badgesEarned.filter((b) => b.profile_id === profileId).map((b) => b.badge_key));
@@ -212,8 +211,7 @@ function badgeEarnedAtFor(profileId, badgeKey) {
   return store.badgesEarned.find((b) => b.profile_id === profileId && b.badge_key === badgeKey)?.earned_at || null;
 }
 
-// Tap any badge (locked or unlocked) to see what it is and how to get it —
-// a toast's ~2.6s auto-dismiss is too short for a full description, so this
+// Tap any badge (locked or unlocked) to see what it is and how to get it, // a toast's ~2.6s auto-dismiss is too short for a full description, so this
 // uses the same openModal() pattern as the points breakdown above instead.
 function openBadgeInfoModal(badge, isEarned, earnedAt) {
   const box = el(`
@@ -229,7 +227,7 @@ function openBadgeInfoModal(badge, isEarned, earnedAt) {
   openModal(box);
 }
 
-// Renders the badge wall for one person into `container` — unlocked badges
+// Renders the badge wall for one person into `container`, unlocked badges
 // in full color (gold tier gets the gold tint, same as everywhere else in
 // the app), locked ones dimmed via .icon-badge.locked. Every badge in the
 // catalog always shows (so people can see what's still to unlock), never
@@ -255,7 +253,7 @@ function renderBadgesGrid(container, profileId) {
 // Owner-only ranked view of the whole team's numbers, side by side. Every
 // existing performance surface is one-person-at-a-time (My Performance is
 // self-only, the roster's "View Performance" link is a one-off drill-down
-// per teammate) — nothing lets an owner see who's actually leading at a
+// per teammate), nothing lets an owner see who's actually leading at a
 // glance without opening each person individually. Reuses
 // myPerformanceStats(agentId), already parameterized for exactly this, so
 // this is pure aggregation over data already in the store: no new query,
@@ -308,12 +306,11 @@ function renderLeaderboard(wrap) {
 
 // Every existing performance metric on this page (Team Leaderboard's
 // MRR/win-rate above, Team Workload on the Dashboard, Personalization by
-// Agent on Message Kit) is keyed off assigned_to — who owns/closes a lead.
+// Agent on Message Kit) is keyed off assigned_to, who owns/closes a lead.
 // created_by (who actually logged the lead in the first place, written on
 // every insert in bulkImport.js and prospectForm.js) is never read anywhere
-// else in the app. Sourcing and ownership can be different people entirely —
-// e.g. an owner bulk-imports a list, then hands the leads out to reps to
-// work — and that split has been completely invisible until now. Counts
+// else in the app. Sourcing and ownership can be different people entirely, // e.g. an owner bulk-imports a list, then hands the leads out to reps to
+// work, and that split has been completely invisible until now. Counts
 // every prospect ever logged (not just active ones), since "who found this"
 // doesn't change once a lead moves through the pipeline or dies.
 function leadsSourcedByAgent() {
@@ -492,7 +489,7 @@ export function renderTeam() {
         <div class="divider"></div>
         <button class="btn btn-ghost" id="tm-signout">Sign Out</button>
         <p class="text-faint" style="font-size:11px;text-align:center;margin-top:20px;">Agency Command · ${esc(store.organization?.name || "Sales & Team Sync")}</p>
-        <p class="text-faint" style="font-size:10px;text-align:center;margin-top:4px;opacity:0.6;">build sxc-v186</p>
+        <p class="text-faint" style="font-size:10px;text-align:center;margin-top:4px;opacity:0.6;">build sxc-v187</p>
       </div>
     </div>
   `);
@@ -524,7 +521,7 @@ export function renderTeam() {
   themeSwitch.addEventListener("change", () => setTheme(themeSwitch.checked ? "light" : "dark"));
 
   // The theme now changes on its own at sunrise and sunset, so this switch has
-  // to be told — otherwise someone sitting on this page at six in the evening
+  // to be told, otherwise someone sitting on this page at six in the evening
   // watches the app go dark while the switch next to them still says light.
   // The listener takes itself off once this copy of the page is gone, so
   // re-rendering the Team view doesn't stack up a new one every time.
@@ -659,7 +656,7 @@ async function refreshAfterProfileEdit(patch) {
 // A curated set of DiceBear "avataaars" seeds, given friendly names so the
 // picker reads like a set of characters rather than a wall of random hashes
 // (mirrors the AI-avatar-picker pattern from the Biiblo inspo screenshots).
-// DiceBear's HTTP API needs no key/auth — the seed alone deterministically
+// DiceBear's HTTP API needs no key/auth, the seed alone deterministically
 // produces the same picture every time, so these are stable forever.
 // Exported (not just used by the Edit Profile modal below) because the
 // post-signup onboarding wizard (views/onboarding.js) reuses this exact
@@ -678,7 +675,7 @@ export function dicebearUrl(seed) {
 // The actual "save this avatar_url to the DB and refresh local state" logic,
 // pulled out of openEditProfileModal's selectAvatarUrl so the onboarding
 // wizard can reuse it too (it needs its own local preview, but the same
-// persistence step) — one code path for "an avatar was chosen," not two.
+// persistence step), one code path for "an avatar was chosen," not two.
 export async function saveAvatarUrl(url) {
   const { error } = await sb.from("profiles").update({ avatar_url: url }).eq("id", store.profile.id);
   if (error) { toast(error.message, "error"); return false; }
@@ -739,8 +736,7 @@ function openEditProfileModal() {
   box.querySelector("#ep-avatar-wrap").addEventListener("click", openPicker);
   box.querySelector("#ep-change-photo").addEventListener("click", openPicker);
 
-  // Selecting an AI avatar just points avatar_url at a DiceBear image URL —
-  // no storage upload needed, since DiceBear hosts (and regenerates) the
+  // Selecting an AI avatar just points avatar_url at a DiceBear image URL,   // no storage upload needed, since DiceBear hosts (and regenerates) the
   // image itself from the seed baked into the URL.
   async function selectAvatarUrl(url) {
     slot.innerHTML = `<span class="avatar" style="width:76px;height:76px;"><img src="${url}" alt="" /></span>`;
@@ -768,7 +764,7 @@ function openEditProfileModal() {
     if (!file.type.startsWith("image/")) return toast("Please choose an image file", "error");
     if (file.size > 5 * 1024 * 1024) return toast("Image must be under 5MB", "error");
 
-    // Instant local preview while the upload's in flight — feels responsive
+    // Instant local preview while the upload's in flight, feels responsive
     // even on a slow connection, and gets overwritten with the real URL
     // (or reverted, on failure) once the upload settles.
     const localPreview = URL.createObjectURL(file);
@@ -813,7 +809,7 @@ function openEditProfileModal() {
 
 // Calls the manage-team-member Edge Function (owner-only, verified again
 // server-side) to ban/unban the login and flip profiles.active together.
-// See supabase/functions/manage-team-member — nothing about the teammate's
+// See supabase/functions/manage-team-member, nothing about the teammate's
 // history is ever deleted, this only locks/unlocks their sign-in.
 async function callManageAccess(p, action) {
   const { data, error } = await sb.functions.invoke("manage-team-member", {

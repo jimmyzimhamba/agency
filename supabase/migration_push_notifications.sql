@@ -1,8 +1,8 @@
 -- ============================================================================
--- STUDIO X COMMAND — MIGRATION: Push (pop-up) notifications
+-- STUDIO X COMMAND, MIGRATION: Push (pop-up) notifications
 -- ============================================================================
 -- What this does, in plain language:
---   - Adds a table to store each phone/browser's "push subscription" — the
+--   - Adds a table to store each phone/browser's "push subscription", the
 --     address the browser gives us so we can send it a notification even
 --     when Agency Command isn't open on screen.
 --   - A teammate turns this on themselves from the Team screen (nothing is
@@ -13,7 +13,7 @@
 --       2. The owner assigns a prospect to a teammate -> that teammate
 --          gets pinged.
 --   - The actual sending happens in the `send-push` Edge Function (deploy
---     that separately — see SETUP.md) using a private key that never
+--     that separately, see SETUP.md) using a private key that never
 --     touches the app or this table.
 --
 -- HOW TO RUN THIS:

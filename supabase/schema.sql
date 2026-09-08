@@ -1,12 +1,11 @@
 -- ============================================================================
--- STUDIO X COMMAND — DATABASE SCHEMA  (multi-tenant baseline)
+-- STUDIO X COMMAND, DATABASE SCHEMA  (multi-tenant baseline)
 -- ============================================================================
 -- What this file does, in plain language:
 -- It builds every "filing cabinet" (table) the app needs, and it sets up
 -- security rules so that:
 --   - The app can host any number of agencies ("organizations") on one
---     shared database, each one completely walled off from the others —
---     an owner at Agency A can never see Agency B's prospects, team,
+--     shared database, each one completely walled off from the others, --     an owner at Agency A can never see Agency B's prospects, team,
 --     templates, or goals.
 --   - Only people invited into YOUR organization (by invite code, or via
 --     sign-up under it) can log in and see anything belonging to it.
@@ -15,15 +14,15 @@
 --     prospects, set targets, or manage the invite code for that org.
 --   - Two agents can never "claim" (start working) the same prospect at once.
 --
--- IMPORTANT — if you already have a live Studio X Command database:
+-- IMPORTANT, if you already have a live Studio X Command database:
 -- Do NOT re-run this whole file against it. Use
--- supabase/migration_organizations.sql instead — it upgrades an existing
+-- supabase/migration_organizations.sql instead, it upgrades an existing
 -- single-tenant database in place without touching any of your real data.
 -- This file (schema.sql) is for standing up a brand-new, empty database
 -- from scratch (e.g. local dev, a disaster-recovery copy, or a completely
--- separate deployment) — it is NOT how new agencies join the live product.
+-- separate deployment), it is NOT how new agencies join the live product.
 -- New agencies join by signing up at the existing app URL and choosing
--- "New agency" or "Join a team" — see app/js/auth.js.
+-- "New agency" or "Join a team", see app/js/auth.js.
 --
 -- HOW TO USE THIS FILE (fresh database only):
 --   1. Open your Supabase project.
@@ -31,8 +30,8 @@
 --   3. Click "New query".
 --   4. Paste this ENTIRE file in.
 --   5. Click "Run".
--- That's it — every table, rule, function, and starter data (niches,
--- message templates, daily tasks — all seeded into one starter organization)
+-- That's it, every table, rule, function, and starter data (niches,
+-- message templates, daily tasks, all seeded into one starter organization)
 -- gets created at once. See SETUP.md Step 6 for how to join that starter
 -- organization as its Owner.
 -- ============================================================================
@@ -41,7 +40,7 @@
 create extension if not exists "pgcrypto";
 
 -- ----------------------------------------------------------------------------
--- 1. ORGANIZATIONS  (one row per agency using the app — the multi-tenant
+-- 1. ORGANIZATIONS  (one row per agency using the app, the multi-tenant
 --    boundary everything else below is scoped to)
 -- ----------------------------------------------------------------------------
 create table if not exists public.organizations (
@@ -57,7 +56,7 @@ create table if not exists public.organizations (
 alter table public.organizations enable row level security;
 
 -- One starter organization so this file has somewhere to seed the starter
--- niches/templates/tasks below (section 12). Safe to re-run — only inserts
+-- niches/templates/tasks below (section 12). Safe to re-run, only inserts
 -- if no organization exists yet at all.
 insert into public.organizations (name)
 select 'Studio X Marketing'
@@ -80,7 +79,7 @@ create table if not exists public.profiles (
   avatar_url text,
   -- Owner can revoke a teammate's access without deleting their history
   -- (past prospects/notes/activity stay intact). See the manage-team-member
-  -- Edge Function — it also bans the underlying auth.users login when this
+  -- Edge Function, it also bans the underlying auth.users login when this
   -- flips to false, so a removed teammate is actually locked out, not just
   -- hidden in the UI.
   active boolean not null default true,
@@ -110,7 +109,7 @@ as $$
 $$;
 
 -- Helper function: "what organization does the currently logged-in person
--- belong to?" — security definer for the same reason as is_owner() above.
+-- belong to?", security definer for the same reason as is_owner() above.
 -- Every other org-scoped policy/function in this file calls this.
 create or replace function public.my_org_id()
 returns uuid
@@ -151,12 +150,12 @@ create policy "profiles: update own or owner" on public.profiles
   with check (org_id = public.my_org_id() and (id = auth.uid() or public.is_owner()));
 
 -- New profile rows are created automatically by the trigger below, not by
--- hand — this policy is just a backstop.
+-- hand, this policy is just a backstop.
 create policy "profiles: insert self" on public.profiles
   for insert with check (id = auth.uid());
 
 -- Organizations: you can only see your own; only the owner can rename it.
--- No insert/delete policy for ordinary clients — new organizations are only
+-- No insert/delete policy for ordinary clients, new organizations are only
 -- ever created by the handle_new_user trigger below (runs as security
 -- definer, bypasses RLS).
 create policy "organizations: read own org" on public.organizations
@@ -247,7 +246,7 @@ create trigger on_auth_user_created
   for each row execute function public.handle_new_user();
 
 -- ----------------------------------------------------------------------------
--- 3. NICHES  (the strategy matrix — owner-editable, team-visible)
+-- 3. NICHES  (the strategy matrix, owner-editable, team-visible)
 -- ----------------------------------------------------------------------------
 create table if not exists public.niches (
   id uuid primary key default gen_random_uuid(),
@@ -325,7 +324,7 @@ create table if not exists public.prospects (
   updated_at timestamptz not null default now(),
   -- When this prospect last messaged us on WhatsApp. WhatsApp only lets a
   -- business send free-form replies within 24 hours of the customer's last
-  -- message — see "7a. WHATSAPP MESSAGES" below for how this gates the
+  -- message, see "7a. WHATSAPP MESSAGES" below for how this gates the
   -- in-app reply thread.
   whatsapp_last_inbound_at timestamptz
 );
@@ -340,7 +339,7 @@ create index if not exists idx_prospects_city on public.prospects (city);
 -- Stops the same Google listing being added twice within one organization,
 -- and doubles as the lookup Discovery uses to grey out "already in your
 -- pipeline" results. Prospects added by hand (no google_place_id) are
--- untouched — the "where" clause only applies the rule once a place id
+-- untouched, the "where" clause only applies the rule once a place id
 -- exists.
 create unique index if not exists idx_prospects_org_place
   on public.prospects (org_id, google_place_id)
@@ -349,7 +348,7 @@ create unique index if not exists idx_prospects_org_place
 alter table public.prospects enable row level security;
 
 -- Owner sees every prospect in their org. A team member only sees a
--- prospect once the owner has assigned it to them — or if they personally
+-- prospect once the owner has assigned it to them, or if they personally
 -- added it (so they don't lose sight of a lead they just found before it's
 -- formally assigned).
 create policy "prospects: read own or owner" on public.prospects
@@ -359,7 +358,7 @@ create policy "prospects: read own or owner" on public.prospects
   );
 
 -- Anyone can add a new prospect, but a non-owner can only leave it
--- unassigned or assign it to themselves — never straight to a teammate.
+-- unassigned or assign it to themselves, never straight to a teammate.
 -- Only the owner decides who else works a lead.
 create policy "prospects: insert self-assign or owner" on public.prospects
   for insert with check (
@@ -370,8 +369,7 @@ create policy "prospects: insert self-assign or owner" on public.prospects
 
 -- A team member can only edit prospects they can already see (their own
 -- assigned/added leads). They can release a prospect back to the owner's
--- pool (assigned_to = null) but can't hand it to another teammate directly —
--- only the owner can reassign to someone else.
+-- pool (assigned_to = null) but can't hand it to another teammate directly, -- only the owner can reassign to someone else.
 create policy "prospects: update own or owner" on public.prospects
   for update
   using (org_id = public.my_org_id() and (public.is_owner() or assigned_to = auth.uid() or created_by = auth.uid()))
@@ -401,7 +399,7 @@ create trigger trg_prospects_touch
 -- claims a fresh prospect. It only succeeds if nobody has claimed it yet
 -- (or the same person is re-opening their own prospect). If someone else
 -- got there first, it returns false and the app tells the agent to pick
--- another prospect — so two people can never work the same lead. This
+-- another prospect, so two people can never work the same lead. This
 -- function is security definer (bypasses RLS, so the check is atomic), so
 -- it has to enforce the organization boundary itself in the WHERE clause.
 create or replace function public.claim_prospect(p_id uuid)
@@ -415,7 +413,7 @@ declare
 begin
   -- Owner can claim/assign anything in their org. A team member can only
   -- claim a prospect that's already theirs (no-op) or one they personally
-  -- added and that's still unassigned — never someone else's or the
+  -- added and that's still unassigned, never someone else's or the
   -- owner's unassigned pool leads. This keeps assignment owner-controlled.
   update public.prospects
   set assigned_to = auth.uid()
@@ -449,16 +447,16 @@ create index if not exists idx_status_history_org on public.status_history (org_
 alter table public.status_history enable row level security;
 create policy "status_history: read org" on public.status_history
   for select using (org_id = public.my_org_id());
--- No direct insert policy for clients — only the trigger (below) can write here.
+-- No direct insert policy for clients, only the trigger (below) can write here.
 
 -- ----------------------------------------------------------------------------
 -- 5a. RESEARCH REQUESTS  (invisible rate-limit log for AI auto-research)
 -- ----------------------------------------------------------------------------
--- One row per research run. Not shown anywhere in the app — the
+-- One row per research run. Not shown anywhere in the app, the
 -- research-prospect backend function reads this to make sure one teammate
 -- adding a burst of prospects can't accidentally rack up API costs or trip
 -- Anthropic's own rate limits. org_id here is nullable and unenforced by
--- RLS on purpose (see note below) — not worth tightening.
+-- RLS on purpose (see note below), not worth tightening.
 create table if not exists public.research_requests (
   id uuid primary key default gen_random_uuid(),
   org_id uuid references public.organizations (id) on delete set null,
@@ -470,7 +468,7 @@ create table if not exists public.research_requests (
 create index if not exists idx_research_requests_by_user on public.research_requests (requested_by, created_at);
 
 alter table public.research_requests enable row level security;
--- No select/insert policies for ordinary clients on purpose — only the
+-- No select/insert policies for ordinary clients on purpose, only the
 -- research-prospect function (using the secure service-role key, which
 -- bypasses RLS) ever touches this table. Same pattern as status_history above.
 
@@ -491,7 +489,7 @@ create table if not exists public.discovery_requests (
 create index if not exists idx_discovery_requests_by_user on public.discovery_requests (requested_by, created_at);
 
 alter table public.discovery_requests enable row level security;
--- No select/insert policies for ordinary clients on purpose — only the
+-- No select/insert policies for ordinary clients on purpose, only the
 -- discover-places function ever touches this table.
 
 -- ----------------------------------------------------------------------------
@@ -511,7 +509,7 @@ create table if not exists public.copilot_requests (
 create index if not exists idx_copilot_requests_by_user on public.copilot_requests (requested_by, created_at);
 
 alter table public.copilot_requests enable row level security;
--- No select/insert policies for ordinary clients on purpose — only the
+-- No select/insert policies for ordinary clients on purpose, only the
 -- copilot-chat function ever touches this table.
 
 -- ----------------------------------------------------------------------------
@@ -531,8 +529,8 @@ create index if not exists idx_activity_log_org on public.activity_log (org_id);
 alter table public.activity_log enable row level security;
 -- The feed names the actual business in its message text ("Alice marked
 -- WestProp as Replied"), so it has to follow the same visibility rule as
--- the prospects table itself — otherwise it would leak names/status of
--- prospects a team member isn't assigned to — on top of the organization
+-- the prospects table itself, otherwise it would leak names/status of
+-- prospects a team member isn't assigned to, on top of the organization
 -- boundary. A row with no prospect_id (general messages) stays visible to
 -- everyone in the org.
 create policy "activity_log: read visible prospects" on public.activity_log
@@ -543,7 +541,7 @@ create policy "activity_log: read visible prospects" on public.activity_log
       or exists (select 1 from public.prospects p where p.id = activity_log.prospect_id)
     )
   );
--- No direct insert policy for clients — only triggers write here.
+-- No direct insert policy for clients, only triggers write here.
 
 -- Trigger: whenever a prospect's status or assignment changes, log it. Runs
 -- as security definer (writes to tables clients can't insert into
@@ -607,7 +605,7 @@ alter table public.prospect_notes enable row level security;
 
 -- Notes are about a specific prospect, so only show them to people who can
 -- see that prospect (owner, or the team member it's assigned to/added).
--- No org_id column or explicit org check needed here — this subquery runs
+-- No org_id column or explicit org check needed here, this subquery runs
 -- through prospects' own (already org-scoped) RLS, so visibility is
 -- already correctly restricted to your organization.
 create policy "notes: read visible prospects" on public.prospect_notes
@@ -646,13 +644,13 @@ create trigger trg_notes_log
 
 -- ----------------------------------------------------------------------------
 -- 7a. WHATSAPP MESSAGES  (two-way conversation thread per prospect, via
--- Twilio — see supabase/functions/send-whatsapp and whatsapp-webhook)
+-- Twilio, see supabase/functions/send-whatsapp and whatsapp-webhook)
 -- ----------------------------------------------------------------------------
 -- One row per WhatsApp message, in either direction. Outbound rows are
 -- created by the send-whatsapp function right after Twilio accepts the
 -- message; inbound rows (and delivery-status updates to outbound rows) are
 -- created/updated by the whatsapp-webhook function whenever Twilio calls it.
--- Client apps never insert into this table directly — only those two
+-- Client apps never insert into this table directly, only those two
 -- backend functions do, using the service-role key.
 create table if not exists public.whatsapp_messages (
   id uuid primary key default gen_random_uuid(),
@@ -682,13 +680,13 @@ alter table public.whatsapp_messages enable row level security;
 
 -- A conversation thread is about a specific prospect, so only show it to
 -- people who can see that prospect (owner, or the team member it's
--- assigned to/added) — same subquery-through-prospects'-own-RLS trick as
+-- assigned to/added), same subquery-through-prospects'-own-RLS trick as
 -- prospect_notes above.
 create policy "whatsapp_messages: read visible prospects" on public.whatsapp_messages
   for select using (
     exists (select 1 from public.prospects p where p.id = whatsapp_messages.prospect_id)
   );
--- No insert/update/delete policy for ordinary clients on purpose — a plain
+-- No insert/update/delete policy for ordinary clients on purpose, a plain
 -- client-side insert wouldn't actually send anything via Twilio, it'd just
 -- create a fake-looking message. Only send-whatsapp (outbound) and
 -- whatsapp-webhook (inbound + delivery status) ever write to this table.
@@ -707,11 +705,11 @@ create table if not exists public.whatsapp_send_requests (
 create index if not exists idx_whatsapp_send_requests_by_user on public.whatsapp_send_requests (requested_by, created_at);
 
 alter table public.whatsapp_send_requests enable row level security;
--- No select/insert policies for ordinary clients on purpose — only the
+-- No select/insert policies for ordinary clients on purpose, only the
 -- send-whatsapp function ever touches this table.
 
 -- ----------------------------------------------------------------------------
--- 8. MESSAGE TEMPLATES  (message kit — team can edit)
+-- 8. MESSAGE TEMPLATES  (message kit, team can edit)
 -- ----------------------------------------------------------------------------
 create table if not exists public.message_templates (
   id uuid primary key default gen_random_uuid(),
@@ -749,8 +747,7 @@ create trigger trg_templates_touch
   for each row execute function public.touch_updated_at();
 
 -- ----------------------------------------------------------------------------
--- 9. DAILY TASKS  (shared outreach-rhythm checklist, owner-editable —
---    optionally assigned to one specific agent instead of everyone)
+-- 9. DAILY TASKS  (shared outreach-rhythm checklist, owner-editable, --    optionally assigned to one specific agent instead of everyone)
 -- ----------------------------------------------------------------------------
 create table if not exists public.daily_tasks (
   id uuid primary key default gen_random_uuid(),
@@ -848,7 +845,7 @@ create trigger trg_monthly_goal_org before insert on public.monthly_goal
 -- ----------------------------------------------------------------------------
 -- 11. PUSH SUBSCRIPTIONS  (pop-up/push notifications, opted in per teammate)
 -- ----------------------------------------------------------------------------
--- No org_id column needed — every policy here is already scoped to a
+-- No org_id column needed, every policy here is already scoped to a
 -- specific user_id, which transitively belongs to exactly one organization.
 create table if not exists public.push_subscriptions (
   id uuid primary key default gen_random_uuid(),
@@ -871,7 +868,7 @@ create policy "push_subscriptions: delete own" on public.push_subscriptions
   for delete using (user_id = auth.uid());
 
 -- ----------------------------------------------------------------------------
--- 12. CONTRACTS, INVOICES, PROJECTS  (post-signing business ops — see
+-- 12. CONTRACTS, INVOICES, PROJECTS  (post-signing business ops, see
 --     supabase/migration_phase3_business_ops.sql for the same tables written
 --     as a standalone, idempotent migration for the live database; this
 --     section mirrors it for brand-new/empty databases.)
@@ -926,7 +923,7 @@ begin
 
   if tg_op = 'INSERT' then
     insert into public.activity_log (actor_id, prospect_id, message, org_id)
-    values (auth.uid(), new.prospect_id, actor_name || ' drafted a contract — ' || new.title, new.org_id);
+    values (auth.uid(), new.prospect_id, actor_name || ' drafted a contract: ' || new.title, new.org_id);
     return new;
   end if;
 
@@ -1063,7 +1060,7 @@ begin
 
   if tg_op = 'INSERT' then
     insert into public.activity_log (actor_id, prospect_id, message, org_id)
-    values (auth.uid(), new.prospect_id, actor_name || ' started a project — ' || new.name, new.org_id);
+    values (auth.uid(), new.prospect_id, actor_name || ' started a project: ' || new.name, new.org_id);
     return new;
   end if;
 
@@ -1110,7 +1107,7 @@ create trigger trg_project_tasks_org before insert on public.project_tasks
   for each row execute function public.stamp_org_id();
 
 -- ----------------------------------------------------------------------------
--- 13. PROFILE PICTURES  (storage bucket — see
+-- 13. PROFILE PICTURES  (storage bucket, see
 --     supabase/migration_phase4_avatars.sql for the same bucket/policies
 --     written as a standalone, idempotent migration for the live database;
 --     this section mirrors it for brand-new/empty databases.)
@@ -1182,18 +1179,18 @@ begin
   insert into public.message_templates (org_id, title, category, body, sort_order)
   select starter_org_id, v.title, v.category, v.body, v.sort_order
   from (values
-    ('Cold Opener', 'opener', 'Hi [Name], I came across [Business] and noticed [specific observation]. We help Harare businesses like yours turn social media into a steady stream of customers — would you be open to a quick chat this week?', 1),
-    ('Follow-up 1 (no reply)', 'follow_up', 'Hi [Name], just floating this back up in case it got buried! We put together a couple of quick ideas for [Business]''s Instagram — happy to share, no pressure either way.', 2),
-    ('Follow-up 2 (gone quiet)', 'follow_up', 'Hey [Name], totally understand things get busy. If now''s not the right time that''s completely fine — just let me know and I''ll check back in a month or two.', 3),
-    ('Objection: "We already post ourselves"', 'objection', 'Totally get that — a lot of our clients did too before we started. The difference is usually consistency and strategy behind each post, not just posting. Want to see a quick before/after example from a similar business?', 4),
-    ('Objection: "It''s too expensive"', 'objection', 'I hear you. Think of it less as a cost and more as what one new client is worth to you — most of our retainers pay for themselves with a single signed deal. Want me to break down exactly what''s included?', 5),
-    ('The Close', 'close', 'Great — here''s what happens next: I''ll send the agreement and a deposit invoice today, and we can have your first content batch live within [X] days. Sound good?', 6)
+    ('Cold Opener', 'opener', 'Hi [Name], I came across [Business] and noticed [specific observation]. We help Harare businesses like yours turn social media into a steady stream of customers, would you be open to a quick chat this week?', 1),
+    ('Follow-up 1 (no reply)', 'follow_up', 'Hi [Name], just floating this back up in case it got buried! We put together a couple of quick ideas for [Business]''s Instagram, happy to share, no pressure either way.', 2),
+    ('Follow-up 2 (gone quiet)', 'follow_up', 'Hey [Name], totally understand things get busy. If now''s not the right time that''s completely fine, just let me know and I''ll check back in a month or two.', 3),
+    ('Objection: "We already post ourselves"', 'objection', 'Totally get that, a lot of our clients did too before we started. The difference is usually consistency and strategy behind each post, not just posting. Want to see a quick before/after example from a similar business?', 4),
+    ('Objection: "It''s too expensive"', 'objection', 'I hear you. Think of it less as a cost and more as what one new client is worth to you, most of our retainers pay for themselves with a single signed deal. Want me to break down exactly what''s included?', 5),
+    ('The Close', 'close', 'Great, here''s what happens next: I''ll send the agreement and a deposit invoice today, and we can have your first content batch live within [X] days. Sound good?', 6)
   ) as v(title, category, body, sort_order)
   where not exists (select 1 from public.message_templates mt where mt.org_id = starter_org_id and mt.title = v.title);
 
   -- Niche-specific opener templates. These use {{business_name}}, {{area_clause}},
   -- {{gap_clause}}, and {{agent_name}} tokens that the app fills in automatically
-  -- per prospect (see personalizeMessage() in app/js/utils.js) — unlike the
+  -- per prospect (see personalizeMessage() in app/js/utils.js), unlike the
   -- generic templates above, which use manual [Name]/[Business] placeholders
   -- for copy-paste. The app picks the matching niche template automatically
   -- when an agent sends a first WhatsApp message and no message has been
@@ -1201,23 +1198,23 @@ begin
   insert into public.message_templates (org_id, title, category, body, niche_id, sort_order)
   select starter_org_id, v.title, 'opener', v.body, n.id, v.sort_order
   from (values
-    ('Real Estate Opener', 'Hi! I came across {{business_name}}{{area_clause}} while looking at real estate agencies around Harare — {{gap_clause}}. I work with agencies on getting more listing enquiries through social media and WhatsApp marketing. Worth a quick chat? — {{agent_name}}, Studio X Marketing', 'Real Estate Agencies', 10),
-    ('Car Dealership Opener', 'Hi! I spotted {{business_name}}{{area_clause}} while looking at car dealerships in Harare — {{gap_clause}}. We help dealerships turn browsers into buyers with better social content and ads. Open to a quick chat? — {{agent_name}}, Studio X Marketing', 'Car Dealerships', 11),
-    ('Professional Services Opener', 'Hi! I came across {{business_name}}{{area_clause}} — {{gap_clause}}. We help professional firms build trust online and bring in more client enquiries through content and a stronger digital presence. Would you be open to a short chat? — {{agent_name}}, Studio X Marketing', 'Professional Services (law, accounting, consulting)', 12),
-    ('Solar Installer Opener', 'Hi! I noticed {{business_name}}{{area_clause}} — {{gap_clause}}. With load-shedding, demand for solar is huge right now, and we help installers like you capture more of those enquiries online. Quick chat? — {{agent_name}}, Studio X Marketing', 'Solar Installers', 13),
-    ('Hotels & Lodges Opener', 'Hi! I came across {{business_name}}{{area_clause}} — {{gap_clause}}. We help hotels and lodges fill more rooms through better social media and booking-focused marketing. Open to a quick chat about it? — {{agent_name}}, Studio X Marketing', 'Hotels & Lodges', 14),
-    ('Events & Wedding Opener', 'Hi! I spotted {{business_name}}{{area_clause}} — {{gap_clause}}. Wedding season enquiries move fast on Instagram and WhatsApp, and we help vendors like you stay visible and book more events. Worth a quick chat? — {{agent_name}}, Studio X Marketing', 'Events & Wedding Vendors', 15),
-    ('Restaurants & Cafes Opener', 'Hi! I came across {{business_name}}{{area_clause}} — {{gap_clause}}. We help restaurants and cafes get more foot traffic through consistent, mouth-watering social content. Open to a quick chat? — {{agent_name}}, Studio X Marketing', 'Restaurants & Cafes', 16),
-    ('Fashion & Boutiques Opener', 'Hi! I spotted {{business_name}}{{area_clause}} — {{gap_clause}}. We help boutiques turn their catalogue into consistent sales through social media and WhatsApp marketing. Quick chat sometime this week? — {{agent_name}}, Studio X Marketing', 'Fashion & Boutiques', 17),
-    ('Fitness & Gyms Opener', 'Hi! I came across {{business_name}}{{area_clause}} — {{gap_clause}}. We help gyms and fitness studios fill more classes and memberships through better online marketing. Open to a quick chat? — {{agent_name}}, Studio X Marketing', 'Fitness & Gyms', 18),
-    ('Healthcare & Clinics Opener', 'Hi! I noticed {{business_name}}{{area_clause}} — {{gap_clause}}. We help clinics build trust and bring in more patient enquiries through a stronger, more professional online presence. Would you be open to a quick chat? — {{agent_name}}, Studio X Marketing', 'Private Healthcare & Clinics', 19)
+    ('Real Estate Opener', E'Hi! I came across {{business_name}}{{area_clause}} while looking at real estate agencies around Harare, {{gap_clause}}. I work with agencies on getting more listing enquiries through social media and WhatsApp marketing. Worth a quick chat?\n\n{{agent_name}}, Studio X Marketing', 'Real Estate Agencies', 10),
+    ('Car Dealership Opener', E'Hi! I spotted {{business_name}}{{area_clause}} while looking at car dealerships in Harare, {{gap_clause}}. We help dealerships turn browsers into buyers with better social content and ads. Open to a quick chat?\n\n{{agent_name}}, Studio X Marketing', 'Car Dealerships', 11),
+    ('Professional Services Opener', E'Hi! I came across {{business_name}}{{area_clause}}, {{gap_clause}}. We help professional firms build trust online and bring in more client enquiries through content and a stronger digital presence. Would you be open to a short chat?\n\n{{agent_name}}, Studio X Marketing', 'Professional Services (law, accounting, consulting)', 12),
+    ('Solar Installer Opener', E'Hi! I noticed {{business_name}}{{area_clause}}, {{gap_clause}}. With load-shedding, demand for solar is huge right now, and we help installers like you capture more of those enquiries online. Quick chat?\n\n{{agent_name}}, Studio X Marketing', 'Solar Installers', 13),
+    ('Hotels & Lodges Opener', E'Hi! I came across {{business_name}}{{area_clause}}, {{gap_clause}}. We help hotels and lodges fill more rooms through better social media and booking-focused marketing. Open to a quick chat about it?\n\n{{agent_name}}, Studio X Marketing', 'Hotels & Lodges', 14),
+    ('Events & Wedding Opener', E'Hi! I spotted {{business_name}}{{area_clause}}, {{gap_clause}}. Wedding season enquiries move fast on Instagram and WhatsApp, and we help vendors like you stay visible and book more events. Worth a quick chat?\n\n{{agent_name}}, Studio X Marketing', 'Events & Wedding Vendors', 15),
+    ('Restaurants & Cafes Opener', E'Hi! I came across {{business_name}}{{area_clause}}, {{gap_clause}}. We help restaurants and cafes get more foot traffic through consistent, mouth-watering social content. Open to a quick chat?\n\n{{agent_name}}, Studio X Marketing', 'Restaurants & Cafes', 16),
+    ('Fashion & Boutiques Opener', E'Hi! I spotted {{business_name}}{{area_clause}}, {{gap_clause}}. We help boutiques turn their catalogue into consistent sales through social media and WhatsApp marketing. Quick chat sometime this week?\n\n{{agent_name}}, Studio X Marketing', 'Fashion & Boutiques', 17),
+    ('Fitness & Gyms Opener', E'Hi! I came across {{business_name}}{{area_clause}}, {{gap_clause}}. We help gyms and fitness studios fill more classes and memberships through better online marketing. Open to a quick chat?\n\n{{agent_name}}, Studio X Marketing', 'Fitness & Gyms', 18),
+    ('Healthcare & Clinics Opener', E'Hi! I noticed {{business_name}}{{area_clause}}, {{gap_clause}}. We help clinics build trust and bring in more patient enquiries through a stronger, more professional online presence. Would you be open to a quick chat?\n\n{{agent_name}}, Studio X Marketing', 'Private Healthcare & Clinics', 19)
   ) as v(title, body, niche_name, sort_order)
   join public.niches n on n.name = v.niche_name and n.org_id = starter_org_id
   where not exists (select 1 from public.message_templates mt where mt.org_id = starter_org_id and mt.title = v.title);
 
   -- One niche-agnostic fallback opener, for the rare prospect with no niche set.
   insert into public.message_templates (org_id, title, category, body, niche_id, sort_order)
-  select starter_org_id, 'General Opener', 'opener', 'Hi! I came across {{business_name}}{{area_clause}} — {{gap_clause}}. We help local Harare businesses grow through social media and WhatsApp marketing. Would you be open to a quick chat? — {{agent_name}}, Studio X Marketing', null, 20
+  select starter_org_id, 'General Opener', 'opener', E'Hi! I came across {{business_name}}{{area_clause}}, {{gap_clause}}. We help local Harare businesses grow through social media and WhatsApp marketing. Would you be open to a quick chat?\n\n{{agent_name}}, Studio X Marketing', null, 20
   where not exists (select 1 from public.message_templates where org_id = starter_org_id and title = 'General Opener');
 
   insert into public.daily_tasks (org_id, title, day_type, sort_order)
@@ -1233,8 +1230,7 @@ begin
 end $$;
 
 -- ----------------------------------------------------------------------------
--- 16. OVERDUE INVOICE ALERTS  (daily scheduled check via pg_cron + pg_net —
---     see the check-overdue-invoices Edge Function, and SETUP.md "Turn on
+-- 16. OVERDUE INVOICE ALERTS  (daily scheduled check via pg_cron + pg_net, --     see the check-overdue-invoices Edge Function, and SETUP.md "Turn on
 --     overdue invoice alerts" for how to deploy it and fill in the
 --     x-cron-secret value below.)
 -- ----------------------------------------------------------------------------
@@ -1269,7 +1265,7 @@ select cron.schedule(
 -- DONE. Next: run this whole file once in the Supabase SQL Editor.
 -- Then go to Authentication settings and turn OFF "Confirm email" if you
 -- want your team to log in immediately without checking their inbox first
--- (see SETUP.md for exact steps) — and see SETUP.md Step 6 for how the
+-- (see SETUP.md for exact steps), and see SETUP.md Step 6 for how the
 -- first person joins the starter organization this file just seeded and
 -- promotes themselves to Owner.
 -- ============================================================================

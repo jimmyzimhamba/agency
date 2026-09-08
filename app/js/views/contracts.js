@@ -11,7 +11,7 @@ const STATUSES = ["draft", "sent", "signed", "void"];
 let filterStatus = "all";
 
 // A contract sitting in "sent" status for a while with no nudge is easy to
-// lose track of — invoices already flag overdue payments the same way, but
+// lose track of, invoices already flag overdue payments the same way, but
 // contracts had nothing equivalent. 5 days mirrors a reasonable "should have
 // heard back by now" window without being noisy about brand-new sends.
 const STALE_DAYS = 5;
@@ -24,7 +24,7 @@ function isStale(c) {
 }
 
 // Mirrors Invoices' "Avg. Days to Get Paid" and Projects' "Avg. Delivery
-// Time" — Contracts had a per-contract staleness flag but no aggregate on
+// Time", Contracts had a per-contract staleness flag but no aggregate on
 // the team's typical sales-cycle speed (send-to-signature). Only counts
 // contracts with both dates set, same "skip incomplete data" convention as
 // those other two averages.
@@ -41,7 +41,7 @@ function avgDaysToSign() {
 }
 
 // Avg. Days to Sign covers speed; "Value Signed This Month" covers a single
-// month's total — neither tells a rep what a typical closed deal is actually
+// month's total, neither tells a rep what a typical closed deal is actually
 // worth, so there's no benchmark for "is this new contract big or small for
 // us." Only counts signed contracts with a real value, same "skip incomplete
 // data" convention as avgDaysToSign above.
@@ -54,12 +54,11 @@ function avgDealSize() {
   return withValue.reduce((sum, c) => sum + Number(c.value), 0) / withValue.length;
 }
 
-// Contracts carry a 'void' status but nothing anywhere aggregates it — a
+// Contracts carry a 'void' status but nothing anywhere aggregates it, a
 // deal that gets drafted/sent and then falls through is a materially
 // different signal than one that never got sent, and today it's invisible
 // unless someone manually clicks the "Void" filter chip and counts by eye.
-// Only contracts that reached a *final* outcome (signed or void) count —
-// a still-open draft/sent contract hasn't failed or succeeded yet.
+// Only contracts that reached a *final* outcome (signed or void) count, // a still-open draft/sent contract hasn't failed or succeeded yet.
 function voidedContracts() {
   return store.contracts.filter((c) => c.status === "void");
 }
@@ -70,10 +69,10 @@ function contractOutcomeTotals() {
 }
 
 // openNewContractSheet pre-fills a new contract's value from prospect.mrr
-// only once, at creation time — after that the two fields drift independently.
+// only once, at creation time, after that the two fields drift independently.
 // Every revenue number elsewhere in the app (Dashboard's Monthly Goal /
 // Projected MRR, Pipeline Value's revenue-by-niche/tier) is computed from
-// prospects.mrr, not from contracts — so a renegotiated contract whose value
+// prospects.mrr, not from contracts, so a renegotiated contract whose value
 // no longer matches the prospect's mrr silently throws off every one of
 // those numbers, with nothing surfacing it. Dashboard's existing "Zero-MRR
 // Signed Prospects" check only catches mrr === 0, not "mrr disagrees with
@@ -101,13 +100,13 @@ export function renderContracts() {
   // had zero aggregate stats of its own. Dashboard's Projected MRR is a
   // cumulative recurring-revenue snapshot (not tied to *when* a client
   // signed), and the Leaderboard counts deals per rep with no dollar figure
-  // — neither answers "how much new business did we actually close this
+  //, neither answers "how much new business did we actually close this
   // month," the natural sales-ops companion to Invoices' own monthly card.
   const signedThisMonth = store.contracts.filter((c) => c.status === "signed" && c.signed_date && c.signed_date >= firstOfMonth());
   const signedThisMonthValue = signedThisMonth.reduce((sum, c) => sum + (Number(c.value) || 0), 0);
   const withSignTime = contractsWithSignTime();
   const avgSignDays = avgDaysToSign();
-  // "Awaiting Signature 5+ days" (below) is a staleness count — it tells you
+  // "Awaiting Signature 5+ days" (below) is a staleness count, it tells you
   // *how many* pending contracts are stale, not what they're worth. This is
   // the value companion, covering every sent-not-signed contract regardless
   // of age, so the team can prioritize chasing the biggest deal first rather
@@ -245,7 +244,7 @@ function renderList(listEl) {
   });
 }
 
-// Drill-down for "Value Awaiting Signature" — same click-through pattern as
+// Drill-down for "Value Awaiting Signature", same click-through pattern as
 // openSignedThisMonthModal below, sorted highest-value-first so the biggest
 // deal still waiting on a signature stands out.
 function openPendingSignatureModal(contracts) {
@@ -279,7 +278,7 @@ function openPendingSignatureModal(contracts) {
   openModal(box);
 }
 
-// Drill-down for the "Value Signed This Month" stat card — same
+// Drill-down for the "Value Signed This Month" stat card, same
 // click-through modal-list pattern invoices.js already established for its
 // own stat cards (openOutstandingByClientModal / openSlowestPayersModal).
 // Sorted highest-value-first so the biggest deal of the month stands out.
@@ -345,7 +344,7 @@ function openSlowestToSignModal(contracts) {
   openModal(box);
 }
 
-// Drill-down for "Avg. Deal Size" — same click-through pattern as Signed
+// Drill-down for "Avg. Deal Size", same click-through pattern as Signed
 // This Month / Slowest to Sign, sorted biggest-value-first so the standout
 // deals surface immediately.
 function openDealSizeModal(contracts) {
@@ -380,7 +379,7 @@ function openDealSizeModal(contracts) {
   openModal(box);
 }
 
-// Drill-down for "Void Rate" — same click-through pattern as the other
+// Drill-down for "Void Rate", same click-through pattern as the other
 // stat-card modals on this page, most-recently-voided first (using
 // updated_at, which the status-change save already refreshes) so the
 // newest fallen-through deal surfaces first.
@@ -416,7 +415,7 @@ function openVoidedModal(contracts) {
 }
 
 // Exports whatever's currently in view (respects the active status chip, same
-// as the row order on screen) — useful for handing a batch of contracts off
+// as the row order on screen), useful for handing a batch of contracts off
 // to an accountant/bookkeeper without them needing app access. Same
 // toCSV/downloadTextFile mechanism as the Pipeline's existing CSV export.
 function exportContractsCSV() {
@@ -445,7 +444,7 @@ function exportContractsCSV() {
 }
 
 // Builds a short WhatsApp message summarizing the contract (title, value,
-// status) and opens it addressed to the linked prospect — mirrors
+// status) and opens it addressed to the linked prospect, mirrors
 // sendPaymentReminder() in invoices.js, which already proved this pattern
 // out for billing; contracts got Print/PDF earlier this session but never
 // got the equivalent quick-send-to-client action.
@@ -457,7 +456,7 @@ function sendContractWhatsApp(contract, prospect, { nudge = false } = {}) {
     ? "which is ready for your signature whenever you get a chance"
     : "for your review";
   // Awaiting-signature nudge uses a lighter "just checking in" tone instead
-  // of re-sending the same "here it is" copy — this is a follow-up, not the
+  // of re-sending the same "here it is" copy, this is a follow-up, not the
   // first ask, so it shouldn't read like one.
   const message = nudge
     ? `Hi ${prospect.business_name}, just checking in on "${contract.title || "our agreement"}" (${money(contract.value)}), no rush, just want to make sure it didn't get buried. Let me know if you have any questions or need anything else to sign it!`
@@ -465,11 +464,11 @@ function sendContractWhatsApp(contract, prospect, { nudge = false } = {}) {
   window.open(buildWhatsAppLink(prospect.whatsapp_number, message), "_blank");
 }
 
-// Contracts and Invoices are otherwise fully decoupled — marking a contract
+// Contracts and Invoices are otherwise fully decoupled, marking a contract
 // Signed has zero effect on billing. Without this, the only safety net is
 // Dashboard's Revenue at Risk card, which only flags "No invoice raised yet"
 // after a signed client has sat untouched for 30 days. This catches it right
-// when it's created instead of a month later — mirrors offerRecurringInvoice
+// when it's created instead of a month later, mirrors offerRecurringInvoice
 // in invoices.js almost exactly, just triggered by "contract signed" instead
 // of "invoice paid".
 function offerFirstInvoice(contract) {

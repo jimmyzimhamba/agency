@@ -3,7 +3,7 @@
 -- ============================================================================
 -- Adds a soft on/off switch for team members. The owner can flip a
 -- teammate's access off from the Team screen without deleting anything they
--- ever did — their past prospects, notes, and activity history all stay
+-- ever did, their past prospects, notes, and activity history all stay
 -- intact and still show their name. The actual login lockout happens in the
 -- manage-team-member Edge Function (it bans the auth.users row); this column
 -- just mirrors that state for the UI to show "Removed" and to keep them out

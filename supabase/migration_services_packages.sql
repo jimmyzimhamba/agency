@@ -1,9 +1,9 @@
 -- ============================================================================
--- Agency Command — Services & Packages
+-- Agency Command, Services & Packages
 -- ============================================================================
 -- The agency's own sellable catalog: fixed, named service offerings with a
--- price and a turnaround estimate (e.g. "Starter Social Package — $500/mo,
--- 5 business days"). This is genuinely new ground — Deal Pricing
+-- price and a turnaround estimate (e.g. "Starter Social Package, $500/mo,
+-- 5 business days"). This is genuinely new ground, Deal Pricing
 -- (dealPricing.js) is a market-band *calculator* keyed on a client's segment
 -- (small/SME/pro/large), not a catalog of what the agency actually sells;
 -- Niches is client-industry categorization. Nothing else in the app
@@ -15,7 +15,7 @@
 --
 -- Permission model mirrors Niches, not Contracts/Invoices/Projects: the
 -- catalog is a small, curated list the whole team reads (to quote clients
--- accurately and consistently) but only the owner curates — same "owner
+-- accurately and consistently) but only the owner curates, same "owner
 -- writes, team reads" split as public.niches, since a service catalog is a
 -- pricing/positioning decision, not day-to-day delivery work anyone should
 -- freely edit.
@@ -25,7 +25,7 @@
 -- and public.touch_updated_at(), all defined there).
 --
 -- HOW TO RUN: Supabase Dashboard → SQL Editor → paste this whole file → Run.
--- Safe to re-run — every statement is guarded (if not exists / or replace /
+-- Safe to re-run, every statement is guarded (if not exists / or replace /
 -- drop policy if exists).
 -- ============================================================================
 
@@ -54,7 +54,7 @@ drop policy if exists "service_packages: read org" on public.service_packages;
 create policy "service_packages: read org" on public.service_packages
   for select using (org_id = public.my_org_id());
 
--- Only the owner curates the catalog — everyone on the team can see it (to
+-- Only the owner curates the catalog, everyone on the team can see it (to
 -- quote a client accurately) but adding/renaming/repricing a package is a
 -- deliberate business decision, same split as public.niches.
 drop policy if exists "service_packages: owner writes" on public.service_packages;
@@ -89,9 +89,9 @@ end $$;
 
 -- ============================================================================
 -- DONE. After running this in the SQL Editor:
---   1. Redeploy the frontend (app/ folder via Netlify Drop) — sw.js's
+--   1. Redeploy the frontend (app/ folder via Netlify Drop), sw.js's
 --      CACHE_VERSION was bumped so every phone picks up the new view.
---   2. New sidebar link: Services & Packages (under "Business") — visible to
+--   2. New sidebar link: Services & Packages (under "Business"), visible to
 --      everyone, but only the owner can add/edit/delete a package; any team
 --      member can browse the catalog when quoting a client.
 -- ============================================================================

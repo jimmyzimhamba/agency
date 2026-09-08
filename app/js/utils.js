@@ -1,5 +1,5 @@
 // Wraps a promise so it rejects after `ms` milliseconds instead of hanging
-// forever. Used on the app's boot sequence — on a flaky/slow mobile
+// forever. Used on the app's boot sequence, on a flaky/slow mobile
 // connection, a stalled network request should surface as a clear "try
 // again" screen rather than leaving the app stuck on the loading spinner
 // indefinitely with no way out except force-quitting the app.
@@ -19,9 +19,53 @@ export function el(html) {
   return t.content.firstElementChild;
 }
 
-export function esc(str) {
+// House rule: the em dash never appears in anything a human reads.
+//
+// This is not a style preference, it is a credibility one. The em dash is the
+// single most recognisable fingerprint of AI-written text, and the messages
+// this app produces go out under a real person's name to real businesses in
+// Harare. A prospect who clocks the message as machine-written has already
+// decided the answer before reading line 3.
+//
+// Instructing the AI not to use one (which the research-prospect prompt does)
+// is necessary but not sufficient: a language model follows a negative
+// instruction most of the time, not every time, and "most of the time" is not
+// a standard worth shipping. So the character is also stripped mechanically at
+// every point where text becomes visible, which is what this function is for.
+//
+// A comma is the replacement because that is what the dash is nearly always
+// standing in for in the first place, and it reads as ordinary typing. A
+// hyphen was the other candidate and was rejected: " - " is itself becoming a
+// tell, and it looks like a typo mid-sentence.
+//
+// Both dash characters are covered. The en dash is rarer but shows up in
+// number ranges pasted from elsewhere, and a range is the one case where a
+// comma would be wrong, so that one becomes "to" instead.
+export function noDash(str) {
   if (str === null || str === undefined) return "";
   return String(str)
+    // Ranges are handled first, before the generic rule below can eat them.
+    // A dash between two numbers means "to", so turning it into a comma would
+    // change what the sentence actually says.
+    .replace(/(\d)\s*[–—]\s*(\d)/g, "$1 to $2")
+    // Spaced dash used as punctuation: ", " keeps the sentence flowing.
+    .replace(/\s*—\s*/g, ", ")
+    .replace(/\s*–\s*/g, ", ")
+    // A dash left standing completely alone was being used as a placeholder
+    // for "nothing here yet", so it becomes nothing rather than a stray comma.
+    .replace(/^,\s*/, "")
+    .replace(/,\s*$/, "");
+}
+
+// Every rendered string in the app passes through here, so this is the one
+// place that guarantees the rule holds for data that is ALREADY in the
+// database. Messages the AI researched before this rule existed are sitting in
+// Supabase with em dashes in them; rewriting those rows would mean editing
+// prospect data we do not own the wording of, whereas cleaning them on the way
+// to the screen fixes every one of them at once and cannot corrupt anything.
+export function esc(str) {
+  if (str === null || str === undefined) return "";
+  return String(noDash(str))
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
@@ -42,7 +86,7 @@ export function colorFor(str) {
   return palette[Math.abs(hash) % palette.length];
 }
 
-// Renders the little circular avatar used everywhere in the app — an
+// Renders the little circular avatar used everywhere in the app, an
 // uploaded photo if the person has one, otherwise the same colored-initials
 // fallback as always. `size` is the diameter in px; font size auto-scales
 // unless overridden. Returns an HTML string, so it drops straight into the
@@ -101,7 +145,7 @@ export function titleCase(str) {
     .replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-// Normalizes a business name for duplicate comparison — lowercases, strips
+// Normalizes a business name for duplicate comparison, lowercases, strips
 // punctuation, and collapses whitespace, so "The Fig & Olive" and "the fig
 // and olive " (a stray trailing space from a pasted spreadsheet cell) are
 // recognized as the same lead instead of slipping through as a "new" one.
@@ -121,11 +165,11 @@ function last9Digits(raw) {
 }
 
 // Looks for an existing prospect that's probably the same business as the
-// one about to be added — matched on normalized business name OR WhatsApp
+// one about to be added, matched on normalized business name OR WhatsApp
 // number. Either one alone is a strong signal: same name with a different
 // number is likely a re-entry/typo fix, same number under a different name
 // is likely the same business re-listed. `prospects` can be any array of
-// {business_name, whatsapp_number}-shaped objects — used both against the
+// {business_name, whatsapp_number}-shaped objects, used both against the
 // live pipeline (state.js store.prospects) and against earlier rows in the
 // same bulk-import batch (see bulkImport.js).
 // Returns { prospect, reason: "name" | "phone" } or null.
@@ -162,9 +206,15 @@ export function toWhatsAppDigits(raw) {
   return digits;
 }
 
+// The second place the no-em-dash rule has to be enforced, and the one that
+// matters most. Text bound for WhatsApp never passes through esc(), because it
+// is not being rendered as HTML, it is being handed to another app entirely.
+// This is the last line of code that touches an outreach message before a
+// stranger reads it, so the strip happens here rather than at any of the
+// several call sites that could each forget.
 export function buildWhatsAppLink(number, message) {
   const digits = toWhatsAppDigits(number);
-  return `https://wa.me/${digits}?text=${encodeURIComponent(message || "")}`;
+  return `https://wa.me/${digits}?text=${encodeURIComponent(noDash(message || ""))}`;
 }
 
 // Fills a template's {{tokens}} in with a specific prospect's real details,
@@ -199,10 +249,10 @@ export function toast(msg, type = "") {
 }
 
 // A bigger, richer cousin of toast() for genuinely celebratory moments (a
-// badge unlocked, a big chunk of points earned) — an icon-badge next to a
+// badge unlocked, a big chunk of points earned), an icon-badge next to a
 // bold title and a faint subtitle, instead of a single line of plain text.
 // Stays up a little longer than a regular toast since there's more to read.
-// `icon` is raw SVG path markup (from our own badges.js catalog — never
+// `icon` is raw SVG path markup (from our own badges.js catalog, never
 // user-supplied), so it's inserted as-is rather than escaped; title/subtitle
 // go through esc() same as every other toast.
 export function celebrateToast({ icon, title, subtitle, tier = "purple" } = {}) {
@@ -230,7 +280,7 @@ export function celebrateToast({ icon, title, subtitle, tier = "purple" } = {}) 
 
 // Turns [{col: val, ...}, ...] into an RFC-4180-ish CSV string. Any value
 // containing a comma, quote, or newline gets wrapped in quotes with inner
-// quotes doubled — the one escaping rule spreadsheets actually agree on.
+// quotes doubled, the one escaping rule spreadsheets actually agree on.
 function csvCell(v) {
   const s = v === null || v === undefined ? "" : String(v);
   return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
@@ -242,7 +292,7 @@ export function toCSV(rows, columns) {
   return [header, ...lines].join("\r\n");
 }
 
-// Triggers a browser download of `text` as a file — no server round-trip,
+// Triggers a browser download of `text` as a file, no server round-trip,
 // just a Blob + a throwaway <a download> click. Works the same on desktop
 // and mobile browsers that support the File API (all modern ones).
 export function downloadTextFile(filename, text, mime = "text/csv;charset=utf-8;") {
@@ -258,7 +308,7 @@ export function downloadTextFile(filename, text, mime = "text/csv;charset=utf-8;
 }
 
 // Escapes the handful of characters the .ics spec (RFC 5545) requires
-// escaping inside text fields — commas, semicolons, and newlines.
+// escaping inside text fields, commas, semicolons, and newlines.
 function icsEscape(str) {
   return String(str || "")
     .replace(/\\/g, "\\\\")
@@ -268,7 +318,7 @@ function icsEscape(str) {
 
 // Builds a minimal single-event .ics calendar file (an all-day reminder on
 // `dateISO`) and triggers a download via downloadTextFile above. No calendar
-// API/library needed — a .ics is just plain text every calendar app (Google,
+// API/library needed, a .ics is just plain text every calendar app (Google,
 // Apple, Outlook) already knows how to import on double-click/tap.
 export function downloadReminderICS(filename, { title, description, dateISO }) {
   if (!dateISO) return;
@@ -298,7 +348,7 @@ export function downloadReminderICS(filename, { title, description, dateISO }) {
 }
 
 // vCard 3.0 uses the same escaping rules as .ics text fields (backslash,
-// comma, semicolon, newline) — reusing the icsEscape logic under a separate
+// comma, semicolon, newline), reusing the icsEscape logic under a separate
 // name so a future change to one format's quirks doesn't silently affect
 // the other.
 function vcardEscape(str) {
@@ -310,7 +360,7 @@ function vcardEscape(str) {
 
 // Downloads a minimal vCard (.vcf) so a hot lead's contact details land
 // straight in a sales rep's phone contacts with one tap, ready to call/text
-// outside WhatsApp too — same "plain text, every OS already knows how to
+// outside WhatsApp too, same "plain text, every OS already knows how to
 // import this" approach as the .ics calendar export above, no library.
 export function downloadVCard(filename, { name, phone, email, note }) {
   const lines = ["BEGIN:VCARD", "VERSION:3.0", `N:;${vcardEscape(name)};;;`, `FN:${vcardEscape(name)}`, `ORG:${vcardEscape(name)}`];
@@ -323,15 +373,14 @@ export function downloadVCard(filename, { name, phone, email, note }) {
 
 // A long-press-then-drag reorder helper built on Pointer Events (not HTML5
 // dragstart/drop) specifically because native HTML5 drag-and-drop doesn't
-// fire on touch in mobile Safari — and this app is used on phones. Works
+// fire on touch in mobile Safari, and this app is used on phones. Works
 // identically for mouse and touch. Used by the Grid Plan Review builder
 // (agency side) and, later, the public client review page, so both share
 // one implementation instead of two subtly-different ones.
 //
 // container: the element whose direct children are the reorderable items.
 // itemSelector: CSS selector matching each reorderable child.
-// handleSelector: CSS selector (within each item) that starts the drag —
-//   keeps a plain tap on the tile free to open an edit modal instead.
+// handleSelector: CSS selector (within each item) that starts the drag, //   keeps a plain tap on the tile free to open an edit modal instead.
 // onReorder(orderedIds): called once, on release, with the item ids
 //   (read from each item's data-id attribute) in their new order. Not
 //   called if the order didn't actually change.
