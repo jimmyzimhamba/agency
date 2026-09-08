@@ -2,7 +2,7 @@
 // STUDIO X COMMAND, Edge Function: copilot-chat
 // ============================================================================
 // What this does, in plain language:
-//   The "Copilot" tab lets a teammate type a question like "who hasn't been
+//   The "Phoenix" tab lets a teammate type a question like "who hasn't been
 //   followed up with this week?" or "what's our signed MRR right now?", //   this function:
 //     1. Checks the teammate is signed in and hasn't sent too many messages
 //        in the last hour (cost/rate-limit safety net).
@@ -109,7 +109,7 @@ function noDash(s: string) {
 
 function buildSystemPrompt(callerName: string, callerRole: string) {
   const today = new Date().toISOString().slice(0, 10);
-  return `You are Copilot, an AI assistant built into Studio X Command, the internal sales tool for Studio X Marketing, a digital marketing agency in Harare, Zimbabwe. You're talking to ${callerName} (role: ${callerRole}). Today's date is ${today}.
+  return `You are Phoenix, an AI assistant built into Studio X Command, the internal sales tool for Studio X Marketing, a digital marketing agency in Harare, Zimbabwe. You're talking to ${callerName} (role: ${callerRole}). Today's date is ${today}.
 
 Answer questions about the team's sales pipeline, tasks, activity, and finances using the tools provided. Rules:
 - Only state facts that came from a tool result. Never guess or invent numbers, names, or dates.
@@ -130,7 +130,7 @@ Deno.serve(async (req: Request) => {
   const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
 
   if (!ANTHROPIC_API_KEY) {
-    return json({ error: "Copilot isn't set up yet. Ask the owner to add an Anthropic API key in Supabase (same one used for AI Research)." }, 501);
+    return json({ error: "Phoenix isn't set up yet. Ask the owner to add an Anthropic API key in Supabase (same one used for AI Research)." }, 501);
   }
 
   const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
@@ -168,7 +168,7 @@ Deno.serve(async (req: Request) => {
       .gte("created_at", oneHourAgo);
     if ((count || 0) >= RATE_LIMIT_PER_HOUR) {
       return json(
-        { error: `Copilot limit reached (${RATE_LIMIT_PER_HOUR} messages/hour). This keeps API costs in check. Try again shortly.` },
+        { error: `Phoenix limit reached (${RATE_LIMIT_PER_HOUR} messages/hour). This keeps API costs in check. Try again shortly.` },
         429
       );
     }

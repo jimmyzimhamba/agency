@@ -546,7 +546,7 @@ function renderWhatsAppSection(box, p) {
   renderWhatsAppThread(p.id);
 }
 
-// Bubble-style thread, same visual language as Copilot's chat bubbles
+// Bubble-style thread, same visual language as Phoenix's chat bubbles
 // (inbound left/neutral, outbound right/purple), kept as a plain HTML
 // string like renderNotes below rather than DOM nodes since it only ever
 // needs a full re-render, never per-message patching.

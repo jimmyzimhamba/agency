@@ -1836,13 +1836,13 @@ Unlike the free Supabase and free-tier Anthropic setup, **Google Places API is n
 
 If you'd rather skip this feature entirely, that's fine, everything else in the app works exactly as before, and prospects can still be added one at a time or via Bulk Import.
 
-## Step 144, Copilot (AI chat assistant for your team's data)
+## Step 144, Phoenix (AI chat assistant for your team's data)
 
-A new **Copilot** tab, right at the top of the sidebar. It's a chat box, type a question in plain English like *"who hasn't been followed up with this week?"*, *"what's our signed MRR right now?"*, or *"show me tier A prospects in the Fitness niche"*, and it answers using your team's real, current data. It's built on the same Claude AI that powers AI Research (Step 8), just given the ability to look things up instead of writing outreach messages.
+A new **Phoenix** tab, right at the top of the sidebar. It's a chat box, type a question in plain English like *"who hasn't been followed up with this week?"*, *"what's our signed MRR right now?"*, or *"show me tier A prospects in the Fitness niche"*, and it answers using your team's real, current data. It's built on the same Claude AI that powers AI Research (Step 8), just given the ability to look things up instead of writing outreach messages.
 
-**What it can see:** the same things the app already shows that teammate, an owner's Copilot can answer about the whole pipeline, an agent's Copilot only answers about prospects assigned to or added by that agent (contracts, invoices, and tasks are visible to everyone, same as elsewhere in the app). It never makes anything up, if it doesn't have a tool to look something up, it says so instead of guessing.
+**What it can see:** the same things the app already shows that teammate, an owner's Phoenix can answer about the whole pipeline, an agent's Phoenix only answers about prospects assigned to or added by that agent (contracts, invoices, and tasks are visible to everyone, same as elsewhere in the app). It never makes anything up, if it doesn't have a tool to look something up, it says so instead of guessing.
 
-**Known limitation (by design, for now):** chat history is **not saved**, it resets if you reload the page or switch tabs and come back. This keeps the first version simple. If your team ends up using Copilot heavily and wants it to remember past conversations, that can be added later (ask for it).
+**Known limitation (by design, for now):** chat history is **not saved**, it resets if you reload the page or switch tabs and come back. This keeps the first version simple. If your team ends up using Phoenix heavily and wants it to remember past conversations, that can be added later (ask for it).
 
 ### 144.1, Add the new database table
 
@@ -1860,12 +1860,12 @@ If you're setting this up on a brand-new/empty Supabase project instead, you don
 
 ### 144.3, No new API key needed
 
-Copilot reuses the **same** `ANTHROPIC_API_KEY` secret you already set up for AI Research in Step 8. If you've already done Step 8, there's nothing else to add here, skip straight to redeploying below. If you haven't done Step 8 yet, Copilot will show a friendly "not set up yet" message until you add that key.
+Phoenix reuses the **same** `ANTHROPIC_API_KEY` secret you already set up for AI Research in Step 8. If you've already done Step 8, there's nothing else to add here, skip straight to redeploying below. If you haven't done Step 8 yet, Phoenix will show a friendly "not set up yet" message until you add that key.
 
 ### 144.4, Redeploy and try it
 
 1. Redeploy the `app/` folder via Netlify Drop, same as any other update, the service worker's cache version was bumped so every phone picks up the new tab automatically.
-2. Reload the app. Open **Copilot** in the sidebar (desktop) or **More → Copilot** (phone).
+2. Reload the app. Open **Phoenix** in the sidebar (desktop) or **More → Phoenix** (phone).
 3. Try a question like "what's in my pipeline right now?", within a few seconds you should get a real answer built from your actual data.
 
 ### What this costs, plainly
@@ -2066,9 +2066,9 @@ No new tables, no new secrets, no edge functions touched, pure front-end polish.
 
 ## Step 149, Icons on the phone "More" menu
 
-On a phone, tapping "More" in the bottom bar opens a list of every other page in the app (Copilot, Contracts, Invoices, and so on). Until now that list was plain text, every row looked the same, so you had to read each label to find what you wanted. Two rows ("Get the App" and "Keyboard Shortcuts") had an emoji in front, but nothing else did.
+On a phone, tapping "More" in the bottom bar opens a list of every other page in the app (Phoenix, Contracts, Invoices, and so on). Until now that list was plain text, every row looked the same, so you had to read each label to find what you wanted. Two rows ("Get the App" and "Keyboard Shortcuts") had an emoji in front, but nothing else did.
 
-Every row now has a small tinted icon, using the exact same icon shapes as the matching item in the desktop sidebar (Step 148) and the icons on the homepage, so the same feature looks the same everywhere in the app. The color follows the same grouping as the homepage: day-to-day sales items (Copilot, Discovery, Niche Matrix, calculators, Team, etc.) get the purple icon treatment, and the client-facing/paperwork group (Contracts, Invoices, Projects, Grid Plans, Services & Packages, Portfolio Studio) gets the gold treatment. The two emoji ("📲" and "⌨️") were replaced with proper icons in the same style so the whole list is consistent.
+Every row now has a small tinted icon, using the exact same icon shapes as the matching item in the desktop sidebar (Step 148) and the icons on the homepage, so the same feature looks the same everywhere in the app. The color follows the same grouping as the homepage: day-to-day sales items (Phoenix, Discovery, Niche Matrix, calculators, Team, etc.) get the purple icon treatment, and the client-facing/paperwork group (Contracts, Invoices, Projects, Grid Plans, Services & Packages, Portfolio Studio) gets the gold treatment. The two emoji ("📲" and "⌨️") were replaced with proper icons in the same style so the whole list is consistent.
 
 Nothing about what happens when you tap a row changed, same pages open, same buttons underneath. This is a visual-only change: no new tables, no new secrets, no edge functions touched.
 
@@ -2327,7 +2327,7 @@ This adds three tables: `pitch_scenarios` (the deck), `pitch_attempts` (private 
 
 **If you already ran this file once before the starter cards were added**, run it again, it now also adds an `is_starter` column to `pitch_scenarios`. If you skip this, the "load 52 common ones" link will show a message telling you to re-run the SQL.
 
-> **Corrected in `sxc-v187`.** Until now this file could **not** actually be re-run, even though this page said it could. Running it a second time stopped with an error like `policy "pitch_scenarios: read org" already exists`, and because Supabase runs the whole script as one all-or-nothing batch, that one error **undid everything else in the file**, including the `is_starter` column it was supposed to be adding. So if you tried the fix the app told you to try, it silently did nothing and you got the same error next time.
+> **Corrected in `sxc-v188`.** Until now this file could **not** actually be re-run, even though this page said it could. Running it a second time stopped with an error like `policy "pitch_scenarios: read org" already exists`, and because Supabase runs the whole script as one all-or-nothing batch, that one error **undid everything else in the file**, including the `is_starter` column it was supposed to be adding. So if you tried the fix the app told you to try, it silently did nothing and you got the same error next time.
 >
 > The file has been corrected and is now genuinely safe to run as many times as you like. **If you hit that error before, please paste the file in and run it once more**, this time it will stick.
 
@@ -2342,11 +2342,11 @@ This adds three tables: `pitch_scenarios` (the deck), `pitch_attempts` (private 
 
 **If you skip this step**, everything else on the page still works, you can add cards, load the starter deck, draw cards and type answers. The only thing that won't work is the coaching note that comes back. Tapping **Get Coaching** will say *"The pitch-coach function isn't deployed yet, see SETUP.md Step 158.2."*
 
-> **Improved in `sxc-v187`.** That message used to read *"Failed to send a request to the Edge Function"*, which is what Supabase itself says and which tells you nothing you can act on, it reads like the app is broken rather than like a setup step is still outstanding. It now names the missing function and points here. Any other kind of failure still shows the real underlying message.
+> **Improved in `sxc-v188`.** That message used to read *"Failed to send a request to the Edge Function"*, which is what Supabase itself says and which tells you nothing you can act on, it reads like the app is broken rather than like a setup step is still outstanding. It now names the missing function and points here. Any other kind of failure still shows the real underlying message.
 
 ### 158.3, No new API key needed
 
-This reuses the **same** `ANTHROPIC_API_KEY` secret already set up for AI Research (Step 8) and Copilot (Step 144). Nothing new to add. If that key isn't set, Pitch Practice will show a plain "not set up yet" message rather than an error.
+This reuses the **same** `ANTHROPIC_API_KEY` secret already set up for AI Research (Step 8) and Phoenix (Step 144). Nothing new to add. If that key isn't set, Pitch Practice will show a plain "not set up yet" message rather than an error.
 
 ### 158.4, Redeploy
 
@@ -2354,7 +2354,7 @@ Redeploy the `app/` folder via Netlify Drop as usual. The service worker cache v
 
 ### What this costs, plainly
 
-- Uses **claude-sonnet-4-6**, the same mid-tier Claude model Copilot uses (Step 144). Coach notes are short (3-4 sentences of plain advice), which this model handles well, and keeping both AI features on the same tier keeps the monthly bill predictable. Typical cost is a fraction of a cent per practice answer.
+- Uses **claude-sonnet-4-6**, the same mid-tier Claude model Phoenix uses (Step 144). Coach notes are short (3-4 sentences of plain advice), which this model handles well, and keeping both AI features on the same tier keeps the monthly bill predictable. Typical cost is a fraction of a cent per practice answer.
 - If the coach notes ever start feeling shallow, swapping to the top-tier model is a one-word change: replace `claude-sonnet-4-6` with `claude-opus-4-7` in `supabase/functions/pitch-coach/index.ts` and redeploy that one function. Nothing else changes.
 - **Safety cap**: no single teammate can get more than **40 coach notes per hour**, built into the backend function.
 - Watch actual spend anytime at **console.anthropic.com → Usage**.
@@ -2433,15 +2433,15 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 7. Click into the search box. Confirm the `/` chip disappears, and type something long enough to fill the box to confirm the text never runs underneath it.
 8. Click out, then press the `/` key. Confirm your cursor jumps into the search box.
 9. Open the app on your phone. Confirm the top bar still shows the "Agency Command" logo and looks exactly as it did before.
-10. Check the Team page footer reads **build sxc-v187**, which confirms the redeploy actually took.
+10. Check the Team page footer reads **build sxc-v188**, which confirms the redeploy actually took.
 
-> **Note:** Steps 160 to 166 all ship together as `sxc-v187`. One redeploy covers all seven.
+> **Note:** Steps 160 to 166 all ship together as `sxc-v188`. One redeploy covers all seven.
 
 ---
 
 ## Step 161, Detail panels open down the right-hand side on a laptop
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v187` together with Steps 160, 162, 163, 164, 165 and 166, so one redeploy covers all seven.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v188` together with Steps 160, 162, 163, 164, 165 and 166, so one redeploy covers all seven.
 
 **The problem.** When you tap a prospect, the details slide up from the bottom of the screen. On a phone that's exactly right: it's where your thumb is, and there's no spare width to put it anywhere else.
 
@@ -2469,13 +2469,13 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 8. Open a few other panels to confirm they all moved too: the "+" to add a prospect, a task, a contract, and an invoice.
 9. Make the browser window narrow (drag it under about 960 pixels wide). Confirm the panel goes back to sliding up from the bottom, with its drag handle back.
 10. Open the app on your phone. Confirm the panel still slides up from the bottom exactly as it always has.
-11. Check the Team page footer reads **build sxc-v187**.
+11. Check the Team page footer reads **build sxc-v188**.
 
 ---
 
 ## Step 162, A "List view" for prospects, and softer green and gold buttons
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v187` together with Steps 160, 161, 163, 164, 165 and 166, so one redeploy covers all seven.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v188` together with Steps 160, 161, 163, 164, 165 and 166, so one redeploy covers all seven.
 
 ### Part 1, the solid green and gold buttons are toned down
 
@@ -2532,13 +2532,13 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 12. Try the search box and a couple of filter chips while in List view. Confirm filtering still works normally.
 13. Open the app on your phone and check Prospects. Confirm the links across the top wrap onto two lines and that **Select** is no longer cut off at the right edge.
 14. On your phone, confirm List view works there too and that tapping a row still slides the details up from the bottom.
-15. Check the Team page footer reads **build sxc-v187**.
+15. Check the Team page footer reads **build sxc-v188**.
 
 ---
 
 ## Step 163, Every niche gets its own colour
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v187` together with Steps 160, 161, 162, 164, 165 and 166, so one redeploy covers all seven.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v188` together with Steps 160, 161, 162, 164, 165 and 166, so one redeploy covers all seven.
 
 **The problem.** Niche was just grey text in the middle of a grey line, "Restaurants · Avondale · Harare". When you're running your eye down thirty prospects looking for the dentists, you have to actually read every row to find them. Nothing about a row tells you at a glance what kind of business it is.
 
@@ -2576,13 +2576,13 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 9. Switch back to Dark mode and confirm the same.
 10. Rename one of your niches on Niche Strategy. Confirm its colour does **not** change.
 11. Open the app on your phone and confirm the dots are there too.
-12. Check the Team page footer reads **build sxc-v187**.
+12. Check the Team page footer reads **build sxc-v188**.
 
 ---
 
 ## Step 164, The Status Breakdown is now a colour-coded ring
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v187` together with Steps 160, 161, 162, 163, 165 and 166, so one redeploy covers all seven.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v188` together with Steps 160, 161, 162, 163, 165 and 166, so one redeploy covers all seven.
 
 **The problem.** "Status Breakdown" at the bottom of the Dashboard was six bars, and every single one was the same purple-and-gold. That's the same bar the app uses for your revenue goal filling up, which is right for a goal, because there it means "how full is this". But these six bars aren't one thing filling up. They're six different piles. Painting them identically told you nothing you couldn't already get from the numbers.
 
@@ -2626,13 +2626,13 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 11. Switch to Light mode with the sun/moon icon in the top bar. Confirm every slice of the ring is still clearly visible against the white, none should look washed out.
 12. Switch back to Dark mode and confirm the same.
 13. Open the Dashboard on your phone. Confirm the ring sits above the list rather than beside it, and that nothing is cut off.
-14. Check the Team page footer reads **build sxc-v187**.
+14. Check the Team page footer reads **build sxc-v188**.
 
 ---
 
 ## Step 165, The pipeline ring and the revenue goal now sit side by side at the top
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v187` together with Steps 160, 161, 162, 163, 164 and 166, so one redeploy covers all seven.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v188` together with Steps 160, 161, 162, 163, 164 and 166, so one redeploy covers all seven.
 
 **The problem.** There are really only two questions you open the Dashboard to answer: *what shape is my pipeline* and *are we going to hit the number this month*. Until now those two answers were nowhere near each other. Monthly Revenue Goal was near the top, and the ring you just got in Step 164 was right at the bottom, past follow-ups, data health, the leaderboard and the team stats. You had to scroll past everything to get to one of the two things you actually came for.
 
@@ -2665,13 +2665,13 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 11. Open the Dashboard on your phone. Confirm the ring is at the top, the revenue goal is directly under it, and neither is cut off at the edges.
 12. Switch to Light mode with the sun/moon icon. Confirm both cards still read clearly and the ring's colours are still easy to tell apart.
 13. Switch back to Dark mode and confirm the same.
-14. Check the Team page footer reads **build sxc-v187**.
+14. Check the Team page footer reads **build sxc-v188**.
 
 ---
 
 ## Step 166, Tasks are now Missions, and there's a new Empire page
 
-No SQL to run, no edge functions, no new secrets. Ships as `sxc-v187` together with Steps 160, 161, 162, 163, 164 and 165, so one redeploy covers all seven.
+No SQL to run, no edge functions, no new secrets. Ships as `sxc-v188` together with Steps 160, 161, 162, 163, 164 and 165, so one redeploy covers all seven.
 
 ### First, the honest part
 
@@ -2765,9 +2765,9 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 22. Tap **Empire**. Confirm it opens the street, and that the **Empire** button turns gold, not the **More** button.
 23. Confirm the street still fits on the phone screen, still scrolls sideways with your finger, and nothing is cut off.
 24. Tap **More**. Confirm **Empire** is **no longer** listed in that menu, it has its own button now, so it shouldn't be in both places.
-25. Check the Team page footer reads **build sxc-v187**.
+25. Check the Team page footer reads **build sxc-v188**.
 
-**Fixed since first writing this step:** *Open client* on the Empire page opened an empty panel instead of the client's details. The Empire page was handing over the client's ID number where the rest of the app hands over the whole client record, so the panel opened with nothing to show and failed quietly, no error message, just a blank. Every other place in the app that opens a client (Prospects, Dashboard, Search, Messages, Invoices) was already doing it the right way; Empire was the only one out of step. Now corrected in `sxc-v187`.
+**Fixed since first writing this step:** *Open client* on the Empire page opened an empty panel instead of the client's details. The Empire page was handing over the client's ID number where the rest of the app hands over the whole client record, so the panel opened with nothing to show and failed quietly, no error message, just a blank. Every other place in the app that opens a client (Prospects, Dashboard, Search, Messages, Invoices) was already doing it the right way; Empire was the only one out of step. Now corrected in `sxc-v188`.
 
 ---
 
@@ -2816,9 +2816,9 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 15. Still on the phone, watch a card for a few seconds and confirm it's **still gently drifting**.
 16. On an iPhone, go to **Settings → Accessibility → Motion** and switch **Reduce Motion** on. Reload the sales page. Confirm **everything is completely still**, no drifting, no fading in as you scroll. Then switch Reduce Motion back off.
 17. Sign in and use the app normally for a minute. Confirm **nothing inside the app changed**, this step only touched the public page.
-18. Check the Team page footer reads **build sxc-v187**.
+18. Check the Team page footer reads **build sxc-v188**.
 
-*(Step 168 below then brought a version of this inside the app too, so from `sxc-v187` on, item 17 no longer holds, the cards in the app catch the light as well.)*
+*(Step 168 below then brought a version of this inside the app too, so from `sxc-v188` on, item 17 no longer holds, the cards in the app catch the light as well.)*
 
 ---
 
@@ -2866,7 +2866,7 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 16. Now pick up your **phone**. Open Prospects and scroll the list up and down a few times. Confirm it scrolls **exactly as smoothly as it did before**, no stutter, no lag.
 17. On the phone, confirm the cards look **completely normal** and nothing lights up or moves. There's no cursor on a phone, so there's nothing to track.
 18. On an iPhone, turn on **Settings → Accessibility → Motion → Reduce Motion**, then reopen the app on a laptop with that setting on. Confirm the cards are **completely still and unlit**. Then switch it back off.
-19. Check the Team page footer reads **build sxc-v187**.
+19. Check the Team page footer reads **build sxc-v188**.
 
 ---
 
@@ -2928,7 +2928,7 @@ Anything that's been sitting unsent for **more than a week** is thrown away rath
 
 1. Redeploy the `app` folder to Netlify Drop as usual.
 2. On your **phone**, open the app and pull down to refresh once or twice so it picks up the new version.
-3. Check the Team page footer reads **build sxc-v187**.
+3. Check the Team page footer reads **build sxc-v188**.
 4. Open any prospect. Confirm everything looks exactly as it did before, no new buttons, nothing moved.
 5. Now put the phone into **Aeroplane mode**.
 6. Confirm the amber strip appears under the top bar reading **"You're offline, showing the last synced data"**.
@@ -3001,7 +3001,7 @@ Everything from Step 169's list is unchanged. Two additions worth knowing:
 
 1. Redeploy the `app` folder to Netlify Drop as usual.
 2. On your **phone**, open the app and pull down to refresh once or twice.
-3. Check the Team page footer reads **build sxc-v187**.
+3. Check the Team page footer reads **build sxc-v188**.
 4. Still online, add a prospect normally. Confirm it behaves exactly as it always has, **"Prospect added"**, no purple tag, and if you left the message blank it starts researching. Nothing about the online experience should have changed.
 5. Now put the phone into **Aeroplane mode**.
 6. Tap the **+** button and add a business, name, area, WhatsApp number. Leave the message box **blank**.
@@ -3066,7 +3066,7 @@ nothing extra in data.
 
 1. Redeploy the `app` folder to Netlify Drop as usual, then open the app and
    pull down to refresh.
-2. Go to **Team** and check the very bottom of the page says **build sxc-v187**.
+2. Go to **Team** and check the very bottom of the page says **build sxc-v188**.
    If it still says v181, close the app completely and reopen it.
 3. Tap **Empire** in the bottom bar.
 4. Check the three boxes at the top still read **Buildings**, **Per Month** and
@@ -3304,7 +3304,7 @@ streets they were standing in a heap on top of each other.
     street still looks correct.
 16. Go through **Dashboard, Pipeline, Missions and Messages** and check nothing
     else changed.
-17. Check the bottom of **Team → Settings** now reads **build sxc-v187**.
+17. Check the bottom of **Team → Settings** now reads **build sxc-v188**.
 
 ---
 
@@ -3337,7 +3337,7 @@ light mode, rather than picking a new one, so there's only ever one light-mode
 purple in the app to keep in step. It's also dark enough to read comfortably, about six and a half times the contrast of the background, where the guideline
 asks for four and a half.
 
-**No new build number.** This ships inside **sxc-v187** along with the walking
+**No new build number.** This ships inside **sxc-v188** along with the walking
 people, because that build hasn't gone live yet. One deploy covers both.
 
 **Now test it**
@@ -3379,7 +3379,7 @@ reordered. The buttons work off their own names rather than their positions, so
 the highlighting still follows you correctly: tap Empire and Empire lights up,
 open something from the More menu and More lights up.
 
-**No new build number.** Still **sxc-v187**, that build hasn't gone live yet,
+**No new build number.** Still **sxc-v188**, that build hasn't gone live yet,
 so this goes out with the walking people and the greeting fix in one deploy.
 
 **Now test it**
@@ -3480,7 +3480,7 @@ I checked afterwards that **no two features share an icon any more**, and that
 the sidebar on a computer and the buttons on a phone show the same picture for
 the same feature. They do.
 
-**No new build number.** Still **sxc-v187**.
+**No new build number.** Still **sxc-v188**.
 
 **Now test it**
 
@@ -3861,10 +3861,10 @@ Nothing else changed. The feature was always there.
 
 ### A note on the build number for Steps 177 to 180
 
-These four steps ride on **build sxc-v187**, the same number as Steps 160 to 176.
+These four steps ride on **build sxc-v188**, the same number as Steps 160 to 176.
 That's on purpose: none of that batch has been redeployed yet, so it all ships
 as one build. After you redeploy, the footer of the **Team** page should read
-**build sxc-v187**. If it still shows an older number, the phone is holding an
+**build sxc-v188**. If it still shows an older number, the phone is holding an
 old copy, close the app completely and reopen it.
 
 ---
@@ -3885,14 +3885,14 @@ never uploaded. They've been sitting in the project folder doing nothing.
 | Pitch coach | ✅ Yes |
 | Grid Plan client review page (all 4 pieces) | ✅ Yes |
 | Add/remove team members | ✅ Yes |
-| **Copilot, the AI chat** | ❌ **No** |
+| **Phoenix, the AI chat** | ❌ **No** |
 | **Discovery, the Google Maps lead finder** | ❌ **No** |
 | **Email sending** | ❌ **No** |
 | **Push notifications** | ❌ **No** |
 | **WhatsApp replies (Twilio)** | ❌ **No** |
 | **WhatsApp incoming messages (Twilio)** | ❌ **No** |
 
-So: **Copilot and Discovery have never worked.** You tap them and nothing
+So: **Phoenix and Discovery have never worked.** You tap them and nothing
 happens. **No email has ever been sent**, nobody has ever received a "new
 prospect added" or "a prospect was assigned to you" notification. **No push
 notification has ever arrived.**
@@ -3908,7 +3908,7 @@ that quietly never happens. **Supabase now lets you do it from the website**, pa
 
 ### Do these two first (they need nothing else)
 
-**Copilot** and **Push notifications** should work the moment they're uploaded,
+**Phoenix** and **Push notifications** should work the moment they're uploaded,
 because the keys they need are already set up for the functions that are
 running.
 
@@ -3923,7 +3923,7 @@ running.
 7. Do the same again for `send-push`, using
    `supabase/functions/send-push/index.ts`.
 
-Then open the app and tap **Copilot**. Ask it "how many prospects are in the
+Then open the app and tap **Phoenix**. Ask it "how many prospects are in the
 pipeline?" If it answers, that's it working for the first time.
 
 ### Then Discovery (needs a Google key)
@@ -3957,7 +3957,7 @@ the in-app conversation thread.
 
 **Now test it**
 
-1. After uploading `copilot-chat`, open **Copilot** and ask it a question about
+1. After uploading `copilot-chat`, open **Phoenix** and ask it a question about
    your pipeline. Check you get a real answer.
 2. After uploading `send-push`, add a prospect and check whether a notification
    appears on a teammate's phone.
@@ -4066,7 +4066,7 @@ set it up properly.
 2. Open **`supabase/migration_outreach_batch.sql`**, select all, copy, paste,
    click **Run**. Safe to run twice.
 3. Then redeploy the app folder to Netlify Drop. The **Team** page footer
-   should read **build sxc-v187**.
+   should read **build sxc-v188**.
 
 **Now test it**
 
@@ -4153,7 +4153,7 @@ get cleaned as they are handed to WhatsApp instead, so they still go out right.
 2. Open **`supabase/migration_no_em_dash.sql`**, select all, copy, paste, click
    **Run**. Safe to run twice.
 3. Redeploy the app folder to Netlify Drop. The **Team** page footer should read
-   **build sxc-v187**.
+   **build sxc-v188**.
 4. Re-upload **`research-prospect`**, **`copilot-chat`** and **`pitch-coach`**
    from Supabase → Edge Functions, the same way you did the last two. These
    three are the ones that write text with AI, and they each need the new rule.
@@ -4170,7 +4170,7 @@ get cleaned as they are handed to WhatsApp instead, so they still go out right.
    there is no long dash in it.
 4. Add a brand new prospect and let AI Research write a message for it. Check
    the new message has none either.
-5. Open **Copilot** and ask it anything, for example *"how is the pipeline
+5. Open **Phoenix** and ask it anything, for example *"how is the pipeline
    looking?"*. Check its answer has none.
 6. Open **Pitch Practice**, answer an objection, and read the coaching note.
    Check the same.
@@ -4179,3 +4179,70 @@ get cleaned as they are handed to WhatsApp instead, so they still go out right.
 8. Go anywhere in the app and look for the character. If you ever find one,
    that is a genuine bug worth telling me about, because there should now be
    exactly zero.
+
+## Step 184: Copilot is now Phoenix, and the chat screen got a real redesign
+
+**What this is about**
+
+Two changes to the AI chat tab: it now has a name, **Phoenix**, instead of the
+generic "Copilot", and the screen itself was redesigned to look like an
+actual chat app rather than a stack of plain text boxes.
+
+**The name**
+
+Every place a person sees the word "Copilot" in the app now says "Phoenix"
+instead, the sidebar, the phone's "More" menu, the homepage, and the AI
+itself, it now introduces its own answers as Phoenix if you ask it who it is.
+Nothing about how it works changed, same Claude AI, same tools, same data it
+can and can't see. The Supabase Edge Function behind it is still called
+`copilot-chat` and the file is still `supabase/functions/copilot-chat/index.ts`,
+that's on purpose, renaming a function you've already deployed means
+deleting it and creating a new one from scratch in Supabase, which is more
+room for a mistake than it's worth for a name nobody but you ever sees.
+
+**The redesign**
+
+Before, every message was the same plain rounded box regardless of who said
+it, and there was no sense that you were talking to something with an
+identity. Now there's a proper header with a Phoenix avatar and a small
+"live" status line, the AI's replies sit next to a small matching avatar so
+it's obvious at a glance who said what, message bubbles have the rounded,
+tucked-corner shape real chat apps use, the "thinking" state is now three
+bouncing dots instead of the word "Thinking...", and a brand new chat opens
+with three tappable example questions instead of a blank box, so it's obvious
+what to ask before you've typed anything. The input box is now a proper
+pill-shaped bar with a round send button, instead of a bare text box next to
+a plain button.
+
+**Run the SQL**
+
+None. This step is app files only, nothing in the database changed.
+
+**Do this**
+
+1. Redeploy the `app` folder to Netlify Drop, same as always.
+2. Re-upload **`copilot-chat`** from Supabase → Edge Functions (Settings →
+   Edge Functions → `copilot-chat` → paste in the new
+   `supabase/functions/copilot-chat/index.ts`, the same way you've done the
+   other functions before). This is only needed so the AI's own introduction
+   of itself says Phoenix, everything else in this step is on the app side
+   and needs no re-upload.
+
+**Now test it**
+
+1. Open the sidebar (desktop) or **More** (phone). The tab that used to say
+   Copilot now says **Phoenix**.
+2. Open it. You should see a small gradient icon next to the name at the top,
+   and a line under it that says it knows your pipeline, tasks and finances.
+3. With no messages sent yet, you should see three example questions you can
+   tap instead of typing. Tap one, it should send it exactly as if you'd
+   typed and pressed Send.
+4. Ask it something. While it's answering, you should see three small
+   bouncing dots, not the word "Thinking...".
+5. Its answer should appear next to a small round Phoenix icon. Your own
+   messages should not have an icon next to them, purple bubble, right side.
+6. Ask it "who are you?" or similar. It should call itself Phoenix, not
+   Copilot, in the answer (this only works after you've re-uploaded the
+   function in the step above).
+7. The **Team** page footer should read **build sxc-v188** after you
+   redeploy.

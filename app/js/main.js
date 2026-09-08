@@ -105,7 +105,7 @@ function openMoreMenu() {
     <div>
       <div class="task-row" data-go="copilot" style="cursor:pointer;">
         <div class="icon-badge sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a7 7 0 0 0-7 7c0 2.4 1.2 4.5 3 5.7V17h8v-2.3c1.8-1.2 3-3.3 3-5.7a7 7 0 0 0-7-7Z"/><path d="M9 21h6M10 17v2M14 17v2"/></svg></div>
-        <div class="task-label">Copilot</div>
+        <div class="task-label">Phoenix</div>
       </div>
       <div class="task-row" data-go="discovery" style="cursor:pointer;">
         <div class="icon-badge sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="m15.6 8.4-2.1 5.1-5.1 2.1 2.1-5.1Z"/></svg></div>

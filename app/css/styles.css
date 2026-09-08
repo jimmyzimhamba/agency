@@ -1633,6 +1633,82 @@ main {
   .auth-mock-chip.signed { border-color: rgba(95, 212, 126, 0.35); color: #8be6a3; }
 }
 
+/* ---- Phoenix chat (AI assistant) ------------------------------------------------*/
+/* Redesigned to read like a real chat app rather than a stacked Q&A log:
+   a proper header with an avatar and a live status line, an assistant
+   avatar sitting beside each of its own bubbles (never the user's, that
+   side is unambiguous without one), a softer bubble shape, and an input
+   bar that sits in its own pill instead of a bare textarea + button pair. */
+.phx-header {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 14px;
+}
+.phx-avatar {
+  width: 42px; height: 42px; border-radius: 14px; flex: 0 0 auto;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, var(--purple-soft), var(--purple) 60%, var(--gold-soft));
+  box-shadow: 0 8px 20px -10px var(--purple-glow);
+  color: #fff;
+}
+.phx-avatar svg { width: 22px; height: 22px; }
+.phx-avatar.sm { width: 28px; height: 28px; border-radius: 10px; }
+.phx-avatar.sm svg { width: 15px; height: 15px; }
+.phx-header-text { min-width: 0; }
+.phx-header-name { font-weight: 800; font-size: 16px; letter-spacing: -0.01em; }
+.phx-header-status { font-size: 11.5px; color: var(--text-faint); display: flex; align-items: center; gap: 5px; }
+.phx-header-status .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--success); box-shadow: 0 0 6px var(--success); }
+
+.phx-messages { flex: 1; overflow-y: auto; padding: 4px 2px 12px; }
+.phx-row { display: flex; gap: 9px; margin-bottom: 14px; align-items: flex-end; }
+.phx-row.user { justify-content: flex-end; }
+.phx-row.assistant { justify-content: flex-start; }
+.phx-bubble {
+  max-width: 78%; padding: 11px 14px; border-radius: 18px; font-size: 13.5px;
+  line-height: 1.5; white-space: pre-wrap; word-break: break-word;
+}
+.phx-row.user .phx-bubble {
+  background: linear-gradient(135deg, var(--purple-soft), var(--purple));
+  color: #fff; border-bottom-right-radius: 6px;
+  box-shadow: 0 8px 18px -12px var(--purple-glow);
+}
+.phx-row.assistant .phx-bubble {
+  background: var(--black-card); border: 1px solid var(--line); color: var(--text);
+  border-bottom-left-radius: 6px;
+}
+.phx-typing { display: inline-flex; gap: 4px; padding: 3px 0; }
+.phx-typing span {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--text-faint);
+  animation: phx-bounce 1.2s ease-in-out infinite;
+}
+.phx-typing span:nth-child(2) { animation-delay: 0.15s; }
+.phx-typing span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes phx-bounce { 0%, 60%, 100% { transform: translateY(0); opacity: 0.5; } 30% { transform: translateY(-4px); opacity: 1; } }
+
+.phx-suggestions { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
+.phx-suggestion {
+  text-align: left; background: var(--black-card); border: 1px solid var(--line); color: var(--text-dim);
+  font-size: 12.5px; padding: 10px 13px; border-radius: 13px; cursor: pointer; transition: border-color 0.15s, color 0.15s;
+}
+.phx-suggestion:hover { border-color: var(--purple-soft); color: var(--text); }
+
+.phx-inputbar {
+  display: flex; gap: 8px; align-items: flex-end; padding: 8px;
+  background: var(--black-card); border: 1px solid var(--line); border-radius: 20px; margin-top: 10px;
+}
+.phx-input {
+  flex: 1; min-width: 0; resize: none; min-height: 38px; max-height: 120px;
+  border: none; background: none; padding: 8px 6px;
+}
+.phx-input:focus { outline: none; box-shadow: none; }
+.phx-send {
+  width: 38px; height: 38px; border-radius: 50%; flex: 0 0 auto; padding: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, var(--purple-soft), var(--purple)); border: none; color: #fff;
+  cursor: pointer; transition: opacity 0.15s, transform 0.15s;
+}
+.phx-send svg { width: 17px; height: 17px; }
+.phx-send:disabled { opacity: 0.4; cursor: default; }
+.phx-send:not(:disabled):hover { transform: scale(1.06); }
+
 /* ---- spinner ------------------------------------------------------------------*/
 .spinner { width: 22px; height: 22px; border-radius: 50%; border: 2.5px solid rgba(255,255,255,0.15); border-top-color: var(--gold); animation: spin 0.7s linear infinite; margin: 30px auto; }
 @keyframes spin { to { transform: rotate(360deg); } }
