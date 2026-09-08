@@ -44,16 +44,20 @@
 -- the copies is subtly different from the others and nobody notices for a
 -- year. One definition means one behaviour.
 --
--- The three rules, in the order they must run:
---   1. Number ranges first. "1—15" means "1 to 15", and turning that into
---      "1, 15" would change what the sentence says. It has to be handled
---      before the general rule below gets a chance to match it.
---   2. A dash used as punctuation becomes a comma, because that is nearly
---      always what it was standing in for. A hyphen was the alternative and
---      was rejected: " - " is becoming a machine-writing tell in its own
---      right, and it reads like a typo in the middle of a sentence.
---   3. The signature dash becomes a blank line, so the templates sign off the
---      same way the AI-written messages already do.
+-- The three rules run innermost-first, and the order is load-bearing. Both of
+-- the specific rules have to fire before the general one, because the general
+-- one matches everything they match:
+--   1. Number ranges. "1-15" means "1 to 15", and turning that into "1, 15"
+--      would change what the sentence actually says.
+--   2. The signature dash, the one sitting just before {{agent_name}} at the
+--      end of every seeded template, becomes a blank line, so the templates
+--      sign off the same way the AI-written messages already do. If the
+--      general rule ran first this would already be a comma and there would
+--      be nothing left to recognise.
+--   3. Everything else. A dash used as punctuation becomes a comma, because
+--      that is nearly always what it was standing in for. A hyphen was the
+--      alternative and was rejected: " - " is becoming a machine-writing tell
+--      in its own right, and it reads like a typo mid-sentence.
 
 create or replace function public.strip_em_dash(txt text)
 returns text
@@ -110,25 +114,44 @@ where research_summary like '%—%' or research_summary like '%–%';
 -- ============================================================================
 -- SECTION D — The activity feed
 -- ============================================================================
--- Lines like "Tino drafted a contract — Website Retainer". Nobody outside the
+-- Lines like "Tino drafted a contract, Website Retainer". Nobody outside the
 -- company reads these, so this is tidiness rather than credibility, but the
 -- rule was "never, anywhere a person sees it", and this is somewhere a person
 -- sees it.
 --
--- Both tables are guarded with a to_regclass check because points_ledger only
--- exists if the badges migration was run, and a missing table should not stop
--- the rest of this file from working.
+-- The first version of this section named the wrong column on activity_log
+-- (description, when the column is actually called message) and the wrong
+-- table for points (points_ledger, when it is points_log). Postgres rejected
+-- the whole file rather than that one statement, which meant sections A to C
+-- did not apply either. That is the useful lesson here and the reason the
+-- checks below changed shape:
+--
+--   A to_regclass check only proves a TABLE exists. It says nothing about the
+--   columns inside it, so a wrong column name still aborts the run. Asking
+--   information_schema for the column itself is the check that actually
+--   matches what the statement needs.
+--
+-- Both objects are optional in a way that justifies the guards: points_log
+-- only exists if the points migration was run, and activity_log's column names
+-- differ between older and newer installs of this app. Neither should be able
+-- to stop the parts above from applying.
 
 do $$
 begin
-  if to_regclass('public.activity_log') is not null then
+  if exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public' and table_name = 'activity_log' and column_name = 'message'
+  ) then
     update public.activity_log
-    set description = public.strip_em_dash(description)
-    where description like '%—%' or description like '%–%';
+    set message = public.strip_em_dash(message)
+    where message like '%—%' or message like '%–%';
   end if;
 
-  if to_regclass('public.points_ledger') is not null then
-    update public.points_ledger
+  if exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public' and table_name = 'points_log' and column_name = 'reason'
+  ) then
+    update public.points_log
     set reason = public.strip_em_dash(reason)
     where reason like '%—%' or reason like '%–%';
   end if;
