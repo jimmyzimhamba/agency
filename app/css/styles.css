@@ -1691,14 +1691,23 @@ main {
 .phx-suggestion:hover { border-color: var(--purple-soft); color: var(--text); }
 
 .phx-inputbar {
-  display: flex; gap: 8px; align-items: flex-end; padding: 8px;
-  background: var(--black-card); border: 1px solid var(--line); border-radius: 20px; margin-top: 10px;
+  display: flex; gap: 8px; align-items: flex-end; margin-top: 10px;
 }
+/* Same bordered-box look as every other text field in the app (see .field
+   input in the forms section, this is what Discovery's "Area" box uses),
+   deliberately not a borderless pill sitting inside another box. A bare
+   <textarea> has no color of its own, it inherits the browser default
+   (near-black) rather than --text, which is invisible you type on this
+   card's dark background. That was a real bug, not just a style choice,
+   every other input in the app was already wrapped in .field and got
+   `color: var(--text)` for free from that rule; this one wasn't. */
 .phx-input {
-  flex: 1; min-width: 0; resize: none; min-height: 38px; max-height: 120px;
-  border: none; background: none; padding: 8px 6px;
+  flex: 1; min-width: 0; resize: none; min-height: 42px; max-height: 120px;
+  background: var(--black-raised); border: 1px solid var(--line-strong); color: var(--text);
+  border-radius: var(--radius-sm); padding: 11px 12px; font-size: 13.5px; font-family: var(--font);
 }
-.phx-input:focus { outline: none; box-shadow: none; }
+.phx-input::placeholder { color: var(--text-faint); }
+.phx-input:focus { outline: none; border-color: var(--purple); box-shadow: 0 0 0 3px var(--purple-dim); }
 .phx-send {
   width: 38px; height: 38px; border-radius: 50%; flex: 0 0 auto; padding: 0;
   display: flex; align-items: center; justify-content: center;

@@ -1,11 +1,11 @@
 // ============================================================================
-// STUDIO X COMMAND, View: Phoenix (the AI assistant)
+// STUDIO X COMMAND, View: Phoenix AI (the AI assistant)
 // ============================================================================
 // A chat assistant that can answer questions about the team's real pipeline,
 // tasks, activity and finances, backed by the copilot-chat edge function,
 // which gives Claude tools to look up that data server-side.
 //
-// The assistant is shown to the team as "Phoenix". The edge function is
+// The assistant is shown to the team as "Phoenix AI". The edge function is
 // still named copilot-chat and the view/data-view id is still "copilot"
 // everywhere in the code, that's deliberate: renaming a deployed Supabase
 // function means Jimmy has to delete and re-create it under the new name
@@ -24,7 +24,9 @@ import { el, esc, toast } from "../utils.js";
 let history = []; // [{ role: "user" | "assistant", content: string }]
 let sending = false;
 
-const PHOENIX_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c1.6 2.4 2.4 4.4 2.4 6.2 0 1.3-.5 2.3-1.4 3.1.9-.2 1.8-.8 2.6-1.8.6 1 .9 2 .9 3.1 0 3.4-2.9 6.2-6.5 6.2S3.5 16 3.5 12.6c0-2.9 1.6-5.1 3.6-6.9-.2 1-.1 1.9.3 2.7.6-2.6 2-4.8 4.6-6.4Z"/></svg>`;
+// A phoenix in flight, wings spread, redrawn from scratch as a feathered fan
+// on each side of a center body/tail (not traced from any stock asset).
+const PHOENIX_ICON = `<svg viewBox="0 0 32 27" fill="currentColor"><path d="M16 14 L28.6 10.6 L22.4 11.2 L27 7.1 L21.3 9.5 L24.5 4.2 L19.8 8.1 L21.3 2.1 L17.9 7.3 L17.6 1.1 Z"/><path d="M16 14 L3.4 10.6 L9.6 11.2 L5 7.1 L10.7 9.5 L7.5 4.2 L12.2 8.1 L10.7 2.1 L14.1 7.3 L14.4 1.1 Z"/><path d="M14.5 15 L16 26 L17.5 15 Z"/><circle cx="16" cy="13" r="1.3"/><path d="M16 11.2 L14.9 13 L17.1 13 Z"/></svg>`;
 
 const SUGGESTIONS = [
   "Who hasn't been followed up with this week?",
@@ -41,14 +43,14 @@ export function renderCopilot() {
       <div class="phx-header">
         <div class="phx-avatar">${PHOENIX_ICON}</div>
         <div class="phx-header-text" style="flex:1;min-width:0;">
-          <div class="phx-header-name">Phoenix</div>
+          <div class="phx-header-name">Phoenix AI</div>
           <div class="phx-header-status"><span class="dot"></span>Knows your live pipeline, tasks and finances</div>
         </div>
         ${history.length ? `<button class="btn btn-sm" id="cp-clear">Clear chat</button>` : ""}
       </div>
       <div id="cp-messages" class="phx-messages"></div>
       <div class="phx-inputbar">
-        <textarea id="cp-input" class="phx-input" rows="1" placeholder="Ask Phoenix anything about the business..."></textarea>
+        <textarea id="cp-input" class="phx-input" rows="1" placeholder="Ask Phoenix AI anything about the business..."></textarea>
         <button class="phx-send" id="cp-send" title="Send" aria-label="Send">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4Z"/></svg>
         </button>
@@ -94,7 +96,7 @@ function renderMessages(msgBox) {
   if (!history.length) {
     msgBox.appendChild(el(`
       <div class="empty-state" style="padding:26px 20px 10px;">
-        <p>Ask Phoenix things like "who hasn't been followed up with this week?", "what's our signed MRR?", or "show me tier A prospects in Fitness".</p>
+        <p>Ask Phoenix AI things like "who hasn't been followed up with this week?", "what's our signed MRR?", or "show me tier A prospects in Fitness".</p>
         <div class="phx-suggestions">
           ${SUGGESTIONS.map((s) => `<button type="button" class="phx-suggestion" data-suggestion="${esc(s)}">${esc(s)}</button>`).join("")}
         </div>
@@ -147,7 +149,7 @@ async function sendMessage(wrap, presetText) {
 
   if (error || data?.error) {
     pending.remove();
-    toast(error?.message || data?.error || "Phoenix couldn't answer that", "error");
+    toast(error?.message || data?.error || "Phoenix AI couldn't answer that", "error");
     history.pop();
     renderMessages(msgBox);
     return;

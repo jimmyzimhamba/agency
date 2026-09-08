@@ -12,7 +12,7 @@
 //     3. Returns that note as plain text.
 //   Runs entirely server-side, the Anthropic API key never touches the app or
 //   the browser. Reuses the same ANTHROPIC_API_KEY secret as AI Research and
-//   Phoenix (see SETUP.md Step 8), so there's no new key to set up.
+//   Phoenix AI (see SETUP.md Step 8), so there's no new key to set up.
 //
 //   Deliberately NOT here: any kind of score, grade, rating out of ten, or
 //   pass/fail. The coaching is words only. The moment practice produces a
@@ -131,7 +131,7 @@ Deno.serve(async (req: Request) => {
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        // Mid-tier model, same one the Phoenix chat function uses. Chosen
+        // Mid-tier model, same one the Phoenix AI chat function uses. Chosen
         // deliberately over the top-tier model: a coaching note is 3-4
         // sentences of plain advice, which this handles well, and keeping
         // both AI features on the same tier keeps the monthly bill
