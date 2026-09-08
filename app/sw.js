@@ -2,7 +2,7 @@
 // Makes the app open instantly and work (in read-only "last synced" mode)
 // even with a weak or dropped connection. Bump CACHE_VERSION any time you
 // want to force everyone's phone to fetch fresh files.
-const CACHE_VERSION = "sxc-v184";
+const CACHE_VERSION = "sxc-v185";
 
 // Plain fetch() has no timeout of its own — on a flaky/carrier-throttled
 // mobile-data connection a request can sit "pending" indefinitely instead
@@ -68,6 +68,7 @@ const APP_SHELL = [
   "js/views/installApp.js",
   "js/views/contracts.js",
   "js/views/invoices.js",
+  "js/views/expenses.js",
   "js/views/projects.js",
   "js/views/gridPlans.js",
   "js/views/services.js",
@@ -120,6 +121,13 @@ self.addEventListener("fetch", (event) => {
   // browsing someone's showcase would serve them a cached AGENCY page
   // instead of an error.
   if (url.pathname.endsWith("/portfolio.html")) return;
+
+  // And the client project page, for the same reason again. This one is the
+  // most likely of the three to be opened on a phone that also has the agency
+  // app installed — it's the page the team checks before sending the link to
+  // a client — so leaving it out would be the version of this bug somebody
+  // actually hits.
+  if (url.pathname.endsWith("/project.html")) return;
 
   // Page navigations: try the network first (freshest app), but give up
   // after 8 seconds if it's just hanging (not erroring) and fall back to

@@ -1,5 +1,5 @@
 import { sb } from "../supabaseClient.js";
-import { store, on, prospectById, profileById, firstOfMonth } from "../state.js";
+import { store, on, emit, prospectById, profileById, firstOfMonth } from "../state.js";
 import { el, esc, money, fmtDate, todayISO, toast, downloadReminderICS, buildWhatsAppLink, toCSV, downloadTextFile } from "../utils.js";
 import { openSheet, closeSheet, confirmModal, openModal, closeModal } from "../ui.js";
 import { printInvoice } from "../printDoc.js";
@@ -42,6 +42,42 @@ function isDueSoon(i) {
   if (i.status !== "sent" || !i.due_date) return false;
   const days = daysUntilDue(i);
   return days >= 0 && days <= DUE_SOON_DAYS;
+}
+
+// ---- retainers not yet invoiced this month ---------------------------------
+//
+// A signed client with a monthly retainer who has no invoice covering this
+// month is revenue quietly going missing. It's the one money problem nothing
+// else in the app could ever surface, because every other warning here is
+// about an invoice that exists — overdue, stale draft, due soon. An invoice
+// nobody created has no row to flag, so it never appears anywhere and the
+// month just closes short.
+//
+// Matches public.draft_retainer_invoices() in
+// supabase/migration_money_and_portal.sql exactly, and it has to: this list is
+// what the button hands to that function, so if the two disagreed the banner
+// would offer to draft invoices the database then decides already exist, and
+// nothing would happen when it was tapped. Keyed on due_date inside this month
+// (an invoice raised on the 28th of last month for this month's work is the
+// same money) and ignoring voided ones (voiding is how somebody says "that was
+// wrong, do it again").
+function monthBounds() {
+  const d = new Date();
+  const start = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-01`;
+  const last = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+  const end = `${last.getFullYear()}-${String(last.getMonth() + 1).padStart(2, "0")}-${String(last.getDate()).padStart(2, "0")}`;
+  return { start, end };
+}
+
+function retainersNotInvoicedThisMonth() {
+  const { start, end } = monthBounds();
+  return store.prospects.filter((p) => {
+    if (p.status !== "signed") return false;
+    if (!(Number(p.mrr) > 0)) return false;
+    return !store.invoices.some(
+      (i) => i.prospect_id === p.id && i.status !== "void" && i.due_date && i.due_date >= start && i.due_date <= end
+    );
+  });
 }
 
 // Lets Dashboard deep-link into a pre-filtered Invoices list (mirrors
@@ -93,6 +129,13 @@ export function renderInvoices() {
   // healthy — mostly not-yet-due — or a real collections problem — mostly
   // weeks late. Standard AR-aging buckets, grouped by *when* instead of *who*.
   const agingGroups = agingBuckets();
+  const uninvoicedRetainers = retainersNotInvoicedThisMonth();
+  const uninvoicedTotal = uninvoicedRetainers.reduce((sum, p) => sum + (Number(p.mrr) || 0), 0);
+  // Only the owner sees the drafting banner, because only the owner can run
+  // it — the database function refuses anybody else (see
+  // draft_my_retainer_invoices). Showing an agent a button that always errors
+  // would be worse than showing nothing.
+  const canDraft = store.profile?.role === "owner";
 
   const wrap = el(`
     <div>
@@ -109,6 +152,20 @@ export function renderInvoices() {
         <div class="stat-card purple" id="iv-outstanding-card" style="${outstanding ? "cursor:pointer;" : ""}"><div class="num">${money(outstanding)}</div><div class="label">Outstanding</div></div>
         <div class="stat-card ${overdueCount ? "accent" : ""}"><div class="num">${overdueCount}</div><div class="label">Overdue</div></div>
       </div>
+      ${uninvoicedRetainers.length ? `
+        <div class="card" id="iv-retainer-banner" style="margin-bottom:16px;border-color:var(--accent, #7c3aed);">
+          <div style="font-weight:700;font-size:14px;margin-bottom:4px;">
+            ${uninvoicedRetainers.length} retainer${uninvoicedRetainers.length === 1 ? "" : "s"} not invoiced this month
+          </div>
+          <div class="text-faint" style="font-size:12.5px;line-height:1.5;margin-bottom:10px;">
+            ${money(uninvoicedTotal)} of monthly retainer has no invoice covering this month:
+            ${esc(uninvoicedRetainers.slice(0, 3).map((p) => p.business_name).join(", "))}${uninvoicedRetainers.length > 3 ? ` and ${uninvoicedRetainers.length - 3} more` : ""}.
+          </div>
+          ${canDraft
+            ? `<button class="btn btn-primary btn-sm" id="iv-draft-retainers" style="width:auto;">Draft Them Now</button>`
+            : `<div class="text-faint" style="font-size:11.5px;">Ask the owner to draft these.</div>`}
+        </div>
+      ` : ""}
       ${staleDraftCount ? `
         <div class="stat-grid" style="margin-bottom:16px;grid-template-columns:1fr;">
           <div class="stat-card accent"><div class="num">${staleDraftCount}</div><div class="label">Draft invoice${staleDraftCount === 1 ? "" : "s"} not sent ${STALE_DRAFT_DAYS}+ days</div></div>
@@ -154,6 +211,31 @@ export function renderInvoices() {
 
   wrap.querySelector("#iv-new").addEventListener("click", () => openInvoiceSheet(null));
   wrap.querySelector("#iv-export-csv").addEventListener("click", exportInvoicesCSV);
+  const draftBtn = wrap.querySelector("#iv-draft-retainers");
+  if (draftBtn) {
+    draftBtn.addEventListener("click", () => {
+      confirmModal({
+        title: "Draft this month's retainer invoices?",
+        body:
+          `This creates <b>${uninvoicedRetainers.length}</b> draft invoice${uninvoicedRetainers.length === 1 ? "" : "s"} ` +
+          `totalling <b>${money(uninvoicedTotal)}</b>, one per signed client with a monthly retainer and no invoice yet ` +
+          `this month. Nothing is sent to anyone — they land as drafts for you to check first.`,
+        confirmLabel: "Draft Them",
+        onConfirm: async () => {
+          // Calls the same database function the monthly schedule calls, so
+          // the button and the timer can never drift apart or double up: the
+          // function's own "does an invoice already cover this month" check is
+          // what stops a second run creating duplicates, whichever of the two
+          // got there first.
+          const { data, error } = await sb.rpc("draft_my_retainer_invoices");
+          if (error) return toast(error.message, "error");
+          const made = Number(data) || 0;
+          toast(made ? `${made} invoice${made === 1 ? "" : "s"} drafted` : "Already up to date", "success");
+          await refreshInvoices();
+        },
+      });
+    });
+  }
   if (paidWithDates.length) {
     wrap.querySelector("#iv-avg-pay-card").addEventListener("click", () => openSlowestPayersModal(paidWithDates));
   }
@@ -600,6 +682,18 @@ function offerRecurringInvoice(paidInvoice) {
       toast("Next invoice drafted", "success");
     },
   });
+}
+
+// Invoices are covered by Realtime, so rows the database creates on its own
+// normally arrive by themselves. This refetch exists for the case where they
+// don't — a dropped socket, a phone that just woke up — because the banner
+// that triggered this is the kind of thing somebody taps twice if it doesn't
+// visibly go away. Drafting twice is harmless (the function refuses to
+// duplicate) but it looks broken, which is its own problem.
+async function refreshInvoices() {
+  const { data } = await sb.from("invoices").select("*").order("created_at", { ascending: false });
+  store.invoices = data || [];
+  emit("invoices");
 }
 
 export function openInvoiceSheet(existing) {

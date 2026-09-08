@@ -501,9 +501,10 @@ async function handleReorder(orderedIds) {
 
 // Client-side random token — long and unguessable enough that brute-forcing
 // it isn't practical, same spirit as the org invite_code but wider (this one
-// gates a public no-login page, not just a signup flow). The actual public
-// review page (Slice 4b) isn't built yet, so the link this produces doesn't
-// resolve to anything live yet — the toast below says so explicitly.
+// gates a public no-login page, not just a signup flow). The page it opens,
+// app/review.html, went live back in Step 121 — the two toasts below said it
+// was still coming for every build since, which is why nobody was sending
+// these links.
 function generateShareToken() {
   const bytes = new Uint8Array(24);
   crypto.getRandomValues(bytes);
@@ -521,14 +522,14 @@ async function shareWithClient(plan) {
     })
     .eq("id", plan.id);
   if (error) return toast(error.message, "error");
-  toast("Share link ready, the client review page ships in a follow-up update", "success");
+  toast("Share link ready — copy it and send it to the client", "success");
 }
 
 async function copyShareLink(plan) {
   const url = `${location.origin}/review.html?t=${plan.share_token}`;
   try {
     await navigator.clipboard.writeText(url);
-    toast("Link copied (client review page is coming soon)", "success");
+    toast("Link copied", "success");
   } catch {
     toast(url, "");
   }

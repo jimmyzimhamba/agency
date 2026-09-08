@@ -2328,7 +2328,7 @@ This adds three tables: `pitch_scenarios` (the deck), `pitch_attempts` (private 
 
 **If you already ran this file once before the starter cards were added**, run it again — it now also adds an `is_starter` column to `pitch_scenarios`. If you skip this, the "load 52 common ones" link will show a message telling you to re-run the SQL.
 
-> **Corrected in `sxc-v184`.** Until now this file could **not** actually be re-run, even though this page said it could. Running it a second time stopped with an error like `policy "pitch_scenarios: read org" already exists`, and because Supabase runs the whole script as one all-or-nothing batch, that one error **undid everything else in the file** — including the `is_starter` column it was supposed to be adding. So if you tried the fix the app told you to try, it silently did nothing and you got the same error next time.
+> **Corrected in `sxc-v185`.** Until now this file could **not** actually be re-run, even though this page said it could. Running it a second time stopped with an error like `policy "pitch_scenarios: read org" already exists`, and because Supabase runs the whole script as one all-or-nothing batch, that one error **undid everything else in the file** — including the `is_starter` column it was supposed to be adding. So if you tried the fix the app told you to try, it silently did nothing and you got the same error next time.
 >
 > The file has been corrected and is now genuinely safe to run as many times as you like. **If you hit that error before, please paste the file in and run it once more** — this time it will stick.
 
@@ -2343,7 +2343,7 @@ This adds three tables: `pitch_scenarios` (the deck), `pitch_attempts` (private 
 
 **If you skip this step**, everything else on the page still works — you can add cards, load the starter deck, draw cards and type answers. The only thing that won't work is the coaching note that comes back. Tapping **Get Coaching** will say *"The pitch-coach function isn't deployed yet — see SETUP.md Step 158.2."*
 
-> **Improved in `sxc-v184`.** That message used to read *"Failed to send a request to the Edge Function"*, which is what Supabase itself says and which tells you nothing you can act on — it reads like the app is broken rather than like a setup step is still outstanding. It now names the missing function and points here. Any other kind of failure still shows the real underlying message.
+> **Improved in `sxc-v185`.** That message used to read *"Failed to send a request to the Edge Function"*, which is what Supabase itself says and which tells you nothing you can act on — it reads like the app is broken rather than like a setup step is still outstanding. It now names the missing function and points here. Any other kind of failure still shows the real underlying message.
 
 ### 158.3 — No new API key needed
 
@@ -2434,15 +2434,15 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 7. Click into the search box. Confirm the `/` chip disappears, and type something long enough to fill the box to confirm the text never runs underneath it.
 8. Click out, then press the `/` key. Confirm your cursor jumps into the search box.
 9. Open the app on your phone. Confirm the top bar still shows the "Agency Command" logo and looks exactly as it did before.
-10. Check the Team page footer reads **build sxc-v184**, which confirms the redeploy actually took.
+10. Check the Team page footer reads **build sxc-v185**, which confirms the redeploy actually took.
 
-> **Note:** Steps 160 to 166 all ship together as `sxc-v184`. One redeploy covers all seven.
+> **Note:** Steps 160 to 166 all ship together as `sxc-v185`. One redeploy covers all seven.
 
 ---
 
 ## Step 161 — Detail panels open down the right-hand side on a laptop
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v184` together with Steps 160, 162, 163, 164, 165 and 166, so one redeploy covers all seven.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v185` together with Steps 160, 162, 163, 164, 165 and 166, so one redeploy covers all seven.
 
 **The problem.** When you tap a prospect, the details slide up from the bottom of the screen. On a phone that's exactly right: it's where your thumb is, and there's no spare width to put it anywhere else.
 
@@ -2470,13 +2470,13 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 8. Open a few other panels to confirm they all moved too: the "+" to add a prospect, a task, a contract, and an invoice.
 9. Make the browser window narrow (drag it under about 960 pixels wide). Confirm the panel goes back to sliding up from the bottom, with its drag handle back.
 10. Open the app on your phone. Confirm the panel still slides up from the bottom exactly as it always has.
-11. Check the Team page footer reads **build sxc-v184**.
+11. Check the Team page footer reads **build sxc-v185**.
 
 ---
 
 ## Step 162 — A "List view" for prospects, and softer green and gold buttons
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v184` together with Steps 160, 161, 163, 164, 165 and 166, so one redeploy covers all seven.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v185` together with Steps 160, 161, 163, 164, 165 and 166, so one redeploy covers all seven.
 
 ### Part 1 — the solid green and gold buttons are toned down
 
@@ -2533,13 +2533,13 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 12. Try the search box and a couple of filter chips while in List view. Confirm filtering still works normally.
 13. Open the app on your phone and check Prospects. Confirm the links across the top wrap onto two lines and that **Select** is no longer cut off at the right edge.
 14. On your phone, confirm List view works there too and that tapping a row still slides the details up from the bottom.
-15. Check the Team page footer reads **build sxc-v184**.
+15. Check the Team page footer reads **build sxc-v185**.
 
 ---
 
 ## Step 163 — Every niche gets its own colour
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v184` together with Steps 160, 161, 162, 164, 165 and 166, so one redeploy covers all seven.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v185` together with Steps 160, 161, 162, 164, 165 and 166, so one redeploy covers all seven.
 
 **The problem.** Niche was just grey text in the middle of a grey line — "Restaurants · Avondale · Harare". When you're running your eye down thirty prospects looking for the dentists, you have to actually read every row to find them. Nothing about a row tells you at a glance what kind of business it is.
 
@@ -2577,13 +2577,13 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 9. Switch back to Dark mode and confirm the same.
 10. Rename one of your niches on Niche Strategy. Confirm its colour does **not** change.
 11. Open the app on your phone and confirm the dots are there too.
-12. Check the Team page footer reads **build sxc-v184**.
+12. Check the Team page footer reads **build sxc-v185**.
 
 ---
 
 ## Step 164 — The Status Breakdown is now a colour-coded ring
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v184` together with Steps 160, 161, 162, 163, 165 and 166, so one redeploy covers all seven.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v185` together with Steps 160, 161, 162, 163, 165 and 166, so one redeploy covers all seven.
 
 **The problem.** "Status Breakdown" at the bottom of the Dashboard was six bars, and every single one was the same purple-and-gold. That's the same bar the app uses for your revenue goal filling up — which is right for a goal, because there it means "how full is this". But these six bars aren't one thing filling up. They're six different piles. Painting them identically told you nothing you couldn't already get from the numbers.
 
@@ -2627,13 +2627,13 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 11. Switch to Light mode with the sun/moon icon in the top bar. Confirm every slice of the ring is still clearly visible against the white — none should look washed out.
 12. Switch back to Dark mode and confirm the same.
 13. Open the Dashboard on your phone. Confirm the ring sits above the list rather than beside it, and that nothing is cut off.
-14. Check the Team page footer reads **build sxc-v184**.
+14. Check the Team page footer reads **build sxc-v185**.
 
 ---
 
 ## Step 165 — The pipeline ring and the revenue goal now sit side by side at the top
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v184` together with Steps 160, 161, 162, 163, 164 and 166, so one redeploy covers all seven.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v185` together with Steps 160, 161, 162, 163, 164 and 166, so one redeploy covers all seven.
 
 **The problem.** There are really only two questions you open the Dashboard to answer: *what shape is my pipeline* and *are we going to hit the number this month*. Until now those two answers were nowhere near each other. Monthly Revenue Goal was near the top, and the ring you just got in Step 164 was right at the bottom, past follow-ups, data health, the leaderboard and the team stats. You had to scroll past everything to get to one of the two things you actually came for.
 
@@ -2666,13 +2666,13 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 11. Open the Dashboard on your phone. Confirm the ring is at the top, the revenue goal is directly under it, and neither is cut off at the edges.
 12. Switch to Light mode with the sun/moon icon. Confirm both cards still read clearly and the ring's colours are still easy to tell apart.
 13. Switch back to Dark mode and confirm the same.
-14. Check the Team page footer reads **build sxc-v184**.
+14. Check the Team page footer reads **build sxc-v185**.
 
 ---
 
 ## Step 166 — Tasks are now Missions, and there's a new Empire page
 
-No SQL to run, no edge functions, no new secrets. Ships as `sxc-v184` together with Steps 160, 161, 162, 163, 164 and 165, so one redeploy covers all seven.
+No SQL to run, no edge functions, no new secrets. Ships as `sxc-v185` together with Steps 160, 161, 162, 163, 164 and 165, so one redeploy covers all seven.
 
 ### First, the honest part
 
@@ -2766,9 +2766,9 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 22. Tap **Empire**. Confirm it opens the street, and that the **Empire** button turns gold — not the **More** button.
 23. Confirm the street still fits on the phone screen, still scrolls sideways with your finger, and nothing is cut off.
 24. Tap **More**. Confirm **Empire** is **no longer** listed in that menu — it has its own button now, so it shouldn't be in both places.
-25. Check the Team page footer reads **build sxc-v184**.
+25. Check the Team page footer reads **build sxc-v185**.
 
-**Fixed since first writing this step:** *Open client* on the Empire page opened an empty panel instead of the client's details. The Empire page was handing over the client's ID number where the rest of the app hands over the whole client record, so the panel opened with nothing to show and failed quietly — no error message, just a blank. Every other place in the app that opens a client (Prospects, Dashboard, Search, Messages, Invoices) was already doing it the right way; Empire was the only one out of step. Now corrected in `sxc-v184`.
+**Fixed since first writing this step:** *Open client* on the Empire page opened an empty panel instead of the client's details. The Empire page was handing over the client's ID number where the rest of the app hands over the whole client record, so the panel opened with nothing to show and failed quietly — no error message, just a blank. Every other place in the app that opens a client (Prospects, Dashboard, Search, Messages, Invoices) was already doing it the right way; Empire was the only one out of step. Now corrected in `sxc-v185`.
 
 ---
 
@@ -2817,9 +2817,9 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 15. Still on the phone, watch a card for a few seconds and confirm it's **still gently drifting**.
 16. On an iPhone, go to **Settings → Accessibility → Motion** and switch **Reduce Motion** on. Reload the sales page. Confirm **everything is completely still** — no drifting, no fading in as you scroll. Then switch Reduce Motion back off.
 17. Sign in and use the app normally for a minute. Confirm **nothing inside the app changed** — this step only touched the public page.
-18. Check the Team page footer reads **build sxc-v184**.
+18. Check the Team page footer reads **build sxc-v185**.
 
-*(Step 168 below then brought a version of this inside the app too, so from `sxc-v184` on, item 17 no longer holds — the cards in the app catch the light as well.)*
+*(Step 168 below then brought a version of this inside the app too, so from `sxc-v185` on, item 17 no longer holds — the cards in the app catch the light as well.)*
 
 ---
 
@@ -2867,7 +2867,7 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 16. Now pick up your **phone**. Open Prospects and scroll the list up and down a few times. Confirm it scrolls **exactly as smoothly as it did before** — no stutter, no lag.
 17. On the phone, confirm the cards look **completely normal** and nothing lights up or moves. There's no cursor on a phone, so there's nothing to track.
 18. On an iPhone, turn on **Settings → Accessibility → Motion → Reduce Motion**, then reopen the app on a laptop with that setting on. Confirm the cards are **completely still and unlit**. Then switch it back off.
-19. Check the Team page footer reads **build sxc-v184**.
+19. Check the Team page footer reads **build sxc-v185**.
 
 ---
 
@@ -2929,7 +2929,7 @@ Anything that's been sitting unsent for **more than a week** is thrown away rath
 
 1. Redeploy the `app` folder to Netlify Drop as usual.
 2. On your **phone**, open the app and pull down to refresh once or twice so it picks up the new version.
-3. Check the Team page footer reads **build sxc-v184**.
+3. Check the Team page footer reads **build sxc-v185**.
 4. Open any prospect. Confirm everything looks exactly as it did before — no new buttons, nothing moved.
 5. Now put the phone into **Aeroplane mode**.
 6. Confirm the amber strip appears under the top bar reading **"You're offline, showing the last synced data"**.
@@ -3002,7 +3002,7 @@ Everything from Step 169's list is unchanged. Two additions worth knowing:
 
 1. Redeploy the `app` folder to Netlify Drop as usual.
 2. On your **phone**, open the app and pull down to refresh once or twice.
-3. Check the Team page footer reads **build sxc-v184**.
+3. Check the Team page footer reads **build sxc-v185**.
 4. Still online, add a prospect normally. Confirm it behaves exactly as it always has — **"Prospect added"**, no purple tag, and if you left the message blank it starts researching. Nothing about the online experience should have changed.
 5. Now put the phone into **Aeroplane mode**.
 6. Tap the **+** button and add a business — name, area, WhatsApp number. Leave the message box **blank**.
@@ -3067,7 +3067,7 @@ nothing extra in data.
 
 1. Redeploy the `app` folder to Netlify Drop as usual, then open the app and
    pull down to refresh.
-2. Go to **Team** and check the very bottom of the page says **build sxc-v184**.
+2. Go to **Team** and check the very bottom of the page says **build sxc-v185**.
    If it still says v181, close the app completely and reopen it.
 3. Tap **Empire** in the bottom bar.
 4. Check the three boxes at the top still read **Buildings**, **Per Month** and
@@ -3307,7 +3307,7 @@ streets they were standing in a heap on top of each other.
     street still looks correct.
 16. Go through **Dashboard, Pipeline, Missions and Messages** and check nothing
     else changed.
-17. Check the bottom of **Team → Settings** now reads **build sxc-v184**.
+17. Check the bottom of **Team → Settings** now reads **build sxc-v185**.
 
 ---
 
@@ -3341,7 +3341,7 @@ purple in the app to keep in step. It's also dark enough to read comfortably —
 about six and a half times the contrast of the background, where the guideline
 asks for four and a half.
 
-**No new build number.** This ships inside **sxc-v184** along with the walking
+**No new build number.** This ships inside **sxc-v185** along with the walking
 people, because that build hasn't gone live yet. One deploy covers both.
 
 **Now test it**
@@ -3383,7 +3383,7 @@ reordered. The buttons work off their own names rather than their positions, so
 the highlighting still follows you correctly: tap Empire and Empire lights up,
 open something from the More menu and More lights up.
 
-**No new build number.** Still **sxc-v184** — that build hasn't gone live yet,
+**No new build number.** Still **sxc-v185** — that build hasn't gone live yet,
 so this goes out with the walking people and the greeting fix in one deploy.
 
 **Now test it**
@@ -3484,7 +3484,7 @@ I checked afterwards that **no two features share an icon any more**, and that
 the sidebar on a computer and the buttons on a phone show the same picture for
 the same feature. They do.
 
-**No new build number.** Still **sxc-v184**.
+**No new build number.** Still **sxc-v185**.
 
 **Now test it**
 
@@ -3509,3 +3509,336 @@ the same feature. They do.
     one in the menu.
 11. Open the app on a **computer**. Check the sidebar icons match the phone.
 12. Check both **light and dark mode**.
+
+---
+
+## Step 177: The app now knows what you *spend*, so it can tell you what you actually *keep*
+
+This is the biggest hole the app had, and I only found it by going through
+every screen and asking what question each one answers.
+
+The app could tell you what clients **owe** you and what they've **paid** you.
+It could not tell you what any of it **cost**. So "we invoiced $2,400 this
+month" was the best answer available — and that number is not the business.
+The business is what's left after the ad spend, the subcontractor, the
+Canva subscription and the airtime.
+
+There's a new **Expenses** page (it's under **More**, right after Invoices),
+and three numbers at the top of it:
+
+**Spent This Month** — everything you've logged with a date in this calendar
+month.
+
+**Profit This Month** — money clients actually **paid** you this month, minus
+what you spent this month. Note *paid*, not *invoiced*. An invoice you sent
+but haven't been paid for is not profit, it's hope, and the app is not going
+to flatter you about the difference.
+
+**Monthly Recurring Burn** — the total of everything you've ticked as
+**recurring**. This is the number that tells you what the agency costs to keep
+switched on before you do a single piece of work.
+
+### The one that will actually change a decision
+
+Underneath those, there's a line that reads something like **"1 · Client is
+costing more than they pay."**
+
+When you log an expense you can attach it to a client. Once you do, the app
+can work out, per client, what they've **paid** you against what they've
+**cost** you. Tap that line and it lists them worst-first.
+
+This is the thing you cannot see from invoices alone. A client on a $200
+retainer whose ads you're managing at $300 a month is a client you are paying
+to keep. That is normally invisible for months, because the $200 keeps
+arriving and it feels like income.
+
+There's a second line for **ad spend not linked to any client** — money that
+went out on ads with no client attached to it, which is either a mistake worth
+fixing or your own marketing worth knowing the size of.
+
+### What I deliberately did NOT do
+
+**I don't spread your overheads across clients.** Your internet bill, your
+Canva subscription, your time — none of it gets divided up and charged against
+individual clients. Every method of doing that involves inventing a rule
+("split it evenly", "split it by revenue"), and the answer it produces looks
+precise and authoritative when it's really just the rule you happened to pick.
+So a client's cost is only the money you actually spent **on that client**.
+The page says so on screen, so nobody mistakes it for full accounting.
+
+**"Recurring" is a label, not an alarm clock.** Ticking it does not make the
+app create next month's expense for you. It just counts it into your Monthly
+Recurring Burn. An app that quietly invents expenses you didn't type is an app
+whose numbers you'd stop trusting.
+
+**Categories are fixed and there are seven.** Ad Spend, Subcontractor,
+Software, Data & Airtime, Transport, Equipment, Other. Not because seven is a
+magic number, but because free-text categories always end up as "ads", "Ads",
+"advertising" and "FB ads" being four different things, and then no total is
+ever right again. These seven are the ones that matter here.
+
+Deleting a client does **not** delete their expenses. The money left your bank
+whether or not the client is still in the app; it just stops being attached to
+anybody.
+
+**This step needs the SQL run — see Step 179 at the bottom, which covers all
+three of these new features in one paste.**
+
+**Now test it** *(after you've run the SQL in Step 179)*
+
+1. Open the app, tap **More**, and tap **Expenses**.
+2. Tap **Add Expense**. Put in `Facebook ads — Kombi Wash`, amount `120`,
+   category **Ad Spend**, today's date, and pick **Kombi Wash** as the client.
+   Save.
+3. Check it appears in the list, and that **Spent This Month** has gone up by
+   $120.
+4. Add a second one: `Canva Pro`, `15`, category **Software**, no client, and
+   tick **Recurring**.
+5. Check **Monthly Recurring Burn** now shows **$15**.
+6. Check the **category grid** shows Ad Spend $120 and Software $15.
+7. Tap the **category chips** along the top — tap **Ad Spend** and check the
+   list narrows to just that one. Tap it again to clear.
+8. Look at **Profit This Month**. If you've been paid less than you've spent
+   this month it will show a **minus** sign in front of the dollar amount, like
+   `-$190`. That's correct, and it's meant to be uncomfortable.
+9. Now the important one. Find a client on a **small retainer** and log an
+   expense against them **bigger than their monthly retainer**. Check the
+   **"Client is costing more than they pay"** line appears, and that tapping it
+   lists that client.
+10. Tap **Export CSV** and check the file opens in Excel or Google Sheets.
+11. Ask a **team member** (not you) to add an expense. Check they can see it,
+    can edit **their own**, and **cannot** edit yours. You, as owner, can edit
+    and delete anything.
+12. Turn the phone to **airplane mode** and open Expenses. It should still show
+    what was there when you last had signal.
+
+---
+
+## Step 178: You can now send a client a link that shows how their project is going
+
+Right now, "how's my logo coming along?" is a WhatsApp message somebody on your
+team has to stop and answer. Every time. And the honest answer usually involves
+opening the app, looking at the checklist, and typing out what it says.
+
+So now the checklist can just show itself.
+
+Open any project, scroll to the new **Client Link** card, and tap **Create
+Client Link**. You get a web address. Send it to the client. When they open it
+they see the project name, a **progress bar**, how many steps are done out of
+how many, the target date, and the checklist itself with ticks against what's
+finished.
+
+**No login. No app to install. No account.** They tap the link and it's there,
+on any phone. And it's live — every time you tick something off in the app,
+their page shows it the next time they open it. There's a **Send on WhatsApp**
+button right on the card that writes the message for you.
+
+### The part that makes this actually usable
+
+Every checklist row now has a small **Hide** link on it.
+
+This matters more than it sounds. Without it, the moment you can share a
+project, your team has to choose between writing a *real* checklist and being
+able to share it at all — because real checklists contain lines like "chase
+them for the logo, third time" and "wait for them to pay before starting
+phase 2". Faced with that choice, people write vague, useless tasks. So the
+checklist gets worse for **your own team**, not just the client.
+
+Tap **Hide** on any row and it stays in your app, marked *hidden from client*,
+and simply doesn't exist as far as their page is concerned. The Client Link
+card tells you the split — "shows 2 checklist items, and hides 1 marked
+internal" — so you always know what they're looking at before you send it.
+
+**Blocked** projects show to the client as **"Paused"**, not "Blocked".
+Internally, blocked nearly always means *we're waiting on the client*. Putting
+a red-sounding word on the page they open invites a defensive reply to
+something that was only ever a note to yourself.
+
+### Is it safe?
+
+Yes, and here's the precise reason rather than just "yes":
+
+The link contains a **48-character random code**. There is no realistic number
+of guesses that finds one. The client's page can ask the database exactly
+**one** question — "what's the project with this exact code?" — and it can ask
+nothing else. Your projects table stays completely unreadable to anyone
+without a login; the page isn't reading it, it's asking that one narrow
+question.
+
+Anything wrong with the code — mistyped, replaced, made up — gets the **same**
+answer: "This link isn't active." Never "wrong code" or "that project was
+deleted", because telling a stranger *which kind of wrong* their guess was is
+the only thing that would make guessing worth trying.
+
+If you send a link to the wrong person, tap **Replace Link**. The old one dies
+immediately.
+
+**One thing to be clear about:** anyone holding the link can open it. It's a
+secret address, not a password. Treat it the way you'd treat a Google Doc
+"anyone with the link" share — which is exactly what your Grid Plan review
+links already are.
+
+**Now test it** *(after you've run the SQL in Step 179)*
+
+1. Open **Projects** and open any project.
+2. Add two or three checklist items if it hasn't got any. Tick one off.
+3. Scroll to **Client Link** and tap **Create Client Link**.
+4. Tap **Copy Link**. Paste it into WhatsApp **to yourself** and open it.
+5. Check you see the project name, a **progress bar**, the "X of Y steps done"
+   line, and your checklist with a tick against the done one.
+6. Check the top of that page says **"Prepared by Studio X Marketing"**.
+7. Go back into the app and **tick another item off**. Refresh the client page.
+   Check the progress bar moved.
+8. Now tap **Hide** on one of the items. Check the app labels it *hidden from
+   client*, and that the Client Link card now says it hides 1 item.
+9. Refresh the client page. Check that item is **gone** and the step count went
+   down.
+10. Tap **Show** on it again and check it comes back.
+11. Open the link on a phone that has **never logged into the app**, ideally
+    someone else's. Check it opens fine with no login prompt.
+12. Now break it on purpose: change one character in the middle of the code in
+    the address bar and load it. Check you get **"This link isn't active"** and
+    nothing else.
+13. Back in the app, tap **Replace Link** and confirm. Open the **old** link
+    again. Check it now says "This link isn't active" too.
+14. If the project has a client with a WhatsApp number saved, tap **Send on
+    WhatsApp** and check it opens WhatsApp with the message already written.
+
+---
+
+## Step 179: The app now drafts your retainer invoices for you on the 1st
+
+You have clients on monthly retainers. Every month, somebody has to remember to
+raise each of those invoices. Miss one and you simply don't get paid that month
+— and nothing anywhere tells you it happened, because a missing invoice leaves
+no trace.
+
+Two things now fix that.
+
+**On the Invoices page, a banner.** If any signed client with a monthly
+retainer has no invoice covering this month, you'll see something like:
+
+> **2 retainers not invoiced this month**
+> $600 of monthly retainer has no invoice covering this month: WestProp,
+> Cafe Nush.
+
+That banner is the safety net. Even if everything else fails, the number is
+sitting there on the page you already look at.
+
+**And a button next to it: Draft These Invoices.** Tap it and the app creates
+each one as a **draft**, correctly numbered, for the right amount, assigned to
+whoever owns that client. Drafts, not sent invoices — you still review and send
+them. The app is doing the typing, not making the decision.
+
+**On the 1st of every month at 6am, the database does the same thing by
+itself.** So the normal experience is that you open Invoices on the 1st and the
+drafts are already waiting.
+
+A few details that took the most thought:
+
+**It keys on the invoice's *due date*, not the day you raised it.** If you
+raise an invoice on the 28th of August that's due in September, that *is*
+September's money and the app won't nag you to raise another one.
+
+**A voided invoice doesn't count.** Voiding is how a person says "that one was
+wrong, redo it" — so a voided invoice leaves the client showing as
+un-invoiced, which is exactly what you'd want.
+
+**Only the owner can tap the button.** The automatic run is org-wide.
+
+**It will never create two invoices for the same client in the same month** —
+not if you tap the button twice, not if you tap it after the automatic run
+already happened, not if the automatic run somehow fires twice. It checks
+before every single one.
+
+**Invoice numbering is done by the database, from the highest number that
+exists.** The app itself numbers invoices by counting how many you have, which
+is fine when a human is watching — but if you ever delete an invoice, the count
+goes down and the next number repeats one you've already used. For something
+running unattended at 6am with nobody watching, that's not good enough.
+
+### Why this doesn't need anything installed or deployed
+
+All three of these features run as **database functions**, not as separate
+deployed services. That's a deliberate choice with evidence behind it: there is
+already one piece of this app (`pitch-coach`, Step 158.2) that was written
+months ago and has never been deployed, because deploying it needs a command
+line. Anything that needs a deploy step doesn't reliably happen. So all of this
+arrives in the SQL paste below and there is nothing else to install.
+
+If the automatic monthly schedule can't be set up on your Supabase plan, the
+SQL is written so it **carries on regardless** — you'd just tap the button on
+the Invoices page instead. Same function either way, so it's a convenience, not
+the mechanism.
+
+**Run the SQL — this covers Steps 177, 178 and 179 all at once**
+
+1. In Supabase, click **SQL Editor** → **New query**.
+2. Open **`supabase/migration_money_and_portal.sql`** from this project folder,
+   select all, copy it, paste into the SQL Editor, click **Run**. You should
+   see "Success. No rows returned." Safe to run twice.
+3. **Don't redeploy the app until this has run** — the app now expects an
+   `expenses` table to exist and won't load your data without it.
+4. Then redeploy the app folder to Netlify Drop as usual.
+
+**Now test it**
+
+1. Open **Invoices**. If you have signed clients on retainers who haven't been
+   invoiced for this month, check the **banner** appears with the right names
+   and the right total.
+2. Check the total. It should be the **sum of those clients' monthly
+   retainers** — add them up by hand once, to be sure.
+3. Find a client who **has** already been invoiced this month. Check they are
+   **not** in that list.
+4. Tap **Draft These Invoices** and confirm.
+5. Check a **draft** invoice now exists for each named client, with the right
+   amount and the right invoice number (carrying on from your last one, not
+   repeating it).
+6. Check the banner is now **gone**.
+7. Tap into one of the drafts and check it's assigned to the right team member
+   — whoever owns that client.
+8. Now the safety check: **void** one of those drafts. Check the client
+   reappears in the banner. That's correct — voiding means "redo this".
+9. Log in as a **team member who isn't the owner**. Check they can see the
+   banner but there's **no button**.
+10. On the **1st of next month**, open Invoices first thing. Check the drafts
+    are already there without anyone doing anything. If they aren't, the
+    schedule didn't take on your plan — the button still works, and that's the
+    only difference.
+
+---
+
+## Step 180: Grid Plan share links no longer say they're "coming soon"
+
+Small fix, but it was costing you something real.
+
+When you shared a Grid Plan, the app said **"Share link ready, the client
+review page ships in a follow-up update"** and **"Link copied (client review
+page is coming soon)"**.
+
+That page has been live since **Step 121**. It works. Clients can open it,
+reorder posts and approve them. But the app was telling your team it didn't
+exist yet — so of course nobody was sending those links.
+
+The messages now just say **"Share link ready — copy it and send it to the
+client"** and **"Link copied"**.
+
+Nothing else changed. The feature was always there.
+
+**Now test it**
+
+1. Open **Grid Plans** and open any plan.
+2. Tap the share option and check the message no longer mentions "coming soon"
+   or "follow-up update".
+3. Copy the link, open it in a browser, and check the client review page loads
+   properly.
+
+---
+
+### A note on the build number for Steps 177–180
+
+These four steps ride on **build sxc-v185** — the same number as Steps 160–176.
+That's on purpose: none of that batch has been redeployed yet, so it all ships
+as one build. After you redeploy, the footer of the **Team** page should read
+**build sxc-v185**. If it still shows an older number, the phone is holding an
+old copy — close the app completely and reopen it.

@@ -1,6 +1,6 @@
 import { sb } from "../supabaseClient.js";
 import { store, on, prospectById, profileById } from "../state.js";
-import { el, esc, fmtDate, todayISO, toast, downloadReminderICS, toCSV, downloadTextFile } from "../utils.js";
+import { el, esc, fmtDate, todayISO, toast, downloadReminderICS, toCSV, downloadTextFile, buildWhatsAppLink } from "../utils.js";
 import { openSheet, closeSheet, confirmModal, openModal, closeModal } from "../ui.js";
 
 const STATUS_LABELS = { not_started: "Not Started", in_progress: "In Progress", blocked: "Blocked", complete: "Complete" };
@@ -488,8 +488,16 @@ function openProjectDetail(p0) {
       <button class="btn btn-ghost btn-sm" id="pj-task-add" style="flex:0 0 auto;width:auto;">Add</button>
     </div>
 
+    <div class="section-title" style="margin-top:20px;">Client Link</div>
+    <div class="card" style="margin-bottom:16px;">
+      <div class="text-faint" style="font-size:12.5px;line-height:1.5;margin-bottom:10px;" id="pj-share-blurb"></div>
+      <div id="pj-share-actions" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+    </div>
+
     ${isOwner ? `<button class="btn btn-danger" id="pj-delete">Delete Project</button>` : ""}
   `;
+
+  renderShareBox(box, p);
 
   box.querySelector("#pj-status").addEventListener("change", async (e) => {
     const { error } = await sb.from("projects").update({ status: e.target.value }).eq("id", p.id);
@@ -597,6 +605,119 @@ function openProjectDetail(p0) {
   document.getElementById("sheet")._onClose = () => { offTasks(); offProjects(); };
 }
 
+// ---- client link -----------------------------------------------------------
+//
+// Long random token, generated on this device. Same approach and the same
+// reasoning as Grid Plans' share link: it gates a public no-login page, so it
+// needs to be far too wide to guess. 24 bytes of crypto randomness is 48 hex
+// characters — there is no practical number of attempts that finds one, and
+// the database function backing the page refuses anything shorter than 16
+// characters outright.
+function generateShareToken() {
+  const bytes = new Uint8Array(24);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+function shareUrlFor(project) {
+  return `${location.origin}/project.html?t=${project.share_token}`;
+}
+
+function renderShareBox(box, p0) {
+  const p = currentProject(p0.id) || p0;
+  const blurb = box.querySelector("#pj-share-blurb");
+  const actions = box.querySelector("#pj-share-actions");
+  if (!blurb || !actions) return;
+
+  const shown = store.projectTasks.filter((t) => t.project_id === p.id && !t.internal).length;
+  const hidden = store.projectTasks.filter((t) => t.project_id === p.id && t.internal).length;
+
+  actions.innerHTML = "";
+
+  if (!p.share_token) {
+    blurb.innerHTML =
+      "Create a link the client can open — no login, no app to install — showing how far along this " +
+      "project is. They see the checklist, minus anything you've marked <b>Hide</b>.";
+    const btn = el(`<button class="btn btn-primary btn-sm" style="width:auto;">Create Client Link</button>`);
+    btn.addEventListener("click", async () => {
+      btn.disabled = true;
+      const token = generateShareToken();
+      const { error } = await sb
+        .from("projects")
+        .update({ share_token: token, shared_at: new Date().toISOString() })
+        .eq("id", p.id);
+      btn.disabled = false;
+      if (error) return toast(error.message, "error");
+      // The store is refreshed by Realtime, but the sheet in front of the user
+      // has to redraw now rather than whenever that arrives.
+      const fresh = { ...p, share_token: token };
+      const idx = store.projects.findIndex((x) => x.id === p.id);
+      if (idx > -1) store.projects[idx] = { ...store.projects[idx], share_token: token };
+      renderShareBox(box, fresh);
+      toast("Client link ready", "success");
+    });
+    actions.appendChild(btn);
+    return;
+  }
+
+  blurb.innerHTML =
+    `This project has a live client link. It shows <b>${shown}</b> checklist item${shown === 1 ? "" : "s"}` +
+    (hidden ? `, and hides ${hidden} marked internal` : "") +
+    ". Anyone with the link can open it, so send it to the client and nobody else.";
+
+  const copyBtn = el(`<button class="btn btn-primary btn-sm" style="width:auto;">Copy Link</button>`);
+  copyBtn.addEventListener("click", async () => {
+    const url = shareUrlFor(p);
+    try {
+      await navigator.clipboard.writeText(url);
+      toast("Link copied", "success");
+    } catch {
+      // Clipboard access is refused in some in-app browsers. Showing the URL
+      // is a worse experience but still a usable one — the alternative is a
+      // button that silently does nothing.
+      toast(url, "");
+    }
+  });
+  actions.appendChild(copyBtn);
+
+  const prospect = prospectById(p.prospect_id);
+  if (prospect?.whatsapp_number) {
+    const waBtn = el(`<button class="btn btn-ghost btn-sm" style="width:auto;">Send on WhatsApp</button>`);
+    waBtn.addEventListener("click", () => {
+      const msg =
+        `Hi ${prospect.business_name} — here's a live progress page for "${p.name}". ` +
+        `You can open it any time to see where things are: ${shareUrlFor(p)}`;
+      window.open(buildWhatsAppLink(prospect.whatsapp_number, msg), "_blank");
+    });
+    actions.appendChild(waBtn);
+  }
+
+  const newBtn = el(`<button class="btn btn-ghost btn-sm" style="width:auto;">Replace Link</button>`);
+  newBtn.addEventListener("click", () => {
+    confirmModal({
+      title: "Replace this link?",
+      body:
+        "The current link stops working straight away and anyone still holding it sees " +
+        "\"this link isn't active\". Use this if it was sent to the wrong person.",
+      confirmLabel: "Replace",
+      danger: true,
+      onConfirm: async () => {
+        const token = generateShareToken();
+        const { error } = await sb
+          .from("projects")
+          .update({ share_token: token, shared_at: new Date().toISOString() })
+          .eq("id", p.id);
+        if (error) return toast(error.message, "error");
+        const idx = store.projects.findIndex((x) => x.id === p.id);
+        if (idx > -1) store.projects[idx] = { ...store.projects[idx], share_token: token };
+        renderShareBox(box, { ...p, share_token: token });
+        toast("New link created, the old one is dead", "success");
+      },
+    });
+  });
+  actions.appendChild(newBtn);
+}
+
 function renderChecklist(box, projectId) {
   const wrap = box.querySelector("#pj-checklist");
   if (!wrap) return;
@@ -609,18 +730,36 @@ function renderChecklist(box, projectId) {
 
   wrap.innerHTML = "";
   tasks.forEach((task) => {
+    // "Hide"/"Show" controls whether this line appears on the client's page.
+    // It exists so the checklist can stay honest: without it the team has to
+    // choose between writing a real task ("chase them for the logo, third
+    // time") and being able to share the project at all — and given that
+    // choice people write vague tasks, which makes the checklist worse for
+    // everyone including the team.
     const row = el(`
       <div class="task-row ${task.done ? "done" : ""}">
         <div class="task-check ${task.done ? "done" : ""}" data-toggle>
           ${task.done ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="m5 13 4 4L19 7"/></svg>' : ""}
         </div>
-        <div class="task-label" style="flex:1;">${esc(task.title)}</div>
+        <div class="task-label" style="flex:1;">
+          ${esc(task.title)}
+          ${task.internal ? `<span class="text-faint" style="font-size:10.5px;margin-left:6px;">hidden from client</span>` : ""}
+        </div>
+        <span class="small-link" data-internal style="margin-right:10px;">${task.internal ? "Show" : "Hide"}</span>
         <span class="small-link" data-remove>Remove</span>
       </div>
     `);
     row.querySelector("[data-toggle]").addEventListener("click", async () => {
       const { error } = await sb.from("project_tasks").update({ done: !task.done }).eq("id", task.id);
       if (error) toast(error.message, "error");
+    });
+    row.querySelector("[data-internal]").addEventListener("click", async () => {
+      const { error } = await sb.from("project_tasks").update({ internal: !task.internal }).eq("id", task.id);
+      if (error) return toast(error.message, "error");
+      toast(task.internal ? "Now visible to the client" : "Hidden from the client", "success");
+      // The share box counts visible vs hidden items, so it has to redraw too.
+      const project = currentProject(projectId);
+      if (project) renderShareBox(box, project);
     });
     row.querySelector("[data-remove]").addEventListener("click", async () => {
       const { error } = await sb.from("project_tasks").delete().eq("id", task.id);

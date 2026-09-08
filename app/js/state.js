@@ -29,6 +29,13 @@ export const store = {
   monthlyGoal: null,
   contracts: [],
   invoices: [],
+  // Money out — see supabase/migration_money_and_portal.sql. Loaded in full
+  // rather than capped like pointsLog, because every total the Expenses screen
+  // shows is a sum over the whole set: capping it would silently under-report
+  // spending, and an expense total that quietly reads low is worse than no
+  // expense total at all. Row count is bounded by how often a small agency
+  // actually spends money, which is nowhere near enough to matter.
+  expenses: [],
   projects: [],
   projectTasks: [],
   gridPlans: [],
@@ -227,7 +234,7 @@ export async function loadAll() {
   // RLS alone to do.
   const myOrgId = store.profile?.org_id;
 
-  const [organization, profiles, niches, prospects, templates, dailyTasks, dailyCompletions, agentTargets, activityLog, monthlyGoal, contracts, invoices, projects, projectTasks, gridPlans, gridPosts, gridPostMedia, servicePackages, portfolioSettings, portfolioItems, communityPosts, communityComments, communityReactions, pointsLog, pointsTotals, badgesEarned] =
+  const [organization, profiles, niches, prospects, templates, dailyTasks, dailyCompletions, agentTargets, activityLog, monthlyGoal, contracts, invoices, expenses, projects, projectTasks, gridPlans, gridPosts, gridPostMedia, servicePackages, portfolioSettings, portfolioItems, communityPosts, communityComments, communityReactions, pointsLog, pointsTotals, badgesEarned] =
     await Promise.all([
       sb.from("organizations").select("*").maybeSingle(),
       sb.from("profiles").select("*").order("full_name"),
@@ -241,6 +248,7 @@ export async function loadAll() {
       sb.from("monthly_goal").select("*").eq("month", firstOfMonth()).maybeSingle(),
       sb.from("contracts").select("*").order("created_at", { ascending: false }),
       sb.from("invoices").select("*").order("created_at", { ascending: false }),
+      sb.from("expenses").select("*").order("spent_on", { ascending: false }),
       sb.from("projects").select("*").order("created_at", { ascending: false }),
       sb.from("project_tasks").select("*").order("sort_order"),
       sb.from("grid_plans").select("*").order("created_at", { ascending: false }),
@@ -269,6 +277,7 @@ export async function loadAll() {
   store.monthlyGoal = monthlyGoal.data || null;
   store.contracts = contracts.data || [];
   store.invoices = invoices.data || [];
+  store.expenses = expenses.data || [];
   store.projects = projects.data || [];
   store.projectTasks = projectTasks.data || [];
   store.gridPlans = gridPlans.data || [];
@@ -287,7 +296,7 @@ export async function loadAll() {
   emit("organization"); emit("profiles"); emit("niches"); emitProspects(); emit("templates");
   emit("dailyTasks"); emitDailyCompletions(); emit("agentTargets");
   emit("activityLog"); emit("monthlyGoal");
-  emit("contracts"); emit("invoices"); emit("projects"); emit("projectTasks");
+  emit("contracts"); emit("invoices"); emit("expenses"); emit("projects"); emit("projectTasks");
   emit("gridPlans"); emit("gridPosts"); emit("gridPostMedia");
   emit("servicePackages");
   emit("portfolioSettings"); emit("portfolioItems");

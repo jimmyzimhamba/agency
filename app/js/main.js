@@ -24,6 +24,7 @@ import { openDealPricingCalculator } from "./views/dealPricing.js";
 import { openInstallAppSheet } from "./views/installApp.js";
 import { renderContracts, initContractsView } from "./views/contracts.js";
 import { renderInvoices, initInvoicesView } from "./views/invoices.js";
+import { renderExpenses, initExpensesView } from "./views/expenses.js";
 import { renderProjects, initProjectsView } from "./views/projects.js";
 import { renderGridPlans, initGridPlansView, leaveGridPlansView } from "./views/gridPlans.js";
 import { renderServices, initServicesView } from "./views/services.js";
@@ -46,6 +47,7 @@ const VIEWS = {
   pipelinevalue: renderPipelineValue,
   contracts: renderContracts,
   invoices: renderInvoices,
+  expenses: renderExpenses,
   projects: renderProjects,
   gridplans: renderGridPlans,
   services: renderServices,
@@ -126,6 +128,10 @@ function openMoreMenu() {
       <div class="task-row" data-go="invoices" style="cursor:pointer;">
         <div class="icon-badge sm gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9.5 12 4l9 5.5"/><path d="M5.5 11v7M10 11v7M14 11v7M18.5 11v7"/><path d="M3.5 21h17"/></svg></div>
         <div class="task-label">Invoices</div>
+      </div>
+      <div class="task-row" data-go="expenses" style="cursor:pointer;">
+        <div class="icon-badge sm gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="6" width="19" height="13" rx="3"/><path d="M2.5 10.5h19"/><path d="M6.5 15h4"/></svg></div>
+        <div class="task-label">Expenses</div>
       </div>
       <div class="task-row" data-go="projects" style="cursor:pointer;">
         <div class="icon-badge sm gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5h3.2a2 2 0 0 1 1.6.8l1.1 1.5h7.1A2.5 2.5 0 0 1 21 9.8v7.7a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5Z"/></svg></div>
@@ -561,6 +567,7 @@ async function enterApp(session) {
     initPipelineValueView();
     initContractsView();
     initInvoicesView();
+    initExpensesView();
     initProjectsView();
     initGridPlansView();
     initServicesView();
