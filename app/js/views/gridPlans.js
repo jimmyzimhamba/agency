@@ -135,7 +135,7 @@ function buildList() {
   if (!plans.length) {
     listEl.appendChild(el(`
       <div class="empty-state">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="4" width="7" height="7"/><rect x="13" y="4" width="7" height="7"/><rect x="4" y="13" width="7" height="7"/><rect x="13" y="13" width="7" height="7"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 3.5v17M15 3.5v17M3.5 9h17M3.5 15h17"/></svg>
         <p>${store.gridPlans.length ? "No grid plans match this filter." : canManage() ? "No grid plans yet. Start one for a client." : "No grid plans yet."}</p>
       </div>
     `));

@@ -3400,3 +3400,112 @@ so this goes out with the walking people and the greeting fix in one deploy.
    **More button** is the one lit up.
 8. Now open the app **on a computer**. Check the sidebar down the left still
    has **Empire directly under Dashboard**, the same as the phone.
+
+---
+
+## Step 176: The icons are now one set, and each feature has its own
+
+You sent me a sheet of 36 futuristic icons and said to use the best-suiting one
+for each feature. I've done that — but not by copying them, and it's worth
+explaining both halves.
+
+### What I took: the line style
+
+Every icon in your reference has **soft, rounded ends and rounded corners**.
+That is the single biggest thing making that sheet look like one considered
+set rather than a pile of clip art.
+
+The app's icons mostly didn't. Left alone, drawing software ends every line
+with a hard **square cut** and every corner with a **sharp point**. Only 15 of
+the app's roughly 80 icons had ever been told otherwise, which is exactly how a
+set drifts apart without anyone noticing.
+
+So all of them now round off, set in **one place** rather than icon by icon.
+That matters for later: any icon added from here on picks up the house style by
+itself, instead of depending on somebody remembering. One thing deliberately
+opts out — the **coloured ring on the Dashboard**. Its slices are one circle
+drawn as a dashed line, so rounding the ends would make every slice bulge out
+and bleed into its neighbours.
+
+### What I did NOT take: the logos
+
+**About twenty of the thirty-six are other companies' logos** — Instagram,
+Figma, Spotify, Netflix, Trello, Notion, Slack, Reddit, Snapchat, Twitter,
+Telegram, Messenger, YouTube and more. I haven't used any of them, for two
+reasons:
+
+They aren't ours to use. Those are trademarks, and putting them on our buttons
+is a real risk for a business that sells marketing services to clients.
+
+And they'd be lying to your team. Putting **Trello's** logo on Grid Plans tells
+whoever sees it that the button opens Trello. It doesn't. An icon is a promise
+about what happens when you tap it.
+
+The sheet is also a flat picture rather than the drawings themselves, so
+nothing in it could be lifted directly regardless — every icon below is drawn
+fresh, in that style.
+
+### What I fixed: three features wearing the same icon
+
+Going through this turned up something genuinely broken that I don't think
+you'd have found by eye, because you only see it when the icons sit together:
+
+**Niche Matrix, Projects and Grid Plans all had the same four-squares icon.**
+In the **More** menu those three sit in one list — three identical pictures,
+three different destinations.
+
+**Discovery had the same magnifying glass as Search**, which sits in the top
+bar of every single screen.
+
+**The Activity Feed had the three stacked lines** that everywhere else in the
+world means "menu" — the same shape as the More button beside it.
+
+**Prospects had a heart-rate line.** A hospital monitor. For your leads.
+
+So the icons now go like this, each one chosen to match what the feature
+actually does:
+
+| Feature | Now shows | Why |
+|---|---|---|
+| **Prospects** | an address book | It's a list of people. The heart-rate line was never about leads. |
+| **Discovery** | a compass | Finding new ground, and it stops clashing with Search. |
+| **Niche Matrix** | a target | Picking a niche is aiming at one. |
+| **Invoices** | a bank | Money, and clearly not the same thing as Contracts. |
+| **Projects** | a folder | Work in progress, gathered together. |
+| **Grid Plans** | a 3×3 grid | An Instagram profile grid *is* a 3×3 grid — this is the one feature with a real claim to that shape, so it keeps it and the others moved off. |
+| **Portfolio Studio** | a camera | It's a studio. |
+| **Activity Feed** | the heart-rate line | Freed up from Prospects, and here it genuinely means activity. |
+
+Everything else stayed as it was, because it was already right — Missions is a
+tick, Messages is a speech bubble, Deal Pricing is a calculator, Team is a
+group of people.
+
+I checked afterwards that **no two features share an icon any more**, and that
+the sidebar on a computer and the buttons on a phone show the same picture for
+the same feature. They do.
+
+**No new build number.** Still **sxc-v184**.
+
+**Now test it**
+
+1. Open the app and tap **More** at the bottom.
+2. Scroll the list. Check **Niche Strategy Matrix, Projects and Grid Plans**
+   now have **three clearly different pictures** — a target, a folder, and a
+   grid. They used to be identical.
+3. Check **Prospects** shows an **address book**, not a heart-rate line.
+4. Check **Discovery** shows a **compass**, and that it's obviously different
+   from the **magnifying glass** used for Search at the top of the screen.
+5. Check **Team Activity Feed** shows a **heart-rate line**, not three stacked
+   lines.
+6. Check **Invoices** shows a **bank** and **Contracts** still shows a
+   **document** — two different pictures for two different things.
+7. Check **Portfolio Studio** shows a **camera**.
+8. Look closely at any icon. Check the **ends of the lines are rounded**, not
+   cut off square.
+9. Go to the **Dashboard**. Check the **coloured ring** still looks correct —
+   clean joins between the colours, no slice bulging over another.
+10. Open **Prospects, Invoices, Projects, Grid Plans and Portfolio** while each
+    is still empty. Check the large faded icon on each empty screen matches the
+    one in the menu.
+11. Open the app on a **computer**. Check the sidebar icons match the phone.
+12. Check both **light and dark mode**.

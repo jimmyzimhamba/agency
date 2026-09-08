@@ -202,7 +202,7 @@ function renderList(listEl) {
   if (!items.length) {
     listEl.appendChild(el(`
       <div class="empty-state">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 9.5 12 4l9 5.5"/><path d="M5.5 11v7M10 11v7M14 11v7M18.5 11v7"/><path d="M3.5 21h17"/></svg>
         <p>No invoices yet. Create one once a client's ready to be billed.</p>
       </div>
     `));

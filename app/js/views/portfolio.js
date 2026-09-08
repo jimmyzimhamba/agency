@@ -92,7 +92,7 @@ function renderList(listEl, isOwner) {
   if (!items.length) {
     listEl.appendChild(el(`
       <div class="empty-state">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="m3 15 4.5-4.5a2 2 0 0 1 2.8 0L15 15M13 13l2-2a2 2 0 0 1 2.8 0L21 14"/><circle cx="8" cy="8.5" r="1.3"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="6.5" width="19" height="13.5" rx="4"/><path d="M8.9 6.5 10.3 4h3.4l1.4 2.5"/><circle cx="12" cy="13.2" r="3.5"/></svg>
         <p>${store.portfolioItems.length ? "No case studies match this filter." : isOwner ? "No case studies yet. Add your first project to start building the showcase." : "No case studies in the catalog yet."}</p>
       </div>
     `));

@@ -777,7 +777,7 @@ function renderList() {
   if (!items.length) {
     listEl.appendChild(el(`
       <div class="empty-state">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="6" y="3" width="15" height="18" rx="3"/><path d="M3 8h3M3 12h3M3 16h3"/><circle cx="13.5" cy="10.3" r="2.4"/><path d="M9.8 17c0-1.9 1.7-3.2 3.7-3.2s3.7 1.3 3.7 3.2"/></svg>
         <p>No prospects match these filters yet.</p>
       </div>
     `));

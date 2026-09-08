@@ -104,6 +104,30 @@ body {
   overflow-x: hidden;
 }
 
+/* ---- icon line style ------------------------------------------------------
+   Every stroked line in the app gets rounded ends and rounded corners. This is
+   the single biggest thing separating a line-icon set that looks considered
+   from one that looks like clip art: without it, SVG defaults to butt caps and
+   mitred joins, so each stroke ends in a hard square edge and every corner
+   comes to a sharp point.
+
+   It lives here as one rule rather than as attributes on each icon for two
+   reasons. There are around eighty icons spread across app.html and a dozen
+   view files, so as attributes this would be eighty chances to miss one — and
+   in fact only fifteen of them had ever been given round caps, which is
+   exactly how the set drifted. And any icon added later inherits the house
+   style for free instead of depending on whoever adds it remembering.
+
+   These are real CSS properties for SVG, not just presentation attributes, so
+   this rule beats a stroke-linecap="..." written on the element itself. That
+   means an icon can no longer quietly opt out by accident; anything that
+   genuinely needs square ends has to say so in here, where it can be seen and
+   explained. At the time of writing exactly one thing does: .donut-seg. ---- */
+svg {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 #app {
   position: relative;
   min-height: 100vh;
@@ -1134,7 +1158,12 @@ main {
 .donut { position: relative; flex: 0 0 auto; width: 148px; height: 148px; }
 /* -90deg puts the first segment at 12 o'clock instead of 3 o'clock. */
 .donut svg { display: block; width: 100%; height: 100%; transform: rotate(-90deg); }
-.donut-seg { transition: stroke-dasharray 0.35s ease; }
+/* The donut is the one place square-cut ends are the correct answer, so it
+   opts out of the global rounding near the top of this file. Its segments are
+   dashes laid end to end around a single circle; rounding a 12-unit-wide
+   stroke would push a 6-unit bulge out of each end of every segment, and each
+   slice would bleed into the two beside it. */
+.donut-seg { transition: stroke-dasharray 0.35s ease; stroke-linecap: butt; }
 .donut-center {
   position: absolute; inset: 0; pointer-events: none;
   display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;

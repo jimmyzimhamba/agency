@@ -104,11 +104,11 @@ function openMoreMenu() {
         <div class="task-label">Copilot</div>
       </div>
       <div class="task-row" data-go="discovery" style="cursor:pointer;">
-        <div class="icon-badge sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></div>
+        <div class="icon-badge sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="m15.6 8.4-2.1 5.1-5.1 2.1 2.1-5.1Z"/></svg></div>
         <div class="task-label">Discovery</div>
       </div>
       <div class="task-row" data-go="niches" style="cursor:pointer;">
-        <div class="icon-badge sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg></div>
+        <div class="icon-badge sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.6"/><circle cx="12" cy="12" r="1.2"/></svg></div>
         <div class="task-label">Niche Strategy Matrix</div>
       </div>
       <div class="task-row" data-go="pipelinevalue" style="cursor:pointer;">
@@ -124,15 +124,15 @@ function openMoreMenu() {
         <div class="task-label">Contracts</div>
       </div>
       <div class="task-row" data-go="invoices" style="cursor:pointer;">
-        <div class="icon-badge sm gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg></div>
+        <div class="icon-badge sm gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9.5 12 4l9 5.5"/><path d="M5.5 11v7M10 11v7M14 11v7M18.5 11v7"/><path d="M3.5 21h17"/></svg></div>
         <div class="task-label">Invoices</div>
       </div>
       <div class="task-row" data-go="projects" style="cursor:pointer;">
-        <div class="icon-badge sm gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg></div>
+        <div class="icon-badge sm gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5h3.2a2 2 0 0 1 1.6.8l1.1 1.5h7.1A2.5 2.5 0 0 1 21 9.8v7.7a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5Z"/></svg></div>
         <div class="task-label">Projects</div>
       </div>
       <div class="task-row" data-go="gridplans" style="cursor:pointer;">
-        <div class="icon-badge sm gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+        <div class="icon-badge sm gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 3.5v17M15 3.5v17M3.5 9h17M3.5 15h17"/></svg></div>
         <div class="task-label">Grid Plans</div>
       </div>
       <div class="task-row" data-go="services" style="cursor:pointer;">
@@ -140,7 +140,7 @@ function openMoreMenu() {
         <div class="task-label">Services &amp; Packages</div>
       </div>
       <div class="task-row" data-go="portfolio" style="cursor:pointer;">
-        <div class="icon-badge sm gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="m3 15 4.5-4.5a2 2 0 0 1 2.8 0L15 15M13 13l2-2a2 2 0 0 1 2.8 0L21 14"/><circle cx="8" cy="8.5" r="1.3"/></svg></div>
+        <div class="icon-badge sm gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="6.5" width="19" height="13.5" rx="4"/><path d="M8.9 6.5 10.3 4h3.4l1.4 2.5"/><circle cx="12" cy="13.2" r="3.5"/></svg></div>
         <div class="task-label">Portfolio Studio</div>
       </div>
       <div class="task-row" data-go="pitch" style="cursor:pointer;">
@@ -152,7 +152,7 @@ function openMoreMenu() {
         <div class="task-label">Community Feed</div>
       </div>
       <div class="task-row" data-go="activity" style="cursor:pointer;">
-        <div class="icon-badge sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg></div>
+        <div class="icon-badge sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg></div>
         <div class="task-label">Team Activity Feed</div>
       </div>
       <div class="task-row" data-go="team" style="cursor:pointer;">
