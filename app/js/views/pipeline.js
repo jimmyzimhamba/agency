@@ -858,12 +858,19 @@ function prospectCard(p) {
   return card;
 }
 
+// Answers true only when the message actually reached WhatsApp, so a caller
+// sending a batch (see views/outreach.js) can tell a real send from a refusal
+// and avoid logging one that never happened.
 export async function sendWhatsApp(p) {
-  if (!p.whatsapp_number) return toast("No WhatsApp number saved for this prospect", "error");
+  if (!p.whatsapp_number) {
+    toast("No WhatsApp number saved for this prospect", "error");
+    return false;
+  }
 
   if (p.assigned_to && p.assigned_to !== store.profile.id) {
     const owner = profileById(p.assigned_to);
-    return toast(`${owner?.full_name || "A teammate"} is already working this prospect`, "error");
+    toast(`${owner?.full_name || "A teammate"} is already working this prospect`, "error");
+    return false;
   }
 
   // A prospect still sitting in the outbox has no row on the server to claim,
@@ -876,8 +883,14 @@ export async function sendWhatsApp(p) {
     if (!p.assigned_to) patchProspect(p.id, { assigned_to: store.profile.id });
   } else {
     const { data: claimed, error: claimErr } = await sb.rpc("claim_prospect", { p_id: p.id });
-    if (claimErr) return toast(claimErr.message, "error");
-    if (!claimed) return toast("Someone just claimed this prospect, pick another", "error");
+    if (claimErr) {
+      toast(claimErr.message, "error");
+      return false;
+    }
+    if (!claimed) {
+      toast("Someone just claimed this prospect, pick another", "error");
+      return false;
+    }
   }
 
   // No message written yet? Auto-personalize one from this prospect's niche
@@ -907,6 +920,8 @@ export async function sendWhatsApp(p) {
   if (p.status === "not_contacted") {
     patchProspect(p.id, { status: "sent" });
   }
+
+  return true;
 }
 
 export function openAddProspectSheet() {

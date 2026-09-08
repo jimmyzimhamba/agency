@@ -25,6 +25,7 @@ import { openInstallAppSheet } from "./views/installApp.js";
 import { renderContracts, initContractsView } from "./views/contracts.js";
 import { renderInvoices, initInvoicesView } from "./views/invoices.js";
 import { renderExpenses, initExpensesView } from "./views/expenses.js";
+import { renderOutreach, initOutreachView } from "./views/outreach.js";
 import { renderProjects, initProjectsView } from "./views/projects.js";
 import { renderGridPlans, initGridPlansView, leaveGridPlansView } from "./views/gridPlans.js";
 import { renderServices, initServicesView } from "./views/services.js";
@@ -48,6 +49,7 @@ const VIEWS = {
   contracts: renderContracts,
   invoices: renderInvoices,
   expenses: renderExpenses,
+  outreach: renderOutreach,
   projects: renderProjects,
   gridplans: renderGridPlans,
   services: renderServices,
@@ -108,6 +110,10 @@ function openMoreMenu() {
       <div class="task-row" data-go="discovery" style="cursor:pointer;">
         <div class="icon-badge sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="m15.6 8.4-2.1 5.1-5.1 2.1 2.1-5.1Z"/></svg></div>
         <div class="task-label">Discovery</div>
+      </div>
+      <div class="task-row" data-go="outreach" style="cursor:pointer;">
+        <div class="icon-badge sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.4 3.6 2.8 10.1a.4.4 0 0 0 0 .75l7.2 2.7 2.7 7.2a.4.4 0 0 0 .75 0Z"/><path d="M21.4 3.6 10 13.5"/></svg></div>
+        <div class="task-label">Outreach</div>
       </div>
       <div class="task-row" data-go="niches" style="cursor:pointer;">
         <div class="icon-badge sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.6"/><circle cx="12" cy="12" r="1.2"/></svg></div>
@@ -568,6 +574,7 @@ async function enterApp(session) {
     initContractsView();
     initInvoicesView();
     initExpensesView();
+    initOutreachView();
     initProjectsView();
     initGridPlansView();
     initServicesView();

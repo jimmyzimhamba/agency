@@ -36,6 +36,11 @@ export const store = {
   // expense total at all. Row count is bounded by how often a small agency
   // actually spends money, which is nowhere near enough to matter.
   expenses: [],
+
+  // Every cold opener actually sent, last 30 days. Append-only on the server;
+  // the Outreach screen counts today's rows for the daily total and reads the
+  // rest as "have we already spoken to these people".
+  outreachLog: [],
   projects: [],
   projectTasks: [],
   gridPlans: [],
@@ -234,7 +239,7 @@ export async function loadAll() {
   // RLS alone to do.
   const myOrgId = store.profile?.org_id;
 
-  const [organization, profiles, niches, prospects, templates, dailyTasks, dailyCompletions, agentTargets, activityLog, monthlyGoal, contracts, invoices, expenses, projects, projectTasks, gridPlans, gridPosts, gridPostMedia, servicePackages, portfolioSettings, portfolioItems, communityPosts, communityComments, communityReactions, pointsLog, pointsTotals, badgesEarned] =
+  const [organization, profiles, niches, prospects, templates, dailyTasks, dailyCompletions, agentTargets, activityLog, monthlyGoal, contracts, invoices, expenses, projects, projectTasks, gridPlans, gridPosts, gridPostMedia, servicePackages, portfolioSettings, portfolioItems, communityPosts, communityComments, communityReactions, pointsLog, pointsTotals, badgesEarned, outreachLog] =
     await Promise.all([
       sb.from("organizations").select("*").maybeSingle(),
       sb.from("profiles").select("*").order("full_name"),
@@ -263,6 +268,7 @@ export async function loadAll() {
       sb.from("points_log").select("*").order("created_at", { ascending: false }).limit(200),
       sb.from("points_totals").select("*"),
       sb.from("badges_earned").select("*"),
+      sb.from("outreach_log").select("*").gte("sent_at", new Date(Date.now() - 30 * 86400000).toISOString()).order("sent_at", { ascending: false }),
     ]);
 
   store.organization = organization.data || null;
@@ -278,6 +284,7 @@ export async function loadAll() {
   store.contracts = contracts.data || [];
   store.invoices = invoices.data || [];
   store.expenses = expenses.data || [];
+  store.outreachLog = outreachLog.data || [];
   store.projects = projects.data || [];
   store.projectTasks = projectTasks.data || [];
   store.gridPlans = gridPlans.data || [];
@@ -296,7 +303,7 @@ export async function loadAll() {
   emit("organization"); emit("profiles"); emit("niches"); emitProspects(); emit("templates");
   emit("dailyTasks"); emitDailyCompletions(); emit("agentTargets");
   emit("activityLog"); emit("monthlyGoal");
-  emit("contracts"); emit("invoices"); emit("expenses"); emit("projects"); emit("projectTasks");
+  emit("contracts"); emit("invoices"); emit("expenses"); emit("outreachLog"); emit("projects"); emit("projectTasks");
   emit("gridPlans"); emit("gridPosts"); emit("gridPostMedia");
   emit("servicePackages");
   emit("portfolioSettings"); emit("portfolioItems");

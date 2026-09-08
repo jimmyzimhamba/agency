@@ -2328,7 +2328,7 @@ This adds three tables: `pitch_scenarios` (the deck), `pitch_attempts` (private 
 
 **If you already ran this file once before the starter cards were added**, run it again — it now also adds an `is_starter` column to `pitch_scenarios`. If you skip this, the "load 52 common ones" link will show a message telling you to re-run the SQL.
 
-> **Corrected in `sxc-v185`.** Until now this file could **not** actually be re-run, even though this page said it could. Running it a second time stopped with an error like `policy "pitch_scenarios: read org" already exists`, and because Supabase runs the whole script as one all-or-nothing batch, that one error **undid everything else in the file** — including the `is_starter` column it was supposed to be adding. So if you tried the fix the app told you to try, it silently did nothing and you got the same error next time.
+> **Corrected in `sxc-v186`.** Until now this file could **not** actually be re-run, even though this page said it could. Running it a second time stopped with an error like `policy "pitch_scenarios: read org" already exists`, and because Supabase runs the whole script as one all-or-nothing batch, that one error **undid everything else in the file** — including the `is_starter` column it was supposed to be adding. So if you tried the fix the app told you to try, it silently did nothing and you got the same error next time.
 >
 > The file has been corrected and is now genuinely safe to run as many times as you like. **If you hit that error before, please paste the file in and run it once more** — this time it will stick.
 
@@ -2343,7 +2343,7 @@ This adds three tables: `pitch_scenarios` (the deck), `pitch_attempts` (private 
 
 **If you skip this step**, everything else on the page still works — you can add cards, load the starter deck, draw cards and type answers. The only thing that won't work is the coaching note that comes back. Tapping **Get Coaching** will say *"The pitch-coach function isn't deployed yet — see SETUP.md Step 158.2."*
 
-> **Improved in `sxc-v185`.** That message used to read *"Failed to send a request to the Edge Function"*, which is what Supabase itself says and which tells you nothing you can act on — it reads like the app is broken rather than like a setup step is still outstanding. It now names the missing function and points here. Any other kind of failure still shows the real underlying message.
+> **Improved in `sxc-v186`.** That message used to read *"Failed to send a request to the Edge Function"*, which is what Supabase itself says and which tells you nothing you can act on — it reads like the app is broken rather than like a setup step is still outstanding. It now names the missing function and points here. Any other kind of failure still shows the real underlying message.
 
 ### 158.3 — No new API key needed
 
@@ -2434,15 +2434,15 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 7. Click into the search box. Confirm the `/` chip disappears, and type something long enough to fill the box to confirm the text never runs underneath it.
 8. Click out, then press the `/` key. Confirm your cursor jumps into the search box.
 9. Open the app on your phone. Confirm the top bar still shows the "Agency Command" logo and looks exactly as it did before.
-10. Check the Team page footer reads **build sxc-v185**, which confirms the redeploy actually took.
+10. Check the Team page footer reads **build sxc-v186**, which confirms the redeploy actually took.
 
-> **Note:** Steps 160 to 166 all ship together as `sxc-v185`. One redeploy covers all seven.
+> **Note:** Steps 160 to 166 all ship together as `sxc-v186`. One redeploy covers all seven.
 
 ---
 
 ## Step 161 — Detail panels open down the right-hand side on a laptop
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v185` together with Steps 160, 162, 163, 164, 165 and 166, so one redeploy covers all seven.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v186` together with Steps 160, 162, 163, 164, 165 and 166, so one redeploy covers all seven.
 
 **The problem.** When you tap a prospect, the details slide up from the bottom of the screen. On a phone that's exactly right: it's where your thumb is, and there's no spare width to put it anywhere else.
 
@@ -2470,13 +2470,13 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 8. Open a few other panels to confirm they all moved too: the "+" to add a prospect, a task, a contract, and an invoice.
 9. Make the browser window narrow (drag it under about 960 pixels wide). Confirm the panel goes back to sliding up from the bottom, with its drag handle back.
 10. Open the app on your phone. Confirm the panel still slides up from the bottom exactly as it always has.
-11. Check the Team page footer reads **build sxc-v185**.
+11. Check the Team page footer reads **build sxc-v186**.
 
 ---
 
 ## Step 162 — A "List view" for prospects, and softer green and gold buttons
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v185` together with Steps 160, 161, 163, 164, 165 and 166, so one redeploy covers all seven.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v186` together with Steps 160, 161, 163, 164, 165 and 166, so one redeploy covers all seven.
 
 ### Part 1 — the solid green and gold buttons are toned down
 
@@ -2533,13 +2533,13 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 12. Try the search box and a couple of filter chips while in List view. Confirm filtering still works normally.
 13. Open the app on your phone and check Prospects. Confirm the links across the top wrap onto two lines and that **Select** is no longer cut off at the right edge.
 14. On your phone, confirm List view works there too and that tapping a row still slides the details up from the bottom.
-15. Check the Team page footer reads **build sxc-v185**.
+15. Check the Team page footer reads **build sxc-v186**.
 
 ---
 
 ## Step 163 — Every niche gets its own colour
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v185` together with Steps 160, 161, 162, 164, 165 and 166, so one redeploy covers all seven.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v186` together with Steps 160, 161, 162, 164, 165 and 166, so one redeploy covers all seven.
 
 **The problem.** Niche was just grey text in the middle of a grey line — "Restaurants · Avondale · Harare". When you're running your eye down thirty prospects looking for the dentists, you have to actually read every row to find them. Nothing about a row tells you at a glance what kind of business it is.
 
@@ -2577,13 +2577,13 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 9. Switch back to Dark mode and confirm the same.
 10. Rename one of your niches on Niche Strategy. Confirm its colour does **not** change.
 11. Open the app on your phone and confirm the dots are there too.
-12. Check the Team page footer reads **build sxc-v185**.
+12. Check the Team page footer reads **build sxc-v186**.
 
 ---
 
 ## Step 164 — The Status Breakdown is now a colour-coded ring
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v185` together with Steps 160, 161, 162, 163, 165 and 166, so one redeploy covers all seven.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v186` together with Steps 160, 161, 162, 163, 165 and 166, so one redeploy covers all seven.
 
 **The problem.** "Status Breakdown" at the bottom of the Dashboard was six bars, and every single one was the same purple-and-gold. That's the same bar the app uses for your revenue goal filling up — which is right for a goal, because there it means "how full is this". But these six bars aren't one thing filling up. They're six different piles. Painting them identically told you nothing you couldn't already get from the numbers.
 
@@ -2627,13 +2627,13 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 11. Switch to Light mode with the sun/moon icon in the top bar. Confirm every slice of the ring is still clearly visible against the white — none should look washed out.
 12. Switch back to Dark mode and confirm the same.
 13. Open the Dashboard on your phone. Confirm the ring sits above the list rather than beside it, and that nothing is cut off.
-14. Check the Team page footer reads **build sxc-v185**.
+14. Check the Team page footer reads **build sxc-v186**.
 
 ---
 
 ## Step 165 — The pipeline ring and the revenue goal now sit side by side at the top
 
-No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v185` together with Steps 160, 161, 162, 163, 164 and 166, so one redeploy covers all seven.
+No SQL to run, no edge functions, no new secrets. Look-and-feel only. Ships as `sxc-v186` together with Steps 160, 161, 162, 163, 164 and 166, so one redeploy covers all seven.
 
 **The problem.** There are really only two questions you open the Dashboard to answer: *what shape is my pipeline* and *are we going to hit the number this month*. Until now those two answers were nowhere near each other. Monthly Revenue Goal was near the top, and the ring you just got in Step 164 was right at the bottom, past follow-ups, data health, the leaderboard and the team stats. You had to scroll past everything to get to one of the two things you actually came for.
 
@@ -2666,13 +2666,13 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 11. Open the Dashboard on your phone. Confirm the ring is at the top, the revenue goal is directly under it, and neither is cut off at the edges.
 12. Switch to Light mode with the sun/moon icon. Confirm both cards still read clearly and the ring's colours are still easy to tell apart.
 13. Switch back to Dark mode and confirm the same.
-14. Check the Team page footer reads **build sxc-v185**.
+14. Check the Team page footer reads **build sxc-v186**.
 
 ---
 
 ## Step 166 — Tasks are now Missions, and there's a new Empire page
 
-No SQL to run, no edge functions, no new secrets. Ships as `sxc-v185` together with Steps 160, 161, 162, 163, 164 and 165, so one redeploy covers all seven.
+No SQL to run, no edge functions, no new secrets. Ships as `sxc-v186` together with Steps 160, 161, 162, 163, 164 and 165, so one redeploy covers all seven.
 
 ### First, the honest part
 
@@ -2766,9 +2766,9 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 22. Tap **Empire**. Confirm it opens the street, and that the **Empire** button turns gold — not the **More** button.
 23. Confirm the street still fits on the phone screen, still scrolls sideways with your finger, and nothing is cut off.
 24. Tap **More**. Confirm **Empire** is **no longer** listed in that menu — it has its own button now, so it shouldn't be in both places.
-25. Check the Team page footer reads **build sxc-v185**.
+25. Check the Team page footer reads **build sxc-v186**.
 
-**Fixed since first writing this step:** *Open client* on the Empire page opened an empty panel instead of the client's details. The Empire page was handing over the client's ID number where the rest of the app hands over the whole client record, so the panel opened with nothing to show and failed quietly — no error message, just a blank. Every other place in the app that opens a client (Prospects, Dashboard, Search, Messages, Invoices) was already doing it the right way; Empire was the only one out of step. Now corrected in `sxc-v185`.
+**Fixed since first writing this step:** *Open client* on the Empire page opened an empty panel instead of the client's details. The Empire page was handing over the client's ID number where the rest of the app hands over the whole client record, so the panel opened with nothing to show and failed quietly — no error message, just a blank. Every other place in the app that opens a client (Prospects, Dashboard, Search, Messages, Invoices) was already doing it the right way; Empire was the only one out of step. Now corrected in `sxc-v186`.
 
 ---
 
@@ -2817,9 +2817,9 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 15. Still on the phone, watch a card for a few seconds and confirm it's **still gently drifting**.
 16. On an iPhone, go to **Settings → Accessibility → Motion** and switch **Reduce Motion** on. Reload the sales page. Confirm **everything is completely still** — no drifting, no fading in as you scroll. Then switch Reduce Motion back off.
 17. Sign in and use the app normally for a minute. Confirm **nothing inside the app changed** — this step only touched the public page.
-18. Check the Team page footer reads **build sxc-v185**.
+18. Check the Team page footer reads **build sxc-v186**.
 
-*(Step 168 below then brought a version of this inside the app too, so from `sxc-v185` on, item 17 no longer holds — the cards in the app catch the light as well.)*
+*(Step 168 below then brought a version of this inside the app too, so from `sxc-v186` on, item 17 no longer holds — the cards in the app catch the light as well.)*
 
 ---
 
@@ -2867,7 +2867,7 @@ Redeploy the `app` folder to Netlify Drop first, then hard-refresh (Cmd+Shift+R)
 16. Now pick up your **phone**. Open Prospects and scroll the list up and down a few times. Confirm it scrolls **exactly as smoothly as it did before** — no stutter, no lag.
 17. On the phone, confirm the cards look **completely normal** and nothing lights up or moves. There's no cursor on a phone, so there's nothing to track.
 18. On an iPhone, turn on **Settings → Accessibility → Motion → Reduce Motion**, then reopen the app on a laptop with that setting on. Confirm the cards are **completely still and unlit**. Then switch it back off.
-19. Check the Team page footer reads **build sxc-v185**.
+19. Check the Team page footer reads **build sxc-v186**.
 
 ---
 
@@ -2929,7 +2929,7 @@ Anything that's been sitting unsent for **more than a week** is thrown away rath
 
 1. Redeploy the `app` folder to Netlify Drop as usual.
 2. On your **phone**, open the app and pull down to refresh once or twice so it picks up the new version.
-3. Check the Team page footer reads **build sxc-v185**.
+3. Check the Team page footer reads **build sxc-v186**.
 4. Open any prospect. Confirm everything looks exactly as it did before — no new buttons, nothing moved.
 5. Now put the phone into **Aeroplane mode**.
 6. Confirm the amber strip appears under the top bar reading **"You're offline, showing the last synced data"**.
@@ -3002,7 +3002,7 @@ Everything from Step 169's list is unchanged. Two additions worth knowing:
 
 1. Redeploy the `app` folder to Netlify Drop as usual.
 2. On your **phone**, open the app and pull down to refresh once or twice.
-3. Check the Team page footer reads **build sxc-v185**.
+3. Check the Team page footer reads **build sxc-v186**.
 4. Still online, add a prospect normally. Confirm it behaves exactly as it always has — **"Prospect added"**, no purple tag, and if you left the message blank it starts researching. Nothing about the online experience should have changed.
 5. Now put the phone into **Aeroplane mode**.
 6. Tap the **+** button and add a business — name, area, WhatsApp number. Leave the message box **blank**.
@@ -3067,7 +3067,7 @@ nothing extra in data.
 
 1. Redeploy the `app` folder to Netlify Drop as usual, then open the app and
    pull down to refresh.
-2. Go to **Team** and check the very bottom of the page says **build sxc-v185**.
+2. Go to **Team** and check the very bottom of the page says **build sxc-v186**.
    If it still says v181, close the app completely and reopen it.
 3. Tap **Empire** in the bottom bar.
 4. Check the three boxes at the top still read **Buildings**, **Per Month** and
@@ -3307,7 +3307,7 @@ streets they were standing in a heap on top of each other.
     street still looks correct.
 16. Go through **Dashboard, Pipeline, Missions and Messages** and check nothing
     else changed.
-17. Check the bottom of **Team → Settings** now reads **build sxc-v185**.
+17. Check the bottom of **Team → Settings** now reads **build sxc-v186**.
 
 ---
 
@@ -3341,7 +3341,7 @@ purple in the app to keep in step. It's also dark enough to read comfortably —
 about six and a half times the contrast of the background, where the guideline
 asks for four and a half.
 
-**No new build number.** This ships inside **sxc-v185** along with the walking
+**No new build number.** This ships inside **sxc-v186** along with the walking
 people, because that build hasn't gone live yet. One deploy covers both.
 
 **Now test it**
@@ -3383,7 +3383,7 @@ reordered. The buttons work off their own names rather than their positions, so
 the highlighting still follows you correctly: tap Empire and Empire lights up,
 open something from the More menu and More lights up.
 
-**No new build number.** Still **sxc-v185** — that build hasn't gone live yet,
+**No new build number.** Still **sxc-v186** — that build hasn't gone live yet,
 so this goes out with the walking people and the greeting fix in one deploy.
 
 **Now test it**
@@ -3484,7 +3484,7 @@ I checked afterwards that **no two features share an icon any more**, and that
 the sidebar on a computer and the buttons on a phone show the same picture for
 the same feature. They do.
 
-**No new build number.** Still **sxc-v185**.
+**No new build number.** Still **sxc-v186**.
 
 **Now test it**
 
@@ -3760,11 +3760,14 @@ running unattended at 6am with nobody watching, that's not good enough.
 ### Why this doesn't need anything installed or deployed
 
 All three of these features run as **database functions**, not as separate
-deployed services. That's a deliberate choice with evidence behind it: there is
-already one piece of this app (`pitch-coach`, Step 158.2) that was written
-months ago and has never been deployed, because deploying it needs a command
-line. Anything that needs a deploy step doesn't reliably happen. So all of this
-arrives in the SQL paste below and there is nothing else to install.
+deployed services, so everything arrives in the SQL paste below and there is
+nothing else to install.
+
+*(Correction, added later: I originally justified this by saying `pitch-coach`
+had never been deployed. I checked properly afterwards and it **is** live —
+that claim was wrong. The choice still stands on its own merits, since one
+paste beats a paste plus an upload. But six other functions genuinely were
+never uploaded, which is Step 181.)*
 
 If the automatic monthly schedule can't be set up on your Supabase plan, the
 SQL is written so it **carries on regardless** — you'd just tap the button on
@@ -3866,8 +3869,234 @@ Nothing else changed. The feature was always there.
 
 ### A note on the build number for Steps 177–180
 
-These four steps ride on **build sxc-v185** — the same number as Steps 160–176.
+These four steps ride on **build sxc-v186** — the same number as Steps 160–176.
 That's on purpose: none of that batch has been redeployed yet, so it all ships
 as one build. After you redeploy, the footer of the **Team** page should read
-**build sxc-v185**. If it still shows an older number, the phone is holding an
+**build sxc-v186**. If it still shows an older number, the phone is holding an
 old copy — close the app completely and reopen it.
+
+---
+
+## Step 181: Six things in your app were never actually switched on
+
+You asked me to automate outreach. Before building anything I tested every
+server function against your live database to see what was really running, and
+found something more urgent.
+
+Your app has **14 server functions**. Six of them were written, committed, and
+never uploaded. They've been sitting in the project folder doing nothing.
+
+| What it does | Was it on? |
+|---|---|
+| AI prospect research (looks a business up, writes the opener) | ✅ Yes |
+| Overdue invoice checker | ✅ Yes |
+| Pitch coach | ✅ Yes |
+| Grid Plan client review page (all 4 pieces) | ✅ Yes |
+| Add/remove team members | ✅ Yes |
+| **Copilot — the AI chat** | ❌ **No** |
+| **Discovery — the Google Maps lead finder** | ❌ **No** |
+| **Email sending** | ❌ **No** |
+| **Push notifications** | ❌ **No** |
+| **WhatsApp replies (Twilio)** | ❌ **No** |
+| **WhatsApp incoming messages (Twilio)** | ❌ **No** |
+
+So: **Copilot and Discovery have never worked.** You tap them and nothing
+happens. **No email has ever been sent** — nobody has ever received a "new
+prospect added" or "a prospect was assigned to you" notification. **No push
+notification has ever arrived.**
+
+Discovery is the painful one, because that's the feature that fills your
+pipeline with real businesses from Google Maps. Outreach doesn't have much to
+chew on without it.
+
+### Why this happened, and why it's fixable now
+
+Uploading these used to need a command line, which is exactly the kind of step
+that quietly never happens. **Supabase now lets you do it from the website** —
+paste the code into a box, click Deploy. Same as running SQL.
+
+### Do these two first (they need nothing else)
+
+**Copilot** and **Push notifications** should work the moment they're uploaded,
+because the keys they need are already set up for the functions that are
+running.
+
+1. Go to **Supabase → Edge Functions** in the left menu.
+2. Click **Deploy a new function** → **Via Editor**.
+3. Name it exactly `copilot-chat` — the name must match, character for
+   character.
+4. On your computer, open the file
+   `supabase/functions/copilot-chat/index.ts`, select all, copy.
+5. Paste it into the box on the website, replacing whatever's there.
+6. Click **Deploy**.
+7. Do the same again for `send-push`, using
+   `supabase/functions/send-push/index.ts`.
+
+Then open the app and tap **Copilot**. Ask it "how many prospects are in the
+pipeline?" If it answers, that's it working for the first time.
+
+### Then Discovery (needs a Google key)
+
+Same six steps, with `supabase/functions/discover-places/index.ts`, named
+`discover-places`.
+
+It also needs a Google Maps key. In Supabase go to **Edge Functions →
+Secrets**, add one called `GOOGLE_MAPS_API_KEY`, and paste in a Google Cloud
+Places API key. If you don't have one, tell me and I'll write you the steps —
+it's free for the volume you'd use.
+
+### Then email (needs a Resend key)
+
+Upload `send-email`. It needs two secrets: `RESEND_API_KEY` and
+`RESEND_FROM_EMAIL`. Your overdue-invoice checker already uses these, so they
+may already be set — check the Secrets list before adding them.
+
+**Important:** this function sends *you and your team* notifications. It is not
+for messaging prospects. Resend's terms don't allow cold outreach, so don't
+point it at clients.
+
+### WhatsApp replies — only if you have Twilio
+
+`send-whatsapp` and `whatsapp-webhook` let you read and reply to prospect
+messages inside the app instead of switching to WhatsApp. They need a paid
+**Twilio** account (`TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`,
+`TWILIO_WHATSAPP_FROM`).
+
+**You don't need these for the new Outreach screen.** Skip them unless you want
+the in-app conversation thread.
+
+**Now test it**
+
+1. After uploading `copilot-chat`, open **Copilot** and ask it a question about
+   your pipeline. Check you get a real answer.
+2. After uploading `send-push`, add a prospect and check whether a notification
+   appears on a teammate's phone.
+3. After uploading `discover-places` **and** adding the Google key, open
+   **Discovery**, search a niche and area, and check real businesses come back.
+4. After uploading `send-email`, add a prospect and check your inbox for the
+   notification.
+5. If any of them show an error mentioning a missing key, that's the secret not
+   being set — go to **Edge Functions → Secrets** and add it.
+
+---
+
+## Step 182: The new Outreach screen — approve a batch, then tap through the sends
+
+This is what you asked for, with one deliberate difference that I want to be
+straight about.
+
+**What you asked for:** the AI finds the prospect's details online, writes the
+3-line message, and after you approve it the app sends at least 20 a day from
+your WhatsApp number.
+
+**What I've built:** everything except the app pressing send for you.
+
+### The part that was already done
+
+The AI research was **already built and already running**. When a prospect
+comes in through Discovery, the app looks the business up online and writes the
+3-line opener — the observation naming the business, what the gap is costing
+them, and one easy question. That's been working this whole time.
+
+What ate your morning wasn't the writing. It was opening 20 prospects one at a
+time, reading what the AI wrote, deciding if it was any good, and tapping send.
+
+So there's now an **Outreach** screen that does the whole run in one sitting:
+
+- **Today** — how many you've sent against a target of 20, as a progress bar.
+- **Review and approve** — every prospect waiting, each with its message right
+  there, **editable in place**. Approve, rewrite with AI, or mark never
+  contact. There's an **Approve all** button once you trust it.
+- **Ready to send** — everything approved. Tap **Send Next**: WhatsApp opens
+  with the message already written, you press send, come back, tap again.
+
+Twenty sends is now a few minutes of tapping instead of two hours.
+
+### Why the app doesn't press send itself
+
+Because it would get **+263775051827 banned**, and that number is how your
+existing clients reach you. Losing it costs far more than the outreach is
+worth.
+
+Cold outreach is the exact thing WhatsApp bans for. The official route (Twilio,
+which your app already uses) refuses to send a first message to someone who
+hasn't messaged you — that's not a limitation to get around, that's the rule.
+The unofficial route, where a script drives WhatsApp Web, typically survives
+two to eight weeks. Detection is automatic; it doesn't wait for anyone to
+complain. And unanswered messages are themselves a red flag, which is exactly
+the pattern cold outreach produces.
+
+A message sent by hand from your own WhatsApp is never any of that. It's also
+the app's original design — the note at the top of `app/js/whatsapp.js` has
+said so since the WhatsApp feature was built.
+
+You keep almost all the time saving and take none of the risk.
+
+### The one thing I added that you didn't ask for
+
+**Do not contact.**
+
+Right now if a business replies "stop messaging me", there is nowhere to put
+that. You can mark them dead, but dead means "no sale here" — it doesn't mean
+"never write to these people again", and nothing stops someone re-adding them
+from Discovery next month and starting over.
+
+Now there's a **Never contact** button. They stay in your list but vanish from
+every outreach screen, and the database itself refuses to let a message be
+approved for them. In a city where the business community talks, this is the
+one that protects your name.
+
+Marking someone never-contact also cancels any approval they were carrying, so
+an approved message can't still be sitting in today's list.
+
+### Small details worth knowing
+
+**Editing a message cancels its approval.** That's enforced by the database,
+not the app, because it's the whole point of having an approval step. Edit and
+approve in one go and it's fine — it only resets if the words change after
+you've approved.
+
+**20 is a target, not a limit.** Nothing stops you at 20. Past 40 in one day
+the screen mentions it, because heavy volume from a single number is what looks
+like spam from the outside. It doesn't block you.
+
+**The count comes from a permanent send log, not from prospect status.** If it
+counted statuses, a prospect who replied in the afternoon would make your
+morning's total go *down*. The log also answers "who contacted this business
+and when" months later.
+
+**Email outreach isn't in this.** It needs a separate sending domain (so spam
+complaints can't poison the address your real clients email you at) and a
+provider whose terms allow cold email — Resend's don't. Say the word and I'll
+set it up properly.
+
+**Run the SQL first**
+
+1. In Supabase, click **SQL Editor** → **New query**.
+2. Open **`supabase/migration_outreach_batch.sql`**, select all, copy, paste,
+   click **Run**. Safe to run twice.
+3. Then redeploy the app folder to Netlify Drop. The **Team** page footer
+   should read **build sxc-v186**.
+
+**Now test it**
+
+1. Open the app, tap **More**, tap **Outreach**.
+2. Check the top says **0 of 20 sent** on a fresh day.
+3. In **Review and approve**, check you see prospects who've never been
+   contacted and have a WhatsApp number, each with its message showing.
+4. **Edit one of the messages** in the box, then tap **Approve**. Check it moves
+   up to **Ready to send**.
+5. Tap **Send Next**. Check WhatsApp opens with **your edited wording**, not the
+   original.
+6. Send it. Come back to the app. Check the counter went to **1 of 20** and
+   that prospect is gone from the list.
+7. Open that prospect in **Prospects**. Check its status is now **Sent**.
+8. Go back to Outreach and tap **Never contact** on someone. Confirm. Check
+   they disappear from the review list and show under **Do not contact** at the
+   bottom.
+9. Tap **Allow again** on them and check they come back.
+10. Check a prospect **with no WhatsApp number** never appears on this screen.
+11. Ask a **team member** to open Outreach. Check they see the same list, and
+    that trying to send someone already assigned to you is refused.
+12. Tap **Approve all** with a few waiting. Read the warning, confirm, and
+    check they all move to Ready to send.
