@@ -19,6 +19,34 @@ export function el(html) {
   return t.content.firstElementChild;
 }
 
+// Reads a File into an ArrayBuffer for Storage uploads. `File.arrayBuffer()`
+// is usually reliable, but some Chrome builds (including this app's
+// installed-PWA shell) intermittently throw a bare
+// "NotReadableError: The requested file could not be read..." right after a
+// file is picked, before any of our own error handling runs, as an unhandled
+// promise rejection: no toast, no upload, the UI just silently does nothing.
+// A couple of retries clears most of these (it's a timing/race issue), and
+// FileReader is a fallback last resort, since it goes through a different
+// internal code path than File.arrayBuffer() and isn't affected by the same
+// race.
+export async function readFileAsArrayBuffer(file, retries = 2) {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      return await file.arrayBuffer();
+    } catch (err) {
+      if (attempt === retries) {
+        return await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = () => reject(reader.error || new Error("Could not read the selected file"));
+          reader.readAsArrayBuffer(file);
+        });
+      }
+      await new Promise((r) => setTimeout(r, 150));
+    }
+  }
+}
+
 // House rule: the em dash never appears in anything a human reads.
 //
 // This is not a style preference, it is a credibility one. The em dash is the

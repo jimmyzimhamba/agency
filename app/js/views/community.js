@@ -1,6 +1,6 @@
 import { sb } from "../supabaseClient.js";
 import { store, on, profileById } from "../state.js";
-import { el, esc, toast, avatarHTML, timeAgo } from "../utils.js";
+import { el, esc, toast, avatarHTML, timeAgo, readFileAsArrayBuffer } from "../utils.js";
 import { confirmModal } from "../ui.js";
 
 // A team-only social feed, wins, shout-outs, quick updates, announcements.
@@ -120,17 +120,21 @@ function renderComposer(cardEl) {
     // See gridPlans.js's upload handler for why: raw File/Blob bodies can
     // trigger a streamed fetch() that throws a bare "Failed to fetch" in
     // some Chrome builds. Reading into an ArrayBuffer first avoids that.
-    const fileBuffer = await file.arrayBuffer();
-    const { error: upErr } = await sb.storage.from("community-media").upload(path, fileBuffer, { cacheControl: "3600", contentType: file.type });
-    if (upErr) {
-      toast(upErr.message || "Upload failed", "error");
-      imageSlot.style.display = "none";
-      imageSlot.innerHTML = "";
-      pendingImagePath = null;
-      return;
+    try {
+      const fileBuffer = await readFileAsArrayBuffer(file);
+      const { error: upErr } = await sb.storage.from("community-media").upload(path, fileBuffer, { cacheControl: "3600", contentType: file.type });
+      if (upErr) {
+        toast(upErr.message || "Upload failed", "error");
+        imageSlot.style.display = "none";
+        imageSlot.innerHTML = "";
+        pendingImagePath = null;
+        return;
+      }
+      pendingImagePath = path;
+      toast("Image attached", "success");
+    } catch (err) {
+      toast(err?.message || "Upload failed, please try again", "error");
     }
-    pendingImagePath = path;
-    toast("Image attached", "success");
   });
 
   box.querySelector("#cf-post-btn").addEventListener("click", async () => {

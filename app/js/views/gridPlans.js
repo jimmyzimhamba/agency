@@ -1,6 +1,6 @@
 import { sb } from "../supabaseClient.js";
 import { store, on, emit } from "../state.js";
-import { el, esc, fmtDate, toast, enablePointerReorder, downloadTextFile, todayISO } from "../utils.js";
+import { el, esc, fmtDate, toast, enablePointerReorder, downloadTextFile, todayISO, readFileAsArrayBuffer } from "../utils.js";
 import { openModal, closeModal, confirmModal } from "../ui.js";
 
 const STATUS_LABELS = { draft: "Draft", shared: "Shared", in_review: "In Review", changes_requested: "Changes Requested", approved: "Approved" };
@@ -808,28 +808,35 @@ function openPostModal(post0) {
       const ext = (extMatch ? extMatch[1] : "jpg").toLowerCase();
       const path = `${store.profile.org_id}/${post.plan_id}/${post.id}-${Date.now()}.${ext}`;
 
-      // Uploading the raw File/Blob directly can make the browser send it as
-      // a streamed request body, which some Chrome builds (including this
-      // app's installed-PWA shell) fail to `fetch()` at all, throwing a bare
-      // "Failed to fetch" before any request even reaches the network, no
-      // HTTP response, no error detail. Reading it into an ArrayBuffer first
-      // gives fetch() a plain, non-streamed body and sidesteps that entirely.
-      const fileBuffer = await file.arrayBuffer();
-      const { error: upErr } = await sb.storage.from("grid-media").upload(path, fileBuffer, { cacheControl: "3600", contentType: file.type });
-      if (upErr) return toast(upErr.message || "Upload failed", "error");
+      try {
+        // Uploading the raw File/Blob directly can make the browser send it as
+        // a streamed request body, which some Chrome builds (including this
+        // app's installed-PWA shell) fail to `fetch()` at all, throwing a bare
+        // "Failed to fetch" before any request even reaches the network, no
+        // HTTP response, no error detail. Reading it into an ArrayBuffer first
+        // gives fetch() a plain, non-streamed body and sidesteps that entirely.
+        const fileBuffer = await readFileAsArrayBuffer(file);
+        const { error: upErr } = await sb.storage.from("grid-media").upload(path, fileBuffer, { cacheControl: "3600", contentType: file.type });
+        if (upErr) return toast(upErr.message || "Upload failed", "error");
 
-      const currentMedia = store.gridPostMedia.filter((m) => m.post_id === post.id);
-      const media_type = file.type.startsWith("video/") ? "video" : "image";
-      const { error: dbErr } = await sb
-        .from("grid_post_media")
-        .insert({ post_id: post.id, storage_path: path, media_type, position: currentMedia.length });
-      if (dbErr) return toast(dbErr.message, "error");
+        const currentMedia = store.gridPostMedia.filter((m) => m.post_id === post.id);
+        const media_type = file.type.startsWith("video/") ? "video" : "image";
+        const { error: dbErr } = await sb
+          .from("grid_post_media")
+          .insert({ post_id: post.id, storage_path: path, media_type, position: currentMedia.length });
+        if (dbErr) return toast(dbErr.message, "error");
 
-      toast("Media added", "success");
-      pingPlanChannel();
-      await refetchGridPostMedia();
-      const freshMedia = store.gridPostMedia.filter((m) => m.post_id === post.id).sort((a, b) => a.position - b.position);
-      renderMediaList(box.querySelector("#gpm-media-list"), freshMedia, editable);
+        toast("Media added", "success");
+        pingPlanChannel();
+        await refetchGridPostMedia();
+        const freshMedia = store.gridPostMedia.filter((m) => m.post_id === post.id).sort((a, b) => a.position - b.position);
+        renderMediaList(box.querySelector("#gpm-media-list"), freshMedia, editable);
+      } catch (err) {
+        // Belt-and-braces: any unexpected/unhandled rejection in the read-or-
+        // upload chain above (e.g. a flaky File API error) must still surface
+        // as a toast instead of failing completely silently.
+        toast(err?.message || "Upload failed, please try again", "error");
+      }
     });
   }
 

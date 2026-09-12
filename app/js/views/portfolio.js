@@ -1,6 +1,6 @@
 import { sb } from "../supabaseClient.js";
 import { store, on } from "../state.js";
-import { el, esc, toast } from "../utils.js";
+import { el, esc, toast, readFileAsArrayBuffer } from "../utils.js";
 import { openSheet, closeSheet, confirmModal } from "../ui.js";
 
 // The agency's public "our best work" showcase, case studies of past
@@ -246,16 +246,20 @@ export function openPortfolioItemSheet(existing) {
     // See gridPlans.js's upload handler for why: raw File/Blob bodies can
     // trigger a streamed fetch() that throws a bare "Failed to fetch" in
     // some Chrome builds. Reading into an ArrayBuffer first avoids that.
-    const fileBuffer = await file.arrayBuffer();
-    const { error: upErr } = await sb.storage.from("portfolio-media").upload(path, fileBuffer, { upsert: true, cacheControl: "3600", contentType: file.type });
-    if (upErr) {
-      toast(upErr.message || "Upload failed", "error");
-      slot.innerHTML = p.image_url ? `<img src="${esc(p.image_url)}" alt="" style="width:100%;height:100%;object-fit:cover;" />` : `<span class="text-faint" style="font-size:11px;">No image</span>`;
-      return;
+    try {
+      const fileBuffer = await readFileAsArrayBuffer(file);
+      const { error: upErr } = await sb.storage.from("portfolio-media").upload(path, fileBuffer, { upsert: true, cacheControl: "3600", contentType: file.type });
+      if (upErr) {
+        toast(upErr.message || "Upload failed", "error");
+        slot.innerHTML = p.image_url ? `<img src="${esc(p.image_url)}" alt="" style="width:100%;height:100%;object-fit:cover;" />` : `<span class="text-faint" style="font-size:11px;">No image</span>`;
+        return;
+      }
+      const { data: pub } = sb.storage.from("portfolio-media").getPublicUrl(path);
+      pendingImageUrl = pub.publicUrl;
+      toast("Image uploaded", "success");
+    } catch (err) {
+      toast(err?.message || "Upload failed, please try again", "error");
     }
-    const { data: pub } = sb.storage.from("portfolio-media").getPublicUrl(path);
-    pendingImageUrl = pub.publicUrl;
-    toast("Image uploaded", "success");
   });
 
   box.querySelector("#pf-save").addEventListener("click", async () => {

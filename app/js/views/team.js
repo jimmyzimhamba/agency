@@ -1,6 +1,6 @@
 import { sb } from "../supabaseClient.js";
 import { store, on, emit, profileById } from "../state.js";
-import { el, esc, avatarHTML, timeAgo, money } from "../utils.js";
+import { el, esc, avatarHTML, timeAgo, money, readFileAsArrayBuffer } from "../utils.js";
 import { toast } from "../utils.js";
 import { signOut } from "../auth.js";
 import { confirmModal, openModal, closeModal } from "../ui.js";
@@ -774,28 +774,32 @@ function openEditProfileModal() {
     const ext = (extMatch ? extMatch[1] : "jpg").toLowerCase();
     const path = `${store.profile.id}/avatar.${ext}`;
 
-    // See gridPlans.js's upload handler for why: raw File/Blob bodies can
-    // trigger a streamed fetch() that throws a bare "Failed to fetch" in
-    // some Chrome builds. Reading into an ArrayBuffer first avoids that.
-    const fileBuffer = await file.arrayBuffer();
-    const { error: upErr } = await sb.storage.from("avatars").upload(path, fileBuffer, { upsert: true, cacheControl: "3600", contentType: file.type });
-    if (upErr) {
-      toast(upErr.message || "Upload failed", "error");
-      slot.innerHTML = avatarHTML(store.profile.full_name || store.profile.email, store.profile.avatar_url, 76, 26);
-      return;
+    try {
+      // See gridPlans.js's upload handler for why: raw File/Blob bodies can
+      // trigger a streamed fetch() that throws a bare "Failed to fetch" in
+      // some Chrome builds. Reading into an ArrayBuffer first avoids that.
+      const fileBuffer = await readFileAsArrayBuffer(file);
+      const { error: upErr } = await sb.storage.from("avatars").upload(path, fileBuffer, { upsert: true, cacheControl: "3600", contentType: file.type });
+      if (upErr) {
+        toast(upErr.message || "Upload failed", "error");
+        slot.innerHTML = avatarHTML(store.profile.full_name || store.profile.email, store.profile.avatar_url, 76, 26);
+        return;
+      }
+
+      const { data: pub } = sb.storage.from("avatars").getPublicUrl(path);
+      // Cache-bust: the storage path never changes (we always overwrite the
+      // same file), so without a query param every browser/CDN would keep
+      // showing the old cached image after a re-upload.
+      const url = pub.publicUrl + "?t=" + Date.now();
+      const { error: dbErr } = await sb.from("profiles").update({ avatar_url: url }).eq("id", store.profile.id);
+      if (dbErr) return toast(dbErr.message, "error");
+
+      slot.innerHTML = avatarHTML(store.profile.full_name || store.profile.email, url, 76, 26);
+      toast("Photo updated", "success");
+      await refreshAfterProfileEdit({ avatar_url: url });
+    } catch (err) {
+      toast(err?.message || "Upload failed, please try again", "error");
     }
-
-    const { data: pub } = sb.storage.from("avatars").getPublicUrl(path);
-    // Cache-bust: the storage path never changes (we always overwrite the
-    // same file), so without a query param every browser/CDN would keep
-    // showing the old cached image after a re-upload.
-    const url = pub.publicUrl + "?t=" + Date.now();
-    const { error: dbErr } = await sb.from("profiles").update({ avatar_url: url }).eq("id", store.profile.id);
-    if (dbErr) return toast(dbErr.message, "error");
-
-    slot.innerHTML = avatarHTML(store.profile.full_name || store.profile.email, url, 76, 26);
-    toast("Photo updated", "success");
-    await refreshAfterProfileEdit({ avatar_url: url });
   });
 
   box.querySelector("#ep-save").addEventListener("click", async () => {
