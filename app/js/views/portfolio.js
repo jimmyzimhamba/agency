@@ -243,7 +243,11 @@ export function openPortfolioItemSheet(existing) {
     const ext = (extMatch ? extMatch[1] : "jpg").toLowerCase();
     const path = `${store.profile.org_id}/${Date.now()}.${ext}`;
 
-    const { error: upErr } = await sb.storage.from("portfolio-media").upload(path, file, { upsert: true, cacheControl: "3600" });
+    // See gridPlans.js's upload handler for why: raw File/Blob bodies can
+    // trigger a streamed fetch() that throws a bare "Failed to fetch" in
+    // some Chrome builds. Reading into an ArrayBuffer first avoids that.
+    const fileBuffer = await file.arrayBuffer();
+    const { error: upErr } = await sb.storage.from("portfolio-media").upload(path, fileBuffer, { upsert: true, cacheControl: "3600", contentType: file.type });
     if (upErr) {
       toast(upErr.message || "Upload failed", "error");
       slot.innerHTML = p.image_url ? `<img src="${esc(p.image_url)}" alt="" style="width:100%;height:100%;object-fit:cover;" />` : `<span class="text-faint" style="font-size:11px;">No image</span>`;

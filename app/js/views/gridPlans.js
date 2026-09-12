@@ -808,7 +808,14 @@ function openPostModal(post0) {
       const ext = (extMatch ? extMatch[1] : "jpg").toLowerCase();
       const path = `${store.profile.org_id}/${post.plan_id}/${post.id}-${Date.now()}.${ext}`;
 
-      const { error: upErr } = await sb.storage.from("grid-media").upload(path, file, { cacheControl: "3600" });
+      // Uploading the raw File/Blob directly can make the browser send it as
+      // a streamed request body, which some Chrome builds (including this
+      // app's installed-PWA shell) fail to `fetch()` at all, throwing a bare
+      // "Failed to fetch" before any request even reaches the network, no
+      // HTTP response, no error detail. Reading it into an ArrayBuffer first
+      // gives fetch() a plain, non-streamed body and sidesteps that entirely.
+      const fileBuffer = await file.arrayBuffer();
+      const { error: upErr } = await sb.storage.from("grid-media").upload(path, fileBuffer, { cacheControl: "3600", contentType: file.type });
       if (upErr) return toast(upErr.message || "Upload failed", "error");
 
       const currentMedia = store.gridPostMedia.filter((m) => m.post_id === post.id);

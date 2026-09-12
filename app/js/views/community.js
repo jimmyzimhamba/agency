@@ -117,7 +117,11 @@ function renderComposer(cardEl) {
     const ext = (extMatch ? extMatch[1] : "jpg").toLowerCase();
     const path = `${store.profile.org_id}/${Date.now()}.${ext}`;
 
-    const { error: upErr } = await sb.storage.from("community-media").upload(path, file, { cacheControl: "3600" });
+    // See gridPlans.js's upload handler for why: raw File/Blob bodies can
+    // trigger a streamed fetch() that throws a bare "Failed to fetch" in
+    // some Chrome builds. Reading into an ArrayBuffer first avoids that.
+    const fileBuffer = await file.arrayBuffer();
+    const { error: upErr } = await sb.storage.from("community-media").upload(path, fileBuffer, { cacheControl: "3600", contentType: file.type });
     if (upErr) {
       toast(upErr.message || "Upload failed", "error");
       imageSlot.style.display = "none";
