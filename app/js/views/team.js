@@ -1,6 +1,6 @@
 import { sb } from "../supabaseClient.js";
 import { store, on, emit, profileById } from "../state.js";
-import { el, esc, avatarHTML, timeAgo, money, readFileAsArrayBuffer, withTimeout } from "../utils.js";
+import { el, esc, avatarHTML, timeAgo, money, readFileAsArrayBuffer, withTimeout, debounce } from "../utils.js";
 import { toast } from "../utils.js";
 import { signOut } from "../auth.js";
 import { confirmModal, openModal, closeModal } from "../ui.js";
@@ -921,13 +921,25 @@ function wireEmailNotificationsToggle(wrap) {
   });
 }
 
+// Six different tables can each fire their own realtime event within
+// milliseconds of one another (e.g. a signed deal touches prospects,
+// pointsTotals, AND activityLog nearly at once), and "prospects" in
+// particular fires on every pipeline change org-wide, not just this
+// person's own. Rendering the whole Team view fresh on every single one of
+// those was visible as distracting flicker, and could even wipe out
+// in-progress typing in the owner-only Document Details fields mid-edit.
+// Debouncing collapses a burst into one render, same pattern
+// pipelineValue.js's refreshDebounced and gridPlans.js's rerenderDebounced
+// already use.
+const rerenderDebounced = debounce(() => { if (isActive()) renderTeam(); }, 500);
+
 export function initTeamView() {
-  on("profiles", () => { if (isActive()) renderTeam(); });
-  on("organization", () => { if (isActive()) renderTeam(); });
-  on("activityLog", () => { if (isActive()) renderTeam(); });
-  on("prospects", () => { if (isActive()) renderTeam(); });
-  on("pointsTotals", () => { if (isActive()) renderTeam(); });
-  on("badgesEarned", () => { if (isActive()) renderTeam(); });
+  on("profiles", () => rerenderDebounced());
+  on("organization", () => rerenderDebounced());
+  on("activityLog", () => rerenderDebounced());
+  on("prospects", () => rerenderDebounced());
+  on("pointsTotals", () => rerenderDebounced());
+  on("badgesEarned", () => rerenderDebounced());
 }
 function isActive() {
   return document.getElementById("view-team")?.classList.contains("active");

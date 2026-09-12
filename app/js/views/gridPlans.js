@@ -1,6 +1,6 @@
 import { sb } from "../supabaseClient.js";
 import { store, on, emit } from "../state.js";
-import { el, esc, fmtDate, toast, enablePointerReorder, downloadTextFile, todayISO, readFileAsArrayBuffer, withTimeout } from "../utils.js";
+import { el, esc, fmtDate, toast, enablePointerReorder, downloadTextFile, todayISO, readFileAsArrayBuffer, withTimeout, debounce } from "../utils.js";
 import { openModal, closeModal, confirmModal } from "../ui.js";
 
 const STATUS_LABELS = { draft: "Draft", shared: "Shared", in_review: "In Review", changes_requested: "Changes Requested", approved: "Approved" };
@@ -214,10 +214,10 @@ function ensurePlanChannel(planId) {
       // to re-render for the CLIENT's writes too, since the client's
       // anon-key session has no table access and so produces no
       // postgres_changes event for us to hear on this side at all.
-      if (isActive()) renderGridPlans();
+      rerenderDebounced();
     })
     .on("presence", { event: "sync" }, () => {
-      if (isActive()) renderGridPlans();
+      rerenderDebounced();
     })
     .subscribe();
 }
@@ -248,6 +248,15 @@ export function leaveGridPlansView() {
 function pingPlanChannel() {
   if (planChannel) planChannel.send({ type: "broadcast", event: "changed", payload: {} });
 }
+
+// A single user action can fire several realtime signals back-to-back, one
+// media upload is a grid_post_media INSERT *and* a grid_posts updated_at
+// bump from the DB trigger, each landing here separately, plus the
+// "changed" broadcast ping above for the client's side. Rendering the whole
+// view fresh on every one of those in a row showed up as distracting
+// flicker behind an open post modal, so collapse a burst into a single
+// render, same pattern pipelineValue.js's refreshDebounced already uses.
+const rerenderDebounced = debounce(() => { if (isActive()) renderGridPlans(); }, 500);
 
 // Starts (or restarts) a ~8s heartbeat that re-tracks our Presence entry, // {editing_post_id, ...}, for as long as the post-edit modal stays open.
 // ui.js's closeModal() has no onClose hook to key off of, so instead this
@@ -868,9 +877,9 @@ function openPostModal(post0) {
 }
 
 export function initGridPlansView() {
-  on("gridPlans", () => { if (isActive()) renderGridPlans(); });
-  on("gridPosts", () => { if (isActive()) renderGridPlans(); });
-  on("gridPostMedia", () => { if (isActive()) renderGridPlans(); });
+  on("gridPlans", () => rerenderDebounced());
+  on("gridPosts", () => rerenderDebounced());
+  on("gridPostMedia", () => rerenderDebounced());
 }
 function isActive() {
   return document.getElementById("view-gridplans")?.classList.contains("active");
