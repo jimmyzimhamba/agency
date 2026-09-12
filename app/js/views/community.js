@@ -1,6 +1,6 @@
 import { sb } from "../supabaseClient.js";
 import { store, on, profileById } from "../state.js";
-import { el, esc, toast, avatarHTML, timeAgo, readFileAsArrayBuffer } from "../utils.js";
+import { el, esc, toast, avatarHTML, timeAgo, readFileAsArrayBuffer, withTimeout } from "../utils.js";
 import { confirmModal } from "../ui.js";
 
 // A team-only social feed, wins, shout-outs, quick updates, announcements.
@@ -122,7 +122,11 @@ function renderComposer(cardEl) {
     // some Chrome builds. Reading into an ArrayBuffer first avoids that.
     try {
       const fileBuffer = await readFileAsArrayBuffer(file);
-      const { error: upErr } = await sb.storage.from("community-media").upload(path, fileBuffer, { cacheControl: "3600", contentType: file.type });
+      const { error: upErr } = await withTimeout(
+        sb.storage.from("community-media").upload(path, fileBuffer, { cacheControl: "3600", contentType: file.type }),
+        20000,
+        "Upload"
+      );
       if (upErr) {
         toast(upErr.message || "Upload failed", "error");
         imageSlot.style.display = "none";

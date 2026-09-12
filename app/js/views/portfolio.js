@@ -1,6 +1,6 @@
 import { sb } from "../supabaseClient.js";
 import { store, on } from "../state.js";
-import { el, esc, toast, readFileAsArrayBuffer } from "../utils.js";
+import { el, esc, toast, readFileAsArrayBuffer, withTimeout } from "../utils.js";
 import { openSheet, closeSheet, confirmModal } from "../ui.js";
 
 // The agency's public "our best work" showcase, case studies of past
@@ -248,7 +248,11 @@ export function openPortfolioItemSheet(existing) {
     // some Chrome builds. Reading into an ArrayBuffer first avoids that.
     try {
       const fileBuffer = await readFileAsArrayBuffer(file);
-      const { error: upErr } = await sb.storage.from("portfolio-media").upload(path, fileBuffer, { upsert: true, cacheControl: "3600", contentType: file.type });
+      const { error: upErr } = await withTimeout(
+        sb.storage.from("portfolio-media").upload(path, fileBuffer, { upsert: true, cacheControl: "3600", contentType: file.type }),
+        20000,
+        "Upload"
+      );
       if (upErr) {
         toast(upErr.message || "Upload failed", "error");
         slot.innerHTML = p.image_url ? `<img src="${esc(p.image_url)}" alt="" style="width:100%;height:100%;object-fit:cover;" />` : `<span class="text-faint" style="font-size:11px;">No image</span>`;

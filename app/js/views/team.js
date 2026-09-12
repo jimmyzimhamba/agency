@@ -1,6 +1,6 @@
 import { sb } from "../supabaseClient.js";
 import { store, on, emit, profileById } from "../state.js";
-import { el, esc, avatarHTML, timeAgo, money, readFileAsArrayBuffer } from "../utils.js";
+import { el, esc, avatarHTML, timeAgo, money, readFileAsArrayBuffer, withTimeout } from "../utils.js";
 import { toast } from "../utils.js";
 import { signOut } from "../auth.js";
 import { confirmModal, openModal, closeModal } from "../ui.js";
@@ -779,7 +779,11 @@ function openEditProfileModal() {
       // trigger a streamed fetch() that throws a bare "Failed to fetch" in
       // some Chrome builds. Reading into an ArrayBuffer first avoids that.
       const fileBuffer = await readFileAsArrayBuffer(file);
-      const { error: upErr } = await sb.storage.from("avatars").upload(path, fileBuffer, { upsert: true, cacheControl: "3600", contentType: file.type });
+      const { error: upErr } = await withTimeout(
+        sb.storage.from("avatars").upload(path, fileBuffer, { upsert: true, cacheControl: "3600", contentType: file.type }),
+        20000,
+        "Upload"
+      );
       if (upErr) {
         toast(upErr.message || "Upload failed", "error");
         slot.innerHTML = avatarHTML(store.profile.full_name || store.profile.email, store.profile.avatar_url, 76, 26);

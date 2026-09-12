@@ -1,6 +1,6 @@
 import { sb } from "../supabaseClient.js";
 import { store, on, emit } from "../state.js";
-import { el, esc, fmtDate, toast, enablePointerReorder, downloadTextFile, todayISO, readFileAsArrayBuffer } from "../utils.js";
+import { el, esc, fmtDate, toast, enablePointerReorder, downloadTextFile, todayISO, readFileAsArrayBuffer, withTimeout } from "../utils.js";
 import { openModal, closeModal, confirmModal } from "../ui.js";
 
 const STATUS_LABELS = { draft: "Draft", shared: "Shared", in_review: "In Review", changes_requested: "Changes Requested", approved: "Approved" };
@@ -816,7 +816,11 @@ function openPostModal(post0) {
         // HTTP response, no error detail. Reading it into an ArrayBuffer first
         // gives fetch() a plain, non-streamed body and sidesteps that entirely.
         const fileBuffer = await readFileAsArrayBuffer(file);
-        const { error: upErr } = await sb.storage.from("grid-media").upload(path, fileBuffer, { cacheControl: "3600", contentType: file.type });
+        const { error: upErr } = await withTimeout(
+          sb.storage.from("grid-media").upload(path, fileBuffer, { cacheControl: "3600", contentType: file.type }),
+          20000,
+          "Upload"
+        );
         if (upErr) return toast(upErr.message || "Upload failed", "error");
 
         const currentMedia = store.gridPostMedia.filter((m) => m.post_id === post.id);
