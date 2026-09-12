@@ -20,7 +20,13 @@
 --
 -- Safe to run more than once, same idempotent shape as every other migration
 -- in this project (if not exists / create or replace / guarded columns).
--- Never drops anything, never touches an existing row.
+-- Never drops anything, never touches an existing row. The "create policy"
+-- statements below are the one exception to "never drops": Postgres has no
+-- "create policy if not exists", so each one is preceded by a matching
+-- "drop policy if exists" on that exact name. That only ever drops and
+-- immediately recreates the identical rule, it does not touch any table
+-- data, so a half-finished earlier run of this same file is safe to just
+-- run again from the top.
 -- ============================================================================
 
 -- ----------------------------------------------------------------------------
@@ -56,17 +62,21 @@ create index if not exists idx_client_reports_prospect on public.client_reports 
 
 alter table public.client_reports enable row level security;
 
+drop policy if exists "client_reports: read org" on public.client_reports;
 create policy "client_reports: read org" on public.client_reports
   for select using (org_id = public.my_org_id());
 
+drop policy if exists "client_reports: insert self" on public.client_reports;
 create policy "client_reports: insert self" on public.client_reports
   for insert with check (auth.role() = 'authenticated' and org_id = public.my_org_id());
 
+drop policy if exists "client_reports: update own or owner" on public.client_reports;
 create policy "client_reports: update own or owner" on public.client_reports
   for update
   using (org_id = public.my_org_id() and (public.is_owner() or created_by = auth.uid()))
   with check (org_id = public.my_org_id() and (public.is_owner() or created_by = auth.uid()));
 
+drop policy if exists "client_reports: owner deletes" on public.client_reports;
 create policy "client_reports: owner deletes" on public.client_reports
   for delete using (org_id = public.my_org_id() and public.is_owner());
 
@@ -85,9 +95,11 @@ create index if not exists idx_client_feedback_prospect on public.client_feedbac
 
 alter table public.client_feedback enable row level security;
 
+drop policy if exists "client_feedback: read org" on public.client_feedback;
 create policy "client_feedback: read org" on public.client_feedback
   for select using (org_id = public.my_org_id());
 
+drop policy if exists "client_feedback: owner deletes" on public.client_feedback;
 create policy "client_feedback: owner deletes" on public.client_feedback
   for delete using (org_id = public.my_org_id() and public.is_owner());
 
