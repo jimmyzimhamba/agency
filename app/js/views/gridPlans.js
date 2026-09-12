@@ -815,7 +815,7 @@ function openPostModal(post0) {
         // "Failed to fetch" before any request even reaches the network, no
         // HTTP response, no error detail. Reading it into an ArrayBuffer first
         // gives fetch() a plain, non-streamed body and sidesteps that entirely.
-        const fileBuffer = await readFileAsArrayBuffer(file);
+        const fileBuffer = await withTimeout(readFileAsArrayBuffer(file), 15000, "File read");
         const { error: upErr } = await withTimeout(
           sb.storage.from("grid-media").upload(path, fileBuffer, { cacheControl: "3600", contentType: file.type }),
           20000,

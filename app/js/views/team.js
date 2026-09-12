@@ -778,7 +778,7 @@ function openEditProfileModal() {
       // See gridPlans.js's upload handler for why: raw File/Blob bodies can
       // trigger a streamed fetch() that throws a bare "Failed to fetch" in
       // some Chrome builds. Reading into an ArrayBuffer first avoids that.
-      const fileBuffer = await readFileAsArrayBuffer(file);
+      const fileBuffer = await withTimeout(readFileAsArrayBuffer(file), 15000, "File read");
       const { error: upErr } = await withTimeout(
         sb.storage.from("avatars").upload(path, fileBuffer, { upsert: true, cacheControl: "3600", contentType: file.type }),
         20000,

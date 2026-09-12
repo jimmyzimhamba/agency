@@ -121,7 +121,7 @@ function renderComposer(cardEl) {
     // trigger a streamed fetch() that throws a bare "Failed to fetch" in
     // some Chrome builds. Reading into an ArrayBuffer first avoids that.
     try {
-      const fileBuffer = await readFileAsArrayBuffer(file);
+      const fileBuffer = await withTimeout(readFileAsArrayBuffer(file), 15000, "File read");
       const { error: upErr } = await withTimeout(
         sb.storage.from("community-media").upload(path, fileBuffer, { cacheControl: "3600", contentType: file.type }),
         20000,
