@@ -130,6 +130,12 @@ self.addEventListener("fetch", (event) => {
   // actually hits.
   if (url.pathname.endsWith("/project.html")) return;
 
+  // And the client dashboard (reports/invoices/feedback), same reasoning
+  // again: a link a client bookmarks and reopens, not part of the
+  // installable app's own shell, so it must never quietly serve a cached
+  // AGENCY page on a dropped connection.
+  if (url.pathname.endsWith("/client.html")) return;
+
   // Page navigations: try the network first (freshest app), but give up
   // after 8 seconds if it's just hanging (not erroring) and fall back to
   // whatever was cached under that exact address, and finally the offline

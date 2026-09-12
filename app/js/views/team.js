@@ -1,6 +1,6 @@
 import { sb } from "../supabaseClient.js";
 import { store, on, emit, profileById } from "../state.js";
-import { el, esc, avatarHTML, timeAgo, money, readFileAsArrayBuffer, withTimeout, debounce } from "../utils.js";
+import { el, esc, avatarHTML, timeAgo, money, readFileAsArrayBuffer, withTimeout, debounce, copyToClipboard } from "../utils.js";
 import { toast } from "../utils.js";
 import { signOut } from "../auth.js";
 import { confirmModal, openModal, closeModal } from "../ui.js";
@@ -486,10 +486,36 @@ export function renderTeam() {
           </div>
         </div>
 
+        ${isOwner ? `
+        <div class="card" style="margin-bottom:16px;">
+          <div style="font-weight:700;font-size:13.5px;margin-bottom:2px;">Document Details</div>
+          <div class="text-faint" style="font-size:11.5px;margin:4px 0 12px;line-height:1.4;">Fill these in once, every printed Agreement, Invoice and Welcome Letter reuses them automatically, see Contracts and Invoices.</div>
+          <div class="field">
+            <label>Who signs on Studio X's side</label>
+            <input id="tm-doc-signer-name" type="text" value="${esc(store.organization?.doc_signer_name || "")}" placeholder="e.g. Jimmy Zimhamba" />
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Phone (shown on documents)</label>
+              <input id="tm-doc-signer-phone" type="text" value="${esc(store.organization?.doc_signer_phone || "")}" placeholder="e.g. +263 775 051 827" />
+            </div>
+            <div class="field">
+              <label>Email (shown on documents)</label>
+              <input id="tm-doc-signer-email" type="text" value="${esc(store.organization?.doc_signer_email || "")}" placeholder="e.g. admin@studioxmarketing.com" />
+            </div>
+          </div>
+          <div class="field">
+            <label>Banking details (printed exactly as typed on every invoice)</label>
+            <textarea id="tm-doc-banking" placeholder="Bank: NMB&#10;USD ACC: 86088993101001&#10;ZiG ACC: 86088993102001&#10;Full Name: Jimmy Tafadzwa Zimhamba">${esc(store.organization?.doc_banking_details || "")}</textarea>
+          </div>
+          <button class="btn btn-ghost btn-sm" id="tm-doc-save" style="width:auto;">Save Document Details</button>
+        </div>
+        ` : ""}
+
         <div class="divider"></div>
         <button class="btn btn-ghost" id="tm-signout">Sign Out</button>
         <p class="text-faint" style="font-size:11px;text-align:center;margin-top:20px;">Agency Command · ${esc(store.organization?.name || "Sales & Team Sync")}</p>
-        <p class="text-faint" style="font-size:10px;text-align:center;margin-top:4px;opacity:0.6;">build sxc-v189</p>
+        <p class="text-faint" style="font-size:10px;text-align:center;margin-top:4px;opacity:0.6;">build sxc-v192</p>
       </div>
     </div>
   `);
@@ -556,6 +582,7 @@ export function renderTeam() {
   wireNotificationsToggle(wrap);
   wireEmailNotificationsToggle(wrap);
   wireInviteCode(wrap, isOwner);
+  if (isOwner) wireDocSettings(wrap);
 
   const listEl = wrap.querySelector("#tm-list");
   store.profiles.forEach((p) => {
@@ -774,10 +801,10 @@ function openEditProfileModal() {
     const ext = (extMatch ? extMatch[1] : "jpg").toLowerCase();
     const path = `${store.profile.id}/avatar.${ext}`;
 
+    // See gridPlans.js's upload handler for why: raw File/Blob bodies can
+    // trigger a streamed fetch() that throws a bare "Failed to fetch" in
+    // some Chrome builds. Reading into an ArrayBuffer first avoids that.
     try {
-      // See gridPlans.js's upload handler for why: raw File/Blob bodies can
-      // trigger a streamed fetch() that throws a bare "Failed to fetch" in
-      // some Chrome builds. Reading into an ArrayBuffer first avoids that.
       const fileBuffer = await withTimeout(readFileAsArrayBuffer(file), 15000, "File read");
       const { error: upErr } = await withTimeout(
         sb.storage.from("avatars").upload(path, fileBuffer, { upsert: true, cacheControl: "3600", contentType: file.type }),
@@ -839,12 +866,9 @@ function wireInviteCode(wrap, isOwner) {
     copyBtn.addEventListener("click", async () => {
       const code = store.organization?.invite_code;
       if (!code) return;
-      try {
-        await navigator.clipboard.writeText(code);
-        toast("Invite code copied", "success");
-      } catch {
-        toast("Couldn't copy, long-press the code to select it", "error");
-      }
+      const ok = await copyToClipboard(code);
+      if (ok) toast("Invite code copied", "success");
+      else toast("Couldn't copy, long-press the code to select it", "error");
     });
   }
 
@@ -865,6 +889,26 @@ function wireInviteCode(wrap, isOwner) {
         renderTeam();
       },
     });
+  });
+}
+
+function wireDocSettings(wrap) {
+  const saveBtn = wrap.querySelector("#tm-doc-save");
+  if (!saveBtn) return;
+  saveBtn.addEventListener("click", async () => {
+    const doc_signer_name = wrap.querySelector("#tm-doc-signer-name").value.trim();
+    const doc_signer_phone = wrap.querySelector("#tm-doc-signer-phone").value.trim();
+    const doc_signer_email = wrap.querySelector("#tm-doc-signer-email").value.trim();
+    const doc_banking_details = wrap.querySelector("#tm-doc-banking").value.trim();
+    saveBtn.disabled = true;
+    const { error } = await sb
+      .from("organizations")
+      .update({ doc_signer_name, doc_signer_phone, doc_signer_email, doc_banking_details })
+      .eq("id", store.organization.id);
+    saveBtn.disabled = false;
+    if (error) return toast(error.message, "error");
+    store.organization = { ...store.organization, doc_signer_name, doc_signer_phone, doc_signer_email, doc_banking_details };
+    toast("Document details saved", "success");
   });
 }
 

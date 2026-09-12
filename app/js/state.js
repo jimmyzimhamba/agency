@@ -42,6 +42,12 @@ export const store = {
   outreachLog: [],
   projects: [],
   projectTasks: [],
+  // Client portal, see supabase/migration_client_portal.sql. Same shape as
+  // projects/project_tasks above: internal team data here, a read-only slice
+  // of it (published reports, sent/paid invoices) is what the anonymous
+  // client_portal() function hands to app/client.html over a share token.
+  clientReports: [],
+  clientFeedback: [],
   gridPlans: [],
   gridPosts: [],
   gridPostMedia: [],
@@ -238,7 +244,7 @@ export async function loadAll() {
   // RLS alone to do.
   const myOrgId = store.profile?.org_id;
 
-  const [organization, profiles, niches, prospects, templates, dailyTasks, dailyCompletions, agentTargets, activityLog, monthlyGoal, contracts, invoices, expenses, projects, projectTasks, gridPlans, gridPosts, gridPostMedia, servicePackages, portfolioSettings, portfolioItems, communityPosts, communityComments, communityReactions, pointsLog, pointsTotals, badgesEarned, outreachLog] =
+  const [organization, profiles, niches, prospects, templates, dailyTasks, dailyCompletions, agentTargets, activityLog, monthlyGoal, contracts, invoices, expenses, projects, projectTasks, clientReports, clientFeedback, gridPlans, gridPosts, gridPostMedia, servicePackages, portfolioSettings, portfolioItems, communityPosts, communityComments, communityReactions, pointsLog, pointsTotals, badgesEarned, outreachLog] =
     await Promise.all([
       sb.from("organizations").select("*").maybeSingle(),
       sb.from("profiles").select("*").order("full_name"),
@@ -255,6 +261,8 @@ export async function loadAll() {
       sb.from("expenses").select("*").order("spent_on", { ascending: false }),
       sb.from("projects").select("*").order("created_at", { ascending: false }),
       sb.from("project_tasks").select("*").order("sort_order"),
+      sb.from("client_reports").select("*").order("created_at", { ascending: false }),
+      sb.from("client_feedback").select("*").order("created_at", { ascending: false }),
       sb.from("grid_plans").select("*").order("created_at", { ascending: false }),
       sb.from("grid_posts").select("*").order("position"),
       sb.from("grid_post_media").select("*").order("position"),
@@ -286,6 +294,8 @@ export async function loadAll() {
   store.outreachLog = outreachLog.data || [];
   store.projects = projects.data || [];
   store.projectTasks = projectTasks.data || [];
+  store.clientReports = clientReports.data || [];
+  store.clientFeedback = clientFeedback.data || [];
   store.gridPlans = gridPlans.data || [];
   store.gridPosts = gridPosts.data || [];
   store.gridPostMedia = gridPostMedia.data || [];
@@ -303,6 +313,7 @@ export async function loadAll() {
   emit("dailyTasks"); emitDailyCompletions(); emit("agentTargets");
   emit("activityLog"); emit("monthlyGoal");
   emit("contracts"); emit("invoices"); emit("expenses"); emit("outreachLog"); emit("projects"); emit("projectTasks");
+  emit("clientReports"); emit("clientFeedback");
   emit("gridPlans"); emit("gridPosts"); emit("gridPostMedia");
   emit("servicePackages");
   emit("portfolioSettings"); emit("portfolioItems");
@@ -435,6 +446,19 @@ export function startRealtime() {
     .on("postgres_changes", { event: "*", schema: "public", table: "project_tasks" }, (payload) => {
       upsertLocal("projectTasks", payload);
       emit("projectTasks");
+    })
+    .on("postgres_changes", { event: "*", schema: "public", table: "client_reports" }, (payload) => {
+      upsertLocal("clientReports", payload);
+      emit("clientReports");
+    })
+    // Feedback only ever arrives via INSERT (submitted anonymously through
+    // app/client.html's feedback box, by way of the client_portal_feedback
+    // SECURITY DEFINER function), there's nothing here for the team to edit.
+    .on("postgres_changes", { event: "INSERT", schema: "public", table: "client_feedback" }, (payload) => {
+      if (!store.clientFeedback.some((f) => f.id === payload.new.id)) {
+        store.clientFeedback = [payload.new, ...store.clientFeedback];
+        emit("clientFeedback");
+      }
     })
     .on("postgres_changes", { event: "*", schema: "public", table: "grid_plans" }, (payload) => {
       upsertLocal("gridPlans", payload);

@@ -1,6 +1,6 @@
 import { sb } from "../supabaseClient.js";
 import { store, on, emit } from "../state.js";
-import { el, esc, fmtDate, toast, enablePointerReorder, downloadTextFile, todayISO, readFileAsArrayBuffer, withTimeout, debounce } from "../utils.js";
+import { el, esc, fmtDate, toast, enablePointerReorder, downloadTextFile, todayISO, readFileAsArrayBuffer, withTimeout, debounce, copyToClipboard } from "../utils.js";
 import { openModal, closeModal, confirmModal } from "../ui.js";
 
 const STATUS_LABELS = { draft: "Draft", shared: "Shared", in_review: "In Review", changes_requested: "Changes Requested", approved: "Approved" };
@@ -391,6 +391,8 @@ function buildBuilder(planId) {
         ${manageable ? `<button class="btn btn-ghost btn-sm" id="gp-delete-plan" style="width:auto;color:#e05d5d;">Delete Plan</button>` : ""}
       </div>
 
+      <div class="gp-phone-wrap" id="gp-phone"></div>
+      <div class="section-title">Posts</div>
       <div class="grid-tile-grid" id="gp-tiles"></div>
     </div>
   `);
@@ -437,8 +439,47 @@ function buildBuilder(planId) {
     });
   }
 
+  renderPhonePreview(wrap.querySelector("#gp-phone"), plan, posts);
   renderTiles(wrap.querySelector("#gp-tiles"), planId, posts, editable);
   return wrap;
+}
+
+// Instagram-style, non-interactive preview mirroring what the client sees
+// on the review page: fixed 3 columns, newest post top-left (the reverse
+// of `position`, which runs oldest-to-newest everywhere else in this
+// feature). Lets the agency sanity-check the actual grid look before
+// sharing, without leaving this screen.
+function renderPhonePreview(container, plan, posts) {
+  if (!container) return;
+  const rev = posts.slice().reverse();
+  container.innerHTML = `
+    <div class="gp-phone-frame">
+      <div class="gp-phone-notch"></div>
+      <div class="gp-phone-header">
+        <span class="gp-phone-avatar" style="background:${esc(plan.accent_color || "#7b2ff7")};"></span>
+        <div>
+          <div class="gp-phone-username">${esc(plan.client_name)}</div>
+          <div class="gp-phone-sub">${posts.length} post${posts.length === 1 ? "" : "s"}</div>
+        </div>
+      </div>
+      <div class="gp-g3" id="gp-g3"></div>
+    </div>
+  `;
+  const g3 = container.querySelector("#gp-g3");
+  rev.forEach((post, i) => {
+    const media = store.gridPostMedia.filter((m) => m.post_id === post.id).sort((a, b) => a.position - b.position)[0];
+    const cell = el(`
+      <div class="gp-g3-cell">
+        <span class="gp-num">${posts.length - i}</span>
+        <span class="gp-st ${esc(post.status)}"></span>
+        ${post.video_link ? `<span class="gp-video-flag">▶</span>` : ""}
+        ${media ? `<img alt="" />` : `<div class="gp-g3-empty">No media</div>`}
+      </div>
+    `);
+    const img = cell.querySelector("img");
+    if (img && media) loadSignedThumb(img, media.storage_path);
+    g3.appendChild(cell);
+  });
 }
 
 function renderTiles(tilesEl, planId, posts, editable) {
@@ -451,6 +492,7 @@ function renderTiles(tilesEl, planId, posts, editable) {
         ${editable ? `<span class="grid-tile-drag-handle">⠿</span>` : ""}
         <span class="grid-tile-status status-pill ${esc(post.status)}">${POST_STATUS_LABELS[post.status] || post.status}</span>
         ${editor ? `<span class="grid-tile-lock-badge">✎ ${esc(editor.actor_name || "Someone")} editing</span>` : ""}
+        ${post.video_link ? `<span class="grid-tile-video-badge" title="Has video link">▶</span>` : ""}
         ${media ? `<img alt="" />` : `<div class="grid-tile-empty">No media yet</div>`}
         <div class="grid-tile-caption">${post.caption ? esc(post.caption) : "<em>No caption yet</em>"}</div>
       </div>
@@ -534,12 +576,8 @@ async function shareWithClient(plan) {
 
 async function copyShareLink(plan) {
   const url = `${location.origin}/review.html?t=${plan.share_token}`;
-  try {
-    await navigator.clipboard.writeText(url);
-    toast("Link copied", "success");
-  } catch {
-    toast(url, "");
-  }
+  const ok = await copyToClipboard(url);
+  toast(ok ? "Link copied" : url, ok ? "success" : "");
 }
 
 // --- Slice 6: JSON export/import + WhatsApp text export -------------------
@@ -599,10 +637,10 @@ function buildWhatsAppText(plan, posts) {
 // above already uses for the share link itself.
 async function exportPlanWhatsApp(plan, posts) {
   const text = buildWhatsAppText(plan, posts);
-  try {
-    await navigator.clipboard.writeText(text);
+  const ok = await copyToClipboard(text);
+  if (ok) {
     toast("Copied, paste it straight into WhatsApp", "success");
-  } catch {
+  } else {
     downloadTextFile(`${slugify(plan.client_name)}-whatsapp.txt`, text, "text/plain;charset=utf-8;");
     toast("Clipboard unavailable, downloaded as a text file instead", "");
   }
@@ -781,6 +819,12 @@ function openPostModal(post0) {
         </div>
       </div>
 
+      <div class="field" style="margin-top:14px;">
+        <label>Video link <span class="text-faint" style="font-weight:400;">(Google Drive / WeTransfer, for video posts)</span></label>
+        <input id="gpm-video-link" type="url" placeholder="https://drive.google.com/... or https://we.tl/..." value="${esc(post.video_link || "")}" />
+        <div class="text-faint" style="font-size:11px;margin-top:4px;line-height:1.4;">Upload a cover image/screenshot above as the post's media, and drop the link to the full video here. The client sees the cover in the grid with a "Watch video" link, not an uploaded video file.</div>
+      </div>
+
       ${editable ? `<button class="btn btn-primary" id="gpm-save" style="margin-top:16px;">Save Changes</button>` : ""}
       ${manageable ? `<button class="btn btn-danger" id="gpm-delete" style="margin-top:10px;">Delete Post</button>` : ""}
     </div>
@@ -800,6 +844,7 @@ function openPostModal(post0) {
         client_note: box.querySelector("#gpm-note").value.trim(),
         platform: box.querySelector("#gpm-platform").value || null,
         post_date: box.querySelector("#gpm-date").value || null,
+        video_link: box.querySelector("#gpm-video-link").value.trim() || null,
       };
       await saveWithConflictCheck(post, baselineUpdatedAt, payload);
     });

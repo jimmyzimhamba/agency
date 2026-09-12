@@ -1,5 +1,5 @@
 import { store } from "../state.js";
-import { el, esc, toast } from "../utils.js";
+import { el, esc, toast, copyToClipboard } from "../utils.js";
 import { openModal, closeModal } from "../ui.js";
 import { AVATAR_PRESETS, dicebearUrl, saveAvatarUrl } from "./team.js";
 
@@ -89,12 +89,9 @@ export function openOnboardingWizard() {
       body.querySelector("#ob-copy-invite").addEventListener("click", async () => {
         const code = store.organization?.invite_code;
         if (!code) return;
-        try {
-          await navigator.clipboard.writeText(code);
-          toast("Invite code copied", "success");
-        } catch {
-          toast("Couldn't copy, long-press the code to select it", "error");
-        }
+        const ok = await copyToClipboard(code);
+        if (ok) toast("Invite code copied", "success");
+        else toast("Couldn't copy, long-press the code to select it", "error");
       });
     } else {
       body.innerHTML = `

@@ -224,6 +224,52 @@ export function debounce(fn, ms) {
   };
 }
 
+// Every "Copy Link"/"Copy Code" button in the app used to call
+// navigator.clipboard.writeText() directly. That API silently rejects (or
+// straight up doesn't exist) in a handful of real situations users actually
+// hit: installed-standalone PWA mode on older iOS/WKWebView builds, non-secure
+// contexts, and a tab that doesn't currently have focus/permission. All of
+// those just throw, which the old per-button try/catch already caught, but
+// "caught" only meant falling back to showing the raw link as a toast, not
+// an actual copy, so "the link isn't copying" was a real, reproducible
+// complaint even though nothing was erroring loudly. This adds one real
+// second attempt, the old-school hidden-textarea + document.execCommand
+// ("copy") trick, before giving up and returning false so the caller can
+// still show the text itself as a last resort.
+export async function copyToClipboard(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      // Fall through to the legacy path below.
+    }
+  }
+  try {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    // Keep it on-screen (0-size, but not display:none) so iOS Safari
+    // actually lets it receive selection, off-screen instead of hidden.
+    ta.style.position = "fixed";
+    ta.style.top = "0";
+    ta.style.left = "0";
+    ta.style.width = "1px";
+    ta.style.height = "1px";
+    ta.style.padding = "0";
+    ta.style.border = "none";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    const ok = document.execCommand("copy");
+    document.body.removeChild(ta);
+    return ok;
+  } catch {
+    return false;
+  }
+}
+
 // Turns any Zimbabwe-style number into the digits-only international
 // format WhatsApp's click-to-chat link needs (e.g. 0771234567 -> 263771234567).
 export function toWhatsAppDigits(raw) {

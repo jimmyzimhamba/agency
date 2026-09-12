@@ -1,6 +1,6 @@
 import { sb } from "../supabaseClient.js";
 import { store, on, profileById, nicheById, nicheDotHTML, loadNotesFor, loadMessagesFor } from "../state.js";
-import { el, esc, avatarHTML, statusLabel, fmtDateTime, money, todayISO, buildWhatsAppLink, personalizeMessage, toast, downloadReminderICS, downloadVCard } from "../utils.js";
+import { el, esc, avatarHTML, statusLabel, fmtDateTime, money, todayISO, buildWhatsAppLink, personalizeMessage, toast, downloadReminderICS, downloadVCard, copyToClipboard } from "../utils.js";
 import { openSheet, closeSheet, confirmModal, openModal, closeModal } from "../ui.js";
 import { buildProspectForm } from "./prospectForm.js";
 import { openDealPricingCalculator } from "./dealPricing.js";
@@ -145,13 +145,16 @@ function render(p0) {
         </div>
       ` : ""}
       ${p.status === "signed" ? `
-        <div class="btn-block-row" style="margin-bottom:14px;">
+        <div class="btn-block-row" style="margin-bottom:8px;">
           <button class="btn btn-ghost btn-sm" id="pd-new-contract">Contract</button>
           <button class="btn btn-ghost btn-sm" id="pd-new-invoice">Invoice</button>
           <button class="btn btn-ghost btn-sm" id="pd-new-project">Project</button>
         </div>
+        <button class="btn btn-ghost btn-sm" id="pd-welcome-letter" style="width:auto;margin-bottom:14px;">💌 Welcome Letter</button>
       ` : ""}
     ` : ""}
+
+    ${showBizOps ? `<div id="pd-portal-section"></div>` : ""}
 
     <div class="section-title mt-0">Status</div>
     <div class="field" style="margin-bottom:14px;">
@@ -246,6 +249,29 @@ function render(p0) {
   if (printStatementBtn) printStatementBtn.addEventListener("click", async () => {
     const { printClientStatement } = await import("../printDoc.js");
     printClientStatement(currentProspect(p.id) || p);
+  });
+
+  const welcomeLetterBtn = box.querySelector("#pd-welcome-letter");
+  if (welcomeLetterBtn) welcomeLetterBtn.addEventListener("click", () => {
+    const modalBox = document.createElement("div");
+    modalBox.innerHTML = `
+      <div style="font-weight:800;font-size:16px;margin-bottom:8px;">Welcome Letter</div>
+      <div style="font-size:13.5px;color:var(--text-dim);margin-bottom:12px;line-height:1.4;">Optionally add a personal note, or leave blank for the standard letter.</div>
+      <div class="field">
+        <textarea id="pd-welcome-note" placeholder="e.g. It was great meeting you and the team last week..." style="min-height:80px;"></textarea>
+      </div>
+      <div class="btn-block-row">
+        <button class="btn btn-ghost" id="pd-welcome-cancel">Cancel</button>
+        <button class="btn btn-primary" id="pd-welcome-print">Print Letter</button>
+      </div>`;
+    openModal(modalBox);
+    modalBox.querySelector("#pd-welcome-cancel").addEventListener("click", () => closeModal());
+    modalBox.querySelector("#pd-welcome-print").addEventListener("click", async () => {
+      const note = modalBox.querySelector("#pd-welcome-note").value.trim();
+      closeModal();
+      const { printWelcomeLetter } = await import("../printDoc.js");
+      printWelcomeLetter(currentProspect(p.id) || p, note || null);
+    });
   });
 
   box.querySelectorAll(".pd-bizop-row").forEach((row) => {
@@ -396,6 +422,7 @@ function render(p0) {
 
   renderAISection(box, p);
   renderWhatsAppSection(box, p);
+  if (showBizOps) renderClientPortalSection(box, p);
 
   openSheet(p.business_name, box);
   loadTimeline(p.id);
@@ -412,9 +439,234 @@ function render(p0) {
       if (statusSel && statusSel.value !== fresh.status) statusSel.value = fresh.status;
       renderAISection(box, fresh);
       renderWhatsAppSection(box, fresh);
+      if (box.querySelector("#pd-portal-section")) renderClientPortalSection(box, fresh);
     }
   });
-  document.getElementById("sheet")._onClose = () => { offNotes(); offWhatsApp(); offProspects(); };
+  // Reports and feedback are their own tables, so a teammate publishing a
+  // report (or a client submitting feedback) from another device doesn't
+  // land through the "prospects" listener above, it needs its own.
+  const offClientReports = on("clientReports", () => {
+    if (box.querySelector("#pd-portal-section")) renderClientPortalSection(box, currentProspect(p.id) || p);
+  });
+  const offClientFeedback = on("clientFeedback", () => {
+    if (box.querySelector("#pd-portal-section")) renderClientPortalSection(box, currentProspect(p.id) || p);
+  });
+  document.getElementById("sheet")._onClose = () => {
+    offNotes(); offWhatsApp(); offProspects(); offClientReports(); offClientFeedback();
+  };
+}
+
+// ----------------------------------------------------------------------------
+// Client Portal: the no-login link a client bookmarks (app/client.html), plus
+// the monthly reports written for them and any feedback they've sent back.
+// Lives in its own container, same reasoning as AI/WhatsApp above, so it can
+// redraw in place off Realtime without losing focus elsewhere in the sheet.
+// ----------------------------------------------------------------------------
+
+// Same approach as projects.js's client-link token: 24 bytes of crypto
+// randomness (48 hex characters) gating a public no-login page, and the
+// database function backing it refuses anything shorter than 16 characters
+// outright.
+function generatePortalToken() {
+  const bytes = new Uint8Array(24);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+function portalUrlFor(prospect) {
+  return `${location.origin}/client.html?t=${prospect.portal_token}`;
+}
+
+function openReportModal(prospect, existing) {
+  const modalBox = document.createElement("div");
+  modalBox.innerHTML = `
+    <div style="font-weight:800;font-size:16px;margin-bottom:8px;">${existing ? "Edit Report" : "New Monthly Report"}</div>
+    <div style="font-size:12.5px;color:var(--text-dim);margin-bottom:12px;line-height:1.4;">
+      Drafts stay private. Publishing puts it straight on ${esc(prospect.business_name)}'s dashboard.
+    </div>
+    <div class="field">
+      <input id="pd-report-title" type="text" placeholder="e.g. September Report" value="${esc(existing?.title || "")}" />
+    </div>
+    <div class="field">
+      <textarea id="pd-report-body" placeholder="What happened this month, results, what's next..." style="min-height:120px;">${esc(existing?.body || "")}</textarea>
+    </div>
+    <div class="btn-block-row">
+      <button class="btn btn-ghost" id="pd-report-cancel">Cancel</button>
+      <button class="btn btn-ghost" id="pd-report-draft">Save as Draft</button>
+      <button class="btn btn-primary" id="pd-report-publish">${existing?.status === "published" ? "Save & Keep Published" : "Publish"}</button>
+    </div>
+    ${existing ? `<button class="btn btn-danger btn-sm" id="pd-report-delete" style="margin-top:10px;">Delete Report</button>` : ""}
+  `;
+  openModal(modalBox);
+  modalBox.querySelector("#pd-report-cancel").addEventListener("click", () => closeModal());
+
+  async function save(status) {
+    const title = modalBox.querySelector("#pd-report-title").value.trim();
+    const body = modalBox.querySelector("#pd-report-body").value.trim();
+    if (!title) return toast("Give the report a title", "error");
+    const wasPublished = existing?.status === "published";
+    const payload = { title, body, status };
+    if (status === "published" && !wasPublished) payload.published_at = new Date().toISOString();
+
+    if (existing) {
+      const { error } = await sb.from("client_reports").update(payload).eq("id", existing.id);
+      if (error) return toast(error.message, "error");
+    } else {
+      const { error } = await sb.from("client_reports").insert({
+        org_id: store.profile.org_id,
+        prospect_id: prospect.id,
+        created_by: store.profile.id,
+        ...payload,
+      });
+      if (error) return toast(error.message, "error");
+    }
+    closeModal();
+    toast(status === "published" ? "Report published" : "Draft saved", "success");
+  }
+
+  modalBox.querySelector("#pd-report-draft").addEventListener("click", () => save("draft"));
+  modalBox.querySelector("#pd-report-publish").addEventListener("click", () => save("published"));
+
+  const delBtn = modalBox.querySelector("#pd-report-delete");
+  if (delBtn) delBtn.addEventListener("click", () => {
+    confirmModal({
+      title: "Delete this report?",
+      body: existing.status === "published"
+        ? "It's live on the client's dashboard right now, it disappears from there the moment you delete it."
+        : "This draft hasn't been published, nobody outside your team has ever seen it.",
+      confirmLabel: "Delete",
+      danger: true,
+      onConfirm: async () => {
+        const { error } = await sb.from("client_reports").delete().eq("id", existing.id);
+        if (error) return toast(error.message, "error");
+        closeModal();
+        toast("Report deleted", "success");
+      },
+    });
+  });
+}
+
+function renderClientPortalSection(box, p0) {
+  const wrap = box.querySelector("#pd-portal-section");
+  if (!wrap) return;
+  const p = currentProspect(p0.id) || p0;
+
+  const reports = (store.clientReports || []).filter((r) => r.prospect_id === p.id)
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  const feedback = (store.clientFeedback || []).filter((f) => f.prospect_id === p.id)
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+  wrap.innerHTML = `
+    <div class="section-title mt-0">Client Portal</div>
+    <div class="card" style="margin-bottom:10px;">
+      <div id="pd-portal-blurb" style="font-size:12.5px;color:var(--text-dim);line-height:1.4;margin-bottom:10px;"></div>
+      <div id="pd-portal-actions" class="btn-block-row"></div>
+    </div>
+
+    <div class="flex-between" style="align-items:baseline;">
+      <div class="section-title mt-0">Monthly Reports</div>
+      <span class="small-link" id="pd-new-report">+ New Report</span>
+    </div>
+    ${reports.length ? `<div class="card" style="margin-bottom:10px;" id="pd-reports-list"></div>` :
+      `<div class="text-faint" style="font-size:12.5px;margin-bottom:14px;">No reports yet.</div>`}
+
+    ${feedback.length ? `
+      <div class="section-title mt-0">Feedback</div>
+      <div class="card" style="margin-bottom:14px;" id="pd-feedback-list"></div>
+    ` : ""}
+  `;
+
+  const blurb = wrap.querySelector("#pd-portal-blurb");
+  const actions = wrap.querySelector("#pd-portal-actions");
+
+  if (!p.portal_token) {
+    blurb.textContent = "Create a link the client can bookmark, no login and nothing to install, showing published reports and their sent/paid invoices.";
+    const btn = el(`<button class="btn btn-primary btn-sm" style="width:auto;">Create Client Portal Link</button>`);
+    btn.addEventListener("click", async () => {
+      btn.disabled = true;
+      const token = generatePortalToken();
+      const { error } = await sb
+        .from("prospects")
+        .update({ portal_token: token, portal_token_created_at: new Date().toISOString() })
+        .eq("id", p.id);
+      btn.disabled = false;
+      if (error) return toast(error.message, "error");
+      const idx = store.prospects.findIndex((x) => x.id === p.id);
+      if (idx > -1) store.prospects[idx] = { ...store.prospects[idx], portal_token: token };
+      renderClientPortalSection(box, { ...p, portal_token: token });
+      toast("Portal link ready", "success");
+    });
+    actions.appendChild(btn);
+  } else {
+    blurb.innerHTML = `This client has a live portal link. Anyone holding it can open it, so send it only to them.`;
+    const copyBtn = el(`<button class="btn btn-primary btn-sm" style="width:auto;">Copy Link</button>`);
+    copyBtn.addEventListener("click", async () => {
+      const url = portalUrlFor(p);
+      const ok = await copyToClipboard(url);
+      toast(ok ? "Link copied" : url, ok ? "success" : "");
+    });
+    actions.appendChild(copyBtn);
+
+    if (p.whatsapp_number) {
+      const waBtn = el(`<button class="btn btn-ghost btn-sm" style="width:auto;">Send on WhatsApp</button>`);
+      waBtn.addEventListener("click", () => {
+        const msg = `Hi ${p.business_name}, here's your dashboard, reports, invoices, and a spot to leave feedback any time: ${portalUrlFor(p)}`;
+        window.open(buildWhatsAppLink(p.whatsapp_number, msg), "_blank");
+      });
+      actions.appendChild(waBtn);
+    }
+
+    const newBtn = el(`<button class="btn btn-ghost btn-sm" style="width:auto;">Replace Link</button>`);
+    newBtn.addEventListener("click", () => {
+      confirmModal({
+        title: "Replace this link?",
+        body: "The current link stops working straight away. Use this if it was sent to the wrong person.",
+        confirmLabel: "Replace",
+        danger: true,
+        onConfirm: async () => {
+          const token = generatePortalToken();
+          const { error } = await sb
+            .from("prospects")
+            .update({ portal_token: token, portal_token_created_at: new Date().toISOString() })
+            .eq("id", p.id);
+          if (error) return toast(error.message, "error");
+          const idx = store.prospects.findIndex((x) => x.id === p.id);
+          if (idx > -1) store.prospects[idx] = { ...store.prospects[idx], portal_token: token };
+          renderClientPortalSection(box, { ...p, portal_token: token });
+          toast("New link created, the old one is dead", "success");
+        },
+      });
+    });
+    actions.appendChild(newBtn);
+  }
+
+  wrap.querySelector("#pd-new-report").addEventListener("click", () => openReportModal(p, null));
+
+  const reportsList = wrap.querySelector("#pd-reports-list");
+  if (reportsList) {
+    reports.forEach((r, idx) => {
+      const row = el(`
+        <div class="flex-between" style="padding:6px 0;cursor:pointer;${idx > 0 ? "border-top:1px solid var(--line);" : ""}">
+          <span style="font-size:13px;">📊 ${esc(r.title || "Report")}</span>
+          <span class="status-pill ${r.status === "published" ? "signed" : ""}" style="font-size:9.5px;">${r.status}</span>
+        </div>
+      `);
+      row.addEventListener("click", () => openReportModal(p, r));
+      reportsList.appendChild(row);
+    });
+  }
+
+  const feedbackList = wrap.querySelector("#pd-feedback-list");
+  if (feedbackList) {
+    feedback.forEach((f, idx) => {
+      feedbackList.appendChild(el(`
+        <div style="padding:6px 0;${idx > 0 ? "border-top:1px solid var(--line);" : ""}">
+          <div style="font-size:13px;line-height:1.45;">${esc(f.message)}</div>
+          <div class="text-faint" style="font-size:10.5px;margin-top:2px;">${esc(fmtDateTime(f.created_at))}</div>
+        </div>
+      `));
+    });
+  }
 }
 
 // The "AI Research" + "Message" cards live in their own container so they

@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+<title>Your dashboard</title>
+<meta name="description" content="Reports, invoices, and updates from your agency" />
+<!-- noindex for the same reason review.html/project.html carry it: the link
+     is the credential, and a page that turns up in a search result is a
+     link that leaked. -->
+<meta name="robots" content="noindex, nofollow" />
+<link rel="icon" href="icons/favicon-32.png" />
+<link rel="stylesheet" href="css/styles.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div class="ambient-glow a"></div>
+  <div class="ambient-glow b"></div>
+  <div class="grain"></div>
+  <div class="toast-wrap"></div>
+
+  <div id="app">
+    <div id="portal-root" class="review-page-wrap"></div>
+  </div>
+
+  <!-- Same reasoning as project.html: read-only for almost everything, one
+       small write (feedback), so a plain fetch() to two database functions
+       is the whole networking layer, no Supabase client library needed. -->
+  <script type="module" src="js/clientPortal.js"></script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 import { sb } from "../supabaseClient.js";
 import { store, on } from "../state.js";
-import { el, esc, toast, readFileAsArrayBuffer, withTimeout } from "../utils.js";
+import { el, esc, toast, readFileAsArrayBuffer, withTimeout, copyToClipboard } from "../utils.js";
 import { openSheet, closeSheet, confirmModal } from "../ui.js";
 
 // The agency's public "our best work" showcase, case studies of past
@@ -119,12 +119,8 @@ function renderList(listEl, isOwner) {
 }
 
 async function copyPublicLink() {
-  try {
-    await navigator.clipboard.writeText(publicUrl());
-    toast("Link copied", "success");
-  } catch {
-    toast(publicUrl(), "");
-  }
+  const ok = await copyToClipboard(publicUrl());
+  toast(ok ? "Link copied" : publicUrl(), ok ? "success" : "");
 }
 
 function openPortfolioSettingsSheet(existing) {

@@ -1,6 +1,6 @@
 import { sb } from "../supabaseClient.js";
 import { store, on, nicheById, profileById } from "../state.js";
-import { el, esc, toast, personalizeMessage, avatarHTML } from "../utils.js";
+import { el, esc, toast, personalizeMessage, avatarHTML, copyToClipboard } from "../utils.js";
 import { openSheet, closeSheet, confirmModal, openModal, closeModal } from "../ui.js";
 import { openProspectDetail } from "./prospectDetail.js";
 
@@ -246,12 +246,9 @@ function templateCard(t) {
     </div>
   `);
   card.querySelector('[data-action="copy"]').addEventListener("click", async () => {
-    try {
-      await navigator.clipboard.writeText(t.body);
-      toast("Copied to clipboard", "success");
-    } catch {
-      toast("Couldn't copy, long-press the text instead", "error");
-    }
+    const ok = await copyToClipboard(t.body);
+    if (ok) toast("Copied to clipboard", "success");
+    else toast("Couldn't copy, long-press the text instead", "error");
   });
   card.querySelector('[data-action="edit"]').addEventListener("click", () => openTemplateForm(t));
   return card;

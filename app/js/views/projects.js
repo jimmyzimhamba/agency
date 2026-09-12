@@ -1,6 +1,6 @@
 import { sb } from "../supabaseClient.js";
 import { store, on, prospectById, profileById } from "../state.js";
-import { el, esc, fmtDate, todayISO, toast, downloadReminderICS, toCSV, downloadTextFile, buildWhatsAppLink } from "../utils.js";
+import { el, esc, fmtDate, todayISO, toast, downloadReminderICS, toCSV, downloadTextFile, buildWhatsAppLink, copyToClipboard } from "../utils.js";
 import { openSheet, closeSheet, confirmModal, openModal, closeModal } from "../ui.js";
 
 const STATUS_LABELS = { not_started: "Not Started", in_progress: "In Progress", blocked: "Blocked", complete: "Complete" };
@@ -666,15 +666,13 @@ function renderShareBox(box, p0) {
   const copyBtn = el(`<button class="btn btn-primary btn-sm" style="width:auto;">Copy Link</button>`);
   copyBtn.addEventListener("click", async () => {
     const url = shareUrlFor(p);
-    try {
-      await navigator.clipboard.writeText(url);
-      toast("Link copied", "success");
-    } catch {
-      // Clipboard access is refused in some in-app browsers. Showing the URL
-      // is a worse experience but still a usable one, the alternative is a
-      // button that silently does nothing.
-      toast(url, "");
-    }
+    // Clipboard access is refused (or the API is missing outright) in some
+    // in-app browsers and installed-PWA contexts, copyToClipboard tries the
+    // modern API first and falls back to the legacy execCommand trick before
+    // giving up. Showing the URL as a toast is a worse experience but still
+    // a usable one, the alternative is a button that silently does nothing.
+    const ok = await copyToClipboard(url);
+    toast(ok ? "Link copied" : url, ok ? "success" : "");
   });
   actions.appendChild(copyBtn);
 
