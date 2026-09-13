@@ -22,25 +22,46 @@ export function el(html) {
 // Reads a File into an ArrayBuffer for Storage uploads. `File.arrayBuffer()`
 // is usually reliable, but some Chrome builds (including this app's
 // installed-PWA shell) intermittently throw a bare
-// "NotReadableError: The requested file could not be read..." right after a
-// file is picked, before any of our own error handling runs, as an unhandled
-// promise rejection: no toast, no upload, the UI just silently does nothing.
+// "NotReadableError: The requested file could not be read, typically due to
+// permission problems that have occurred after a reference to a file was
+// acquired." right after a file is picked, before any of our own error
+// handling runs, as an unhandled promise rejection: no toast, no upload, the
+// UI just silently does nothing (or, in the installed-PWA window, shows
+// Chrome's own raw error banner instead of anything this app renders). It's
+// most commonly seen picking a file straight out of a cloud-synced folder
+// (iCloud Drive Desktop/Documents, OneDrive, Google Drive, Dropbox), where
+// macOS can evict the file's local bytes right after the picker hands back a
+// reference to it, so the very first read loses the race against the OS
+// re-downloading them.
+//
 // A couple of retries clears most of these (it's a timing/race issue), and
 // FileReader is a fallback last resort, since it goes through a different
 // internal code path than File.arrayBuffer() and isn't affected by the same
-// race.
+// race, but it can hit the exact same transient error on its own first try,
+// especially for a large file still being re-synced, so it gets its own
+// short retry loop too rather than failing on one shot. Only once every
+// attempt across both code paths has failed does this throw, with a message
+// that actually tells the person what to do about it instead of surfacing
+// Chrome's internal wording verbatim.
 export async function readFileAsArrayBuffer(file, retries = 2) {
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
       return await file.arrayBuffer();
-    } catch (err) {
+    } catch {
+      await new Promise((r) => setTimeout(r, 150));
+    }
+  }
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      return await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(reader.error);
+        reader.readAsArrayBuffer(file);
+      });
+    } catch {
       if (attempt === retries) {
-        return await new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result);
-          reader.onerror = () => reject(reader.error || new Error("Could not read the selected file"));
-          reader.readAsArrayBuffer(file);
-        });
+        throw new Error("Couldn't read that file. This can happen right after picking one synced from iCloud/OneDrive/Google Drive, wait a moment for it to finish downloading and try selecting it again.");
       }
       await new Promise((r) => setTimeout(r, 150));
     }
