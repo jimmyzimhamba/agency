@@ -24,9 +24,19 @@
     <div id="portal-root" class="review-page-wrap"></div>
   </div>
 
-  <!-- Same reasoning as project.html: read-only for almost everything, one
-       small write (feedback), so a plain fetch() to two database functions
-       is the whole networking layer, no Supabase client library needed. -->
+  <!-- Same minimal modal shell as review.html, needed here too now that the
+       content calendar section (grid plan posts) opens a tap-to-expand
+       modal for approving a post or requesting changes, see the
+       openModal/closeModal pair in js/clientPortal.js. -->
+  <div id="modal-backdrop" class="modal-backdrop">
+    <div id="modal-box" class="modal-box"></div>
+  </div>
+
+  <!-- Same reasoning as project.html: read-only for almost everything, the
+       two writes this page allows (feedback, and now approving/requesting
+       changes on a grid plan post) are narrow enough to go straight to a
+       database function or the existing review-* Edge Function over plain
+       fetch(), no Supabase client library needed. -->
   <script type="module" src="js/clientPortal.js"></script>
 </body>
 </html>
