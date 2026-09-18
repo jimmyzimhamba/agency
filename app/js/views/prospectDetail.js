@@ -358,8 +358,9 @@ function render(p0) {
         patchProspect(p.id, { assigned_to: newAgentId });
         return;
       }
-      const { error } = await sb.from("prospects").update({ assigned_to: newAgentId }).eq("id", p.id);
+      const { data, error } = await sb.from("prospects").update({ assigned_to: newAgentId }).eq("id", p.id).select("id");
       if (error) return toast(error.message, "error");
+      if (!data || !data.length) return toast("Couldn't save: that prospect may no longer be editable", "error");
       if (newAgentId) notify("assigned", p.id, newAgentId);
     });
   }
@@ -380,8 +381,9 @@ function render(p0) {
   const releaseBtn = box.querySelector("#pd-release");
   if (releaseBtn) releaseBtn.addEventListener("click", async () => {
     if (p._pending) return patchProspect(p.id, { assigned_to: null });
-    const { error } = await sb.from("prospects").update({ assigned_to: null }).eq("id", p.id);
+    const { data, error } = await sb.from("prospects").update({ assigned_to: null }).eq("id", p.id).select("id");
     if (error) toast(error.message, "error");
+    else if (!data || !data.length) toast("Couldn't save: that prospect may no longer be editable", "error");
   });
 
   box.querySelector("#pd-note-send").addEventListener("click", async () => {

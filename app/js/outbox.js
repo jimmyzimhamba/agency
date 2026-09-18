@@ -512,8 +512,15 @@ async function send(job) {
     return null;
   }
   if (job.kind === "prospect-patch") {
-    const { error } = await sb.from("prospects").update(job.patch).eq("id", job.prospectId);
-    return error;
+    const { data, error } = await sb.from("prospects").update(job.patch).eq("id", job.prospectId).select("id");
+    if (error) return error;
+    // A matched-zero-rows update (e.g. RLS silently excluding this row) comes
+    // back with error: null, which would otherwise read as success and leave
+    // the optimistic in-memory patch never actually reverted. Treat it as a
+    // real (non-transient) failure so flushOutbox drops the job and pulls
+    // the true server state back down via refreshProspects().
+    if (!data || !data.length) return { message: "No longer able to edit this prospect", code: "no_rows_updated" };
+    return null;
   }
   if (job.kind === "note") {
     const { error } = await sb.from("prospect_notes").insert({

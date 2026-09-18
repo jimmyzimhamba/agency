@@ -188,9 +188,10 @@ export function buildProspectForm(existing, onSaved) {
           btn.disabled = false;
           toast("Saved", "success");
         } else {
-          const { error } = await sb.from("prospects").update(payload).eq("id", existing.id);
+          const { data, error } = await sb.from("prospects").update(payload).eq("id", existing.id).select("id");
           btn.disabled = false;
           if (error) return toast(error.message, "error");
+          if (!data || !data.length) return toast("Couldn't save: you may no longer have edit access to this prospect", "error");
           toast("Saved", "success");
         }
       } else {

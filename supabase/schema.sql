@@ -50,7 +50,14 @@ create table if not exists public.organizations (
   -- sign-up instead of accidentally creating a brand-new one.
   invite_code text not null unique default lower(substr(md5(gen_random_uuid()::text), 1, 8)),
   created_by uuid references auth.users (id) on delete set null,
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  -- Fixed, set-once identity used on every printed Agreement/Invoice/Welcome
+  -- Letter (see migration_document_templates.sql), edited once in Team >
+  -- Settings rather than retyped per document.
+  doc_signer_name text not null default 'Jimmy Zimhamba',
+  doc_signer_phone text not null default '',
+  doc_signer_email text not null default '',
+  doc_banking_details text not null default ''
 );
 
 alter table public.organizations enable row level security;
@@ -368,18 +375,43 @@ create policy "prospects: insert self-assign or owner" on public.prospects
   );
 
 -- A team member can only edit prospects they can already see (their own
--- assigned/added leads). They can release a prospect back to the owner's
--- pool (assigned_to = null) but can't hand it to another teammate directly, -- only the owner can reassign to someone else.
+-- assigned/added leads). The with check clause only re-confirms org_id --
+-- it can't compare old vs new assigned_to, so the "can release but can't
+-- hand to another teammate directly" rule lives in the trigger below
+-- instead, where old/new values are both available.
 create policy "prospects: update own or owner" on public.prospects
   for update
   using (org_id = public.my_org_id() and (public.is_owner() or assigned_to = auth.uid() or created_by = auth.uid()))
-  with check (org_id = public.my_org_id() and (public.is_owner() or assigned_to is null or assigned_to = auth.uid()));
+  with check (org_id = public.my_org_id());
 
 create policy "prospects: owner deletes" on public.prospects
   for delete using (org_id = public.my_org_id() and public.is_owner());
 
 create trigger trg_prospects_org before insert on public.prospects
   for each row execute function public.stamp_org_id();
+
+-- Only the owner can assign a prospect to a *different* teammate; anyone
+-- with edit rights (see the update policy above) can still release a
+-- prospect back to the pool (assigned_to = null) or self-assign.
+create or replace function public.guard_prospect_reassignment()
+returns trigger
+language plpgsql
+set search_path = public
+as $$
+begin
+  if not public.is_owner()
+     and new.assigned_to is distinct from old.assigned_to
+     and new.assigned_to is not null
+     and new.assigned_to <> auth.uid() then
+    raise exception 'Only the owner can assign a prospect to another teammate';
+  end if;
+  return new;
+end;
+$$;
+
+create trigger trg_prospects_guard_reassignment
+  before update on public.prospects
+  for each row execute function public.guard_prospect_reassignment();
 
 -- Keep updated_at fresh automatically.
 create or replace function public.touch_updated_at()
@@ -885,7 +917,16 @@ create table if not exists public.contracts (
   notes text not null default '',
   created_by uuid references public.profiles (id) on delete set null,
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+  updated_at timestamptz not null default now(),
+  -- Per-client fields for the printed Service Agreement (see
+  -- migration_document_templates.sql), everything else on the printed
+  -- document (party names, dates, price) already lives on this row or the
+  -- linked prospect.
+  client_signatory text not null default '',
+  scope_text text not null default '',
+  term_months integer not null default 3,
+  start_date date,
+  ref_number text not null default ''
 );
 
 create index if not exists idx_contracts_org on public.contracts (org_id);
@@ -953,7 +994,10 @@ create table if not exists public.invoices (
   created_by uuid references public.profiles (id) on delete set null,
   overdue_notified_at timestamptz, -- set once check-overdue-invoices pings someone about this one (Section 13b)
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+  updated_at timestamptz not null default now(),
+  -- Billing period shown on the printed invoice (e.g. "1 Sep - 1 Oct 2026"),
+  -- distinct from due_date, see migration_document_templates.sql.
+  service_period text not null default ''
 );
 
 create index if not exists idx_invoices_org on public.invoices (org_id);
